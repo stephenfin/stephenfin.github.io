@@ -169,11 +169,15 @@ html, html a {
     border-radius: 5px;
 }
 
-.box:hover {
+.box:hover,
+.box:focus,
+.box:active {
     cursor: pointer;
 }
 
-.box:hover > .social-link {
+.box:hover > .social-link,
+.box:focus > .social-link,
+.box:active > .social-link {
     -webkit-transform: translate(0,-10px);
     -o-transform: translate(0,-10px);
     -moz-transform: translate(0,-10px);
@@ -185,8 +189,58 @@ html, html a {
     transition-duration: 0.3s;
 }
 
-.box:hover > .title {
+.box:hover > .title,
+.box:focus > .title,
+.box:active > .title {
     background-color: #57585c;
+}
+
+/* iPhone-class smartphones */
+@media only screen and (max-device-width: 480px) {
+    .intro {
+        width: 80%;
+        margin: auto;
+        padding: 1em 10%;
+    }
+
+    .boxes {
+        width: 100%;
+        height: auto;
+    }
+
+    .social-link {
+        width: 140px;
+        height: 140px;
+    }
+
+    .box, .box:first-child, .box:last-child {
+        width: 200px;
+        margin: auto;
+    }
+}
+
+/* Smartphones */
+@media only screen and (min-device-width: 480px) and (orientation:portrait) {
+    .intro {
+        width: 80%;
+        margin: auto;
+        padding: 1em 10%;
+    }
+
+    .boxes {
+        width: 100%;
+        height: auto;
+    }
+
+    .social-link {
+        width: 240px;
+        height: 240px;
+    }
+
+    .box, .box:first-child, .box:last-child {
+        width: 300px;
+        margin: auto;
+    }
 }
 
 
