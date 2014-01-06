@@ -97,6 +97,12 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+/*
+ * Thanks to:
+ *  - http://matthewjamestaylor.com/blog/keeping-footers-at-the-bottom-of-the-page
+ *  -
+ */
+
 html, html a {
     color: ivory;
     background-color: rgb(230, 225, 216);
@@ -107,10 +113,37 @@ html, html a {
     text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
 }
 
-.content {
+html, body {
+    height: 100%;
+}
+
+.main-container {
+    position: relative;
+    min-height: 100%;
+    width: 100%;
+}
+
+.main-header{
+    width: 100%;
+    height: 40px;
+    background-color: #2f3034;
+}
+
+.main-content {
     display: block;
     margin: 0 auto;
+    padding-bottom: 60px;
 }
+
+.main-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;   /* Height of the footer */
+    background-color: #2f3034;
+}
+
+/* intro paragraph */
 
 .intro {
     width: 800px;
@@ -124,6 +157,15 @@ html, html a {
 .intro .name {
     color: #ff8400;
 }
+
+.divider {
+    border: none;
+    background-color: #2f3034;
+    color: #2f3034;
+    height: 5px;
+}
+
+/* links */
 
 .boxes {
     width: 1024px;
@@ -145,6 +187,8 @@ html, html a {
     margin-right: 0;
 }
 
+/** svg **/
+
 .social-link {
     display: block;
     margin: 20px auto;
@@ -156,7 +200,9 @@ html, html a {
     fill: #ff8400;
 }
 
-#email-logo path {
+/** title **/
+
+.social-link.inverse path {
     fill: transparent;
     stroke: #ff8400;
 }
@@ -195,54 +241,110 @@ html, html a {
     background-color: #57585c;
 }
 
-/* iPhone-class smartphones */
-@media only screen and (max-device-width: 480px) {
+/* Responsive Design */
+
+@media handheld and (max-width: 480px), screen and (max-device-width: 480px), screen and (max-width: 600px) {
+    /* Layouts smaller than 600px, iPhone and mobiles */
+    /* Single column */
+    .main-header, .main-footer {
+        height: 20px;
+    }
+
+    .main-content {
+        padding: 5px 10px;
+    }
+
+    .main-footer {
+
+    }
+
     .intro {
-        width: 80%;
-        margin: auto;
-        padding: 1em 10%;
+        width: 100%;
+        margin: 20px 0;
+        padding: 0;
+        font-size: 2em;
     }
 
     .boxes {
-        width: 100%;
-        height: auto;
-    }
-
-    .social-link {
-        width: 140px;
-        height: 140px;
-    }
-
-    .box, .box:first-child, .box:last-child {
-        width: 200px;
-        margin: auto;
-    }
-}
-
-/* Smartphones */
-@media only screen and (min-device-width: 480px) and (orientation:portrait) {
-    .intro {
-        width: 80%;
-        margin: auto;
-        padding: 1em 10%;
-    }
-
-    .boxes {
-        width: 100%;
-        height: auto;
-    }
-
-    .social-link {
-        width: 240px;
-        height: 240px;
-    }
-
-    .box, .box:first-child, .box:last-child {
         width: 300px;
-        margin: auto;
+        height: auto;
+        margin: 0 auto;
+        padding: 0;
+        text-align: center;
+    }
+
+    .box {
+        display: inline-block;
+        width: 250px;
+        margin: 20px auto;
+    }
+
+    .box:first-child {
+        margin-left: auto;
+    }
+
+    .box:last-child {
+        margin-right: auto;
+        margin-bottom: 40px;
     }
 }
 
+@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+/*@media screen and (min-width: 768px) and (max-width: 1024px) {*/
+    /* iPad (landscape & portrait) */
+    .main-content {
+        padding: 5px 20px;
+    }
+
+    .intro {
+        width: 100%;
+        margin: 20px 0;
+        padding: 0;
+    }
+
+    .box {
+        width: 250px;
+        height: 250px;
+        margin: 0px 25px;
+    }
+
+    .box:first-child {
+        margin-left: 25px;
+    }
+
+    .box:last-child {
+        margin-right: 25px;
+        margin-bottom: 25px;
+    }
+}
+
+@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+/*@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {*/
+    /* iPad (portrait) */
+    /* Two column */
+    .boxes {
+        width: 600px;
+        height: 805px;
+    }
+}
+
+/*@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {*/
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    /* iPad (landscape) */
+    /* Three column */
+    .boxes {
+        width: 900px;
+        height: 555px;
+    }
+}
+
+@media only screen and (min-width : 1224px) {
+    /* Desktops and laptops */
+}
+
+@media only screen and (min-width : 1824px) {
+    /* Large screens */
+}
 
 /* ==========================================================================
    Helper classes
