@@ -289,8 +289,8 @@ html, body {
     }
 }
 
-@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-/*@media screen and (min-width: 768px) and (max-width: 1024px) {*/
+/*@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {*/
+@media screen and (min-width: 768px) and (max-width: 1024px) {
     /* iPad (landscape & portrait) */
     .main-content {
         padding: 5px 20px;
@@ -318,8 +318,8 @@ html, body {
     }
 }
 
-@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
-/*@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {*/
+/*@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {*/
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     /* iPad (portrait) */
     /* Two column */
     .boxes {
