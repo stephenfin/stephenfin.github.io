@@ -97,245 +97,140 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
-/*
- * Thanks to:
- *  - http://matthewjamestaylor.com/blog/keeping-footers-at-the-bottom-of-the-page
- *  -
- */
-
-html, html a {
-    color: ivory;
-    background-color: rgb(230, 225, 216);
-    text-decoration: none;
-    font-family: 'Ubuntu', sans-serif;
-    /* font smoothing */
-    -webkit-font-smoothing: antialiased;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
-}
-
 html, body {
+    background-color: #222;
+    display: table;
     height: 100%;
-}
-
-.main-container {
-    position: relative;
-    min-height: 100%;
     width: 100%;
-}
-
-.main-header{
-    width: 100%;
-    height: 40px;
-    background-color: #2f3034;
+    font-family: "Source Code Pro", monospace;
 }
 
 .main-content {
-    display: block;
-    margin: 0 auto;
-    padding-bottom: 60px;
-}
-
-.main-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 60px;   /* Height of the footer */
-    background-color: #2f3034;
-}
-
-/* intro paragraph */
-
-.intro {
-    width: 800px;
+    display: table-cell;
+    width: 35em;
+    height: auto;
     margin: auto;
-    padding: 1em;
-    font-size: 3em;
-    color: black;
     text-align: center;
+    vertical-align: middle;
 }
 
-.intro .name {
-    color: #ff8400;
-}
-
-.divider {
-    border: none;
-    background-color: #2f3034;
-    color: #2f3034;
-    height: 5px;
-}
-
-/* links */
-
-.boxes {
-    width: 1024px;
-    height: 180px;
-    margin: auto;
-}
-
-.box {
+.blurb {
     display: inline-block;
-    width: 160px;
-    margin: 0 28px;
-}
-
-.box:first-child {
-    margin-left: 0;
-}
-
-.box:last-child {
-    margin-right: 0;
-}
-
-/** svg **/
-
-.social-link {
-    display: block;
-    margin: 20px auto;
-    height: 100px;
-    width: 100px;
-}
-
-.social-link path {
-    fill: #ff8400;
-}
-
-/** title **/
-
-.social-link.inverse path {
-    fill: transparent;
-    stroke: #ff8400;
-}
-
-.box .title {
+    color: white;
+    width: inherit;
+    padding: 0;
+    margin: 0;
+    font-size: 2em;
     text-align: center;
-    background-color: #2f3034;
-    padding: 5px;
-    font-size: 1.2em;
-    border-radius: 5px;
 }
 
-.box:hover,
-.box:focus,
-.box:active {
+.blurb p {
+    margin: 0.15em auto;
+    display: inline-block;
+}
+
+.profile-pic {
+    width: inherit;
+    padding: 2em 0;
+    margin: auto;
+}
+
+.profile-pic div {
+    width: 70%;
+    padding-bottom: 70%;
+    margin: auto;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    background: url(http://graph.facebook.com/100000154867992/picture?width=500&height=500) no-repeat;
+    background-size: cover;
+}
+
+.contact-links {
+    list-style-type: none;
+    display: inline-block;
+    margin: auto;
+    padding: 0;
+}
+
+.contact-links li {
+    display: inline-block;
+    min-width: 7em;
+    max-width: 7em;
+    padding: 0.25em 0.5em;
+    margin: 0.25em;
+    border: 1px #777 solid;
+    border-radius: 0.25em;
+    -webkit-border-radius: 0.25em;
+    -moz-border-radius: 0.25em;
+    text-align: center;
+}
+
+.contact-links a {
+    color: #777;
+    text-transform: lowercase;
+    text-decoration: none;
+    font-size: 1.3em;
+}
+
+.contact-links li:hover {
     cursor: pointer;
 }
 
-.box:hover > .social-link,
-.box:focus > .social-link,
-.box:active > .social-link {
-    -webkit-transform: translate(0,-10px);
-    -o-transform: translate(0,-10px);
-    -moz-transform: translate(0,-10px);
-    transform: translate(0,-10px);
-
-    -webkit-transition-duration: 0.3s;
-    -o-transition-duration: 0.3s;
-    -mox-transition-duration: 0.3s;
-    transition-duration: 0.3s;
+.contact-links li:hover a {
+    color: white;
 }
 
-.box:hover > .title,
-.box:focus > .title,
-.box:active > .title {
-    background-color: #57585c;
+/* color scheme from:
+ *     http://paletton.com/#uid=3000I0kllllaFw0g0qFqFg0w0aF */
+
+.contact-links li:nth-child(1):hover {
+    border: 1px #294F6D solid;
+}
+
+.contact-links li:nth-child(2):hover {
+    border: 1px #AA3939 solid;
+}
+
+.contact-links li:nth-child(3):hover {
+    border: 1px #91A437 solid;
+}
+
+/* Helpers */
+.grayscale {
+    filter: grayscale(100%);
+    -webkit-filter: grayscale(100%); /* For Webkit browsers */
+    filter: gray; /* For IE 6 - 9 */
+    -webkit-transition: all .6s ease; /* Fade to color for Chrome and Safari */
+    filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
 }
 
 /* Responsive Design */
 
 @media handheld and (max-width: 480px), screen and (max-device-width: 480px), screen and (max-width: 600px) {
-    /* Layouts smaller than 600px, iPhone and mobiles */
-    /* Single column */
-    .main-header, .main-footer {
-        height: 20px;
+    html, body {
+        display: block;
     }
 
     .main-content {
-        padding: 5px 10px;
-    }
-
-    .main-footer {
-
-    }
-
-    .intro {
+        display: block;
         width: 100%;
-        margin: 20px 0;
-        padding: 0;
-        font-size: 2em;
     }
 
-    .boxes {
-        width: 300px;
-        height: auto;
-        margin: 0 auto;
-        padding: 0;
-        text-align: center;
-    }
-
-    .box {
-        display: inline-block;
-        width: 250px;
-        margin: 20px auto;
-    }
-
-    .box:first-child {
-        margin-left: auto;
-    }
-
-    .box:last-child {
-        margin-right: auto;
-        margin-bottom: 40px;
-    }
-}
-
-/*@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {*/
-@media screen and (min-width: 768px) and (max-width: 1024px) {
-    /* iPad (landscape & portrait) */
-    .main-content {
-        padding: 5px 20px;
-    }
-
-    .intro {
+    .profile-pic {
         width: 100%;
-        margin: 20px 0;
-        padding: 0;
-    }
-
-    .box {
-        width: 250px;
-        height: 250px;
-        margin: 0px 25px;
-    }
-
-    .box:first-child {
-        margin-left: 25px;
-    }
-
-    .box:last-child {
-        margin-right: 25px;
-        margin-bottom: 25px;
+        height: 100%;
     }
 }
 
 /*@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {*/
 @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    /* iPad (portrait) */
-    /* Two column */
-    .boxes {
-        width: 600px;
-        height: 805px;
-    }
+
 }
 
 /*@media screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {*/
 @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
-    /* iPad (landscape) */
-    /* Three column */
-    .boxes {
-        width: 900px;
-        height: 555px;
-    }
+
 }
 
 @media only screen and (min-width : 1224px) {
