@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Configuring ZNC with HexChat &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2016 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Configuring ZNC with HexChat</h1>
+    <span class="post-date">Jun 26, 2016 &middot; 2 minute read
+    </span>
+    
+
+<h1 id="configuring-znc-with-hexchat">Configuring ZNC with HexChat</h1>
+
+<p>I recently set up ZNC instance to capture whatever I may miss when not
+connected to any of the many <a href="https://wiki.openstack.org/wiki/IRC">OpenStack IRC</a> channels. One
+tricky part of this configuration was my use of multiple authentication layers.
+I have ZNC configured to use a server password, but I also have my nick
+<a href="https://freenode.net/kb/answer/registration">registered on freenode</a> and I would like to use
+<a href="https://freenode.net/kb/answer/sasl">SASL</a> to authenticate this. It turns out that this is
+relatively easy to do.</p>
+
+<h2 id="configure-server-password-pass-authentication">Configure server password (/PASS) authentication</h2>
+
+<p>You should first configure the connection to your ZNC server. Create a new
+server profile (<em>HexChat</em> &gt; <em>Network List</em>, or <code>&lt;Ctrl&gt;</code> + <code>S</code>) and
+configure it like so:</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/znc-sasl-server-pass-1.png"  />
+    
+    
+    <figcaption>
+        <h4>Configuring server password authentication</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+
+<p>Most of this configuration doesn&rsquo;t differ from the many guides available on
+configuring HexChat with ZNC. I&rsquo;m using SSL, so I enable that (and accept my
+&ldquo;invalid&rdquo;, self-signed key), and I select this as the server to automatically
+connect to when I open HexChat. The interesting bit is the <code>Server Password
+&lt;/PASS password</code> section. In here, I have my username and server password
+stored in format <code>[username]/[password]</code>, e.g. <code>admin/password</code>.</p>
+
+<p>Once done, I also need to configure a channels you want to connect to on the
+<em>Autojoin channels</em> tab:</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/znc-sasl-server-pass-2.png"  />
+    
+    
+    <figcaption>
+        <h4>Configuring autojoin channels</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+
+<p>I&rsquo;m mostly concerned with <code>#openstack-xxx</code> channels, but your configuration
+will differ.</p>
+
+<h2 id="configure-sasl-authentication">Configure SASL authentication</h2>
+
+<p>Now we should be able to connect to the ZNC server without gettings an <code>Invalid
+password</code> errors. However, looking at the logs for the <em>freenode</em> server
+connection, we can see that we&rsquo;re being asked to authenticate our registered
+nick:</p>
+
+<p><strong>TODO</strong></p>
+
+<p>Time for SASL. Many of these steps are documented on the <a href="http://wiki.znc.in/Sasl">ZNC wiki</a>,
+but they&rsquo;re documented here for posterity.</p>
+
+<p>First, <a href="http://wiki.znc.in/Modules#Managing_Modules">load the module</a> on ZNC:</p>
+
+<pre><code>/msg *status loadmodule sasl
+</code></pre>
+
+<p>Then, set the mechanism. We use <code>PLAIN</code> (plaintext), which is a-OK as we&rsquo;re
+using SSL:</p>
+
+<pre><code>/msg *sasl mechanism PLAIN
+</code></pre>
+
+<p>Finally, supply your username and password:</p>
+
+<pre><code>/msg *sasl set &lt;username&gt; &lt;password&gt;
+</code></pre>
+
+<p>That should be the end the need to run pesky <code>nickserv</code> commands.</p>
+
+<h2 id="wrap-up">Wrap up</h2>
+
+<p>We now have authentication against the server, using a server password, and
+authentication against the nickserv, using SASL. Pretty much hassle free.</p>
+
+  </div>
+  
+</div>
+
+
+
+
+
+</body>
+</html>
+

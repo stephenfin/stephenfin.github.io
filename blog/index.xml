@@ -7,8 +7,112 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 25 Jun 2016 18:50:22 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jun 2016 14:00:39 +0100</lastBuildDate>
     <atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Configuring ZNC with HexChat</title>
+      <link>https://that.guru/blog/znc-sasl-server-pass/</link>
+      <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
+      <description>
+
+&lt;h1 id=&#34;configuring-znc-with-hexchat&#34;&gt;Configuring ZNC with HexChat&lt;/h1&gt;
+
+&lt;p&gt;I recently set up ZNC instance to capture whatever I may miss when not
+connected to any of the many &lt;a href=&#34;https://wiki.openstack.org/wiki/IRC&#34;&gt;OpenStack IRC&lt;/a&gt; channels. One
+tricky part of this configuration was my use of multiple authentication layers.
+I have ZNC configured to use a server password, but I also have my nick
+&lt;a href=&#34;https://freenode.net/kb/answer/registration&#34;&gt;registered on freenode&lt;/a&gt; and I would like to use
+&lt;a href=&#34;https://freenode.net/kb/answer/sasl&#34;&gt;SASL&lt;/a&gt; to authenticate this. It turns out that this is
+relatively easy to do.&lt;/p&gt;
+
+&lt;h2 id=&#34;configure-server-password-pass-authentication&#34;&gt;Configure server password (/PASS) authentication&lt;/h2&gt;
+
+&lt;p&gt;You should first configure the connection to your ZNC server. Create a new
+server profile (&lt;em&gt;HexChat&lt;/em&gt; &amp;gt; &lt;em&gt;Network List&lt;/em&gt;, or &lt;code&gt;&amp;lt;Ctrl&amp;gt;&lt;/code&gt; + &lt;code&gt;S&lt;/code&gt;) and
+configure it like so:&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/znc-sasl-server-pass-1.png&#34;  /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Configuring server password authentication&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+
+&lt;p&gt;Most of this configuration doesn&amp;rsquo;t differ from the many guides available on
+configuring HexChat with ZNC. I&amp;rsquo;m using SSL, so I enable that (and accept my
+&amp;ldquo;invalid&amp;rdquo;, self-signed key), and I select this as the server to automatically
+connect to when I open HexChat. The interesting bit is the &lt;code&gt;Server Password
+&amp;lt;/PASS password&lt;/code&gt; section. In here, I have my username and server password
+stored in format &lt;code&gt;[username]/[password]&lt;/code&gt;, e.g. &lt;code&gt;admin/password&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Once done, I also need to configure a channels you want to connect to on the
+&lt;em&gt;Autojoin channels&lt;/em&gt; tab:&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/znc-sasl-server-pass-2.png&#34;  /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Configuring autojoin channels&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+
+&lt;p&gt;I&amp;rsquo;m mostly concerned with &lt;code&gt;#openstack-xxx&lt;/code&gt; channels, but your configuration
+will differ.&lt;/p&gt;
+
+&lt;h2 id=&#34;configure-sasl-authentication&#34;&gt;Configure SASL authentication&lt;/h2&gt;
+
+&lt;p&gt;Now we should be able to connect to the ZNC server without gettings an &lt;code&gt;Invalid
+password&lt;/code&gt; errors. However, looking at the logs for the &lt;em&gt;freenode&lt;/em&gt; server
+connection, we can see that we&amp;rsquo;re being asked to authenticate our registered
+nick:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;TODO&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Time for SASL. Many of these steps are documented on the &lt;a href=&#34;http://wiki.znc.in/Sasl&#34;&gt;ZNC wiki&lt;/a&gt;,
+but they&amp;rsquo;re documented here for posterity.&lt;/p&gt;
+
+&lt;p&gt;First, &lt;a href=&#34;http://wiki.znc.in/Modules#Managing_Modules&#34;&gt;load the module&lt;/a&gt; on ZNC:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/msg *status loadmodule sasl
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then, set the mechanism. We use &lt;code&gt;PLAIN&lt;/code&gt; (plaintext), which is a-OK as we&amp;rsquo;re
+using SSL:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/msg *sasl mechanism PLAIN
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finally, supply your username and password:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/msg *sasl set &amp;lt;username&amp;gt; &amp;lt;password&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That should be the end the need to run pesky &lt;code&gt;nickserv&lt;/code&gt; commands.&lt;/p&gt;
+
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap up&lt;/h2&gt;
+
+&lt;p&gt;We now have authentication against the server, using a server password, and
+authentication against the nickserv, using SASL. Pretty much hassle free.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Hello, World!</title>
