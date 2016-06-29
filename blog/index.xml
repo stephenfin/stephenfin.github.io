@@ -7,8 +7,185 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 26 Jun 2016 14:00:39 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 29 Jun 2016 17:52:20 +0100</lastBuildDate>
     <atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>CPU pinning with image metadata</title>
+      <link>https://that.guru/blog/cpu-pinning-with-image-metadata/</link>
+      <pubDate>Wed, 29 Jun 2016 17:52:20 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/cpu-pinning-with-image-metadata/</guid>
+      <description>
+
+&lt;p&gt;OpenStack Nova allows the specification of &lt;a href=&#34;http://docs.openstack.org/image-guide/image-metadata.html&#34;&gt;image metadata&lt;/a&gt; to
+provide per-instance metadata. This is similar to the &lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; &lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html#extra-specs&#34;&gt;extra
+specs&lt;/a&gt;. The CPU pinning feature makes use of this to allow for
+configuration of CPU policies and CPU thread policies via such metdata.&lt;/p&gt;
+
+&lt;p&gt;Someone suggested to me that CPU policies many not be being applied correctly
+when stored as image metadata rather than flavor properties. I decided to
+investigate this claim.&lt;/p&gt;
+
+&lt;p&gt;Commit &lt;a href=&#34;https://github.com/openstack/nova/tree/8bafc9&#34;&gt;&lt;code&gt;8bafc9&lt;/code&gt;&lt;/a&gt; of Nova was used for this testing. Much of
+this feature has been &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;documented upstreamed&lt;/a&gt; since conducting
+this testing.&lt;/p&gt;
+
+&lt;h1 id=&#34;steps&#34;&gt;Steps&lt;/h1&gt;
+
+&lt;h2 id=&#34;create-a-custom-image-with-metadata&#34;&gt;Create a custom image with metadata&lt;/h2&gt;
+
+&lt;p&gt;The first step is to create a new image and save metadata against this image.
+To do this, we&amp;rsquo;ll duplicate an existing image and modify this duplicate. Begin
+by duplicating the image:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack image list
++--------------------------------------+---------------------------------+--------+
+| ID                                   | Name                            | Status |
++--------------------------------------+---------------------------------+--------+
+| a3450a21-f012-4807-a514-0838750d430e | cirros-0.3.4-x86_64-uec         | active |
+| 742bc914-e60c-4eab-9e5b-0a1c19ec1a84 | cirros-0.3.4-x86_64-uec-ramdisk | active |
+| 3e507ab7-080d-4eea-845a-69950ec139b8 | cirros-0.3.4-x86_64-uec-kernel  | active |
++--------------------------------------+---------------------------------+--------+
+
+$ openstack image save --file cirros.img a3450a21-f012-4807-a514-0838750d430e
+
+$ openstack image create --file cirros.img cirros-0.3.4-x86_64-pinned
++------------------+------------------------------------------------------+
+| Field            | Value                                                |
++------------------+------------------------------------------------------+
+| checksum         | eb9139e4942121f22bbc2afc0400b2a4                     |
+| container_format | bare                                                 |
+| created_at       | 2016-02-16T09:40:12Z                                 |
+| disk_format      | raw                                                  |
+| file             | /v2/images/e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6/file |
+| id               | e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6                 |
+| min_disk         | 0                                                    |
+| min_ram          | 0                                                    |
+| name             | cirros-0.3.4-x86_64-pinned                           |
+| owner            | c1e8c7671b0f4016a9250a8787de6930                     |
+| protected        | False                                                |
+| schema           | /v2/schemas/image                                    |
+| size             | 25165824                                             |
+| status           | active                                               |
+| tags             |                                                      |
+| updated_at       | 2016-02-16T09:40:12Z                                 |
+| virtual_size     | None                                                 |
+| visibility       | private                                              |
++------------------+------------------------------------------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next up, add the metadata to the image. We&amp;rsquo;ll only worry about CPU pinning, by
+way of CPU policies, ignoring CPU thread pinning for now.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack image set cirros-0.3.4-x86_64-pinned --property hw_cpu_policy=dedicated
+
+$ openstack image list
++--------------------------------------+---------------------------------+--------+
+| ID                                   | Name                            | Status |
++--------------------------------------+---------------------------------+--------+
+| e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6 | cirros-0.3.4-x86_64-pinned      | active |
+| a3450a21-f012-4807-a514-0838750d430e | cirros-0.3.4-x86_64-uec         | active |
+| 742bc914-e60c-4eab-9e5b-0a1c19ec1a84 | cirros-0.3.4-x86_64-uec-ramdisk | active |
+| 3e507ab7-080d-4eea-845a-69950ec139b8 | cirros-0.3.4-x86_64-uec-kernel  | active |
++--------------------------------------+---------------------------------+--------+
+
+$ openstack image show cirros-0.3.4-x86_64-pinned
++------------------+------------------------------------------------------+
+| Field            | Value                                                |
++------------------+------------------------------------------------------+
+| checksum         | eb9139e4942121f22bbc2afc0400b2a4                     |
+| container_format | bare                                                 |
+| created_at       | 2016-02-16T09:40:12Z                                 |
+| disk_format      | raw                                                  |
+| file             | /v2/images/e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6/file |
+| id               | e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6                 |
+| min_disk         | 0                                                    |
+| min_ram          | 0                                                    |
+| name             | cirros-0.3.4-x86_64-pinned                           |
+| owner            | c1e8c7671b0f4016a9250a8787de6930                     |
+| properties       | hw_cpu_policy=&#39;dedicated&#39;                            |
+| protected        | False                                                |
+| schema           | /v2/schemas/image                                    |
+| size             | 25165824                                             |
+| status           | active                                               |
+| tags             |                                                      |
+| updated_at       | 2016-02-16T09:41:42Z                                 |
+| virtual_size     | None                                                 |
+| visibility       | private                                              |
++------------------+------------------------------------------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;create-a-new-instance&#34;&gt;Create a new instance&lt;/h2&gt;
+
+&lt;p&gt;Now create the flavor. There&amp;rsquo;s no need to specify any metadata on the flavors:
+it&amp;rsquo;s already specified in the image:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack flavor list
++----+-----------+-------+------+-----------+-------+-----------+
+| ID | Name      |   RAM | Disk | Ephemeral | VCPUs | Is Public |
++----+-----------+-------+------+-----------+-------+-----------+
+| 1  | m1.tiny   |   512 |    1 |         0 |     1 | True      |
+| 2  | m1.small  |  2048 |   20 |         0 |     1 | True      |
+| 3  | m1.medium |  4096 |   40 |         0 |     2 | True      |
+| 4  | m1.large  |  8192 |   80 |         0 |     4 | True      |
+| 42 | m1.nano   |    64 |    0 |         0 |     1 | True      |
+| 5  | m1.xlarge | 16384 |  160 |         0 |     8 | True      |
+| 84 | m1.micro  |   128 |    0 |         0 |     1 | True      |
++----+-----------+-------+------+-----------+-------+-----------+
+
+$ openstack server create --flavor=m1.small --image=cirros-0.3.4-x86_64-pinned --wait test1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;validate-that-the-instance-has-been-created&#34;&gt;Validate that the instance has been created&lt;/h2&gt;
+
+&lt;p&gt;Finally, ensure that things behave as expected. Instances should define an NUMA
+topology and CPU pinning in the libvirt XML file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 22c1afeb-06d8-4f6d-a8d8-7ea40ea9ff47 | test1 | ACTIVE | private=fd4d:adb9:5ebe:0:f816:3eff:fecd:a674, 10.0.0.3 |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 4     instance-00000002              running
+
+$ sudo virsh dumpxml 4
+&amp;lt;domain type=&#39;kvm&#39; id=&#39;4&#39;&amp;gt;
+  &amp;lt;name&amp;gt;instance-00000002&amp;lt;/name&amp;gt;
+  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;1&amp;lt;/vcpu&amp;gt;
+  ...
+  &amp;lt;cputune&amp;gt;
+    &amp;lt;shares&amp;gt;1024&amp;lt;/shares&amp;gt;
+    &amp;lt;vcpupin vcpu=&#39;0&#39; cpuset=&#39;1&#39;/&amp;gt;
+    &amp;lt;emulatorpin cpuset=&#39;1&#39;/&amp;gt;
+  &amp;lt;/cputune&amp;gt;
+  &amp;lt;numatune&amp;gt;
+    &amp;lt;memory mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
+    &amp;lt;memnode cellid=&#39;0&#39; mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
+  &amp;lt;/numatune&amp;gt;
+  ...
+&amp;lt;/domain&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;result&#34;&gt;Result&lt;/h1&gt;
+
+&lt;p&gt;The image metadata is being loaded as expected. No issues here.&lt;/p&gt;
+
+&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;OpenStack Cloud Administrator Guide: Enabling advanced CPU topologies in
+guests&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/image-guide/image-metadata.html&#34;&gt;OpenStack Virtual Machine Image Guide: Image metadata&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html&#34;&gt;OpenStack Cloud Administrator Guide: Compute flavors&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Configuring ZNC with HexChat</title>
