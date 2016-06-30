@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Resizing pinned instances to unpinned &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2016 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Resizing pinned instances to unpinned</h1>
+    <span class="post-date">Jun 30, 2016 &middot; 4 minute read
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/openstack">openstack</a>
+    </span>
+    
+
+<p>OpenStack Nova provides support for <a href="http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html">resize operations</a>, or the
+changing of the <a href="http://docs.openstack.org/admin-guide-cloud/compute-flavors.html">flavor</a> associated with instance. This allows you to
+add or remove resources from the instance, in addition to modifying other
+configuration associated with the flavor.</p>
+
+<p>There were reports that resizing an instance from a <a href="http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html">pinned
+flavor</a> to a unpinned one did not result in the pinning being
+removed. The opposite was also reportedly true. I investigated this to see if
+this was the case.</p>
+
+<h1 id="steps">Steps</h1>
+
+<h2 id="create-the-required-flavors">Create the required flavors</h2>
+
+<p>The first step we&rsquo;ll do is create two new flavors - <code>test.unpinned</code> and
+<code>test.pinned</code>. Begin by creating these:</p>
+
+<pre><code>$ openstack flavor create test.unpinned \
+  --id 100 --ram 2048 --disk 0 --vcpus 2
+$ openstack flavor create test.pinned \
+  --id 101 --ram 2048 --disk 0 --vcpus 2
+$ openstack flavor set test.pinned --property &quot;hw:cpu_policy=dedicated&quot;
+
+$ openstack flavor list
++-----+---------------+-------+------+-----------+-------+-----------+
+| ID  | Name          |   RAM | Disk | Ephemeral | VCPUs | Is Public |
++-----+---------------+-------+------+-----------+-------+-----------+
+| 1   | m1.tiny       |   512 |    1 |         0 |     1 | True      |
+| 101 | test.unpinned |  2048 |    0 |         0 |     2 | True      |
+| 101 | test.pinned   |  2048 |    0 |         0 |     2 | True      |
+| 2   | m1.small      |  2048 |   20 |         0 |     1 | True      |
+| 3   | m1.medium     |  4096 |   40 |         0 |     2 | True      |
+| 4   | m1.large      |  8192 |   80 |         0 |     4 | True      |
+| 42  | m1.nano       |    64 |    0 |         0 |     1 | True      |
+| 5   | m1.xlarge     | 16384 |  160 |         0 |     8 | True      |
+| 84  | m1.micro      |   128 |    0 |         0 |     1 | True      |
++-----+---------------+-------+------+-----------+-------+-----------+
+</code></pre>
+
+<h2 id="create-a-new-instance">Create a new instance</h2>
+
+<p>Now create the new instance, based on the <code>test.pinned</code> flavor:</p>
+
+<pre><code>$ openstack image list
++--------------------------------------+---------------------------------+--------+
+| ID                                   | Name                            | Status |
++--------------------------------------+---------------------------------+--------+
+| c44bba29-653e-4ddf-963d-442af4c33a13 | cirros-0.3.4-x86_64-uec         | active |
+| 8b0284ee-ae6c-4e80-b5ee-26895d574717 | cirros-0.3.4-x86_64-uec-ramdisk | active |
+| 855c2971-aedc-4d5f-a366-73bb14707965 | cirros-0.3.4-x86_64-uec-kernel  | active |
++--------------------------------------+---------------------------------+--------+
+
+$ openstack server create --flavor=test.pinned \
+  --image=cirros-0.3.4-x86_64-uec --wait test1
+</code></pre>
+
+<h2 id="validate-that-the-instance-is-pinned">Validate that the instance is pinned</h2>
+
+<p>Ensure the instance is actually pinned in the first place before we resize
+anything:</p>
+
+<pre><code>$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 1     instance-00000001              running
+
+$ sudo virsh dumpxml instance-00000001
+&lt;domain type='kvm' id='1'&gt;
+  &lt;name&gt;instance-00000001&lt;/name&gt;
+  ...
+  &lt;vcpu placement='static'&gt;2&lt;/vcpu&gt;
+  &lt;cputune&gt;
+    &lt;shares&gt;2048&lt;/shares&gt;
+    &lt;vcpupin vcpu='0' cpuset='1'/&gt;
+    &lt;vcpupin vcpu='1' cpuset='21'/&gt;
+    &lt;emulatorpin cpuset='1,21'/&gt;
+  &lt;/cputune&gt;
+  &lt;numatune&gt;
+    &lt;memory mode='strict' nodeset='0'/&gt;
+    &lt;memnode cellid='0' mode='strict' nodeset='0'/&gt;
+  &lt;/numatune&gt;
+  ...
+  &lt;cpu&gt;
+    &lt;topology sockets='1' cores='1' threads='2'/&gt;
+    &lt;numa&gt;
+      &lt;cell id='0' cpus='0-1' memory='2097152' unit='KiB'/&gt;
+    &lt;/numa&gt;
+  &lt;/cpu&gt;
+  ...
+&lt;/domain&gt;
+</code></pre>
+
+<h2 id="resize-the-instance-to-the-unpinned-flavor">Resize the instance to the unpinned flavor</h2>
+
+<p>Seeing as pinning was in effect, we can now resize to the <code>test.unpinned</code>
+flavor:</p>
+
+<pre><code>$ openstack server resize test1 --flavor test.unpinned --wait
+complete
+
+$ openstack server list
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| ID                                   | Name  | Status        | Networks                                               |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | VERIFY_RESIZE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+
+$ openstack server resize test1 --confirm
+</code></pre>
+
+<h2 id="validate-that-the-instance-is-no-longer-pinned">Validate that the instance is no longer pinned</h2>
+
+<p>Once resized, check to see if the instance has been unpinned:</p>
+
+<pre><code>$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 2     instance-00000001              running
+
+$ sudo virsh dumpxml instance-00000001
+&lt;domain type='kvm' id='2'&gt;
+  &lt;name&gt;instance-00000002&lt;/name&gt;
+  ...
+  &lt;vcpu placement='static'&gt;2&lt;/vcpu&gt;
+  &lt;cputune&gt;
+    &lt;shares&gt;2048&lt;/shares&gt;
+  &lt;/cputune&gt;
+  ...
+&lt;/domain&gt;
+</code></pre>
+
+<h2 id="resize-the-instance-back-to-the-pinned-flavor">Resize the instance back to the pinned flavor</h2>
+
+<p>Let&rsquo;s go back the other way, and resize back to the <code>test.pinned</code> flavor:</p>
+
+<pre><code>$ openstack server resize test1 --flavor test.pinned --wait
+complete
+
+$ openstack server list
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| ID                                   | Name  | Status        | Networks                                               |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | VERIFY_RESIZE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+
+$ openstack server resize test1 --confirm
+</code></pre>
+
+<h2 id="validate-that-the-instance-is-pinned-once-more">Validate that the instance is pinned once more</h2>
+
+<p>Finally, ensure the instance is once again pinned:</p>
+
+<pre><code>$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 3     instance-00000001              running
+
+$ sudo virsh dumpxml instance-00000001
+&lt;domain type='kvm' id='3'&gt;
+  &lt;name&gt;instance-00000001&lt;/name&gt;
+  ...
+  &lt;vcpu placement='static'&gt;2&lt;/vcpu&gt;
+  &lt;cputune&gt;
+    &lt;shares&gt;2048&lt;/shares&gt;
+    &lt;vcpupin vcpu='0' cpuset='1'/&gt;
+    &lt;vcpupin vcpu='1' cpuset='21'/&gt;
+    &lt;emulatorpin cpuset='1,21'/&gt;
+  &lt;/cputune&gt;
+  &lt;numatune&gt;
+    &lt;memory mode='strict' nodeset='0'/&gt;
+    &lt;memnode cellid='0' mode='strict' nodeset='0'/&gt;
+  &lt;/numatune&gt;
+  ...
+  &lt;cpu&gt;
+    &lt;topology sockets='1' cores='1' threads='2'/&gt;
+    &lt;numa&gt;
+      &lt;cell id='0' cpus='0-1' memory='2097152' unit='KiB'/&gt;
+    &lt;/numa&gt;
+  &lt;/cpu&gt;
+  ...
+&lt;/domain&gt;
+</code></pre>
+
+<h1 id="result">Result</h1>
+
+<p>It is possible to resize from pinned to unpinned, and from unpinned to pinned.
+No issues here.</p>
+
+  </div>
+  
+</div>
+
+
+
+
+
+</body>
+</html>
+

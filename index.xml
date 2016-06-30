@@ -7,8 +7,227 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 29 Jun 2016 17:52:20 +0100</lastBuildDate>
+    <lastBuildDate>Thu, 30 Jun 2016 10:55:58 +0100</lastBuildDate>
     <atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Resizing pinned instances to unpinned</title>
+      <link>https://that.guru/blog/resizing-pinned-to-unpinned/</link>
+      <pubDate>Thu, 30 Jun 2016 10:55:58 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/resizing-pinned-to-unpinned/</guid>
+      <description>
+
+&lt;p&gt;OpenStack Nova provides support for &lt;a href=&#34;http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html&#34;&gt;resize operations&lt;/a&gt;, or the
+changing of the &lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; associated with instance. This allows you to
+add or remove resources from the instance, in addition to modifying other
+configuration associated with the flavor.&lt;/p&gt;
+
+&lt;p&gt;There were reports that resizing an instance from a &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;pinned
+flavor&lt;/a&gt; to a unpinned one did not result in the pinning being
+removed. The opposite was also reportedly true. I investigated this to see if
+this was the case.&lt;/p&gt;
+
+&lt;h1 id=&#34;steps&#34;&gt;Steps&lt;/h1&gt;
+
+&lt;h2 id=&#34;create-the-required-flavors&#34;&gt;Create the required flavors&lt;/h2&gt;
+
+&lt;p&gt;The first step we&amp;rsquo;ll do is create two new flavors - &lt;code&gt;test.unpinned&lt;/code&gt; and
+&lt;code&gt;test.pinned&lt;/code&gt;. Begin by creating these:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack flavor create test.unpinned \
+  --id 100 --ram 2048 --disk 0 --vcpus 2
+$ openstack flavor create test.pinned \
+  --id 101 --ram 2048 --disk 0 --vcpus 2
+$ openstack flavor set test.pinned --property &amp;quot;hw:cpu_policy=dedicated&amp;quot;
+
+$ openstack flavor list
++-----+---------------+-------+------+-----------+-------+-----------+
+| ID  | Name          |   RAM | Disk | Ephemeral | VCPUs | Is Public |
++-----+---------------+-------+------+-----------+-------+-----------+
+| 1   | m1.tiny       |   512 |    1 |         0 |     1 | True      |
+| 101 | test.unpinned |  2048 |    0 |         0 |     2 | True      |
+| 101 | test.pinned   |  2048 |    0 |         0 |     2 | True      |
+| 2   | m1.small      |  2048 |   20 |         0 |     1 | True      |
+| 3   | m1.medium     |  4096 |   40 |         0 |     2 | True      |
+| 4   | m1.large      |  8192 |   80 |         0 |     4 | True      |
+| 42  | m1.nano       |    64 |    0 |         0 |     1 | True      |
+| 5   | m1.xlarge     | 16384 |  160 |         0 |     8 | True      |
+| 84  | m1.micro      |   128 |    0 |         0 |     1 | True      |
++-----+---------------+-------+------+-----------+-------+-----------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;create-a-new-instance&#34;&gt;Create a new instance&lt;/h2&gt;
+
+&lt;p&gt;Now create the new instance, based on the &lt;code&gt;test.pinned&lt;/code&gt; flavor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack image list
++--------------------------------------+---------------------------------+--------+
+| ID                                   | Name                            | Status |
++--------------------------------------+---------------------------------+--------+
+| c44bba29-653e-4ddf-963d-442af4c33a13 | cirros-0.3.4-x86_64-uec         | active |
+| 8b0284ee-ae6c-4e80-b5ee-26895d574717 | cirros-0.3.4-x86_64-uec-ramdisk | active |
+| 855c2971-aedc-4d5f-a366-73bb14707965 | cirros-0.3.4-x86_64-uec-kernel  | active |
++--------------------------------------+---------------------------------+--------+
+
+$ openstack server create --flavor=test.pinned \
+  --image=cirros-0.3.4-x86_64-uec --wait test1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;validate-that-the-instance-is-pinned&#34;&gt;Validate that the instance is pinned&lt;/h2&gt;
+
+&lt;p&gt;Ensure the instance is actually pinned in the first place before we resize
+anything:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 1     instance-00000001              running
+
+$ sudo virsh dumpxml instance-00000001
+&amp;lt;domain type=&#39;kvm&#39; id=&#39;1&#39;&amp;gt;
+  &amp;lt;name&amp;gt;instance-00000001&amp;lt;/name&amp;gt;
+  ...
+  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;2&amp;lt;/vcpu&amp;gt;
+  &amp;lt;cputune&amp;gt;
+    &amp;lt;shares&amp;gt;2048&amp;lt;/shares&amp;gt;
+    &amp;lt;vcpupin vcpu=&#39;0&#39; cpuset=&#39;1&#39;/&amp;gt;
+    &amp;lt;vcpupin vcpu=&#39;1&#39; cpuset=&#39;21&#39;/&amp;gt;
+    &amp;lt;emulatorpin cpuset=&#39;1,21&#39;/&amp;gt;
+  &amp;lt;/cputune&amp;gt;
+  &amp;lt;numatune&amp;gt;
+    &amp;lt;memory mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
+    &amp;lt;memnode cellid=&#39;0&#39; mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
+  &amp;lt;/numatune&amp;gt;
+  ...
+  &amp;lt;cpu&amp;gt;
+    &amp;lt;topology sockets=&#39;1&#39; cores=&#39;1&#39; threads=&#39;2&#39;/&amp;gt;
+    &amp;lt;numa&amp;gt;
+      &amp;lt;cell id=&#39;0&#39; cpus=&#39;0-1&#39; memory=&#39;2097152&#39; unit=&#39;KiB&#39;/&amp;gt;
+    &amp;lt;/numa&amp;gt;
+  &amp;lt;/cpu&amp;gt;
+  ...
+&amp;lt;/domain&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;resize-the-instance-to-the-unpinned-flavor&#34;&gt;Resize the instance to the unpinned flavor&lt;/h2&gt;
+
+&lt;p&gt;Seeing as pinning was in effect, we can now resize to the &lt;code&gt;test.unpinned&lt;/code&gt;
+flavor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack server resize test1 --flavor test.unpinned --wait
+complete
+
+$ openstack server list
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| ID                                   | Name  | Status        | Networks                                               |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | VERIFY_RESIZE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+
+$ openstack server resize test1 --confirm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;validate-that-the-instance-is-no-longer-pinned&#34;&gt;Validate that the instance is no longer pinned&lt;/h2&gt;
+
+&lt;p&gt;Once resized, check to see if the instance has been unpinned:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 2     instance-00000001              running
+
+$ sudo virsh dumpxml instance-00000001
+&amp;lt;domain type=&#39;kvm&#39; id=&#39;2&#39;&amp;gt;
+  &amp;lt;name&amp;gt;instance-00000002&amp;lt;/name&amp;gt;
+  ...
+  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;2&amp;lt;/vcpu&amp;gt;
+  &amp;lt;cputune&amp;gt;
+    &amp;lt;shares&amp;gt;2048&amp;lt;/shares&amp;gt;
+  &amp;lt;/cputune&amp;gt;
+  ...
+&amp;lt;/domain&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;resize-the-instance-back-to-the-pinned-flavor&#34;&gt;Resize the instance back to the pinned flavor&lt;/h2&gt;
+
+&lt;p&gt;Let&amp;rsquo;s go back the other way, and resize back to the &lt;code&gt;test.pinned&lt;/code&gt; flavor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack server resize test1 --flavor test.pinned --wait
+complete
+
+$ openstack server list
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| ID                                   | Name  | Status        | Networks                                               |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | VERIFY_RESIZE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+---------------+--------------------------------------------------------+
+
+$ openstack server resize test1 --confirm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;validate-that-the-instance-is-pinned-once-more&#34;&gt;Validate that the instance is pinned once more&lt;/h2&gt;
+
+&lt;p&gt;Finally, ensure the instance is once again pinned:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ openstack server list
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| ID                                   | Name  | Status | Networks                                               |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
++--------------------------------------+-------+--------+--------------------------------------------------------+
+
+$ sudo virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 3     instance-00000001              running
+
+$ sudo virsh dumpxml instance-00000001
+&amp;lt;domain type=&#39;kvm&#39; id=&#39;3&#39;&amp;gt;
+  &amp;lt;name&amp;gt;instance-00000001&amp;lt;/name&amp;gt;
+  ...
+  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;2&amp;lt;/vcpu&amp;gt;
+  &amp;lt;cputune&amp;gt;
+    &amp;lt;shares&amp;gt;2048&amp;lt;/shares&amp;gt;
+    &amp;lt;vcpupin vcpu=&#39;0&#39; cpuset=&#39;1&#39;/&amp;gt;
+    &amp;lt;vcpupin vcpu=&#39;1&#39; cpuset=&#39;21&#39;/&amp;gt;
+    &amp;lt;emulatorpin cpuset=&#39;1,21&#39;/&amp;gt;
+  &amp;lt;/cputune&amp;gt;
+  &amp;lt;numatune&amp;gt;
+    &amp;lt;memory mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
+    &amp;lt;memnode cellid=&#39;0&#39; mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
+  &amp;lt;/numatune&amp;gt;
+  ...
+  &amp;lt;cpu&amp;gt;
+    &amp;lt;topology sockets=&#39;1&#39; cores=&#39;1&#39; threads=&#39;2&#39;/&amp;gt;
+    &amp;lt;numa&amp;gt;
+      &amp;lt;cell id=&#39;0&#39; cpus=&#39;0-1&#39; memory=&#39;2097152&#39; unit=&#39;KiB&#39;/&amp;gt;
+    &amp;lt;/numa&amp;gt;
+  &amp;lt;/cpu&amp;gt;
+  ...
+&amp;lt;/domain&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;result&#34;&gt;Result&lt;/h1&gt;
+
+&lt;p&gt;It is possible to resize from pinned to unpinned, and from unpinned to pinned.
+No issues here.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>CPU pinning with image metadata</title>
