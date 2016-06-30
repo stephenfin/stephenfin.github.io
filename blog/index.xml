@@ -19,7 +19,7 @@
       <description>
 
 &lt;p&gt;OpenStack Nova provides support for &lt;a href=&#34;http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html&#34;&gt;resize operations&lt;/a&gt;, or the
-changing of the &lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; associated with instance. This allows you to
+changing of the &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; associated with instance. This allows you to
 add or remove resources from the instance, in addition to modifying other
 configuration associated with the flavor.&lt;/p&gt;
 
@@ -226,6 +226,14 @@ $ sudo virsh dumpxml instance-00000001
 
 &lt;p&gt;It is possible to resize from pinned to unpinned, and from unpinned to pinned.
 No issues here.&lt;/p&gt;
+
+&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;OpenStack Administrator Guide: Compute flavors&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;OpenStack Administrator Guide: Enabling advanced CPU topologies in
+guests&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -238,7 +246,7 @@ No issues here.&lt;/p&gt;
       <description>
 
 &lt;p&gt;OpenStack Nova allows the specification of &lt;a href=&#34;http://docs.openstack.org/image-guide/image-metadata.html&#34;&gt;image metadata&lt;/a&gt; to
-provide per-instance metadata. This is similar to the &lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; &lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html#extra-specs&#34;&gt;extra
+provide per-instance metadata. This is similar to the &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html#extra-specs&#34;&gt;extra
 specs&lt;/a&gt;. The CPU pinning feature makes use of this to allow for
 configuration of CPU policies and CPU thread policies via such metdata.&lt;/p&gt;
 
@@ -398,10 +406,10 @@ $ sudo virsh dumpxml 4
 &lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;OpenStack Cloud Administrator Guide: Enabling advanced CPU topologies in
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;OpenStack Administrator Guide: Compute flavors&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;OpenStack Administrator Guide: Enabling advanced CPU topologies in
 guests&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/image-guide/image-metadata.html&#34;&gt;OpenStack Virtual Machine Image Guide: Image metadata&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide-cloud/compute-flavors.html&#34;&gt;OpenStack Cloud Administrator Guide: Compute flavors&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

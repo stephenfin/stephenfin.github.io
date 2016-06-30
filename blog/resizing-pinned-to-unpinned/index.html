@@ -84,7 +84,7 @@
     
 
 <p>OpenStack Nova provides support for <a href="http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html">resize operations</a>, or the
-changing of the <a href="http://docs.openstack.org/admin-guide-cloud/compute-flavors.html">flavor</a> associated with instance. This allows you to
+changing of the <a href="http://docs.openstack.org/admin-guide/compute-flavors.html">flavor</a> associated with instance. This allows you to
 add or remove resources from the instance, in addition to modifying other
 configuration associated with the flavor.</p>
 
@@ -291,6 +291,14 @@ $ sudo virsh dumpxml instance-00000001
 
 <p>It is possible to resize from pinned to unpinned, and from unpinned to pinned.
 No issues here.</p>
+
+<h1 id="references">References</h1>
+
+<ul>
+<li><a href="http://docs.openstack.org/admin-guide/compute-flavors.html">OpenStack Administrator Guide: Compute flavors</a></li>
+<li><a href="http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html">OpenStack Administrator Guide: Enabling advanced CPU topologies in
+guests</a></li>
+</ul>
 
   </div>
   
