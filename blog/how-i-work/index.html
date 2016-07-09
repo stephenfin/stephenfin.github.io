@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>How I Work &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2016 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">How I Work</h1>
+    <span class="post-date">Jul 9, 2016 &middot; 6 minute read
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/tips">tips</a>
+    </span>
+    
+
+<h1 id="how-i-work">How I work</h1>
+
+<p>Next Friday (15th July 2016) is the last week of this stint at Intel, so I
+figured now was as good a time as ever to do a write up on how I work, or, more
+accurately, how I&rsquo;ve worked, during my time here. Note that this has evolved
+massively over the past three years, so expect what I say now to have changed
+significantly a year down the line.</p>
+
+<p>At the moment, I work predominantly on <a href="https://github.com/openstack/nova">nova</a>, though I contribute to
+many other projects like (<a href="https://github.com/openstack/openstack-manuals">openstack-manuals</a>,
+<a href="https://github.com/openstack/oslo.config">oslo.config</a>, <a href="https://github.com/openstack-dev/devstack">DevStack</a>) and <a href="https://github.com/getpatchwork/patchwork">Patchwork</a>.
+Not all of these projects are OpenStack projects, but they are all
+Python-based, meaning the development environments for each tend to be rather
+similar.</p>
+
+<h2 id="platform">Platform</h2>
+
+<p>First up - my development platform. My current work laptop is a tad
+bit&hellip;under-resourced (think: 4GB of RAM) and is Windows-based, meaning I
+always end up working on remote machines via SSH (more on that later). The
+remote machines I use vary depending on what I want to do. Most of the time I
+use a handful of VMs provided via an internal cloud. These provide me with a
+shared home directory (so I don&rsquo;t have to configure Vim each time I start using
+a new VM, heh) and some flexibility for things like basic multi-node testing.
+However, when I need to validate features on real hardware (which happens quite
+regularly, given the areas I&rsquo;m working on), I&rsquo;ll use some real hardware from
+the lab. These platforms are the kind of platforms you&rsquo;ll find in every good
+data center around the world: multiple top-of-the-line Xeon E5s, super-fast
+NVMe SSD storage, the latest Intel NICs (SR-IOV compatible, of course) and
+many, many GBs of RAM.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-1.png" alt="Screenshot showing output of /proc/meminfo" />
+    
+    
+    <figcaption>
+        <h4>That&#39;s a lot of RAM</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-2.png" alt="Screenshot showing output of /proc/cpuinfo" />
+    
+    
+    <figcaption>
+        <h4>One of many cores</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="environment">Environment</h2>
+
+<p>While these hardware of the platforms I use does vary tremendously, the
+software environments are remarkably consistent. To start, everything runs
+whatever the latest version of Fedora happens to be - while Ubuntu may be
+currently <a href="https://www.openstack.org/assets/survey/April-2016-User-Survey-Report.pdf">the most popular platform to deploy OpenStack on</a>,
+I&rsquo;ve used Fedora at home for years and saw no reason to switch. On top of this,
+I either deploy single- or multi-node OpenStack using DevStack, if I want to
+validate a feature, or I simply clone and work on the project repos directly,
+if I&rsquo;m working or unit-testable code or &ldquo;low-hanging-fruit&rdquo; tasks. Finally,
+where required, I pre-configure my tools using the configuration files provided
+by my <a href="https://github.com/stephenfin/dotfiles">dotfiles</a> project.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-3.png" alt="Screenshot showing OpenStack projects I&#39;ve worked on" />
+    
+    
+    <figcaption>
+        <h4>I work on a lot of projects</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="tooling">Tooling</h2>
+
+<p>Tooling makes or breaks developers: learning what tools to use, and when, is an
+important part of any developers personal development. I know a lot of people
+who use IDEs like <a href="https://www.jetbrains.com/pycharm/">PyCharm</a> (indeed, you can get a <a href="https://wiki.openstack.org/wiki/How_To_Contribute#If_you.27re_a_developer">free community
+license</a> if you contribute to OpenStack), but seeing as I don&rsquo;t
+develop on my local machine, I need to use some form of remote rendering - VNC,
+X11 forwarding, RDP - for the IDE GUI, I need to configure a remote mount so
+that a local installed IDE could access files on my remote machines. I&rsquo;ve found
+both of these options to perform poorly over bad connections and result in
+either a janky, laggy UI or an inability to do things like change branches with
+any regularity, respectively. As a result, I&rsquo;ve been slowly dropping GUI-based
+tools from my toolkit over the years. The largest change here was my replacment
+of Sublime Text and its plugins with Vim and <a href="https://github.com/VundleVim/Vundle.vim">Vundle</a>. In addition to
+this change, I also dropped [Meld], which was pretty but laggy over X11
+forwarding, in favor of the more responsive <a href="https://github.com/rhysd/conflict-marker.vim">ConflictMarker</a>
+Vim plugin (I&rsquo;m yet to grasp Vimdiff). Similarly, I&rsquo;ve replaced MTPuTTY and its
+multiple tabs with standard PuTTY and <a href="https://tmux.github.io/">tmux</a>. All these tools do have an
+additional learning curve over their GUI-driven equivalents, but they&rsquo;re all
+battle-tested, incredibly efficient, and work well on pretty much any type of
+network connection.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-4.png" alt="Screenshot of Vim in tmux" />
+    
+    
+    <figcaption>
+        <h4>I use Vim extensively</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>Outside of these tools, I also make extensive use of <a href="https://github.com/openstack-infra/git-review">git-review</a>
+and <a href="https://github.com/ggreer/the_silver_searcher">ag (a.k.a. the silver searcher)</a>. git-review allows me to quickly
+submit my own changes for community review or download other peoples&rsquo; changes
+for validation, and it is the tool the OpenStack community recommends for
+working with Gerrit-based projects. ag, on the other hand, is my way of
+handling the lack of an IntelliSense-like feature in Vim. It&rsquo;s a faster version
+of <code>awk</code> that also takes things like gitignore files into account. I use this
+to search for function calls if I, for example, wanted to find out why/how
+something was being called or how it was being called. I plan to eventually try
+something like <a href="https://github.com/davidhalter/jedi">Jedi</a> but I just haven&rsquo;t got around to this yet.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-5.png" alt="Screenshot of ag in tmux" />
+    
+    
+    <figcaption>
+        <h4>ag is fast and pretty</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>Finally, debugging, where necessary, is done using <a href="https://docs.python.org/2/library/pdb.html">pdb</a> and the odd post
+to the mailing list is made using <a href="http://www.mutt.org/">mutt</a>. pdb, like many of these tools,
+does take a bit of time to get your head around, but, once up and running,
+proves itself worth the effort. mutt has a similarly large learning curve, but
+it doesn&rsquo;t mess up the formatting of emails half as bad as Outlook and its
+threading actually works.</p>
+
+<h2 id="future-plans">Future Plans</h2>
+
+<p>There are a couple of tools that have been recommended to me, that I just
+haven&rsquo;t got around to trying yet.</p>
+
+<ul>
+<li><a href="https://github.com/dolph/next-review">git-next</a>: Developed by the awesome Dolph Matthews, this simple
+tool should be configured with your favourite OpenStack project. Once done, you
+can run it provide you with the next patch that you should review.</li>
+<li><a href="https://github.com/openstack/gertty">gertty</a>: This is another OpenStack-provided project. This tool
+provides a CLI for Gerrit tool, and allows you to do things like review code
+offline. The latter feature isn&rsquo;t so useful when working remotely all the time,
+but if/when I start developing locally, I&rsquo;ll be sure to use this.</li>
+<li><a href="https://github.com/davidhalter/jedi">Jedi</a>: As mentioned above, how I navigate the code base could do with
+a bit of work. Jedi brings autocomplete and some other stuff to editors like
+Vim.</li>
+<li><a href="https://www.jetbrains.com/pycharm/">PyCharm</a>: This is another one to throw in the &ldquo;if I ever develop
+locally&rdquo; bag. I don&rsquo;t use this now, but if it becomes an option then I&rsquo;ll
+definitely try it. I do wish the open source alternatives weren&rsquo;t quite
+so&hellip;Java&rsquo;y though.</li>
+<li>???: Who knows what else I&rsquo;ll discover in the coming years?</li>
+</ul>
+
+<h2 id="bonus-ssh-configuration">Bonus: SSH Configuration</h2>
+
+<p>How I actually connect to the machines is probably worth calling out also. For
+this, I use the PuTTY family of tools. To begin with, I have
+<a href="https://github.com/FauxFaux/PuTTYTray">PuTTYTray</a> installed and pinned to my taskbar to enable quick
+access to some tools in the suite (<a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTY, Pageant, PuTTYGen</a>).</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-6.png" alt="Screenshot of PuTTYTray" />
+    
+    
+    <figcaption>
+        <h4>PuTTYTray in action</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>The out-of-the-box experience for PuTTY itself is rather poor, so I rely on the
+<a href="https://github.com/jblaine/solarized-and-modern-putty">Solarized Modern PuTTY Defaults project</a> to bring things into the
+21st century.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/how-i-work-7.png" alt="Screenshot of PuTTY" />
+    
+    
+    <figcaption>
+        <h4>Pretty colours. Not so pretty test results.</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>I don&rsquo;t fancy typing in a password each time, so I <a href="https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-putty-on-digitalocean-droplets-windows-users">generate SSH keys using
+Pageant</a>, then I make sure Pageant <a href="http://blog.shvetsov.com/2010/03/making-pageant-automatically-load-keys.html">starts automatically</a>
+each time I boot my machine. I&rsquo;ll probably do a more in-depth write up of this
+process at some point.</p>
+
+  </div>
+  
+</div>
+
+
+
+
+
+</body>
+</html>
+

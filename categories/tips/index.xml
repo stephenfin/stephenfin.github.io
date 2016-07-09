@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tips on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/tips/</link>
+    <description>Recent content in Tips on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
+    <lastBuildDate>Sat, 09 Jul 2016 18:08:16 +0100</lastBuildDate>
+    <atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>How I Work</title>
+      <link>https://that.guru/blog/how-i-work/</link>
+      <pubDate>Sat, 09 Jul 2016 18:08:16 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/how-i-work/</guid>
+      <description>
+
+&lt;h1 id=&#34;how-i-work&#34;&gt;How I work&lt;/h1&gt;
+
+&lt;p&gt;Next Friday (15th July 2016) is the last week of this stint at Intel, so I
+figured now was as good a time as ever to do a write up on how I work, or, more
+accurately, how I&amp;rsquo;ve worked, during my time here. Note that this has evolved
+massively over the past three years, so expect what I say now to have changed
+significantly a year down the line.&lt;/p&gt;
+
+&lt;p&gt;At the moment, I work predominantly on &lt;a href=&#34;https://github.com/openstack/nova&#34;&gt;nova&lt;/a&gt;, though I contribute to
+many other projects like (&lt;a href=&#34;https://github.com/openstack/openstack-manuals&#34;&gt;openstack-manuals&lt;/a&gt;,
+&lt;a href=&#34;https://github.com/openstack/oslo.config&#34;&gt;oslo.config&lt;/a&gt;, &lt;a href=&#34;https://github.com/openstack-dev/devstack&#34;&gt;DevStack&lt;/a&gt;) and &lt;a href=&#34;https://github.com/getpatchwork/patchwork&#34;&gt;Patchwork&lt;/a&gt;.
+Not all of these projects are OpenStack projects, but they are all
+Python-based, meaning the development environments for each tend to be rather
+similar.&lt;/p&gt;
+
+&lt;h2 id=&#34;platform&#34;&gt;Platform&lt;/h2&gt;
+
+&lt;p&gt;First up - my development platform. My current work laptop is a tad
+bit&amp;hellip;under-resourced (think: 4GB of RAM) and is Windows-based, meaning I
+always end up working on remote machines via SSH (more on that later). The
+remote machines I use vary depending on what I want to do. Most of the time I
+use a handful of VMs provided via an internal cloud. These provide me with a
+shared home directory (so I don&amp;rsquo;t have to configure Vim each time I start using
+a new VM, heh) and some flexibility for things like basic multi-node testing.
+However, when I need to validate features on real hardware (which happens quite
+regularly, given the areas I&amp;rsquo;m working on), I&amp;rsquo;ll use some real hardware from
+the lab. These platforms are the kind of platforms you&amp;rsquo;ll find in every good
+data center around the world: multiple top-of-the-line Xeon E5s, super-fast
+NVMe SSD storage, the latest Intel NICs (SR-IOV compatible, of course) and
+many, many GBs of RAM.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-1.png&#34; alt=&#34;Screenshot showing output of /proc/meminfo&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;That&amp;#39;s a lot of RAM&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-2.png&#34; alt=&#34;Screenshot showing output of /proc/cpuinfo&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;One of many cores&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;environment&#34;&gt;Environment&lt;/h2&gt;
+
+&lt;p&gt;While these hardware of the platforms I use does vary tremendously, the
+software environments are remarkably consistent. To start, everything runs
+whatever the latest version of Fedora happens to be - while Ubuntu may be
+currently &lt;a href=&#34;https://www.openstack.org/assets/survey/April-2016-User-Survey-Report.pdf&#34;&gt;the most popular platform to deploy OpenStack on&lt;/a&gt;,
+I&amp;rsquo;ve used Fedora at home for years and saw no reason to switch. On top of this,
+I either deploy single- or multi-node OpenStack using DevStack, if I want to
+validate a feature, or I simply clone and work on the project repos directly,
+if I&amp;rsquo;m working or unit-testable code or &amp;ldquo;low-hanging-fruit&amp;rdquo; tasks. Finally,
+where required, I pre-configure my tools using the configuration files provided
+by my &lt;a href=&#34;https://github.com/stephenfin/dotfiles&#34;&gt;dotfiles&lt;/a&gt; project.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-3.png&#34; alt=&#34;Screenshot showing OpenStack projects I&amp;#39;ve worked on&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;I work on a lot of projects&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;tooling&#34;&gt;Tooling&lt;/h2&gt;
+
+&lt;p&gt;Tooling makes or breaks developers: learning what tools to use, and when, is an
+important part of any developers personal development. I know a lot of people
+who use IDEs like &lt;a href=&#34;https://www.jetbrains.com/pycharm/&#34;&gt;PyCharm&lt;/a&gt; (indeed, you can get a &lt;a href=&#34;https://wiki.openstack.org/wiki/How_To_Contribute#If_you.27re_a_developer&#34;&gt;free community
+license&lt;/a&gt; if you contribute to OpenStack), but seeing as I don&amp;rsquo;t
+develop on my local machine, I need to use some form of remote rendering - VNC,
+X11 forwarding, RDP - for the IDE GUI, I need to configure a remote mount so
+that a local installed IDE could access files on my remote machines. I&amp;rsquo;ve found
+both of these options to perform poorly over bad connections and result in
+either a janky, laggy UI or an inability to do things like change branches with
+any regularity, respectively. As a result, I&amp;rsquo;ve been slowly dropping GUI-based
+tools from my toolkit over the years. The largest change here was my replacment
+of Sublime Text and its plugins with Vim and &lt;a href=&#34;https://github.com/VundleVim/Vundle.vim&#34;&gt;Vundle&lt;/a&gt;. In addition to
+this change, I also dropped [Meld], which was pretty but laggy over X11
+forwarding, in favor of the more responsive &lt;a href=&#34;https://github.com/rhysd/conflict-marker.vim&#34;&gt;ConflictMarker&lt;/a&gt;
+Vim plugin (I&amp;rsquo;m yet to grasp Vimdiff). Similarly, I&amp;rsquo;ve replaced MTPuTTY and its
+multiple tabs with standard PuTTY and &lt;a href=&#34;https://tmux.github.io/&#34;&gt;tmux&lt;/a&gt;. All these tools do have an
+additional learning curve over their GUI-driven equivalents, but they&amp;rsquo;re all
+battle-tested, incredibly efficient, and work well on pretty much any type of
+network connection.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-4.png&#34; alt=&#34;Screenshot of Vim in tmux&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;I use Vim extensively&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Outside of these tools, I also make extensive use of &lt;a href=&#34;https://github.com/openstack-infra/git-review&#34;&gt;git-review&lt;/a&gt;
+and &lt;a href=&#34;https://github.com/ggreer/the_silver_searcher&#34;&gt;ag (a.k.a. the silver searcher)&lt;/a&gt;. git-review allows me to quickly
+submit my own changes for community review or download other peoples&amp;rsquo; changes
+for validation, and it is the tool the OpenStack community recommends for
+working with Gerrit-based projects. ag, on the other hand, is my way of
+handling the lack of an IntelliSense-like feature in Vim. It&amp;rsquo;s a faster version
+of &lt;code&gt;awk&lt;/code&gt; that also takes things like gitignore files into account. I use this
+to search for function calls if I, for example, wanted to find out why/how
+something was being called or how it was being called. I plan to eventually try
+something like &lt;a href=&#34;https://github.com/davidhalter/jedi&#34;&gt;Jedi&lt;/a&gt; but I just haven&amp;rsquo;t got around to this yet.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-5.png&#34; alt=&#34;Screenshot of ag in tmux&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;ag is fast and pretty&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Finally, debugging, where necessary, is done using &lt;a href=&#34;https://docs.python.org/2/library/pdb.html&#34;&gt;pdb&lt;/a&gt; and the odd post
+to the mailing list is made using &lt;a href=&#34;http://www.mutt.org/&#34;&gt;mutt&lt;/a&gt;. pdb, like many of these tools,
+does take a bit of time to get your head around, but, once up and running,
+proves itself worth the effort. mutt has a similarly large learning curve, but
+it doesn&amp;rsquo;t mess up the formatting of emails half as bad as Outlook and its
+threading actually works.&lt;/p&gt;
+
+&lt;h2 id=&#34;future-plans&#34;&gt;Future Plans&lt;/h2&gt;
+
+&lt;p&gt;There are a couple of tools that have been recommended to me, that I just
+haven&amp;rsquo;t got around to trying yet.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dolph/next-review&#34;&gt;git-next&lt;/a&gt;: Developed by the awesome Dolph Matthews, this simple
+tool should be configured with your favourite OpenStack project. Once done, you
+can run it provide you with the next patch that you should review.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/openstack/gertty&#34;&gt;gertty&lt;/a&gt;: This is another OpenStack-provided project. This tool
+provides a CLI for Gerrit tool, and allows you to do things like review code
+offline. The latter feature isn&amp;rsquo;t so useful when working remotely all the time,
+but if/when I start developing locally, I&amp;rsquo;ll be sure to use this.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/davidhalter/jedi&#34;&gt;Jedi&lt;/a&gt;: As mentioned above, how I navigate the code base could do with
+a bit of work. Jedi brings autocomplete and some other stuff to editors like
+Vim.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.jetbrains.com/pycharm/&#34;&gt;PyCharm&lt;/a&gt;: This is another one to throw in the &amp;ldquo;if I ever develop
+locally&amp;rdquo; bag. I don&amp;rsquo;t use this now, but if it becomes an option then I&amp;rsquo;ll
+definitely try it. I do wish the open source alternatives weren&amp;rsquo;t quite
+so&amp;hellip;Java&amp;rsquo;y though.&lt;/li&gt;
+&lt;li&gt;???: Who knows what else I&amp;rsquo;ll discover in the coming years?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;bonus-ssh-configuration&#34;&gt;Bonus: SSH Configuration&lt;/h2&gt;
+
+&lt;p&gt;How I actually connect to the machines is probably worth calling out also. For
+this, I use the PuTTY family of tools. To begin with, I have
+&lt;a href=&#34;https://github.com/FauxFaux/PuTTYTray&#34;&gt;PuTTYTray&lt;/a&gt; installed and pinned to my taskbar to enable quick
+access to some tools in the suite (&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html&#34;&gt;PuTTY, Pageant, PuTTYGen&lt;/a&gt;).&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-6.png&#34; alt=&#34;Screenshot of PuTTYTray&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;PuTTYTray in action&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;The out-of-the-box experience for PuTTY itself is rather poor, so I rely on the
+&lt;a href=&#34;https://github.com/jblaine/solarized-and-modern-putty&#34;&gt;Solarized Modern PuTTY Defaults project&lt;/a&gt; to bring things into the
+21st century.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/how-i-work-7.png&#34; alt=&#34;Screenshot of PuTTY&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Pretty colours. Not so pretty test results.&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;I don&amp;rsquo;t fancy typing in a password each time, so I &lt;a href=&#34;https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-putty-on-digitalocean-droplets-windows-users&#34;&gt;generate SSH keys using
+Pageant&lt;/a&gt;, then I make sure Pageant &lt;a href=&#34;http://blog.shvetsov.com/2010/03/making-pageant-automatically-load-keys.html&#34;&gt;starts automatically&lt;/a&gt;
+each time I boot my machine. I&amp;rsquo;ll probably do a more in-depth write up of this
+process at some point.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
