@@ -18,15 +18,15 @@
       <guid>https://that.guru/blog/how-i-work/</guid>
       <description>
 
-&lt;p&gt;Next Friday (15th July 2016) is the last week of this stint at Intel, so I
-figured now was as good a time as ever to do a write up on how I work, or, more
-accurately, how I&amp;rsquo;ve worked, during my time here. Note that this has evolved
-massively over the past three years, so expect what I say now to have changed
-significantly a year down the line.&lt;/p&gt;
+&lt;p&gt;Next Friday is the last week of this stint at Intel, so I figured now was as
+good a time as ever to do a write up on how I work, or, more accurately, how
+I&amp;rsquo;ve worked, during my time here. Note that this has evolved massively over the
+past three years, so expect what I say now to have changed significantly a year
+down the line.&lt;/p&gt;
 
 &lt;p&gt;At the moment, I work predominantly on &lt;a href=&#34;https://github.com/openstack/nova&#34;&gt;nova&lt;/a&gt;, though I contribute to
-many other projects like (&lt;a href=&#34;https://github.com/openstack/openstack-manuals&#34;&gt;openstack-manuals&lt;/a&gt;,
-&lt;a href=&#34;https://github.com/openstack/oslo.config&#34;&gt;oslo.config&lt;/a&gt;, &lt;a href=&#34;https://github.com/openstack-dev/devstack&#34;&gt;DevStack&lt;/a&gt;) and &lt;a href=&#34;https://github.com/getpatchwork/patchwork&#34;&gt;Patchwork&lt;/a&gt;.
+many other projects like &lt;a href=&#34;https://github.com/openstack/openstack-manuals&#34;&gt;openstack-manuals&lt;/a&gt;,
+&lt;a href=&#34;https://github.com/openstack/oslo.config&#34;&gt;oslo.config&lt;/a&gt;, &lt;a href=&#34;https://github.com/openstack-dev/devstack&#34;&gt;DevStack&lt;/a&gt; and &lt;a href=&#34;https://github.com/getpatchwork/patchwork&#34;&gt;Patchwork&lt;/a&gt;.
 Not all of these projects are OpenStack projects, but they are all
 Python-based, meaning the development environments for each tend to be rather
 similar.&lt;/p&gt;
@@ -77,16 +77,16 @@ many, many GBs of RAM.&lt;/p&gt;
 
 &lt;h2 id=&#34;environment&#34;&gt;Environment&lt;/h2&gt;
 
-&lt;p&gt;While these hardware of the platforms I use does vary tremendously, the
-software environments are remarkably consistent. To start, everything runs
-whatever the latest version of Fedora happens to be - while Ubuntu may be
-currently &lt;a href=&#34;https://www.openstack.org/assets/survey/April-2016-User-Survey-Report.pdf&#34;&gt;the most popular platform to deploy OpenStack on&lt;/a&gt;,
-I&amp;rsquo;ve used Fedora at home for years and saw no reason to switch. On top of this,
-I either deploy single- or multi-node OpenStack using DevStack, if I want to
-validate a feature, or I simply clone and work on the project repos directly,
-if I&amp;rsquo;m working or unit-testable code or &amp;ldquo;low-hanging-fruit&amp;rdquo; tasks. Finally,
-where required, I pre-configure my tools using the configuration files provided
-by my &lt;a href=&#34;https://github.com/stephenfin/dotfiles&#34;&gt;dotfiles&lt;/a&gt; project.&lt;/p&gt;
+&lt;p&gt;While the hardware of the platforms I use does vary tremendously, the software
+environments are remarkably consistent. To start, everything runs whatever the
+latest version of Fedora happens to be - while Ubuntu may be currently &lt;a href=&#34;https://www.openstack.org/assets/survey/April-2016-User-Survey-Report.pdf&#34;&gt;the
+most popular platform to deploy OpenStack on&lt;/a&gt;, I&amp;rsquo;ve used
+Fedora at home for years and saw no reason to switch. On top of this, I either
+deploy OpenStack using DevStack, if I want to validate a feature, or I simply
+clone and work on the project repos directly, if I&amp;rsquo;m working or unit-testable
+code or &amp;ldquo;low-hanging-fruit&amp;rdquo; tasks. Finally, where required, I pre-configure my
+tools using the configuration files provided by my &lt;a href=&#34;https://github.com/stephenfin/dotfiles&#34;&gt;dotfiles&lt;/a&gt;
+project.&lt;/p&gt;
 
 
 &lt;figure &gt;
@@ -105,24 +105,27 @@ by my &lt;a href=&#34;https://github.com/stephenfin/dotfiles&#34;&gt;dotfiles&lt
 &lt;h2 id=&#34;tooling&#34;&gt;Tooling&lt;/h2&gt;
 
 &lt;p&gt;Tooling makes or breaks developers: learning what tools to use, and when, is an
-important part of any developers personal development. I know a lot of people
-who use IDEs like &lt;a href=&#34;https://www.jetbrains.com/pycharm/&#34;&gt;PyCharm&lt;/a&gt; (indeed, you can get a &lt;a href=&#34;https://wiki.openstack.org/wiki/How_To_Contribute#If_you.27re_a_developer&#34;&gt;free community
+important part of any developers own development. I know a lot of people who
+use IDEs like &lt;a href=&#34;https://www.jetbrains.com/pycharm/&#34;&gt;PyCharm&lt;/a&gt; (indeed, you can get a &lt;a href=&#34;https://wiki.openstack.org/wiki/How_To_Contribute#If_you.27re_a_developer&#34;&gt;free community
 license&lt;/a&gt; if you contribute to OpenStack), but seeing as I don&amp;rsquo;t
 develop on my local machine, I need to use some form of remote rendering - VNC,
 X11 forwarding, RDP - for the IDE GUI, I need to configure a remote mount so
 that a local installed IDE could access files on my remote machines. I&amp;rsquo;ve found
 both of these options to perform poorly over bad connections and result in
 either a janky, laggy UI or an inability to do things like change branches with
-any regularity, respectively. As a result, I&amp;rsquo;ve been slowly dropping GUI-based
-tools from my toolkit over the years. The largest change here was my replacment
-of Sublime Text and its plugins with Vim and &lt;a href=&#34;https://github.com/VundleVim/Vundle.vim&#34;&gt;Vundle&lt;/a&gt;. In addition to
-this change, I also dropped [Meld], which was pretty but laggy over X11
-forwarding, in favor of the more responsive &lt;a href=&#34;https://github.com/rhysd/conflict-marker.vim&#34;&gt;ConflictMarker&lt;/a&gt;
-Vim plugin (I&amp;rsquo;m yet to grasp Vimdiff). Similarly, I&amp;rsquo;ve replaced MTPuTTY and its
-multiple tabs with standard PuTTY and &lt;a href=&#34;https://tmux.github.io/&#34;&gt;tmux&lt;/a&gt;. All these tools do have an
-additional learning curve over their GUI-driven equivalents, but they&amp;rsquo;re all
-battle-tested, incredibly efficient, and work well on pretty much any type of
-network connection.&lt;/p&gt;
+any regularity, respectively. Annoying, to say the least.&lt;/p&gt;
+
+&lt;p&gt;As a result of the above, I&amp;rsquo;ve been slowly dropping GUI-based tools from my
+toolkit over the years. The largest change here was my replacment of Sublime
+Text and its plugins with Vim and plugins managed by &lt;a href=&#34;https://github.com/VundleVim/Vundle.vim&#34;&gt;Vundle&lt;/a&gt;
+(delighted not to be writing plugins for Vim, tbh). In addition to this change,
+I also dropped [Meld], which was pretty but laggy over X11 forwarding, in favor
+of the more responsive &lt;a href=&#34;https://github.com/rhysd/conflict-marker.vim&#34;&gt;ConflictMarker&lt;/a&gt; Vim plugin (I&amp;rsquo;m yet to
+grasp Vimdiff).  Similarly, I&amp;rsquo;ve replaced MTPuTTY and its multiple tabs with
+standard PuTTY and &lt;a href=&#34;https://tmux.github.io/&#34;&gt;tmux&lt;/a&gt;. All these tools do have an additional learning
+curve over their GUI-driven equivalents, but they&amp;rsquo;re all battle-tested,
+incredibly efficient, and work well on pretty much any type of network
+connection.&lt;/p&gt;
 
 
 &lt;figure &gt;
@@ -145,9 +148,8 @@ for validation, and it is the tool the OpenStack community recommends for
 working with Gerrit-based projects. ag, on the other hand, is my way of
 handling the lack of an IntelliSense-like feature in Vim. It&amp;rsquo;s a faster version
 of &lt;code&gt;awk&lt;/code&gt; that also takes things like gitignore files into account. I use this
-to search for function calls if I, for example, wanted to find out why/how
-something was being called or how it was being called. I plan to eventually try
-something like &lt;a href=&#34;https://github.com/davidhalter/jedi&#34;&gt;Jedi&lt;/a&gt; but I just haven&amp;rsquo;t got around to this yet.&lt;/p&gt;
+to search for function calls etc. I plan to eventually try something like
+&lt;a href=&#34;https://github.com/davidhalter/jedi&#34;&gt;Jedi&lt;/a&gt; but I just haven&amp;rsquo;t got around to this yet.&lt;/p&gt;
 
 
 &lt;figure &gt;
@@ -163,12 +165,12 @@ something like &lt;a href=&#34;https://github.com/davidhalter/jedi&#34;&gt;Jedi&
 &lt;/figure&gt;
 
 
-&lt;p&gt;Finally, debugging, where necessary, is done using &lt;a href=&#34;https://docs.python.org/2/library/pdb.html&#34;&gt;pdb&lt;/a&gt; and the odd post
-to the mailing list is made using &lt;a href=&#34;http://www.mutt.org/&#34;&gt;mutt&lt;/a&gt;. pdb, like many of these tools,
-does take a bit of time to get your head around, but, once up and running,
-proves itself worth the effort. mutt has a similarly large learning curve, but
-it doesn&amp;rsquo;t mess up the formatting of emails half as bad as Outlook and its
-threading actually works.&lt;/p&gt;
+&lt;p&gt;Finally, debugging, where necessary, is possible through &lt;a href=&#34;https://docs.python.org/2/library/pdb.html&#34;&gt;pdb&lt;/a&gt; and the odd
+post to the mailing list is made using &lt;a href=&#34;http://www.mutt.org/&#34;&gt;mutt&lt;/a&gt;. pdb, like many of these
+tools, does take a bit of time to get your head around, but, once up and
+running, proves itself worth the effort. mutt has a similarly large learning
+curve, but it doesn&amp;rsquo;t mess up the formatting of emails half as bad as Outlook
+and its threading actually works.&lt;/p&gt;
 
 &lt;h2 id=&#34;future-plans&#34;&gt;Future Plans&lt;/h2&gt;
 

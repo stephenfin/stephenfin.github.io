@@ -83,15 +83,15 @@
     </span>
     
 
-<p>Next Friday (15th July 2016) is the last week of this stint at Intel, so I
-figured now was as good a time as ever to do a write up on how I work, or, more
-accurately, how I&rsquo;ve worked, during my time here. Note that this has evolved
-massively over the past three years, so expect what I say now to have changed
-significantly a year down the line.</p>
+<p>Next Friday is the last week of this stint at Intel, so I figured now was as
+good a time as ever to do a write up on how I work, or, more accurately, how
+I&rsquo;ve worked, during my time here. Note that this has evolved massively over the
+past three years, so expect what I say now to have changed significantly a year
+down the line.</p>
 
 <p>At the moment, I work predominantly on <a href="https://github.com/openstack/nova">nova</a>, though I contribute to
-many other projects like (<a href="https://github.com/openstack/openstack-manuals">openstack-manuals</a>,
-<a href="https://github.com/openstack/oslo.config">oslo.config</a>, <a href="https://github.com/openstack-dev/devstack">DevStack</a>) and <a href="https://github.com/getpatchwork/patchwork">Patchwork</a>.
+many other projects like <a href="https://github.com/openstack/openstack-manuals">openstack-manuals</a>,
+<a href="https://github.com/openstack/oslo.config">oslo.config</a>, <a href="https://github.com/openstack-dev/devstack">DevStack</a> and <a href="https://github.com/getpatchwork/patchwork">Patchwork</a>.
 Not all of these projects are OpenStack projects, but they are all
 Python-based, meaning the development environments for each tend to be rather
 similar.</p>
@@ -142,16 +142,16 @@ many, many GBs of RAM.</p>
 
 <h2 id="environment">Environment</h2>
 
-<p>While these hardware of the platforms I use does vary tremendously, the
-software environments are remarkably consistent. To start, everything runs
-whatever the latest version of Fedora happens to be - while Ubuntu may be
-currently <a href="https://www.openstack.org/assets/survey/April-2016-User-Survey-Report.pdf">the most popular platform to deploy OpenStack on</a>,
-I&rsquo;ve used Fedora at home for years and saw no reason to switch. On top of this,
-I either deploy single- or multi-node OpenStack using DevStack, if I want to
-validate a feature, or I simply clone and work on the project repos directly,
-if I&rsquo;m working or unit-testable code or &ldquo;low-hanging-fruit&rdquo; tasks. Finally,
-where required, I pre-configure my tools using the configuration files provided
-by my <a href="https://github.com/stephenfin/dotfiles">dotfiles</a> project.</p>
+<p>While the hardware of the platforms I use does vary tremendously, the software
+environments are remarkably consistent. To start, everything runs whatever the
+latest version of Fedora happens to be - while Ubuntu may be currently <a href="https://www.openstack.org/assets/survey/April-2016-User-Survey-Report.pdf">the
+most popular platform to deploy OpenStack on</a>, I&rsquo;ve used
+Fedora at home for years and saw no reason to switch. On top of this, I either
+deploy OpenStack using DevStack, if I want to validate a feature, or I simply
+clone and work on the project repos directly, if I&rsquo;m working or unit-testable
+code or &ldquo;low-hanging-fruit&rdquo; tasks. Finally, where required, I pre-configure my
+tools using the configuration files provided by my <a href="https://github.com/stephenfin/dotfiles">dotfiles</a>
+project.</p>
 
 
 <figure >
@@ -170,24 +170,27 @@ by my <a href="https://github.com/stephenfin/dotfiles">dotfiles</a> project.</p>
 <h2 id="tooling">Tooling</h2>
 
 <p>Tooling makes or breaks developers: learning what tools to use, and when, is an
-important part of any developers personal development. I know a lot of people
-who use IDEs like <a href="https://www.jetbrains.com/pycharm/">PyCharm</a> (indeed, you can get a <a href="https://wiki.openstack.org/wiki/How_To_Contribute#If_you.27re_a_developer">free community
+important part of any developers own development. I know a lot of people who
+use IDEs like <a href="https://www.jetbrains.com/pycharm/">PyCharm</a> (indeed, you can get a <a href="https://wiki.openstack.org/wiki/How_To_Contribute#If_you.27re_a_developer">free community
 license</a> if you contribute to OpenStack), but seeing as I don&rsquo;t
 develop on my local machine, I need to use some form of remote rendering - VNC,
 X11 forwarding, RDP - for the IDE GUI, I need to configure a remote mount so
 that a local installed IDE could access files on my remote machines. I&rsquo;ve found
 both of these options to perform poorly over bad connections and result in
 either a janky, laggy UI or an inability to do things like change branches with
-any regularity, respectively. As a result, I&rsquo;ve been slowly dropping GUI-based
-tools from my toolkit over the years. The largest change here was my replacment
-of Sublime Text and its plugins with Vim and <a href="https://github.com/VundleVim/Vundle.vim">Vundle</a>. In addition to
-this change, I also dropped [Meld], which was pretty but laggy over X11
-forwarding, in favor of the more responsive <a href="https://github.com/rhysd/conflict-marker.vim">ConflictMarker</a>
-Vim plugin (I&rsquo;m yet to grasp Vimdiff). Similarly, I&rsquo;ve replaced MTPuTTY and its
-multiple tabs with standard PuTTY and <a href="https://tmux.github.io/">tmux</a>. All these tools do have an
-additional learning curve over their GUI-driven equivalents, but they&rsquo;re all
-battle-tested, incredibly efficient, and work well on pretty much any type of
-network connection.</p>
+any regularity, respectively. Annoying, to say the least.</p>
+
+<p>As a result of the above, I&rsquo;ve been slowly dropping GUI-based tools from my
+toolkit over the years. The largest change here was my replacment of Sublime
+Text and its plugins with Vim and plugins managed by <a href="https://github.com/VundleVim/Vundle.vim">Vundle</a>
+(delighted not to be writing plugins for Vim, tbh). In addition to this change,
+I also dropped [Meld], which was pretty but laggy over X11 forwarding, in favor
+of the more responsive <a href="https://github.com/rhysd/conflict-marker.vim">ConflictMarker</a> Vim plugin (I&rsquo;m yet to
+grasp Vimdiff).  Similarly, I&rsquo;ve replaced MTPuTTY and its multiple tabs with
+standard PuTTY and <a href="https://tmux.github.io/">tmux</a>. All these tools do have an additional learning
+curve over their GUI-driven equivalents, but they&rsquo;re all battle-tested,
+incredibly efficient, and work well on pretty much any type of network
+connection.</p>
 
 
 <figure >
@@ -210,9 +213,8 @@ for validation, and it is the tool the OpenStack community recommends for
 working with Gerrit-based projects. ag, on the other hand, is my way of
 handling the lack of an IntelliSense-like feature in Vim. It&rsquo;s a faster version
 of <code>awk</code> that also takes things like gitignore files into account. I use this
-to search for function calls if I, for example, wanted to find out why/how
-something was being called or how it was being called. I plan to eventually try
-something like <a href="https://github.com/davidhalter/jedi">Jedi</a> but I just haven&rsquo;t got around to this yet.</p>
+to search for function calls etc. I plan to eventually try something like
+<a href="https://github.com/davidhalter/jedi">Jedi</a> but I just haven&rsquo;t got around to this yet.</p>
 
 
 <figure >
@@ -228,12 +230,12 @@ something like <a href="https://github.com/davidhalter/jedi">Jedi</a> but I just
 </figure>
 
 
-<p>Finally, debugging, where necessary, is done using <a href="https://docs.python.org/2/library/pdb.html">pdb</a> and the odd post
-to the mailing list is made using <a href="http://www.mutt.org/">mutt</a>. pdb, like many of these tools,
-does take a bit of time to get your head around, but, once up and running,
-proves itself worth the effort. mutt has a similarly large learning curve, but
-it doesn&rsquo;t mess up the formatting of emails half as bad as Outlook and its
-threading actually works.</p>
+<p>Finally, debugging, where necessary, is possible through <a href="https://docs.python.org/2/library/pdb.html">pdb</a> and the odd
+post to the mailing list is made using <a href="http://www.mutt.org/">mutt</a>. pdb, like many of these
+tools, does take a bit of time to get your head around, but, once up and
+running, proves itself worth the effort. mutt has a similarly large learning
+curve, but it doesn&rsquo;t mess up the formatting of emails half as bad as Outlook
+and its threading actually works.</p>
 
 <h2 id="future-plans">Future Plans</h2>
 
