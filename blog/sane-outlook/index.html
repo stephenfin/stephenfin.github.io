@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Sane Outlook: Making plain text better in Outlook &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2016 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Sane Outlook: Making plain text better in Outlook</h1>
+    <span class="post-date">Jul 11, 2016 &middot; 2 minute read
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/tips">tips</a>
+    </span>
+    
+
+<p>I like well-formatted, plain text emails, and I like reading them in a
+monospace font. I find plain text to be more readable, and provides less ways
+for people to impact this legibility. Sadly, Outlooks defaults to settings that
+seemingly encourage bad email ettiquete. Fortunately, we can wrangle Outlook
+into working some bit normally. You still need to do a bit of work (removing
+the Outlook context header, giving out to people for top-posting (☺), etc.),
+but it&rsquo;s better.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-1.png" alt="Screenshot of plain text mail before changes" />
+    
+    
+    <figcaption>
+        <h4>A plain text email before</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-2.png" alt="Screenshot of plain text mail after changes" />
+    
+    
+    <figcaption>
+        <h4>...and after</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="send-new-emails-using-plain-text">Send new emails using plain text</h2>
+
+<p>The first step on our road to plain text greatness is to always send new emails
+using plain text. This won&rsquo;t modify the formatting of replies: only new emails
+from you.</p>
+
+<p>You can do this in settings menu (Alt + F, Alt + T). Once here, click on the
+mail tab and change the &ldquo;Compose messages in this format:&rdquo; option.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-3.png" alt="Screenshot of configuring Outlook to send new emails in plain text" />
+    
+    
+    <figcaption>
+        <h4>Send new messages in plain text</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="prefix-and-wrap-replies-correctly">Prefix and wrap replies correctly</h2>
+
+<p>Next up, let&rsquo;s prefix our emails with the &lsquo;&gt; &rsquo; character. Scroll down on the
+same settings dialog and enable this.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-4.png" alt="Screenshot of configuring Outlook to prefix replies in a plain text email" />
+    
+    
+    <figcaption>
+        <h4>Prefix replies to plain text emails</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>We should also disable stripping of extra line breaks and force wrapping of the
+message. For the latter, note that this wrapping is done using Windows&rsquo; CRLF
+combination, thus, users of non-Windows clients may see an extra newline
+between each line. This isn&rsquo;t configurable, sadly.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-5.png" alt="Screenshot of configuring Outlook to not strip extra line breaks" />
+    
+    
+    <figcaption>
+        <h4>Don&#39;t strip extra line breaks</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="display-emails-in-monospace-font">Display emails in monospace font</h2>
+
+<p>The final step of this is display the emails in a nice, monospace font. I have
+<a href="https://adobe-fonts.github.io/source-code-pro/">Source Code Pro</a> installed, and use the &ldquo;Light&rdquo; variant of this in
+Outlook. To do this, select the &ldquo;<em>Stationary and Fonts&hellip;</em>&rdquo; button in that same
+pane.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-6.png" alt="Screenshot of configuring Outlook to use monospace font (1)" />
+    
+    
+    <figcaption>
+        <h4>Open the Stationary and Fonts dialog</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>Once here, modify the config for &ldquo;<em>Composing and reading plain text messages</em>&rdquo;.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-7.png" alt="Screenshot of configuring Outlook to use monospace font (2)" />
+    
+    
+    <figcaption>
+        <h4>We&#39;re changing plain text message formating</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>Finally, set your desired monospace font.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-8.png" alt="Screenshot of configuring Outlook to use monospace font (3)" />
+    
+    
+    <figcaption>
+        <h4>Open the Stationary and Fonts dialog</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="wrap-up">Wrap Up</h2>
+
+<p>Better plain text emails, for the win.</p>
+
+
+<figure >
+    
+        <img src="https://that.guru/media/sane-outlook-9.png" alt="Screenshot of plain text email with correctly configured Outlook" />
+    
+    
+    <figcaption>
+        <h4>Beautiful, monospace messages</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+  </div>
+  
+</div>
+
+
+
+
+
+</body>
+</html>
+

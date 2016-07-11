@@ -7,8 +7,186 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 09 Jul 2016 18:08:16 +0100</lastBuildDate>
+    <lastBuildDate>Mon, 11 Jul 2016 18:11:38 +0100</lastBuildDate>
     <atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Sane Outlook: Making plain text better in Outlook</title>
+      <link>https://that.guru/blog/sane-outlook/</link>
+      <pubDate>Mon, 11 Jul 2016 18:11:38 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/sane-outlook/</guid>
+      <description>
+
+&lt;p&gt;I like well-formatted, plain text emails, and I like reading them in a
+monospace font. I find plain text to be more readable, and provides less ways
+for people to impact this legibility. Sadly, Outlooks defaults to settings that
+seemingly encourage bad email ettiquete. Fortunately, we can wrangle Outlook
+into working some bit normally. You still need to do a bit of work (removing
+the Outlook context header, giving out to people for top-posting (☺), etc.),
+but it&amp;rsquo;s better.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-1.png&#34; alt=&#34;Screenshot of plain text mail before changes&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;A plain text email before&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-2.png&#34; alt=&#34;Screenshot of plain text mail after changes&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;...and after&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;send-new-emails-using-plain-text&#34;&gt;Send new emails using plain text&lt;/h2&gt;
+
+&lt;p&gt;The first step on our road to plain text greatness is to always send new emails
+using plain text. This won&amp;rsquo;t modify the formatting of replies: only new emails
+from you.&lt;/p&gt;
+
+&lt;p&gt;You can do this in settings menu (Alt + F, Alt + T). Once here, click on the
+mail tab and change the &amp;ldquo;Compose messages in this format:&amp;rdquo; option.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-3.png&#34; alt=&#34;Screenshot of configuring Outlook to send new emails in plain text&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Send new messages in plain text&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;prefix-and-wrap-replies-correctly&#34;&gt;Prefix and wrap replies correctly&lt;/h2&gt;
+
+&lt;p&gt;Next up, let&amp;rsquo;s prefix our emails with the &amp;lsquo;&amp;gt; &amp;rsquo; character. Scroll down on the
+same settings dialog and enable this.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-4.png&#34; alt=&#34;Screenshot of configuring Outlook to prefix replies in a plain text email&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Prefix replies to plain text emails&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;We should also disable stripping of extra line breaks and force wrapping of the
+message. For the latter, note that this wrapping is done using Windows&amp;rsquo; CRLF
+combination, thus, users of non-Windows clients may see an extra newline
+between each line. This isn&amp;rsquo;t configurable, sadly.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-5.png&#34; alt=&#34;Screenshot of configuring Outlook to not strip extra line breaks&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Don&amp;#39;t strip extra line breaks&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;display-emails-in-monospace-font&#34;&gt;Display emails in monospace font&lt;/h2&gt;
+
+&lt;p&gt;The final step of this is display the emails in a nice, monospace font. I have
+&lt;a href=&#34;https://adobe-fonts.github.io/source-code-pro/&#34;&gt;Source Code Pro&lt;/a&gt; installed, and use the &amp;ldquo;Light&amp;rdquo; variant of this in
+Outlook. To do this, select the &amp;ldquo;&lt;em&gt;Stationary and Fonts&amp;hellip;&lt;/em&gt;&amp;rdquo; button in that same
+pane.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-6.png&#34; alt=&#34;Screenshot of configuring Outlook to use monospace font (1)&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Open the Stationary and Fonts dialog&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Once here, modify the config for &amp;ldquo;&lt;em&gt;Composing and reading plain text messages&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-7.png&#34; alt=&#34;Screenshot of configuring Outlook to use monospace font (2)&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;We&amp;#39;re changing plain text message formating&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Finally, set your desired monospace font.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-8.png&#34; alt=&#34;Screenshot of configuring Outlook to use monospace font (3)&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Open the Stationary and Fonts dialog&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap Up&lt;/h2&gt;
+
+&lt;p&gt;Better plain text emails, for the win.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/sane-outlook-9.png&#34; alt=&#34;Screenshot of plain text email with correctly configured Outlook&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Beautiful, monospace messages&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+</description>
+    </item>
     
     <item>
       <title>How I Work</title>
