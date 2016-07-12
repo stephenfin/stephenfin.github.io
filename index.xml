@@ -928,41 +928,17 @@ authentication against the nickserv, using SASL. Pretty much hassle free.&lt;/p&
     </item>
     
     <item>
-      <title>About Stephen</title>
+      <title>Who is Stephen</title>
       <link>https://that.guru/about/</link>
       <pubDate>Sat, 25 Jun 2016 23:33:13 +0100</pubDate>
       
       <guid>https://that.guru/about/</guid>
-      <description>&lt;p&gt;I once fried my parents desktop PC after cleaning the processor heatsink and
-forgetting to reconnect the fan. Around three weeks later, I shocked myself and
-tripped the switches in the house trying to rewire an old PC power supply. I
-was about eleven at the time (give or take a year), which meant I didn&amp;rsquo;t win
-the competition for youngest fool in Ireland but I did learn two very important
-lessons that I&amp;rsquo;ll never forget: if it runs hot, you really do need to keep it
-cool, and there&amp;rsquo;s a rather good reason PC power supplies have large &amp;ldquo;do not
-open&amp;rdquo; stickers on the casing.&lt;/p&gt;
-
-&lt;p&gt;This natural affinity towards technology led me to a degree in Computer
-Engineering at the University of Limerick, where I discovered software
-development. I undertook a great deal of research into Wireless Sensor Networks
-(WSNs) - a precursor or dependency of the Internet of Things (IoT) concept - as
-part of this degree and have worked in the virtualization, software defined
-networking and cloud computing areas of industry since graduating in 2013. This
-means I&amp;rsquo;ve been fortunate enough to work in some of the most cutting areas of
-the industry and you can be sure I plan to continue on this trajectory.&lt;/p&gt;
-
-&lt;p&gt;My code is a great source of pride and I&amp;rsquo;ve also been known to dabble in
-design, be that software architecture, circuit prototyping or UX. I&amp;rsquo;m happy
-virtually anywhere in the stack, from low level microcontroller development to
-backend web service development. I enjoy the &amp;ldquo;why&amp;rdquo; of my work and will happily
-talk for hours about the finer points of the semantic web or what &amp;ldquo;Software
-Craftsmanship&amp;rdquo; entails. I love to both teach and be taught and I see myself
-popping up in academia at some point in the future, though I&amp;rsquo;m having too much
-fun in industry to consider it right now.&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m pretty happy where I am right now, but I&amp;rsquo;m always on the lookout for a way
-to maintain the aforementioned trajectory. If you&amp;rsquo;ve ideas here, feel free to
-reach out for a chat (and if you don&amp;rsquo;t, we can always talk foosball!)&lt;/p&gt;
+      <description>&lt;p&gt;Stephen is a software developer at &lt;a href=&#34;http://www.intel.ie/content/www/ie/en/company-overview/intel-shannon.html&#34;&gt;Intel&lt;/a&gt;. He works on
+&lt;a href=&#34;http://stackalytics.com/?user_id=sfinucan&#34;&gt;OpenStack&lt;/a&gt;, with a focus on &lt;a href=&#34;http://www.etsi.org/technologies-clusters/technologies/nfv&#34;&gt;NFV&lt;/a&gt; enablement. In the past, he
+has also contributed Intel&amp;rsquo;s DPDK-focused fork of Open vSwitch - &lt;a href=&#34;https://github.com/01org/dpdk-ovs&#34;&gt;DPDK
+vSwitch&lt;/a&gt; - along with &lt;a href=&#34;http://openvswitch.org/&#34;&gt;Open vSwitch&lt;/a&gt; itself. He hold an first
+class honors degree in Computer Engineering from the &lt;a href=&#34;http://www.ul.ie/&#34;&gt;University of
+Limerick&lt;/a&gt;, Ireland.&lt;/p&gt;
 </description>
     </item>
     
