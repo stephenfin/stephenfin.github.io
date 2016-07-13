@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Random &middot; stephenfin</title>
+  <title>How are datacenters physically wired? &middot; stephenfin</title>
 
   
   <link rel="stylesheet" href="https://that.guru/css/poole.css">
@@ -27,7 +27,7 @@
   
   
   
-  <link href="https://that.guru/categories/random/index.xml" rel="alternate" type="application/rss+xml" title="Stephen Finucane (Fin-oo-can) &middot; stephenfin" />
+  
 
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -89,24 +89,68 @@
 
 
 <div class="content container">
-  <ul class="posts">
-  
-    <li><a href="https://that.guru/blog/how-are-datacenters-physically-wired/">How are datacenters physically wired?</a>
+  <div class="post">
+    <h1 class="post-title">How are datacenters physically wired?</h1>
+    <span class="post-date">Jul 13, 2016 &middot; 2 minute read
     
-    &middot;
+    <br/>
     <a class="label" href="https://that.guru/categories/random">random</a>
     </span>
-    &middot; <time>Jul 13, 2016</time></li>
+    <p>I sent this question to my team in Intel some time ago.</p>
+
+<blockquote>
+<p>I gave a run down on SDN, NFV and all things Open to the OpenStack new
+hires today. One of the questions that came out of this concerned the
+physical wiring of server room or datacenter using SDN. Does anyone
+have any info on how n servers in a datacenter would be physically
+connected (where n &gt;= 100, for example)? In case it matters, I&rsquo;m
+picturing either a mesh network (high efficiency, high complexity) or
+a hierarchical network of increasingly large-bandwidth switches and
+routers (low efficiency, low complexity), but I&rsquo;m only guessing here.</p>
+</blockquote>
+
+<p><a href="https://ie.linkedin.com/in/robin-giller-1174193b">Robin Giller</a> started with an excellent introduction:</p>
+
+<blockquote>
+<p>I believe that &ldquo;leaf and spine&rdquo; is the current topology of choice,
+moving away from the &ldquo;fat tree&rdquo; architecture of the past when one
+inbound request needed to be routed to one server, who would compute
+and send data back up to the core and out. Leaf and spine is more
+efficient when you&rsquo;ve got lots of east-west traffic. There&rsquo;s an
+explanation of both in the link below, and loads more available - just search
+for leaf and spine.</p>
+
+<p><a href="http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf">http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf</a></p>
+</blockquote>
+
+<p>While the always helpful <a href="https:/ie.linkedin.com/in/sean-mooney-7a842429">Sean Mooney</a> provided that little bit
+of additional info:</p>
+
+<blockquote>
+<p>To expand on that, I believe it is leaf spine at the pod level (~5-10 racks
+of servers) with spine switches interconnected in a mesh.</p>
+
+<p>So each spine switch will be connected to leaf top-of-rack switches and then
+interconnected with other spine switches to form a core mesh network.</p>
+
+<p>There is also work in OpenStack around Hierarchical Port Binding to allow
+different overlay technologies to be used at the spine and leaf layers.
+<a href="https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding">https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding</a></p>
+
+<p>With Hierarchical Port Binding you can use vlans between server and leaf
+level and vxlan or other more scalable/computationally expensive overlays at
+the leaf/spine level.</p>
+</blockquote>
+
+<p>Interesting stuff.</p>
+
+  </div>
   
-    <li><a href="https://that.guru/blog/hello-world/">Hello, World!</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/random">random</a>
-    </span>
-    &middot; <time>Jun 25, 2016</time></li>
-  
-  </ul>
 </div>
+
+
+
+
 
 </body>
 </html>
