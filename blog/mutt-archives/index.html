@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Blogs &middot; stephenfin</title>
+  <title>Loading mailing list archives with Mutt &middot; stephenfin</title>
 
   
   <link rel="stylesheet" href="https://that.guru/css/poole.css">
@@ -27,7 +27,7 @@
   
   
   
-  <link href="https://that.guru/blog/index.xml" rel="alternate" type="application/rss+xml" title="Stephen Finucane (Fin-oo-can) &middot; stephenfin" />
+  
 
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -89,59 +89,67 @@
 
 
 <div class="content container">
-  <ul class="posts">
-  
-    <li><a href="https://that.guru/blog/mutt-archives/">Loading mailing list archives with Mutt</a>
+  <div class="post">
+    <h1 class="post-title">Loading mailing list archives with Mutt</h1>
+    <span class="post-date">Jul 13, 2016 &middot; 1 minute read
     
-    &middot;
+    <br/>
     <a class="label" href="https://that.guru/categories/tips">tips</a>
     </span>
-    &middot; <time>Jul 13, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/sane-outlook/">Sane Outlook: Making plain text better in Outlook</a>
+    <p>You can use <a href="http://www.mutt.org/">Mutt</a> to load archives from a mailing list. This is useful
+for replying to mails when you weren&rsquo;t previously subscribed to said mailing
+list.</p>
+
+<p>To begin, first go to the archive site for your given mailing list. This will
+probably be a Pipermail instance. Once here, identify the archives you require:</p>
+
+
+<figure >
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 11, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/how-i-work/">How I Work</a>
+        <img src="https://that.guru/media/mutt-archives-1.png" alt="Screenshot of the download button for Pipermail" />
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 9, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/resizing-pinned-to-unpinned/">Resizing pinned instances to unpinned</a>
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/openstack">openstack</a>
-    </span>
-    &middot; <time>Jun 30, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/cpu-pinning-with-image-metadata/">CPU pinning with image metadata</a>
+    <figcaption>
+        <h4>Download the archive</h4>
+        
+    </figcaption>
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/openstack">openstack</a>
-    </span>
-    &middot; <time>Jun 29, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/znc-sasl-server-pass/">Configuring ZNC with HexChat</a>
+</figure>
+
+
+<p>Once you&rsquo;ve identified this, download and, if necessary, extract the archive:</p>
+
+<pre><code>$ wget http://openvswitch.org/pipermail/dev/2016-June.txt.gz
+$ gunzip 2016-June.txt.gz
+</code></pre>
+
+<p>This extracted archive file will be in mbox format, and can be easily loaded
+with mutt:</p>
+
+<pre><code>$ mutt -f 2016-June.txt
+</code></pre>
+
+
+<figure >
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/sysadmin">sysadmin</a><a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jun 26, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/hello-world/">Hello, World!</a>
+        <img src="https://that.guru/media/mutt-archives-2.png" alt="Screenshot of Mutt with archives loaded" />
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/random">random</a>
-    </span>
-    &middot; <time>Jun 25, 2016</time></li>
+    
+    <figcaption>
+        <h4>All patches available in Mutt</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+  </div>
   
-  </ul>
 </div>
+
+
+
+
 
 </body>
 </html>

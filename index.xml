@@ -7,8 +7,63 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Mon, 11 Jul 2016 18:11:38 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 13 Jul 2016 10:59:30 +0100</lastBuildDate>
     <atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Loading mailing list archives with Mutt</title>
+      <link>https://that.guru/blog/mutt-archives/</link>
+      <pubDate>Wed, 13 Jul 2016 10:59:30 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/mutt-archives/</guid>
+      <description>&lt;p&gt;You can use &lt;a href=&#34;http://www.mutt.org/&#34;&gt;Mutt&lt;/a&gt; to load archives from a mailing list. This is useful
+for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing
+list.&lt;/p&gt;
+
+&lt;p&gt;To begin, first go to the archive site for your given mailing list. This will
+probably be a Pipermail instance. Once here, identify the archives you require:&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/mutt-archives-1.png&#34; alt=&#34;Screenshot of the download button for Pipermail&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Download the archive&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ wget http://openvswitch.org/pipermail/dev/2016-June.txt.gz
+$ gunzip 2016-June.txt.gz
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This extracted archive file will be in mbox format, and can be easily loaded
+with mutt:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ mutt -f 2016-June.txt
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/mutt-archives-2.png&#34; alt=&#34;Screenshot of Mutt with archives loaded&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;All patches available in Mutt&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+</description>
+    </item>
     
     <item>
       <title>Sane Outlook: Making plain text better in Outlook</title>
