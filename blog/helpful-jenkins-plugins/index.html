@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Tips &middot; stephenfin</title>
+  <title>Working with Jenkins &#43; Chrome &middot; stephenfin</title>
 
   
   <link rel="stylesheet" href="https://that.guru/css/poole.css">
@@ -27,7 +27,7 @@
   
   
   
-  <link href="https://that.guru/categories/tips/index.xml" rel="alternate" type="application/rss+xml" title="Stephen Finucane (Fin-oo-can) &middot; stephenfin" />
+  
 
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -89,45 +89,83 @@
 
 
 <div class="content container">
-  <ul class="posts">
-  
-    <li><a href="https://that.guru/blog/helpful-jenkins-plugins/">Working with Jenkins &#43; Chrome</a>
+  <div class="post">
+    <h1 class="post-title">Working with Jenkins &#43; Chrome</h1>
+    <span class="post-date">Jul 13, 2016 &middot; 1 minute read
     
-    &middot;
+    <br/>
     <a class="label" href="https://that.guru/categories/tips">tips</a>
     </span>
-    &middot; <time>Jul 13, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/mutt-archives/">Loading mailing list archives with Mutt</a>
     
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 13, 2016</time></li>
+
+<p>It&rsquo;s been a while since I had to work with Jenkins directly (since I started on
+OpenStack, really). However, I had a few tricks picked up around plugins for
+Chrome that make working with pre-3.0 Jenkins a little more pleasant.</p>
+
+<h1 id="buildreactor">BuildReactor</h1>
+
+<ul>
+<li><a href="https://chrome.google.com/webstore/detail/buildreactor/agfdekbncfakhgofmaacjfkpbhjhpjmp">Site</a></li>
+<li><a href="https://github.com/AdamNowotny/BuildReactor">Source</a></li>
+
+<li><p>Overview</p>
+
+<p>This provides a current statuses of a user-defined number of Jenkins jobs.
+It also gives notifications when projects pass/fail.</p></li>
+
+<li><p>Installation</p>
+
+<p>Install from the Chrome store. Once installed, &ldquo;Add&rdquo; a new view, give it a
+name (i.e. &ldquo;Open vSwitch&rdquo;) and configure the following settings:</p>
+
+<pre><code>Server: jenkins.example.com:8080 (or your local instance)
+User:   [leave empty]
+Pass:   [leave empty]
+</code></pre>
+
+<p>Select the &ldquo;Show&rdquo; button, and select which of the projects you want to
+display. Then &ldquo;Save&rdquo;. You should now be able to get an overview of your
+builds by clicking on the toolbar icon. You should also get notifications.
+This is easier to parse than the emails, IMO.</p></li>
+</ul>
+
+<h1 id="doony">Doony</h1>
+
+<ul>
+<li><a href="https://github.com/kevinburke/doony#chrome-extension">Site</a></li>
+<li><a href="https://github.com/kevinburke/doony">Source</a></li>
+
+<li><p>Overview</p>
+
+<p>This provides a new, ultra-usable stylesheet for Jenkins. IMO it makes
+Jenkins easier to work with.</p></li>
+
+<li><p>Installation</p>
+
+<p>Follow the guide on the README. When modifying the &lsquo;manifest.json&rsquo; file,
+add the following URLs:</p>
+
+<pre><code>&quot;matches&quot;: [
+  &quot;https://jenkins.ci.cloudbees.com/*&quot;,
+  &quot;http://localhost:8080/*&quot;,
+  &quot;https://jenkins.ir.intel.com:8080/*&quot;,
+  &quot;http://jenkins.ir.intel.com:8080/*&quot;,
+  &quot;https://jenkins.ir.intel.com/*&quot;,
+  &quot;http://jenkins.ir.intel.com/*&quot;,
+  &quot;http://sivjenkins02.ir.intel.com/*&quot;
+],
+</code></pre>
+
+<p>Don&rsquo;t forget to &ldquo;reload&rdquo; the plugin once installed.</p></li>
+</ul>
+
+  </div>
   
-    <li><a href="https://that.guru/blog/sane-outlook/">Sane Outlook: Making plain text better in Outlook</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 11, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/how-i-work/">How I Work</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 9, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/znc-sasl-server-pass/">Configuring ZNC with HexChat</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/sysadmin">sysadmin</a><a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jun 26, 2016</time></li>
-  
-  </ul>
 </div>
+
+
+
+
 
 </body>
 </html>

@@ -7,8 +7,79 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 13 Jul 2016 10:59:30 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 13 Jul 2016 14:46:56 +0100</lastBuildDate>
     <atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Working with Jenkins &#43; Chrome</title>
+      <link>https://that.guru/blog/helpful-jenkins-plugins/</link>
+      <pubDate>Wed, 13 Jul 2016 14:46:56 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
+      <description>
+
+&lt;p&gt;It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on
+OpenStack, really). However, I had a few tricks picked up around plugins for
+Chrome that make working with pre-3.0 Jenkins a little more pleasant.&lt;/p&gt;
+
+&lt;h1 id=&#34;buildreactor&#34;&gt;BuildReactor&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://chrome.google.com/webstore/detail/buildreactor/agfdekbncfakhgofmaacjfkpbhjhpjmp&#34;&gt;Site&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/AdamNowotny/BuildReactor&#34;&gt;Source&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Overview&lt;/p&gt;
+
+&lt;p&gt;This provides a current statuses of a user-defined number of Jenkins jobs.
+It also gives notifications when projects pass/fail.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Installation&lt;/p&gt;
+
+&lt;p&gt;Install from the Chrome store. Once installed, &amp;ldquo;Add&amp;rdquo; a new view, give it a
+name (i.e. &amp;ldquo;Open vSwitch&amp;rdquo;) and configure the following settings:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Server: jenkins.example.com:8080 (or your local instance)
+User:   [leave empty]
+Pass:   [leave empty]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Select the &amp;ldquo;Show&amp;rdquo; button, and select which of the projects you want to
+display. Then &amp;ldquo;Save&amp;rdquo;. You should now be able to get an overview of your
+builds by clicking on the toolbar icon. You should also get notifications.
+This is easier to parse than the emails, IMO.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;doony&#34;&gt;Doony&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/kevinburke/doony#chrome-extension&#34;&gt;Site&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/kevinburke/doony&#34;&gt;Source&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Overview&lt;/p&gt;
+
+&lt;p&gt;This provides a new, ultra-usable stylesheet for Jenkins. IMO it makes
+Jenkins easier to work with.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Installation&lt;/p&gt;
+
+&lt;p&gt;Follow the guide on the README. When modifying the &amp;lsquo;manifest.json&amp;rsquo; file,
+add the following URLs:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;matches&amp;quot;: [
+  &amp;quot;https://jenkins.ci.cloudbees.com/*&amp;quot;,
+  &amp;quot;http://localhost:8080/*&amp;quot;,
+  &amp;quot;https://jenkins.ir.intel.com:8080/*&amp;quot;,
+  &amp;quot;http://jenkins.ir.intel.com:8080/*&amp;quot;,
+  &amp;quot;https://jenkins.ir.intel.com/*&amp;quot;,
+  &amp;quot;http://jenkins.ir.intel.com/*&amp;quot;,
+  &amp;quot;http://sivjenkins02.ir.intel.com/*&amp;quot;
+],
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget to &amp;ldquo;reload&amp;rdquo; the plugin once installed.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Loading mailing list archives with Mutt</title>
