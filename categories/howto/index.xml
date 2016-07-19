@@ -120,7 +120,7 @@ work as expected:&lt;/p&gt;
 &lt;p&gt;The first thing we should do is declare our own macro to place tests in. This
 will act as a &lt;em&gt;function&lt;/em&gt; of sorts and allow us to call the tests at once or
 from another file (plus it acts as a container to illustrate the difference in
-different files). To do this, plus the following code in a file called
+different files). To do this, add the following code in a file called
 &lt;code&gt;mytest.at&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;m4_define([MYTEST_CHECK_CAT], [])

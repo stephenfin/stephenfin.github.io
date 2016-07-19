@@ -120,7 +120,7 @@ work as expected:&lt;/p&gt;
 &lt;p&gt;The first thing we should do is declare our own macro to place tests in. This
 will act as a &lt;em&gt;function&lt;/em&gt; of sorts and allow us to call the tests at once or
 from another file (plus it acts as a container to illustrate the difference in
-different files). To do this, plus the following code in a file called
+different files). To do this, add the following code in a file called
 &lt;code&gt;mytest.at&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;m4_define([MYTEST_CHECK_CAT], [])
@@ -234,15 +234,16 @@ It also gives notifications when projects pass/fail.&lt;/p&gt;&lt;/li&gt;
 &lt;p&gt;Install from the Chrome store. Once installed, &amp;ldquo;Add&amp;rdquo; a new view, give it a
 name (i.e. &amp;ldquo;Open vSwitch&amp;rdquo;) and configure the following settings:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;Server: jenkins.example.com:8080 (or your local instance)
+&lt;pre&gt;&lt;code&gt;Server: jenkins.example.com:8080
 User:   [leave empty]
 Pass:   [leave empty]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Select the &amp;ldquo;Show&amp;rdquo; button, and select which of the projects you want to
-display. Then &amp;ldquo;Save&amp;rdquo;. You should now be able to get an overview of your
-builds by clicking on the toolbar icon. You should also get notifications.
-This is easier to parse than the emails, IMO.&lt;/p&gt;&lt;/li&gt;
+&lt;p&gt;Substitute the appropriate URL for your local server. Once done, select the
+&amp;ldquo;Show&amp;rdquo; button, and select which of the projects you want to display. Then
+&amp;ldquo;Save&amp;rdquo;. You should now be able to get an overview of your builds by
+clicking on the toolbar icon. You should also get notifications.  This is
+easier to parse than the emails, IMO.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h1 id=&#34;doony&#34;&gt;Doony&lt;/h1&gt;
@@ -264,15 +265,15 @@ add the following URLs:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;&amp;quot;matches&amp;quot;: [
   &amp;quot;https://jenkins.ci.cloudbees.com/*&amp;quot;,
   &amp;quot;http://localhost:8080/*&amp;quot;,
-  &amp;quot;https://jenkins.ir.intel.com:8080/*&amp;quot;,
-  &amp;quot;http://jenkins.ir.intel.com:8080/*&amp;quot;,
-  &amp;quot;https://jenkins.ir.intel.com/*&amp;quot;,
-  &amp;quot;http://jenkins.ir.intel.com/*&amp;quot;,
-  &amp;quot;http://sivjenkins02.ir.intel.com/*&amp;quot;
+  &amp;quot;https://jenkins.example.com:8080/*&amp;quot;,
+  &amp;quot;http://jenkins.example.com:8080/*&amp;quot;,
+  &amp;quot;https://jenkins.example.com/*&amp;quot;,
+  &amp;quot;http://jenkins.example.com/*&amp;quot;,
 ],
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Don&amp;rsquo;t forget to &amp;ldquo;reload&amp;rdquo; the plugin once installed.&lt;/p&gt;&lt;/li&gt;
+&lt;p&gt;Substitute the appropriate URL for you local server. Don&amp;rsquo;t forget to
+&amp;ldquo;reload&amp;rdquo; the plugin once installed.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

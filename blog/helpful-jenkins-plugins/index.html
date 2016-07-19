@@ -91,7 +91,7 @@
 <div class="content container">
   <div class="post">
     <h1 class="post-title">Working with Jenkins &#43; Chrome</h1>
-    <span class="post-date">Jul 13, 2016 &middot; 1 minute read &middot; <a href="https://that.guru/blog/helpful-jenkins-plugins/#disqus_thread">Comments</a>
+    <span class="post-date">Jul 13, 2016 &middot; 2 minute read &middot; <a href="https://that.guru/blog/helpful-jenkins-plugins/#disqus_thread">Comments</a>
     
     <br/>
     <a class="label" href="https://that.guru/categories/tips">tips</a>
@@ -118,15 +118,16 @@ It also gives notifications when projects pass/fail.</p></li>
 <p>Install from the Chrome store. Once installed, &ldquo;Add&rdquo; a new view, give it a
 name (i.e. &ldquo;Open vSwitch&rdquo;) and configure the following settings:</p>
 
-<pre><code>Server: jenkins.example.com:8080 (or your local instance)
+<pre><code>Server: jenkins.example.com:8080
 User:   [leave empty]
 Pass:   [leave empty]
 </code></pre>
 
-<p>Select the &ldquo;Show&rdquo; button, and select which of the projects you want to
-display. Then &ldquo;Save&rdquo;. You should now be able to get an overview of your
-builds by clicking on the toolbar icon. You should also get notifications.
-This is easier to parse than the emails, IMO.</p></li>
+<p>Substitute the appropriate URL for your local server. Once done, select the
+&ldquo;Show&rdquo; button, and select which of the projects you want to display. Then
+&ldquo;Save&rdquo;. You should now be able to get an overview of your builds by
+clicking on the toolbar icon. You should also get notifications.  This is
+easier to parse than the emails, IMO.</p></li>
 </ul>
 
 <h1 id="doony">Doony</h1>
@@ -148,15 +149,15 @@ add the following URLs:</p>
 <pre><code>&quot;matches&quot;: [
   &quot;https://jenkins.ci.cloudbees.com/*&quot;,
   &quot;http://localhost:8080/*&quot;,
-  &quot;https://jenkins.ir.intel.com:8080/*&quot;,
-  &quot;http://jenkins.ir.intel.com:8080/*&quot;,
-  &quot;https://jenkins.ir.intel.com/*&quot;,
-  &quot;http://jenkins.ir.intel.com/*&quot;,
-  &quot;http://sivjenkins02.ir.intel.com/*&quot;
+  &quot;https://jenkins.example.com:8080/*&quot;,
+  &quot;http://jenkins.example.com:8080/*&quot;,
+  &quot;https://jenkins.example.com/*&quot;,
+  &quot;http://jenkins.example.com/*&quot;,
 ],
 </code></pre>
 
-<p>Don&rsquo;t forget to &ldquo;reload&rdquo; the plugin once installed.</p></li>
+<p>Substitute the appropriate URL for you local server. Don&rsquo;t forget to
+&ldquo;reload&rdquo; the plugin once installed.</p></li>
 </ul>
 
   </div>
