@@ -54,7 +54,7 @@ configuring HexChat with ZNC. I&amp;rsquo;m using SSL, so I enable that (and acc
 &amp;ldquo;invalid&amp;rdquo;, self-signed key), and I select this as the server to automatically
 connect to when I open HexChat. The interesting bit is the &lt;code&gt;Server Password
 &amp;lt;/PASS password&lt;/code&gt; section. In here, I have my username and server password
-stored in format &lt;code&gt;[username]/[password]&lt;/code&gt;, e.g. &lt;code&gt;admin/password&lt;/code&gt;.&lt;/p&gt;
+stored in format &lt;code&gt;[username]:[password]&lt;/code&gt;, e.g. &lt;code&gt;admin:password&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;Once done, I also need to configure a channels you want to connect to on the
 &lt;em&gt;Autojoin channels&lt;/em&gt; tab:&lt;/p&gt;
