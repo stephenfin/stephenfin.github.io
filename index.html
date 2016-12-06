@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-	<meta name="generator" content="Hugo 0.16" />
+	<meta name="generator" content="Hugo 0.17" />
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
@@ -95,6 +95,21 @@
     
     <div class="post">
       <h1 class="post-title">
+        <a href="https://that.guru/blog/mtus-in-neutron/">MTUs in neutron</a>
+      </h1>
+      <span class="post-date">Dec 6, 2016 &middot; 1 minute read &middot; <a href="https://that.guru/blog/mtus-in-neutron/#disqus_thread">Comments</a>
+      
+      <br/>
+      <a class="label" href="https://that.guru/categories/openstack">openstack</a><a class="label" href="https://that.guru/categories/tips">tips</a>
+      </span>
+      
+      I&rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton. The below table tries to collect these changes in a coherent table.
+      <a href="https://that.guru/blog/mtus-in-neutron/">Read On &rarr;</a>
+      
+    </div>
+    
+    <div class="post">
+      <h1 class="post-title">
         <a href="https://that.guru/blog/gnu-autotest/">GNU Autotest</a>
       </h1>
       <span class="post-date">Jul 15, 2016 &middot; 5 minute read &middot; <a href="https://that.guru/blog/gnu-autotest/#disqus_thread">Comments</a>
@@ -103,7 +118,8 @@
       <a class="label" href="https://that.guru/categories/howto">howto</a><a class="label" href="https://that.guru/categories/c">c</a>
       </span>
       
-      GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.k.a. the GNU Build System. The Autotest scripts execute unit tests by making shell-like calls to utilities, Python scripts and C unit test applications, and comparing their return values (exit code, stdout and stderr) to predefined values. To do this, Autotest defines a number of M4 macros, such as AT_INIT and AT_CLEANUP.
+      GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.k.a. the GNU Build System.
+The Autotest scripts execute unit tests by making shell-like calls to utilities, Python scripts and C unit test applications, and comparing their return values (exit code, stdout and stderr) to predefined values. To do this, Autotest defines a number of M4 macros, such as AT_INIT and AT_CLEANUP.
       <a href="https://that.guru/blog/gnu-autotest/">Read On &rarr;</a>
       
     </div>
@@ -118,7 +134,11 @@
       <a class="label" href="https://that.guru/categories/tips">tips</a>
       </span>
       
-      It&rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant. BuildReactor Site Source Overview This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail. Installation Install from the Chrome store. Once installed, &ldquo;Add&rdquo; a new view, give it a name (i.e.
+      It&rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant.
+BuildReactor  Site Source Overview
+This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
+ Installation
+Install from the Chrome store.
       <a href="https://that.guru/blog/helpful-jenkins-plugins/">Read On &rarr;</a>
       
     </div>
@@ -133,7 +153,8 @@
       <a class="label" href="https://that.guru/categories/random">random</a>
       </span>
       
-      I sent this question to my team in Intel some time ago. I gave a run down on SDN, NFV and all things Open to the OpenStack new hires today. One of the questions that came out of this concerned the physical wiring of server room or datacenter using SDN. Does anyone have any info on how n servers in a datacenter would be physically connected (where n &gt;= 100, for example)?
+      I sent this question to my team in Intel some time ago.
+ I gave a run down on SDN, NFV and all things Open to the OpenStack new hires today. One of the questions that came out of this concerned the physical wiring of server room or datacenter using SDN. Does anyone have any info on how n servers in a datacenter would be physically connected (where n &gt;= 100, for example)?
       <a href="https://that.guru/blog/how-are-datacenters-physically-wired/">Read On &rarr;</a>
       
     </div>
@@ -148,7 +169,9 @@
       <a class="label" href="https://that.guru/categories/tips">tips</a>
       </span>
       
-      You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&rsquo;t previously subscribed to said mailing list. To begin, first go to the archive site for your given mailing list. This will probably be a Pipermail instance. Once here, identify the archives you require: Download the archive Once you&rsquo;ve identified this, download and, if necessary, extract the archive: $ wget
+      You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&rsquo;t previously subscribed to said mailing list.
+To begin, first go to the archive site for your given mailing list. This will probably be a Pipermail instance. Once here, identify the archives you require:
+ Download the archive   Once you&rsquo;ve identified this, download and, if necessary, extract the archive:
       <a href="https://that.guru/blog/mutt-archives/">Read On &rarr;</a>
       
     </div>
@@ -163,7 +186,7 @@
       <a class="label" href="https://that.guru/categories/tips">tips</a>
       </span>
       
-      I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility. Sadly, Outlooks defaults to settings that seemingly encourage bad email ettiquete. Fortunately, we can wrangle Outlook into working some bit normally. You still need to do a bit of work (removing the Outlook context header, giving out to people for top-posting (☺), etc.), but it&rsquo;s better.
+      I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility. Sadly, Outlooks defaults to settings that seemingly encourage bad email ettiquete. Fortunately, we can wrangle Outlook into working some bit normally. You still need to do a bit of work (removing the Outlook context header, giving out to people for top-posting (☺), etc.
       <a href="https://that.guru/blog/sane-outlook/">Read On &rarr;</a>
       
     </div>
@@ -178,7 +201,8 @@
       <a class="label" href="https://that.guru/categories/tips">tips</a>
       </span>
       
-      Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&rsquo;ve worked, during my time here. Note that this has evolved massively over the past three years, so expect what I say now to have changed significantly a year down the line. At the moment, I work predominantly on nova, though I contribute to many other projects like openstack-manuals, oslo.config, DevStack and Patchwork.
+      Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&rsquo;ve worked, during my time here. Note that this has evolved massively over the past three years, so expect what I say now to have changed significantly a year down the line.
+At the moment, I work predominantly on nova, though I contribute to many other projects like openstack-manuals, oslo.
       <a href="https://that.guru/blog/how-i-work/">Read On &rarr;</a>
       
     </div>
@@ -193,7 +217,8 @@
       <a class="label" href="https://that.guru/categories/openstack">openstack</a>
       </span>
       
-      OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor. There were reports that resizing an instance from a pinned flavor to a unpinned one did not result in the pinning being removed. The opposite was also reportedly true. I investigated this to see if this was the case.
+      OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor.
+There were reports that resizing an instance from a pinned flavor to a unpinned one did not result in the pinning being removed. The opposite was also reportedly true. I investigated this to see if this was the case.
       <a href="https://that.guru/blog/resizing-pinned-to-unpinned/">Read On &rarr;</a>
       
     </div>
@@ -208,7 +233,8 @@
       <a class="label" href="https://that.guru/categories/openstack">openstack</a>
       </span>
       
-      OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata. Someone suggested to me that CPU policies many not be being applied correctly when stored as image metadata rather than flavor properties. I decided to investigate this claim. Commit 8bafc9 of Nova was used for this testing.
+      OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.
+Someone suggested to me that CPU policies many not be being applied correctly when stored as image metadata rather than flavor properties. I decided to investigate this claim.
       <a href="https://that.guru/blog/cpu-pinning-with-image-metadata/">Read On &rarr;</a>
       
     </div>
@@ -228,22 +254,35 @@
       
     </div>
     
-    <div class="post">
-      <h1 class="post-title">
-        <a href="https://that.guru/blog/hello-world/">Hello, World!</a>
-      </h1>
-      <span class="post-date">Jun 25, 2016 &middot; 1 minute read &middot; <a href="https://that.guru/blog/hello-world/#disqus_thread">Comments</a>
-      
-      <br/>
-      <a class="label" href="https://that.guru/categories/random">random</a>
-      </span>
-      
-      This is my new, Hugo-powered blog. I have a backlog of articles to publish, so expect to see lots of material going up here in the next few weeks.
-      
-      
-    </div>
     
     
+    <ul class="pagination">
+        
+        <li>
+            <a href="https://that.guru/" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+        </li>
+        
+        <li
+        class="disabled">
+        <a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        </li>
+        
+        <li
+        class="active"><a href="https://that.guru/">1</a></li>
+        
+        <li
+        ><a href="https://that.guru/page/2/">2</a></li>
+        
+        <li
+        >
+        <a href="https://that.guru/page/2/" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        </li>
+        
+        <li>
+            <a href="https://that.guru/page/2/" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        </li>
+        
+    </ul>
     
   </div>
 </div>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>Tips &middot; stephenfin</title>
+  <title>MTUs in neutron &middot; stephenfin</title>
 
   
   <link rel="stylesheet" href="https://that.guru/css/poole.css">
@@ -27,7 +27,7 @@
   
   
   
-  <link href="https://that.guru/categories/tips/index.xml" rel="alternate" type="application/rss+xml" title="Stephen Finucane (Fin-oo-can) &middot; stephenfin" />
+  
 
   <meta name="description" content="">
   <meta name="keywords" content="">
@@ -89,52 +89,64 @@
 
 
 <div class="content container">
-  <ul class="posts">
-  
-    <li><a href="https://that.guru/blog/mtus-in-neutron/">MTUs in neutron</a>
+  <div class="post">
+    <h1 class="post-title">MTUs in neutron</h1>
+    <span class="post-date">Dec 6, 2016 &middot; 1 minute read &middot; <a href="https://that.guru/blog/mtus-in-neutron/#disqus_thread">Comments</a>
     
-    &middot;
+    <br/>
     <a class="label" href="https://that.guru/categories/openstack">openstack</a><a class="label" href="https://that.guru/categories/tips">tips</a>
     </span>
-    &middot; <time>Dec 6, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/helpful-jenkins-plugins/">Working with Jenkins &#43; Chrome</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 13, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/mutt-archives/">Loading mailing list archives with Mutt</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 13, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/sane-outlook/">Sane Outlook: Making plain text better in Outlook</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 11, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/how-i-work/">How I Work</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jul 9, 2016</time></li>
-  
-    <li><a href="https://that.guru/blog/znc-sasl-server-pass/">Configuring ZNC with HexChat</a>
-    
-    &middot;
-    <a class="label" href="https://that.guru/categories/sysadmin">sysadmin</a><a class="label" href="https://that.guru/categories/tips">tips</a>
-    </span>
-    &middot; <time>Jun 26, 2016</time></li>
-  
-  </ul>
+    <p>I&rsquo;m not overly familiar with neutron but it appears that in the past correctly
+setting MTU values was easier said than done. This has been massively improved
+in recent releases, but getting us to this point required a lot of work and, in
+particular, a lot of changes to the MTU-related configuration options available
+over the course of Liberty and Newton. The below table tries to collect these
+changes in a coherent table.</p>
+
+<p>Configuration Option  Version  Commit    Comments
+====================  =======  ========  ==========================
+<code>segment_mtu</code>         Liberty  -         -
+<code>path_mtu</code>            Liberty  -         -
+<code>segment_mtu</code>         Mitaka   b2d0985d  Default set to 1500
+<code>global_physnet_mtu</code>  Mitaka   ae45cd57  New name for <code>segment_mtu</code>
+<code>path_mtu</code>            Mitaka   7a4633a9  Default set to 1500
+<code>global_physnet_mtu</code>  Newton   -         -
+<code>path_mtu</code>            Newton   38531ca5  Default set to 0</p>
+
+<p>These options are described in the docs for both <a href="doc-mitaka">Mitaka</a> and
+<a href="doc-newton">Newton</a>.</p>
+
+<p>In addition, it&rsquo;s also worth noting that the default for <code>global_physnet_mtu</code>
+in TripleO was changed from 1400 to 1500 as part of <a href="https://bugs.launchpad.net/tripleo/+bug/1590101">bug 1590101</a>.</p>
+
+  </div>
+  <div id="disqus_thread"></div>
 </div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
 
 </body>
 </html>

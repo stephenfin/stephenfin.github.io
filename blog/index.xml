@@ -1,14 +1,45 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blogs on Stephen Finucane (Fin-oo-can)</title>
-    <link>https://that.guru/blog/</link>
-    <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
+    <title>Blog-rsses on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/blog/index.xml</link>
+    <description>Recent content in Blog-rsses on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 15 Jul 2016 11:26:37 +0100</lastBuildDate>
+    <lastBuildDate>Tue, 06 Dec 2016 15:32:46 +0000</lastBuildDate>
     <atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>MTUs in neutron</title>
+      <link>https://that.guru/blog/mtus-in-neutron/</link>
+      <pubDate>Tue, 06 Dec 2016 15:32:46 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/mtus-in-neutron/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly
+setting MTU values was easier said than done. This has been massively improved
+in recent releases, but getting us to this point required a lot of work and, in
+particular, a lot of changes to the MTU-related configuration options available
+over the course of Liberty and Newton. The below table tries to collect these
+changes in a coherent table.&lt;/p&gt;
+
+&lt;p&gt;Configuration Option  Version  Commit    Comments
+====================  =======  ========  ==========================
+&lt;code&gt;segment_mtu&lt;/code&gt;         Liberty  -         -
+&lt;code&gt;path_mtu&lt;/code&gt;            Liberty  -         -
+&lt;code&gt;segment_mtu&lt;/code&gt;         Mitaka   b2d0985d  Default set to 1500
+&lt;code&gt;global_physnet_mtu&lt;/code&gt;  Mitaka   ae45cd57  New name for &lt;code&gt;segment_mtu&lt;/code&gt;
+&lt;code&gt;path_mtu&lt;/code&gt;            Mitaka   7a4633a9  Default set to 1500
+&lt;code&gt;global_physnet_mtu&lt;/code&gt;  Newton   -         -
+&lt;code&gt;path_mtu&lt;/code&gt;            Newton   38531ca5  Default set to 0&lt;/p&gt;
+
+&lt;p&gt;These options are described in the docs for both &lt;a href=&#34;doc-mitaka&#34;&gt;Mitaka&lt;/a&gt; and
+&lt;a href=&#34;doc-newton&#34;&gt;Newton&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In addition, it&amp;rsquo;s also worth noting that the default for &lt;code&gt;global_physnet_mtu&lt;/code&gt;
+in TripleO was changed from 1400 to 1500 as part of &lt;a href=&#34;https://bugs.launchpad.net/tripleo/+bug/1590101&#34;&gt;bug 1590101&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>GNU Autotest</title>
