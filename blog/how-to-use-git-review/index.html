@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> &middot; stephenfin</title>
+  <title>Using git-review &middot; stephenfin</title>
 
   
   <link rel="stylesheet" href="https://that.guru/css/poole.css">
@@ -90,19 +90,13 @@
 
 <div class="content container">
   <div class="post">
-    <h1 class="post-title"></h1>
+    <h1 class="post-title">Using git-review</h1>
+    <span class="post-date">Dec 6, 2016 &middot; 4 minute read &middot; <a href="https://that.guru/blog/how-to-use-git-review/#disqus_thread">Comments</a>
     
-
-<h1 id="how-to-use-git-review">How to use git-review</h1>
-
-<p>This guide is borrows heavily from the original Openstack guide, found here:</p>
-
-<pre><code>https://wiki.openstack.org/wiki/Gerrit_Workflow
-</code></pre>
-
-<h2 id="introduction">Introduction</h2>
-
-<h3 id="what-is-git-review">What is <code>git-review</code></h3>
+    <br/>
+    <a class="label" href="https://that.guru/categories/openstack">openstack</a><a class="label" href="https://that.guru/categories/tips">tips</a>
+    </span>
+    
 
 <p><code>git-review</code> is a Python wrapper for many of the common Git commands used in
 conjunction with Gerrit. It encapsulates many of the most common commands used,
@@ -113,7 +107,12 @@ commands we use below have their plain <code>git</code> equivalents. However, th
 remains: why would you want to? The <code>git-review</code> tool speeds things up, and is
 used by a number of teams outside Intel (including MediaWiki and OpenStack).</p>
 
-<h3 id="a-word-on-workflows">A word on workflows</h3>
+<p>This guide is borrows heavily from the original Openstack guide, found here:</p>
+
+<pre><code>https://wiki.openstack.org/wiki/Gerrit_Workflow
+</code></pre>
+
+<h2 id="a-word-on-workflows">A word on workflows</h2>
 
 <p>Gerrit, like Git, is extremely flexible. There is no one true way to work with
 it. However, Git has two predominant &ldquo;workflows&rdquo;: the merge workflow, and the
@@ -127,14 +126,14 @@ in the rebase workflow, it&rsquo;s the best option.</p>
 
 <p>First, install the tool. On Fedora 16 and up:</p>
 
-<pre><code>yum install git-review
+<pre><code>$ dnf install git-review
 </code></pre>
 
 <p>Navigate to the project you wish to use, and ensure you can connect to the
 Gerrit server:</p>
 
-<pre><code>cd &lt;repo&gt;
-git review -s
+<pre><code>$ cd &lt;repo&gt;
+$ git review -s
 </code></pre>
 
 <p>You may get a warning like so:</p>
@@ -147,7 +146,7 @@ a remote named gerrit and try again.
 <p>If so, you likely have your Gerrit review server&rsquo;s &ldquo;remote&rdquo; called <code>origin</code> or
 something similar. You can check this like so:</p>
 
-<pre><code>git remote -v
+<pre><code>$ git remote -v
 </code></pre>
 
 <p>You&rsquo;ll likely get something like so, where the url points to a Gerrit project:</p>
@@ -158,22 +157,20 @@ origin  &lt;url&gt; (push)
 
 <p>Assuming this is the case, just rename the remote:</p>
 
-<pre><code>git remote rename origin gerrit
+<pre><code>$ git remote rename origin gerrit
 </code></pre>
 
 <p>If this isn&rsquo;t (i.e. you have more than one remote), you may want to rename
 the relevant remote or add a new one for Gerrit:</p>
 
-<pre><code>git remote add gerrit [url]
+<pre><code>$ git remote add gerrit [url]
 </code></pre>
 
-<h2 id="using-the-review-tool">Using the review tool</h2>
-
-<h3 id="making-and-uploading-changesets">Making and uploading changesets</h3>
+<h2 id="making-and-uploading-changesets">Making and uploading changesets</h2>
 
 <p>Checkout a feature branch using your teams naming conventions:</p>
 
-<pre><code>git checkout -b &lt;topic_branch&gt;
+<pre><code>$ git checkout -b &lt;topic_branch&gt;
 </code></pre>
 
 <p><strong>NOTE:</strong> You should always work on feature branches when working with Gerrit.
@@ -183,13 +180,13 @@ when you pull in the latest changes from Gerrit/upstream.</p>
 <p>Now make some changes: add some new files, delete old ones, do what you have to
 do. Following this, save the changes:</p>
 
-<pre><code>git commit -as  # this is the same as `git add -u` and `git commit -as`
+<pre><code>$ git commit -as  # this is the same as `git add -u` and `git commit -as`
 </code></pre>
 
 <p>This should create a new commit. You can upload this changeset like so:</p>
 
-<pre><code>git remote update  # to get latest changes
-git review &lt;upstream_branch&gt;
+<pre><code>$ git remote update  # to get latest changes
+$ git review &lt;upstream_branch&gt;
 </code></pre>
 
 <p><strong>NOTE:</strong> This will automatically rebase the change against the upstream master.</p>
@@ -208,15 +205,15 @@ it is merely used to gather similar changes together.</p>
 do so using the <code>rebase</code> and <code>commit --amend</code> tools. For example:</p>
 
 <pre><code>[make changes...]
-git commit -a --amend
-git review &lt;upstream_branch&gt;
+$ git commit -a --amend
+$ git review &lt;upstream_branch&gt;
 </code></pre>
 
 <p>Alternatively</p>
 
-<pre><code>git rebase -i &lt;ancestor&gt;
+<pre><code>$ git rebase -i &lt;ancestor&gt;
 [make changes...]
-git review &lt;upstream_branch&gt;
+$ git review &lt;upstream_branch&gt;
 </code></pre>
 
 <p><strong>NOTE:</strong> If you delete a commit using rebase, you <em>will</em> need to manually
@@ -230,14 +227,40 @@ is great for collaboration/pair-programming.</p>
 <p>To check out someone else&rsquo;s code, you&rsquo;ll want the &ldquo;change id&rdquo;. When you have
 this, just use the following change:</p>
 
-<pre><code>git review -d &lt;change_id&gt;
+<pre><code>$ git review -d &lt;change_id&gt;
 </code></pre>
 
 <p>This will checkout the change, and all changes that it depends on (i.e. the
 branch).</p>
 
   </div>
+  <div id="disqus_thread"></div>
 </div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
 
 </body>
 </html>

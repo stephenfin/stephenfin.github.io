@@ -7,8 +7,153 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Tue, 06 Dec 2016 15:32:46 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 06 Dec 2016 15:48:32 +0000</lastBuildDate>
     <atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Using git-review</title>
+      <link>https://that.guru/blog/how-to-use-git-review/</link>
+      <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/how-to-use-git-review/</guid>
+      <description>
+
+&lt;p&gt;&lt;code&gt;git-review&lt;/code&gt; is a Python wrapper for many of the common Git commands used in
+conjunction with Gerrit. It encapsulates many of the most common commands used,
+in order to speed things up.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s possible to use Gerrit without using the &lt;code&gt;git-review&lt;/code&gt; tool. All the
+commands we use below have their plain &lt;code&gt;git&lt;/code&gt; equivalents. However, the question
+remains: why would you want to? The &lt;code&gt;git-review&lt;/code&gt; tool speeds things up, and is
+used by a number of teams outside Intel (including MediaWiki and OpenStack).&lt;/p&gt;
+
+&lt;p&gt;This guide is borrows heavily from the original Openstack guide, found here:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;https://wiki.openstack.org/wiki/Gerrit_Workflow
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;a-word-on-workflows&#34;&gt;A word on workflows&lt;/h2&gt;
+
+&lt;p&gt;Gerrit, like Git, is extremely flexible. There is no one true way to work with
+it. However, Git has two predominant &amp;ldquo;workflows&amp;rdquo;: the merge workflow, and the
+rebase workflow. Each of these have their pros and cons, but both work equally
+well with standard Git. This is not the case with Gerrit. While the former
+workflow is possible, it&amp;rsquo;s very awkward (Gerrit doesn&amp;rsquo;t handle merge commits
+very well). Hence, despite the issues that can occur from &amp;ldquo;rewriting history&amp;rdquo;
+in the rebase workflow, it&amp;rsquo;s the best option.&lt;/p&gt;
+
+&lt;h2 id=&#34;initial-steps&#34;&gt;Initial steps&lt;/h2&gt;
+
+&lt;p&gt;First, install the tool. On Fedora 16 and up:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ dnf install git-review
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Navigate to the project you wish to use, and ensure you can connect to the
+Gerrit server:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cd &amp;lt;repo&amp;gt;
+$ git review -s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You may get a warning like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;No &#39;.gitreview&#39; file found in this repository.
+We don&#39;t know where your gerrit is. Please manually create
+a remote named gerrit and try again.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If so, you likely have your Gerrit review server&amp;rsquo;s &amp;ldquo;remote&amp;rdquo; called &lt;code&gt;origin&lt;/code&gt; or
+something similar. You can check this like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git remote -v
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll likely get something like so, where the url points to a Gerrit project:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;origin  &amp;lt;url&amp;gt; (fetch)
+origin  &amp;lt;url&amp;gt; (push)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Assuming this is the case, just rename the remote:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git remote rename origin gerrit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If this isn&amp;rsquo;t (i.e. you have more than one remote), you may want to rename
+the relevant remote or add a new one for Gerrit:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git remote add gerrit [url]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;making-and-uploading-changesets&#34;&gt;Making and uploading changesets&lt;/h2&gt;
+
+&lt;p&gt;Checkout a feature branch using your teams naming conventions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git checkout -b &amp;lt;topic_branch&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; You should always work on feature branches when working with Gerrit.
+If you work on &lt;code&gt;master&lt;/code&gt; or &lt;code&gt;development&lt;/code&gt;, you&amp;rsquo;re going to get merge conflicts
+when you pull in the latest changes from Gerrit/upstream.&lt;/p&gt;
+
+&lt;p&gt;Now make some changes: add some new files, delete old ones, do what you have to
+do. Following this, save the changes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git commit -as  # this is the same as `git add -u` and `git commit -as`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This should create a new commit. You can upload this changeset like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git remote update  # to get latest changes
+$ git review &amp;lt;upstream_branch&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; This will automatically rebase the change against the upstream master.&lt;/p&gt;
+
+&lt;p&gt;If you now go to Gerrit, you&amp;rsquo;ll see a new changeset there. Its &amp;ldquo;Branch&amp;rdquo; will
+correspond with the value of &lt;code&gt;&amp;lt;upstream_branch&amp;gt;&lt;/code&gt;, while the &amp;ldquo;Topic&amp;rdquo; will
+correspond with the value of &lt;code&gt;&amp;lt;topic_branch&amp;gt;&lt;/code&gt; (i.e. your local branch).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; In Gerrit, the &amp;ldquo;Branch&amp;rdquo; means the Git branch that the commit is meant
+for. However, the &amp;ldquo;Topic&amp;rdquo; has no bearing on the actual underlying repo. Instead
+it is merely used to gather similar changes together.&lt;/p&gt;
+
+&lt;h2 id=&#34;reworking-a-changeset&#34;&gt;Reworking a changeset&lt;/h2&gt;
+
+&lt;p&gt;No one&amp;rsquo;s perfect, and neither is your code. When you need to rework some, you
+do so using the &lt;code&gt;rebase&lt;/code&gt; and &lt;code&gt;commit --amend&lt;/code&gt; tools. For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[make changes...]
+$ git commit -a --amend
+$ git review &amp;lt;upstream_branch&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Alternatively&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git rebase -i &amp;lt;ancestor&amp;gt;
+[make changes...]
+$ git review &amp;lt;upstream_branch&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; If you delete a commit using rebase, you &lt;em&gt;will&lt;/em&gt; need to manually
+abandon it. Unfortunately there doesn&amp;rsquo;t seem to be any way to avoid this.&lt;/p&gt;
+
+&lt;h2 id=&#34;collaboration&#34;&gt;Collaboration&lt;/h2&gt;
+
+&lt;p&gt;If you want to review/rework someone else&amp;rsquo;s changes, it&amp;rsquo;s very easy to do. This
+is great for collaboration/pair-programming.&lt;/p&gt;
+
+&lt;p&gt;To check out someone else&amp;rsquo;s code, you&amp;rsquo;ll want the &amp;ldquo;change id&amp;rdquo;. When you have
+this, just use the following change:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git review -d &amp;lt;change_id&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will checkout the change, and all changes that it depends on (i.e. the
+branch).&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>MTUs in neutron</title>
@@ -1397,159 +1542,6 @@ authentication against the nickserv, using SASL. Pretty much hassle free.&lt;/p&
       <guid>https://that.guru/blog/hello-world/</guid>
       <description>&lt;p&gt;This is my new, &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo-powered&lt;/a&gt; blog. I have a backlog of articles to
 publish, so expect to see lots of material going up here in the next few weeks.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://that.guru/blog/how-to-use-git-review/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/how-to-use-git-review/</guid>
-      <description>
-
-&lt;h1 id=&#34;how-to-use-git-review&#34;&gt;How to use git-review&lt;/h1&gt;
-
-&lt;p&gt;This guide is borrows heavily from the original Openstack guide, found here:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;https://wiki.openstack.org/wiki/Gerrit_Workflow
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
-
-&lt;h3 id=&#34;what-is-git-review&#34;&gt;What is &lt;code&gt;git-review&lt;/code&gt;&lt;/h3&gt;
-
-&lt;p&gt;&lt;code&gt;git-review&lt;/code&gt; is a Python wrapper for many of the common Git commands used in
-conjunction with Gerrit. It encapsulates many of the most common commands used,
-in order to speed things up.&lt;/p&gt;
-
-&lt;p&gt;It&amp;rsquo;s possible to use Gerrit without using the &lt;code&gt;git-review&lt;/code&gt; tool. All the
-commands we use below have their plain &lt;code&gt;git&lt;/code&gt; equivalents. However, the question
-remains: why would you want to? The &lt;code&gt;git-review&lt;/code&gt; tool speeds things up, and is
-used by a number of teams outside Intel (including MediaWiki and OpenStack).&lt;/p&gt;
-
-&lt;h3 id=&#34;a-word-on-workflows&#34;&gt;A word on workflows&lt;/h3&gt;
-
-&lt;p&gt;Gerrit, like Git, is extremely flexible. There is no one true way to work with
-it. However, Git has two predominant &amp;ldquo;workflows&amp;rdquo;: the merge workflow, and the
-rebase workflow. Each of these have their pros and cons, but both work equally
-well with standard Git. This is not the case with Gerrit. While the former
-workflow is possible, it&amp;rsquo;s very awkward (Gerrit doesn&amp;rsquo;t handle merge commits
-very well). Hence, despite the issues that can occur from &amp;ldquo;rewriting history&amp;rdquo;
-in the rebase workflow, it&amp;rsquo;s the best option.&lt;/p&gt;
-
-&lt;h2 id=&#34;initial-steps&#34;&gt;Initial steps&lt;/h2&gt;
-
-&lt;p&gt;First, install the tool. On Fedora 16 and up:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;yum install git-review
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Navigate to the project you wish to use, and ensure you can connect to the
-Gerrit server:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;cd &amp;lt;repo&amp;gt;
-git review -s
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You may get a warning like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;No &#39;.gitreview&#39; file found in this repository.
-We don&#39;t know where your gerrit is. Please manually create
-a remote named gerrit and try again.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If so, you likely have your Gerrit review server&amp;rsquo;s &amp;ldquo;remote&amp;rdquo; called &lt;code&gt;origin&lt;/code&gt; or
-something similar. You can check this like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git remote -v
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You&amp;rsquo;ll likely get something like so, where the url points to a Gerrit project:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;origin  &amp;lt;url&amp;gt; (fetch)
-origin  &amp;lt;url&amp;gt; (push)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Assuming this is the case, just rename the remote:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git remote rename origin gerrit
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If this isn&amp;rsquo;t (i.e. you have more than one remote), you may want to rename
-the relevant remote or add a new one for Gerrit:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git remote add gerrit [url]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;using-the-review-tool&#34;&gt;Using the review tool&lt;/h2&gt;
-
-&lt;h3 id=&#34;making-and-uploading-changesets&#34;&gt;Making and uploading changesets&lt;/h3&gt;
-
-&lt;p&gt;Checkout a feature branch using your teams naming conventions:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git checkout -b &amp;lt;topic_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; You should always work on feature branches when working with Gerrit.
-If you work on &lt;code&gt;master&lt;/code&gt; or &lt;code&gt;development&lt;/code&gt;, you&amp;rsquo;re going to get merge conflicts
-when you pull in the latest changes from Gerrit/upstream.&lt;/p&gt;
-
-&lt;p&gt;Now make some changes: add some new files, delete old ones, do what you have to
-do. Following this, save the changes:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git commit -as  # this is the same as `git add -u` and `git commit -as`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This should create a new commit. You can upload this changeset like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git remote update  # to get latest changes
-git review &amp;lt;upstream_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; This will automatically rebase the change against the upstream master.&lt;/p&gt;
-
-&lt;p&gt;If you now go to Gerrit, you&amp;rsquo;ll see a new changeset there. Its &amp;ldquo;Branch&amp;rdquo; will
-correspond with the value of &lt;code&gt;&amp;lt;upstream_branch&amp;gt;&lt;/code&gt;, while the &amp;ldquo;Topic&amp;rdquo; will
-correspond with the value of &lt;code&gt;&amp;lt;topic_branch&amp;gt;&lt;/code&gt; (i.e. your local branch).&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; In Gerrit, the &amp;ldquo;Branch&amp;rdquo; means the Git branch that the commit is meant
-for. However, the &amp;ldquo;Topic&amp;rdquo; has no bearing on the actual underlying repo. Instead
-it is merely used to gather similar changes together.&lt;/p&gt;
-
-&lt;h2 id=&#34;reworking-a-changeset&#34;&gt;Reworking a changeset&lt;/h2&gt;
-
-&lt;p&gt;No one&amp;rsquo;s perfect, and neither is your code. When you need to rework some, you
-do so using the &lt;code&gt;rebase&lt;/code&gt; and &lt;code&gt;commit --amend&lt;/code&gt; tools. For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[make changes...]
-git commit -a --amend
-git review &amp;lt;upstream_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Alternatively&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git rebase -i &amp;lt;ancestor&amp;gt;
-[make changes...]
-git review &amp;lt;upstream_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; If you delete a commit using rebase, you &lt;em&gt;will&lt;/em&gt; need to manually
-abandon it. Unfortunately there doesn&amp;rsquo;t seem to be any way to avoid this.&lt;/p&gt;
-
-&lt;h2 id=&#34;collaboration&#34;&gt;Collaboration&lt;/h2&gt;
-
-&lt;p&gt;If you want to review/rework someone else&amp;rsquo;s changes, it&amp;rsquo;s very easy to do. This
-is great for collaboration/pair-programming.&lt;/p&gt;
-
-&lt;p&gt;To check out someone else&amp;rsquo;s code, you&amp;rsquo;ll want the &amp;ldquo;change id&amp;rdquo;. When you have
-this, just use the following change:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;git review -d &amp;lt;change_id&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This will checkout the change, and all changes that it depends on (i.e. the
-branch).&lt;/p&gt;
 </description>
     </item>
     
