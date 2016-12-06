@@ -103,15 +103,67 @@ particular, a lot of changes to the MTU-related configuration options available
 over the course of Liberty and Newton. The below table tries to collect these
 changes in a coherent table.</p>
 
-<p>Configuration Option  Version  Commit    Comments
-====================  =======  ========  ==========================
-<code>segment_mtu</code>         Liberty  -         -
-<code>path_mtu</code>            Liberty  -         -
-<code>segment_mtu</code>         Mitaka   b2d0985d  Default set to 1500
-<code>global_physnet_mtu</code>  Mitaka   ae45cd57  New name for <code>segment_mtu</code>
-<code>path_mtu</code>            Mitaka   7a4633a9  Default set to 1500
-<code>global_physnet_mtu</code>  Newton   -         -
-<code>path_mtu</code>            Newton   38531ca5  Default set to 0</p>
+<table>
+<thead>
+<tr>
+<th>Configuration Option</th>
+<th>Version</th>
+<th>Commit</th>
+<th>Comments</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>segment_mtu</code></td>
+<td>Liberty</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td><code>path_mtu</code></td>
+<td>Liberty</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td><code>segment_mtu</code></td>
+<td>Mitaka</td>
+<td>b2d0985d</td>
+<td>Default set to 1500</td>
+</tr>
+
+<tr>
+<td><code>global_physnet_mtu</code></td>
+<td>Mitaka</td>
+<td>ae45cd57</td>
+<td>New name for <code>segment_mtu</code></td>
+</tr>
+
+<tr>
+<td><code>path_mtu</code></td>
+<td>Mitaka</td>
+<td>7a4633a9</td>
+<td>Default set to 1500</td>
+</tr>
+
+<tr>
+<td><code>global_physnet_mtu</code></td>
+<td>Newton</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td><code>path_mtu</code></td>
+<td>Newton</td>
+<td>38531ca5</td>
+<td>Default set to 0</td>
+</tr>
+</tbody>
+</table>
 
 <p>These options are described in the docs for both <a href="doc-mitaka">Mitaka</a> and
 <a href="doc-newton">Newton</a>.</p>
