@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Install Netbeans on Fedora 25 &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-80652159-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=200"
+             alt="gravatar" title="stephenfin">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf">CV</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2016 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Install Netbeans on Fedora 25</h1>
+    <span class="post-date">Dec 10, 2016 &middot; 2 minute read &middot; <a href="https://that.guru/blog/install-netbeans-on-fedora-25/#disqus_thread">Comments</a>
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/tips">tips</a>
+    </span>
+    <p>It&rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&rsquo;t
+say I miss it. However, I want to work on a plugin for Jenkins which means
+diving back in. Netbeans was my IDE of choice when I last worked with Java but
+unfortunately Netbeans is not packaged for Fedora (presumably due to it&rsquo;s use
+of Oracle&rsquo;s JDK rather than OpenJDK?). As such, if you want to avoid using
+Eclipse then you need to install Netbeans &ldquo;by hand&rdquo;. There are a couple of
+tricks to doing this correctly.</p>
+
+<ol>
+<li>Install dependencies</li>
+</ol>
+
+<p>We&rsquo;re going to use OpenJDK rather than Oracle JDK as the former is packaged
+   in Fedora.</p>
+
+<pre><code>   $ sudo dnf install java-1.8.0-openjdk.x86_64
+</code></pre>
+
+<ol>
+<li>Download the latest installer from the <a href="https://netbeans.org/downloads/">Netbeans
+website</a></li>
+</ol>
+
+<p>At the time of writing, this was Netbeans 8.2.</p>
+
+<ol>
+<li>Enable root access to X</li>
+</ol>
+
+<p>I wanted Netbeans installed in a standard location (<code>/usr/local</code>) rather
+   than in my home directory. Unfortunately this requires root privileges and
+   and running the installer under <code>sudo</code> produces errors. The <a href="https://wiki.archlinux.org/index.php/Running_X_apps_as_root">Arch
+   wiki</a> provides
+   a number of suggestions for how to do this, but the one that worked for me
+   was to temporarily allow root access to X like so:</p>
+
+<pre><code>   $ xhost +
+</code></pre>
+
+<ol>
+<li>Run the installer</li>
+</ol>
+
+<p>The only change you will need to make is to change the JDK path from <code>/usr</code>
+   to wherever OpenJDK is installed
+   (<code>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.111-3.b16.fc25.x86_64</code> for me). If
+   you don&rsquo;t do this, you will get a warning stating &ldquo;The JDK is missing&rdquo;. If
+   this happens, follow the instructions provided
+   <a href="https://mydayswithlinux.wordpress.com/2016/03/02/how-to-install-netbeans-8-1-in-kororafedora/">here</a>
+   to resolve the issue post-installation.</p>
+
+<ol>
+<li>Disable root access to X</li>
+</ol>
+
+<p>Once installation is complete, we can disable root access to prevent anyone
+   else accessing our X session.</p>
+
+<pre><code>   $ xhost -
+</code></pre>
+
+<ol>
+<li>Profit</li>
+</ol>
+
+  </div>
+  <div id="disqus_thread"></div>
+</div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</body>
+</html>
+

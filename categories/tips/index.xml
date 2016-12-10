@@ -10,6 +10,79 @@
     <atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Install Netbeans on Fedora 25</title>
+      <link>https://that.guru/blog/install-netbeans-on-fedora-25/</link>
+      <pubDate>Sat, 10 Dec 2016 20:16:27 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/install-netbeans-on-fedora-25/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t
+say I miss it. However, I want to work on a plugin for Jenkins which means
+diving back in. Netbeans was my IDE of choice when I last worked with Java but
+unfortunately Netbeans is not packaged for Fedora (presumably due to it&amp;rsquo;s use
+of Oracle&amp;rsquo;s JDK rather than OpenJDK?). As such, if you want to avoid using
+Eclipse then you need to install Netbeans &amp;ldquo;by hand&amp;rdquo;. There are a couple of
+tricks to doing this correctly.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Install dependencies&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;We&amp;rsquo;re going to use OpenJDK rather than Oracle JDK as the former is packaged
+   in Fedora.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;   $ sudo dnf install java-1.8.0-openjdk.x86_64
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Download the latest installer from the &lt;a href=&#34;https://netbeans.org/downloads/&#34;&gt;Netbeans
+website&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;At the time of writing, this was Netbeans 8.2.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Enable root access to X&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I wanted Netbeans installed in a standard location (&lt;code&gt;/usr/local&lt;/code&gt;) rather
+   than in my home directory. Unfortunately this requires root privileges and
+   and running the installer under &lt;code&gt;sudo&lt;/code&gt; produces errors. The &lt;a href=&#34;https://wiki.archlinux.org/index.php/Running_X_apps_as_root&#34;&gt;Arch
+   wiki&lt;/a&gt; provides
+   a number of suggestions for how to do this, but the one that worked for me
+   was to temporarily allow root access to X like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;   $ xhost +
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Run the installer&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The only change you will need to make is to change the JDK path from &lt;code&gt;/usr&lt;/code&gt;
+   to wherever OpenJDK is installed
+   (&lt;code&gt;/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.111-3.b16.fc25.x86_64&lt;/code&gt; for me). If
+   you don&amp;rsquo;t do this, you will get a warning stating &amp;ldquo;The JDK is missing&amp;rdquo;. If
+   this happens, follow the instructions provided
+   &lt;a href=&#34;https://mydayswithlinux.wordpress.com/2016/03/02/how-to-install-netbeans-8-1-in-kororafedora/&#34;&gt;here&lt;/a&gt;
+   to resolve the issue post-installation.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Disable root access to X&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Once installation is complete, we can disable root access to prevent anyone
+   else accessing our X session.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;   $ xhost -
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Profit&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Using git-review</title>
       <link>https://that.guru/blog/how-to-use-git-review/</link>
       <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
