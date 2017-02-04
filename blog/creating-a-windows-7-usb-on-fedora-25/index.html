@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Creating a Windows 7 USB on Fedora 25 &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-80652159-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=200"
+             alt="gravatar" title="stephenfin">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf">CV</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2017 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Creating a Windows 7 USB on Fedora 25</h1>
+    <span class="post-date">Jan 31, 2017 &middot; 3 minute read &middot; <a href="https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/#disqus_thread">Comments</a>
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/tips">tips</a>
+    </span>
+    
+
+<p>Turns out Fedora 25 didn&rsquo;t like my Samsung Series 9 (NP900X4C) much. Among
+other things, the WiFi was intermittent (weird, as it&rsquo;s an Intel NIC), suspend
+didn&rsquo;t work (the laptop is always dead when I come to it), and the keyboard
+backlight turned off immediately after turning it on. I figured installing
+Windows again might be a good move (I also miss Office), but that turned out a
+little more difficult that anticipated. Below is the steps I ended up taking,
+should anyone else encounter the same issue.</p>
+
+<h1 id="get-an-iso">Get an ISO</h1>
+
+<p>First up: finding a valid Windows 7 Home Premium x64 ISO. Given that I still
+had my OEM key, this should not have been as difficult as it was. I finally
+found a workaround, thanks to <a href="https://www.raymond.cc/blog/links-for-windows-7-sp1-iso-from-microsofts-official-distributer/">this excellent guide on Raymond.cc</a> (follow
+the &ldquo;Download Windows <sup>7</sup>&frasl;<sub>8</sub>.1 From The Windows 10 Download Page&rdquo; section). With
+that &ldquo;hack&rdquo;, you should be able to pull in an ISO for the required version
+(<code>Win7_HomePrem_SP1_English_x64.iso</code> in my case).</p>
+
+<h1 id="connect-usb-drive">Connect USB Drive</h1>
+
+<p>We&rsquo;re going to install to a USB drive, so ensure it&rsquo;s plugged in now. Record
+the device name - <code>/dev/sdb</code> in my case - for use later.</p>
+
+<h1 id="prepare-your-usb">Prepare Your USB</h1>
+
+<p>This was another exercise in frustration. I followed many, many guides, all of
+which invariably ended in a failure. I suspect this is because the guides all
+recommended formatting my drive with NTFS when UEFI, as found on this laptop,
+requires FAT32. Thankfully, I stumbled upon <a href="https://onetransistor.blogspot.ie/2014/09/make-bootable-windows-usb-from-ubuntu.html">a guide</a> that suggested as
+much. This guide used GParted but unfortunately there&rsquo;s a known <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1397103">issue with
+<code>gparted</code> on Wayland</a>. A workaround for this issue is to allow &ldquo;non-network
+local connections&rdquo; by running the following command:</p>
+
+<pre><code>$ xhost +local:
+non-network local connections being added to access control list
+</code></pre>
+
+<p>Then we can start GParted:</p>
+
+<pre><code>$ sudo gparted
+</code></pre>
+
+<p>Execute the following operations:</p>
+
+<ul>
+<li><p>Unmount the drive</p></li>
+
+<li><p>Delete any existing partitions</p></li>
+
+<li><p>Create a <em>New</em> primary partition</p></li>
+
+<li><p>Format this partition as FAT32</p></li>
+
+<li><p>Set a label, e.g. <code>WIN7_HP_X64</code></p></li>
+
+<li><p>Set the <code>boot</code> flag to make the drive bootable</p></li>
+</ul>
+
+<p>Once completed, <em>Apply all operations</em>, exit GParted, and disallow non-network
+local connections:</p>
+
+<pre><code>$ xhost -local:
+</code></pre>
+
+<h1 id="copy-files">Copy Files</h1>
+
+<p>You can now proceed to mount both the USB drive and the ISO:</p>
+
+<pre><code>$ sudo mkdir /mnt/usb
+$ sudo mkdir /mnt/iso
+$ sudo mount /dev/sdb1 /mnt/usb/
+$ sudo mount -o loop ~/Downloads/Win7_HomePrem_SP1_English_x64.iso /mnt/iso/
+</code></pre>
+
+<p>updating paths where necessary.</p>
+
+<p>Copy the contents of the ISO to the USB drive:</p>
+
+<pre><code>$ sudo cp -av /mnt/iso/* /mnt/usb/
+</code></pre>
+
+<h1 id="install-bootloader">Install Bootloader</h1>
+
+<p>We&rsquo;re going to use grub2 as the bootloader. Run the following to install the
+bootloader on the USB drive:</p>
+
+<pre><code>$ sudo grub2-install --boot-directory=/mnt/usb/boot /dev/sdb
+</code></pre>
+
+<p>once again, updating paths where necessary.</p>
+
+<p>Once completed, you should see the following message:</p>
+
+<pre><code>Installing for i386-pc platform.
+Installation finished. No error reported.
+</code></pre>
+
+<p>If so, save the following to <code>boot/grub2/grub.cfg</code> on the USB drive:</p>
+
+<pre><code>default=1
+timeout=15
+color_normal=light-cyan/dark-gray
+menu_color_normal=black/light-cyan
+menu_color_highlight=white/black
+
+menuentry &quot;Start Windows Installation&quot; {
+    insmod ntfs
+    insmod search_label
+    search --no-floppy --set=root --label &lt;USB_drive_label&gt; --hint hd0,msdos1
+    ntldr /bootmgr
+    boot
+}
+
+menuentry &quot;Boot from the first hard drive&quot; {
+    insmod ntfs
+    insmod chain
+    insmod part_msdos
+    insmod part_gpt
+    set root=(hd1)
+    chainloader +1
+    boot
+}
+</code></pre>
+
+<p>replacing <code>&lt;USB_drive_label&gt;</code> with the label you used earlier - <code>WIN7_HP_X64</code>
+for me.</p>
+
+<h1 id="profit">Profit</h1>
+
+<p>Unmount the drive, insert it into the laptop and install Windows 7.</p>
+
+<pre><code>$ sync  # to ensure all file transfers are complete.
+$ sudo umount
+</code></pre>
+
+  </div>
+  <div id="disqus_thread"></div>
+</div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</body>
+</html>
+

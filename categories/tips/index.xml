@@ -10,6 +10,150 @@
     <atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Creating a Windows 7 USB on Fedora 25</title>
+      <link>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</link>
+      <pubDate>Tue, 31 Jan 2017 22:43:38 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</guid>
+      <description>
+
+&lt;p&gt;Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among
+other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend
+didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard
+backlight turned off immediately after turning it on. I figured installing
+Windows again might be a good move (I also miss Office), but that turned out a
+little more difficult that anticipated. Below is the steps I ended up taking,
+should anyone else encounter the same issue.&lt;/p&gt;
+
+&lt;h1 id=&#34;get-an-iso&#34;&gt;Get an ISO&lt;/h1&gt;
+
+&lt;p&gt;First up: finding a valid Windows 7 Home Premium x64 ISO. Given that I still
+had my OEM key, this should not have been as difficult as it was. I finally
+found a workaround, thanks to &lt;a href=&#34;https://www.raymond.cc/blog/links-for-windows-7-sp1-iso-from-microsofts-official-distributer/&#34;&gt;this excellent guide on Raymond.cc&lt;/a&gt; (follow
+the &amp;ldquo;Download Windows &lt;sup&gt;7&lt;/sup&gt;&amp;frasl;&lt;sub&gt;8&lt;/sub&gt;.1 From The Windows 10 Download Page&amp;rdquo; section). With
+that &amp;ldquo;hack&amp;rdquo;, you should be able to pull in an ISO for the required version
+(&lt;code&gt;Win7_HomePrem_SP1_English_x64.iso&lt;/code&gt; in my case).&lt;/p&gt;
+
+&lt;h1 id=&#34;connect-usb-drive&#34;&gt;Connect USB Drive&lt;/h1&gt;
+
+&lt;p&gt;We&amp;rsquo;re going to install to a USB drive, so ensure it&amp;rsquo;s plugged in now. Record
+the device name - &lt;code&gt;/dev/sdb&lt;/code&gt; in my case - for use later.&lt;/p&gt;
+
+&lt;h1 id=&#34;prepare-your-usb&#34;&gt;Prepare Your USB&lt;/h1&gt;
+
+&lt;p&gt;This was another exercise in frustration. I followed many, many guides, all of
+which invariably ended in a failure. I suspect this is because the guides all
+recommended formatting my drive with NTFS when UEFI, as found on this laptop,
+requires FAT32. Thankfully, I stumbled upon &lt;a href=&#34;https://onetransistor.blogspot.ie/2014/09/make-bootable-windows-usb-from-ubuntu.html&#34;&gt;a guide&lt;/a&gt; that suggested as
+much. This guide used GParted but unfortunately there&amp;rsquo;s a known &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1397103&#34;&gt;issue with
+&lt;code&gt;gparted&lt;/code&gt; on Wayland&lt;/a&gt;. A workaround for this issue is to allow &amp;ldquo;non-network
+local connections&amp;rdquo; by running the following command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ xhost +local:
+non-network local connections being added to access control list
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we can start GParted:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo gparted
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Execute the following operations:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Unmount the drive&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Delete any existing partitions&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Create a &lt;em&gt;New&lt;/em&gt; primary partition&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Format this partition as FAT32&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Set a label, e.g. &lt;code&gt;WIN7_HP_X64&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Set the &lt;code&gt;boot&lt;/code&gt; flag to make the drive bootable&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Once completed, &lt;em&gt;Apply all operations&lt;/em&gt;, exit GParted, and disallow non-network
+local connections:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ xhost -local:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;copy-files&#34;&gt;Copy Files&lt;/h1&gt;
+
+&lt;p&gt;You can now proceed to mount both the USB drive and the ISO:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo mkdir /mnt/usb
+$ sudo mkdir /mnt/iso
+$ sudo mount /dev/sdb1 /mnt/usb/
+$ sudo mount -o loop ~/Downloads/Win7_HomePrem_SP1_English_x64.iso /mnt/iso/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;updating paths where necessary.&lt;/p&gt;
+
+&lt;p&gt;Copy the contents of the ISO to the USB drive:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo cp -av /mnt/iso/* /mnt/usb/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;install-bootloader&#34;&gt;Install Bootloader&lt;/h1&gt;
+
+&lt;p&gt;We&amp;rsquo;re going to use grub2 as the bootloader. Run the following to install the
+bootloader on the USB drive:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo grub2-install --boot-directory=/mnt/usb/boot /dev/sdb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;once again, updating paths where necessary.&lt;/p&gt;
+
+&lt;p&gt;Once completed, you should see the following message:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Installing for i386-pc platform.
+Installation finished. No error reported.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If so, save the following to &lt;code&gt;boot/grub2/grub.cfg&lt;/code&gt; on the USB drive:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;default=1
+timeout=15
+color_normal=light-cyan/dark-gray
+menu_color_normal=black/light-cyan
+menu_color_highlight=white/black
+
+menuentry &amp;quot;Start Windows Installation&amp;quot; {
+    insmod ntfs
+    insmod search_label
+    search --no-floppy --set=root --label &amp;lt;USB_drive_label&amp;gt; --hint hd0,msdos1
+    ntldr /bootmgr
+    boot
+}
+
+menuentry &amp;quot;Boot from the first hard drive&amp;quot; {
+    insmod ntfs
+    insmod chain
+    insmod part_msdos
+    insmod part_gpt
+    set root=(hd1)
+    chainloader +1
+    boot
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;replacing &lt;code&gt;&amp;lt;USB_drive_label&amp;gt;&lt;/code&gt; with the label you used earlier - &lt;code&gt;WIN7_HP_X64&lt;/code&gt;
+for me.&lt;/p&gt;
+
+&lt;h1 id=&#34;profit&#34;&gt;Profit&lt;/h1&gt;
+
+&lt;p&gt;Unmount the drive, insert it into the laptop and install Windows 7.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sync  # to ensure all file transfers are complete.
+$ sudo umount
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Install Netbeans on Fedora 25</title>
       <link>https://that.guru/blog/install-netbeans-on-fedora-25/</link>
       <pubDate>Sat, 10 Dec 2016 20:16:27 +0000</pubDate>
