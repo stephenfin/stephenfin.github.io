@@ -105,60 +105,50 @@ Eclipse then you need to install Netbeans &ldquo;by hand&rdquo;. There are a cou
 tricks to doing this correctly.</p>
 
 <ol>
-<li>Install dependencies</li>
-</ol>
+<li><p>Install dependencies</p>
 
 <p>We&rsquo;re going to use OpenJDK rather than Oracle JDK as the former is packaged
-   in Fedora.</p>
+in Fedora.</p>
 
-<pre><code>   $ sudo dnf install java-1.8.0-openjdk.x86_64
-</code></pre>
+<pre><code>$ sudo dnf install java-1.8.0-openjdk.x86_64
+</code></pre></li>
 
-<ol>
-<li>Download the latest installer from the <a href="https://netbeans.org/downloads/">Netbeans
-website</a></li>
-</ol>
+<li><p>Download the latest installer from the <a href="https://netbeans.org/downloads/">Netbeans
+website</a></p>
 
-<p>At the time of writing, this was Netbeans 8.2.</p>
+<p>At the time of writing, this was Netbeans 8.2.</p></li>
 
-<ol>
-<li>Enable root access to X</li>
-</ol>
+<li><p>Enable root access to X</p>
 
 <p>I wanted Netbeans installed in a standard location (<code>/usr/local</code>) rather
-   than in my home directory. Unfortunately this requires root privileges and
-   and running the installer under <code>sudo</code> produces errors. The <a href="https://wiki.archlinux.org/index.php/Running_X_apps_as_root">Arch
-   wiki</a> provides
-   a number of suggestions for how to do this, but the one that worked for me
-   was to temporarily allow root access to X like so:</p>
+than in my home directory. Unfortunately this requires root privileges and
+and running the installer under <code>sudo</code> produces errors. The <a href="https://wiki.archlinux.org/index.php/Running_X_apps_as_root">Arch
+wiki</a> provides
+a number of suggestions for how to do this, but the one that worked for me
+was to temporarily allow root access to X like so:</p>
 
-<pre><code>   $ xhost +
-</code></pre>
+<pre><code>$ xhost +
+</code></pre></li>
 
-<ol>
-<li>Run the installer</li>
-</ol>
+<li><p>Run the installer</p>
 
 <p>The only change you will need to make is to change the JDK path from <code>/usr</code>
-   to wherever OpenJDK is installed
-   (<code>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.111-3.b16.fc25.x86_64</code> for me). If
-   you don&rsquo;t do this, you will get a warning stating &ldquo;The JDK is missing&rdquo;. If
-   this happens, follow the instructions provided
-   <a href="https://mydayswithlinux.wordpress.com/2016/03/02/how-to-install-netbeans-8-1-in-kororafedora/">here</a>
-   to resolve the issue post-installation.</p>
+to wherever OpenJDK is installed
+(<code>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.111-3.b16.fc25.x86_64</code> for me). If
+you don&rsquo;t do this, you will get a warning stating &ldquo;The JDK is missing&rdquo;. If
+this happens, follow the instructions provided
+<a href="https://mydayswithlinux.wordpress.com/2016/03/02/how-to-install-netbeans-8-1-in-kororafedora/">here</a>
+to resolve the issue post-installation.</p></li>
 
-<ol>
-<li>Disable root access to X</li>
-</ol>
+<li><p>Disable root access to X</p>
 
 <p>Once installation is complete, we can disable root access to prevent anyone
-   else accessing our X session.</p>
+else accessing our X session.</p>
 
-<pre><code>   $ xhost -
-</code></pre>
+<pre><code>$ xhost -
+</code></pre></li>
 
-<ol>
-<li>Profit</li>
+<li><p>Profit</p></li>
 </ol>
 
   </div>
