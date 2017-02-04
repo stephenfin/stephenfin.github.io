@@ -96,7 +96,9 @@
     <br/>
     <a class="label" href="https://that.guru/categories/tips">tips</a>
     </span>
-    <p>It&rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&rsquo;t
+    
+
+<p>It&rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&rsquo;t
 say I miss it. However, I want to work on a plugin for Jenkins which means
 diving back in. Netbeans was my IDE of choice when I last worked with Java but
 unfortunately Netbeans is not packaged for Fedora (presumably due to it&rsquo;s use
@@ -104,52 +106,51 @@ of Oracle&rsquo;s JDK rather than OpenJDK?). As such, if you want to avoid using
 Eclipse then you need to install Netbeans &ldquo;by hand&rdquo;. There are a couple of
 tricks to doing this correctly.</p>
 
-<ol>
-<li><p>Install dependencies</p>
+<h1 id="install-dependencies">Install dependencies</h1>
 
-<p>We&rsquo;re going to use OpenJDK rather than Oracle JDK as the former is packaged
-in Fedora.</p>
+<p>We&rsquo;re going to use OpenJDK rather than Oracle JDK as the former is packaged in
+Fedora.</p>
 
 <pre><code>$ sudo dnf install java-1.8.0-openjdk.x86_64
-</code></pre></li>
+</code></pre>
 
-<li><p>Download the latest installer from the <a href="https://netbeans.org/downloads/">Netbeans
-website</a></p>
+<h1 id="download-installer">Download installer</h1>
 
-<p>At the time of writing, this was Netbeans 8.2.</p></li>
+<p>Download the latest installer from the <a href="https://netbeans.org/downloads/">Netbeans website</a>. At the time of
+writing, this was <em>Netbeans 8.2</em>.</p>
 
-<li><p>Enable root access to X</p>
+<h1 id="enable-root-access-to-x">Enable root access to X</h1>
 
-<p>I wanted Netbeans installed in a standard location (<code>/usr/local</code>) rather
-than in my home directory. Unfortunately this requires root privileges and
-and running the installer under <code>sudo</code> produces errors. The <a href="https://wiki.archlinux.org/index.php/Running_X_apps_as_root">Arch
-wiki</a> provides
-a number of suggestions for how to do this, but the one that worked for me
-was to temporarily allow root access to X like so:</p>
+<p>I wanted Netbeans installed in a standard location (<code>/usr/local</code>) rather than
+in my home directory. Unfortunately this requires root privileges and and
+running the installer under <code>sudo</code> produces errors. The <a href="https://wiki.archlinux.org/index.php/Running_X_apps_as_root">Arch
+wiki</a> provides a
+number of suggestions for how to do this, but the one that worked for me was to
+temporarily allow root access to X like so:</p>
 
 <pre><code>$ xhost +
-</code></pre></li>
+</code></pre>
 
-<li><p>Run the installer</p>
+<h1 id="run-the-installer">Run the installer</h1>
 
-<p>The only change you will need to make is to change the JDK path from <code>/usr</code>
-to wherever OpenJDK is installed
-(<code>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.111-3.b16.fc25.x86_64</code> for me). If
-you don&rsquo;t do this, you will get a warning stating &ldquo;The JDK is missing&rdquo;. If
-this happens, follow the instructions provided
-<a href="https://mydayswithlinux.wordpress.com/2016/03/02/how-to-install-netbeans-8-1-in-kororafedora/">here</a>
-to resolve the issue post-installation.</p></li>
+<p>The only change you will need to make is to change the JDK path from <code>/usr</code> to
+wherever OpenJDK is installed
+(<code>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.111-3.b16.fc25.x86_64</code> for me). If you
+don&rsquo;t do this, you will get a warning stating &ldquo;The JDK is missing&rdquo;. If this
+happens, follow the instructions provided <a href="https://mydayswithlinux.wordpress.com/2016/03/02/how-to-install-netbeans-8-1-in-kororafedora/">here</a> to resolve the issue
+post-installation.</p>
 
-<li><p>Disable root access to X</p>
+<h1 id="disable-root-access-to-x">Disable root access to X</h1>
 
 <p>Once installation is complete, we can disable root access to prevent anyone
 else accessing our X session.</p>
 
 <pre><code>$ xhost -
-</code></pre></li>
+</code></pre>
 
-<li><p>Profit</p></li>
-</ol>
+<h1 id="profit">Profit</h1>
+
+<p>NetBeans should now be installed.</p>
 
   </div>
   <div id="disqus_thread"></div>
