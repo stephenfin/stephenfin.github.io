@@ -10,6 +10,33 @@
     <atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Open Python paths with vim</title>
+      <link>https://that.guru/blog/open-python-paths-with-vim/</link>
+      <pubDate>Mon, 06 Feb 2017 14:33:53 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
+      <description>&lt;p&gt;In OpenStack nova land, you run tests by specifying their Python paths, like
+so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is also how tests are run and reported by the CI. If a tests fails when
+run locally or in the CI, the failure will be reported with similar Python
+module path-style references. These take a little cleanup to get a usable file
+path that we can use to open the file, so I automated it.&lt;/p&gt;
+
+&lt;script src=&#34;//gist.github.com/stephenfin/ea6bb2d650060d2a998a2dcd41f58291.js&#34;&gt;&lt;/script&gt;
+
+&lt;p&gt;Download and copy this to somewhere on your path, then run it like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cd $openstack_nova_dir
+$ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Using git-review</title>
       <link>https://that.guru/blog/how-to-use-git-review/</link>
       <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
