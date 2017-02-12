@@ -7,8 +7,605 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Mon, 06 Feb 2017 14:33:53 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 12 Feb 2017 22:27:38 +0000</lastBuildDate>
     <atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Patchwork and CI in a tree</title>
+      <link>https://that.guru/blog/patchwork-and-ci-in-a-tree/</link>
+      <pubDate>Sun, 12 Feb 2017 22:27:38 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/patchwork-and-ci-in-a-tree/</guid>
+      <description>
+
+&lt;p&gt;This has been a long time in the works.&lt;/p&gt;
+
+&lt;p&gt;With the upcoming release of &lt;a href=&#34;https://github.com/getpatchwork/patchwork/&#34;&gt;Patchwork&lt;/a&gt; 2.0, Patchwork will provides first
+class support for series, or collections of patches, and expose these (and much
+more besides) over a new REST API. Coupled with the &lt;a href=&#34;https://github.com/getpatchwork/patchwork/releases/tag/v1.1.0&#34;&gt;Check support added in
+1.1&lt;/a&gt;, we will be able to use Patchwork with continuous integration and
+automated testing tools like Jenkins to validate projects using the mailing
+list workflow.&lt;/p&gt;
+
+&lt;p&gt;Below is the result of my own experiments coupling Patchwork with Jenkins.  Be
+aware that this represents but the very basics of what one can do with this
+functionality. However, I aim to build upon this later and this should still
+serve to illustrate most of the key concepts. An even simpler guide will be
+available in the Patchwork documentation shortly.&lt;/p&gt;
+
+&lt;h2 id=&#34;initializing-services&#34;&gt;Initializing Services&lt;/h2&gt;
+
+&lt;p&gt;Before we begin, we need to install both Patchwork and Jenkins. I chose to use
+Docker for this, though Patchwork can also be installed using Vagrant or
+manually.&lt;/p&gt;
+
+&lt;h3 id=&#34;patchwork&#34;&gt;Patchwork&lt;/h3&gt;
+
+&lt;p&gt;First up, Patchwork. Clone the Patchwork repo and bring up the project, as
+described in the &lt;a href=&#34;https://patchwork.readthedocs.io/en/latest/development/installation/&#34;&gt;docs&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/getpatchwork/patchwork
+
+$ cd patchwork
+$ docker-compose build
+$ docker-compose up
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should also create an superuser that you can use manage the instance. I
+used &lt;code&gt;admin&lt;/code&gt; and &lt;code&gt;tester&lt;/code&gt; for username and password, respectively:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ docker-compose run web python manage.py createsuperuser
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once initialized, you should be able to browse Patchwork at &lt;code&gt;localhost:8000&lt;/code&gt;.
+A default &lt;code&gt;Patchwork&lt;/code&gt; project will have been created, which we will use for
+this demo.&lt;/p&gt;
+
+&lt;h3 id=&#34;jenkins&#34;&gt;Jenkins&lt;/h3&gt;
+
+&lt;p&gt;Now for Jenkins. We&amp;rsquo;ll follow the instructions provided on the the &lt;a href=&#34;https://hub.docker.com/_/jenkins/&#34;&gt;Docker
+Hub&lt;/a&gt; page. Run:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ docker pull jenkins
+$ docker run --name myjenkins -p 8080:8080 -p 50000:50000 \
+    -v /var/jenkins_home jenkins
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Browse to the Jenkins URL (&lt;code&gt;localhost:8080&lt;/code&gt;), where you will be asked to
+authenticate, create a user, and select which plugins to install. I used
+&lt;code&gt;admin&lt;/code&gt; and &lt;code&gt;tester&lt;/code&gt; for username and password once again, then chose the
+following plugins:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Git plugin&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Parameterized Trigger plugin&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Timestamper&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Note that you can install additional plugins if necessary but these are the
+bare minimum.&lt;/p&gt;
+
+&lt;h3 id=&#34;summary&#34;&gt;Summary&lt;/h3&gt;
+
+&lt;p&gt;Once this step is completed, both services should be accessible: the Patchwork
+instance at &lt;code&gt;localhost:8000&lt;/code&gt; and the Jenkins instance at &lt;code&gt;localhost:8080&lt;/code&gt;.
+Both instances should have a user account configured, using the &lt;code&gt;admin&lt;/code&gt;
+username and &lt;code&gt;tester&lt;/code&gt; password. Finally, the Patchwork instance should have the
+default &lt;code&gt;Patchwork&lt;/code&gt; project. Record all of these details for future steps.&lt;/p&gt;
+
+&lt;h2 id=&#34;configuring-services&#34;&gt;Configuring Services&lt;/h2&gt;
+
+&lt;p&gt;Once the services are initialized, we need to configure them.&lt;/p&gt;
+
+&lt;h3 id=&#34;patchwork-1&#34;&gt;Patchwork&lt;/h3&gt;
+
+&lt;p&gt;There isn&amp;rsquo;t really much initial configuration necessary for Patchwork. You
+should already have a user account created and Patchwork will use the default
+default &lt;em&gt;Patchwork&lt;/em&gt; project. One step that &lt;em&gt;is&lt;/em&gt; necessary is to assign your
+user, &lt;code&gt;admin&lt;/code&gt; in this case, as a maintainer of the &lt;code&gt;Patchwork&lt;/code&gt; project. This is
+necessary to ensure we can upload test results, change the state of patches
+etc. You can do this using the admin console:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://localhost:8000/admin/auth/user/1/change/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We also need to extract the IP address of the Docker container running the
+Patchwork instance. This is necessary so Jenkins can communicate with the
+instance. You can extract the IP address using &lt;code&gt;docker inspect&lt;/code&gt;, per &lt;a href=&#34;http://stackoverflow.com/a/20686101/613428&#34;&gt;this
+StackOverflow answer&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ docker inspect -f &#39;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#39; \
+    &amp;lt;CONTAINER_NAME_OR_ID&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;where &lt;code&gt;&amp;lt;CONTAINER_NAME_OR_ID&amp;gt;&lt;/code&gt; refers to the active &lt;code&gt;patchwork_web&lt;/code&gt; container.
+This will return an IP address, in my case &lt;code&gt;172.17.0.4&lt;/code&gt;. Ensure you can access
+the Patchwork instance via this address (including port) - for example at
+&lt;code&gt;172.17.0.4:8000&lt;/code&gt; - then store this IP for later.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-1.png&#34; alt=&#34;Screenshot of newly configured Patchwork instance&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;A Patchwork instance fresh out of the oven&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;jenkins-1&#34;&gt;Jenkins&lt;/h2&gt;
+
+&lt;p&gt;Before beginning, you should extract your user&amp;rsquo;s &amp;ldquo;token&amp;rdquo;. We will use this to
+talk to the Jenkins API in a later step. Browse to your user settings to obtain
+this and copy it down somewhere:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://localhost:8080/user/admin/configure
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once you have this token stored, we can move onto configuring the Jenkins job.
+We&amp;rsquo;re going to make heavy use of &lt;a href=&#34;https://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Build&#34;&gt;Parameterized Builds&lt;/a&gt; and the &lt;a href=&#34;https://wiki.jenkins-ci.org/display/JENKINS/Remote+access+API&#34;&gt;Remote
+Access API&lt;/a&gt;, both of which are part of the default Jenkins install.&lt;/p&gt;
+
+&lt;p&gt;Create a new &amp;ldquo;freestyle&amp;rdquo; project, setting the project name and description to
+something useful. You also need to define two parameters:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;MBOX_URL&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The URL to download the patch from.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;code&gt;CHECK_URL&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The URL to report the test result to.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;While we could expand the available parameters to avoid hard-coding variables
+and make the job more flexible, we&amp;rsquo;re going to keep it simple for now.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-2.png&#34; alt=&#34;Screenshot of General configuration&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;General&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Next, configure Jenkins to check out the code from the project of choice in the
+&lt;em&gt;Source Code Management&lt;/em&gt; section. We&amp;rsquo;re testing Patchwork, so we&amp;rsquo;re going to
+use Git and the GitHub repo. For reference, the Patchwork repo URL is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;https://github.com/getpatchwork/patchwork.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You don&amp;rsquo;t need to specify credentials, nor should you change the default branch
+specifier. You should, however, enable the &lt;em&gt;Clean before checkout&lt;/em&gt; behavior, to
+ensure old tests don&amp;rsquo;t corrupt newer tests.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-3.png&#34; alt=&#34;Screenshot of Source Code Management configuration&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Source Code Management&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;For the &lt;em&gt;Build Triggers&lt;/em&gt; section, we&amp;rsquo;re going to trigger this remotely using
+another script. Simply tick the relevant box and set an &amp;ldquo;authentication token&amp;rdquo;.
+Use &lt;code&gt;hello-world&lt;/code&gt; as a token.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-4.png&#34; alt=&#34;Screenshot of Build Triggers configuration&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Build Triggers&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;The &lt;em&gt;Build Environment&lt;/em&gt; section can be mostly ignored. Simply enable timestamps
+in the build output.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-5.png&#34; alt=&#34;Screenshot of Build Environment configuration&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Build Environment&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Now for the juicy bit: &lt;em&gt;Build&lt;/em&gt;. You&amp;rsquo;ll want to execute four steps:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Tell Patchwork (via the API) that we&amp;rsquo;re kicking off the build&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Download and apply the patch&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Run the test(s)&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Report the end result to Patchwork (again, via the API)&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;A script provided below will do the job for you. This script will use the
+username, password and IP address of the Patchwork instance, which we got
+previously. Add a new &amp;ldquo;Execute Shell&amp;rdquo; build step to the &lt;em&gt;Build&lt;/em&gt; section. Paste
+the script provided below there, updating the IP address or credentials where
+necessary:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env bash
+
+##################################################
+# Constants
+##################################################
+
+# Patchwork credentials
+
+readonly PATCHWORK_URL=&amp;quot;172.17.0.3:8000&amp;quot;
+readonly PATCHWORK_USER=&amp;quot;admin&amp;quot;
+readonly PATCHWORK_PASS=&amp;quot;tester&amp;quot;
+
+##################################################
+# Functions
+##################################################
+
+function submit_check() {
+  # Submit a check to Patchwork
+  #
+  # Args:
+  #   $1 - the state to register
+  #   $2 - an optional description
+  state=&amp;quot;$1&amp;quot;
+  description=&amp;quot;$2&amp;quot;
+
+  curl -X POST \
+    -u &amp;quot;$PATCHWORK_USER:$PATCHWORK_PASS&amp;quot; \
+    -F &amp;quot;state=$state&amp;quot; \
+    -F &amp;quot;target_url=$BUILD_URL&amp;quot; \
+    -F &amp;quot;context=$JOB_NAME&amp;quot; \
+    -F &amp;quot;description=$description&amp;quot; \
+    &amp;quot;$CHECK_URL&amp;quot;
+}
+
+##################################################
+# Main
+##################################################
+
+# Sanity checks
+
+echo &amp;quot;MBOX_URL=$MBOX_URL&amp;quot;
+echo &amp;quot;CHECK_URL=$CHECK_URL&amp;quot;
+echo &amp;quot;JOB_NAME=$JOB_NAME&amp;quot;
+echo &amp;quot;BUILD_URL=$BUILD_URL&amp;quot;
+
+# Notify the user that the build is starting
+submit_check &amp;quot;pending&amp;quot;
+
+# Navigate to the Patchwork directory
+cd patchwork || exit
+
+# Configure fake git credentials so we can use git-am
+git config user.name &#39;John Doe&#39;
+git config user.email &#39;john.doe@example.org&#39;
+
+# Simply download and apply the mbox to ensure it still applies
+if ! curl &amp;quot;$MBOX_URL&amp;quot; | git am -3; then
+  submit_check &amp;quot;fail&amp;quot;
+  exit 1
+else
+  submit_check &amp;quot;success&amp;quot;
+  exit 0
+fi
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You&amp;rsquo;ll notice we&amp;rsquo;re really not taking advantage of Jenkins&amp;rsquo; power here, but
+bear with me: these are baby steps.&lt;/p&gt;
+
+&lt;p&gt;Once done, you should have something like the following:&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-6.png&#34; alt=&#34;Screenshot of Build configuration&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Build&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Finally, the &lt;em&gt;Post-build Actions&lt;/em&gt;. I didn&amp;rsquo;t make use of this section, though
+I&amp;rsquo;m sure the above script could be broken up to make use of this. Some other
+time, perhaps.&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-7.png&#34; alt=&#34;Screenshot of Post-build Actions&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Post-build Actions&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h3 id=&#34;summary-1&#34;&gt;Summary&lt;/h3&gt;
+
+&lt;p&gt;Once this step is complete, you should have configured a basic Jenkins job that
+can be kicked off using the API. This job uses the credentials and IP of the
+Patchwork instance. You&amp;rsquo;ll also have a token for your Jenkins user, which we
+will use to talk to the Jenkins API.&lt;/p&gt;
+
+&lt;h2 id=&#34;poll-patchwork-and-kick-of-jenkins-builds&#34;&gt;Poll Patchwork and Kick of Jenkins Builds&lt;/h2&gt;
+
+&lt;p&gt;We&amp;rsquo;re going to use a rather simple Bash script to kick of the Jenkins build. We
+could do the exact same thing in Python (it would likely be more robust), but
+Bash makes for a good first pass. The script consists of a number of different
+parts: all should be combined to produce the final scripts.&lt;/p&gt;
+
+&lt;p&gt;Note that the below script(s) makes use of the &lt;code&gt;jq&lt;/code&gt; tool to parse JSON. This is
+not part of the default install on many distros, and may need to be installed
+manually. You should do this now. For example, on Fedora 25 run:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo dnf install jq
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;First up in the script: Jenkins and Patchwork credentials. We&amp;rsquo;re going to
+hard-code these for now, using the Jenkins username and token and Patchwork
+username and password we configured/collected earlier. We&amp;rsquo;re also going to
+create some function stubs, which we will populate later.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;##################################################
+# Constants
+##################################################
+
+# Patchwork credentials
+
+readonly PATCHWORK_URL=&amp;quot;172.17.0.3:8000&amp;quot;
+readonly PATCHWORK_USER=&amp;quot;admin&amp;quot;
+readonly PATCHWORK_PASS=&amp;quot;tester&amp;quot;
+
+# Jenkins credentials
+
+readonly JENKINS_URL=&amp;quot;localhost:8080&amp;quot;
+readonly JENKINS_USER=&amp;quot;admin&amp;quot;
+readonly JENKINS_TOKEN=&amp;quot;962ccd82ce467804ec7e465602381d12&amp;quot;
+readonly JENKINS_CRUMB=$(curl -s &amp;quot;http://${JENKINS_USER}:${JENKINS_TOKEN}@${JENKINS_URL}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\&amp;quot;:\&amp;quot;,//crumb)&amp;quot;)
+
+# Job configuration
+
+readonly JOB_NAME=&amp;quot;checkstyle&amp;quot;
+readonly JOB_TOKEN=&amp;quot;hello-world&amp;quot;
+
+##################################################
+# Functions
+##################################################
+
+function submit_job() {
+  # TODO
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that Jenkins requires that you supply a &amp;ldquo;crumb&amp;rdquo; with all requests to
+prevent CSRF, so we gather that now. More information is provided in &lt;a href=&#34;http://stackoverflow.com/a/38314369/613428&#34;&gt;this
+StackOverflow question&lt;/a&gt; and in the &lt;a href=&#34;https://wiki.jenkins-ci.org/display/JENKINS/Remote+access+API&#34;&gt;remote access API wiki&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Next, the polling of &lt;code&gt;/events&lt;/code&gt;. This is an endpoint in the Patchwork REST API
+that reports events related to elements like patches, series or checks. A list
+of all supported events is &lt;a href=&#34;#&#34;&gt;provided in the docs&lt;/a&gt; but there are two that we
+care about here: &lt;code&gt;patch-created&lt;/code&gt; and &lt;code&gt;patch-complete&lt;/code&gt;. Per the docs, the first
+of these occurs when a patch is added to Patchwork. The second, meanwhile,
+occurs when all dependencies (if any) are met. This means that if a two patch
+series is sent to Patchwork and the second patch is received first, only the
+&lt;code&gt;patch-created&lt;/code&gt; event will be created for this patch. Only when the first patch
+in that series (the second patch&amp;rsquo;s only dependency) is received will the
+&lt;code&gt;patch-completed&lt;/code&gt; be raised for the second patch (the &lt;code&gt;patch-created&lt;/code&gt; and
+&lt;code&gt;patch-completed&lt;/code&gt; events will be raised at the same time for the first patch,
+given that it has no dependencies per se).&lt;/p&gt;
+
+&lt;p&gt;The below section of the script deals with reading these events from the
+Patchwork API.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;##################################################
+# Main
+##################################################
+
+# Pull in latest events
+
+response=$(curl -s -u &amp;quot;$PATCHWORK_USER:$PATCHWORK_PASS&amp;quot; \
+  http://${PATCHWORK_URL}/api/1.0/events/?category=patch-completed)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The response from the &lt;code&gt;/events&lt;/code&gt; API will include links to the created patch
+and, for the &lt;code&gt;patch-completed&lt;/code&gt; event, the patch series which is providing the
+dependencies. We must retrieve the patch and series from the Patchwork API.
+Note that, in a future version of the API, we should support an &lt;code&gt;embed&lt;/code&gt;
+parameter that would allow us to embed the patch and series in the response and
+avoid these additional requests.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Extract patch and series URLs from each event, and create jobs based on
+# these
+
+patches_series=$(echo &amp;quot;$response&amp;quot; | jq -rc &#39;.[] | .payload.patch + &amp;quot;,&amp;quot; + .payload.series&#39;)
+echo &amp;quot;$patches_series&amp;quot; | while IFS=, read -r patch series; do
+  echo &amp;quot;Submitting job&amp;quot;
+  echo &amp;quot;Patch URL: $patch&amp;quot;
+  echo &amp;quot;Series URL: $series&amp;quot;
+
+  submit_job &amp;quot;$patch&amp;quot; &amp;quot;$series&amp;quot;
+
+  exit 1
+done
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once we have the &lt;code&gt;patch_url&lt;/code&gt; and &lt;code&gt;series_url&lt;/code&gt;, we can submit the job to
+Jenkins. We&amp;rsquo;re going to do this via a call to the &lt;code&gt;submit_job&lt;/code&gt; function, which
+we already defined a stub for. Implementing this function is rather simple,
+given that we have already configured the job and gathered all required
+parameters and credentials. Replace the above stub with the below function.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;function submit_job() {
+  local patch
+  local patch_id
+  local series_id
+  local mbox_url
+  local build_url
+
+  patch=$(curl -s &amp;quot;$1&amp;quot;)
+  series=$(curl -s &amp;quot;$2&amp;quot;)
+  patch_id=$(echo &amp;quot;$patch&amp;quot; | jq -rc &#39;.id&#39;)
+  series_id=$(echo &amp;quot;$series&amp;quot; | jq -rc &#39;.id&#39;)
+
+  # we need to build this manually to ensure the Patchwork IP address is used
+  mbox_url=&amp;quot;http://$PATCHWORK_URL/patch/${patch_id}/mbox/?series=${series_id}&amp;quot;
+  check_url=&amp;quot;http://$PATCHWORK_URL/api/1.0/patches/${patch_id}/checks/&amp;quot;
+  build_url=&amp;quot;http://$JENKINS_USER:$JENKINS_TOKEN@$JENKINS_URL/job/$JOB_NAME/build&amp;quot;
+
+  echo &amp;quot;Submitting job: $build_url&amp;quot;
+  echo &amp;quot;Job parameters: PATCH_MBOX_URL=$mbox_url, CHECK_URL=$check_url&amp;quot;
+
+  curl -X POST \
+    -H &amp;quot;$JENKINS_CRUMB&amp;quot; \
+    --data token=&amp;quot;$JOB_TOKEN&amp;quot; \
+    --data-urlencode json=&#39;{
+      &amp;quot;parameter&amp;quot;: [
+        {&amp;quot;name&amp;quot;:&amp;quot;MBOX_URL&amp;quot;, &amp;quot;value&amp;quot;:&amp;quot;&#39;&amp;quot;$mbox_url&amp;quot;&#39;&amp;quot;},
+        {&amp;quot;name&amp;quot;:&amp;quot;CHECK_URL&amp;quot;, &amp;quot;value&amp;quot;:&amp;quot;&#39;&amp;quot;$check_url&amp;quot;&#39;&amp;quot;}
+      ]
+    }&#39; \
+    &amp;quot;$build_url&amp;quot;
+
+  echo &amp;quot;Job submitted&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are a couple of important points to note here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We&amp;rsquo;re building the &lt;code&gt;mbox_url&lt;/code&gt; and &lt;code&gt;check_url&lt;/code&gt; URLs manually, rather than
+extracting it from the &lt;code&gt;patch&lt;/code&gt; response. This is because the response will be
+relative to the Patchwork Docker domain, or &lt;code&gt;localhost&lt;/code&gt;, which Jenkins cannot
+access.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The Jenkins API requires parameters be passed via a JSON body rather than
+than individual fields. This differs from Patchwork.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The Jenkins API requires the inclusion of a &lt;em&gt;crumb&lt;/em&gt; header, by way of the
+&lt;code&gt;JENKINS_CRUMB&lt;/code&gt; that we stored earlier. This is intended to prevent CSRF
+attacks.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;More information on the Jenkins API can be found in &lt;a href=&#34;https://wiki.jenkins-ci.org/display/JENKINS/Remote+access+API&#34;&gt;remote access API
+wiki&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;add-patches-to-patchwork&#34;&gt;Add Patches to Patchwork&lt;/h2&gt;
+
+&lt;p&gt;Once done, it&amp;rsquo;s time to load in some patches. We&amp;rsquo;re going to once again follow
+the &lt;a href=&#34;https://patchwork.readthedocs.io/en/latest/development/installation/#import-mailing-list-archives&#34;&gt;Patchwork documentation&lt;/a&gt; and make use Mailman archives. I downloaded
+the archives for January 2017, like so:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl https://gist.github.com/stephenfin/d13183dad40f8c472234cb26777355c3 \
+    | gunzip &amp;gt; sample-series.mbox
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that this &lt;em&gt;must&lt;/em&gt; be downloaded to the &lt;code&gt;patchwork&lt;/code&gt; directory, else it will
+not be accessible from the Docker containers.&lt;/p&gt;
+
+&lt;p&gt;Once downloaded, use the &lt;code&gt;parsearchive&lt;/code&gt; tool provided with Patchwork to load
+the archive:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ docker-compose run web python manage.py parsearchive \
+    --list-id=patchwork.ozlabs.org \
+    sample-series.mbox
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Keep an eye on the &lt;code&gt;/events&lt;/code&gt; URL - you should notice a few new patch events.&lt;/p&gt;
+
+&lt;h2 id=&#34;go-time&#34;&gt;Go Time&lt;/h2&gt;
+
+&lt;p&gt;Run the script on your host and watch the end result. That script will read the
+events stream, filter the events we care about, and kick of Jenkins builds for
+the patches you just added. Jenkins will then take over, reporting that it is
+starting testing to Patchwork, actually running the tests, then reporting the
+end result to Patchwork. You should be able to see the jobs running in Jenkins,
+and the resulting checks reported in the API.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://localhost:8080/job/checkstyle/
+http://localhost:8000/api/1.0/events/?category=patch-completed
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;summary-2&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;And so completes our demo. It&amp;rsquo;s rather basic, involving a lot of &amp;ldquo;shortcuts&amp;rdquo;
+and tinkering. However, it does demonstrate the coming together of many of the
+features available in the next version of Patchwork, namely:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;em&gt;Checks&lt;/em&gt;, available in &lt;a href=&#34;https://github.com/getpatchwork/patchwork/&#34;&gt;Patchwork 1.1&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;em&gt;REST API&lt;/em&gt;, available in the upcoming Patchwork 2.0&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;em&gt;Series&lt;/em&gt;, available in the upcoming Patchwork 2.0&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;em&gt;Events&lt;/em&gt;, still WIP but planned for the upcoming Patchwork 2.0&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Not all of these features are required for building an automated testing
+system. For example, if you didn&amp;rsquo;t want to test series or were happy testing
+individual patches, you could skip the series support. Likewise, you don&amp;rsquo;t have
+to report test results to Patchwork and could poll the &lt;code&gt;/patches&lt;/code&gt; or &lt;code&gt;/series&lt;/code&gt;
+endpoints instead of the &lt;code&gt;/events&lt;/code&gt; endpoint to find patches to test.  In my
+opinion though, this represents a great starting point for building an
+sustainable, stable, and ultimately beneficial testing infrastructure for
+projects using a mailing list workflow.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-s-next&#34;&gt;What&amp;rsquo;s Next&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;A better permissions model for Patchwork users&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Support for an &lt;code&gt;embed&lt;/code&gt; parameter in all API endpoints, allowing us to
+minimize requests to the API&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/HTTP_ETag&#34;&gt;ETag&lt;/a&gt; support, again helping us minimize API traffic&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Better upstream documentation&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Open Python paths with vim</title>
@@ -1766,21 +2363,6 @@ using SSL:&lt;/p&gt;
 
 &lt;p&gt;We now have authentication against the server, using a server password, and
 authentication against the nickserv, using SASL. Pretty much hassle free.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Who is Stephen</title>
-      <link>https://that.guru/about/</link>
-      <pubDate>Sat, 25 Jun 2016 23:33:13 +0100</pubDate>
-      
-      <guid>https://that.guru/about/</guid>
-      <description>&lt;p&gt;Stephen is a software developer at &lt;a href=&#34;http://www.intel.ie/content/www/ie/en/company-overview/intel-shannon.html&#34;&gt;Intel&lt;/a&gt;. He works on
-&lt;a href=&#34;http://stackalytics.com/?user_id=sfinucan&#34;&gt;OpenStack&lt;/a&gt;, with a focus on &lt;a href=&#34;http://www.etsi.org/technologies-clusters/technologies/nfv&#34;&gt;NFV&lt;/a&gt; enablement. In the past, he
-has also contributed Intel&amp;rsquo;s DPDK-focused fork of Open vSwitch - &lt;a href=&#34;https://github.com/01org/dpdk-ovs&#34;&gt;DPDK
-vSwitch&lt;/a&gt; - along with &lt;a href=&#34;http://openvswitch.org/&#34;&gt;Open vSwitch&lt;/a&gt; itself. He hold an first
-class honors degree in Computer Engineering from the &lt;a href=&#34;http://www.ul.ie/&#34;&gt;University of
-Limerick&lt;/a&gt;, Ireland.&lt;/p&gt;
 </description>
     </item>
     
