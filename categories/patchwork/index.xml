@@ -120,9 +120,9 @@ StackOverflow answer&lt;/a&gt;:&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;where &lt;code&gt;&amp;lt;CONTAINER_NAME_OR_ID&amp;gt;&lt;/code&gt; refers to the active &lt;code&gt;patchwork_web&lt;/code&gt; container.
-This will return an IP address, in my case &lt;code&gt;172.17.0.4&lt;/code&gt;. Ensure you can access
+This will return an IP address, in my case &lt;code&gt;172.17.0.3&lt;/code&gt;. Ensure you can access
 the Patchwork instance via this address (including port) - for example at
-&lt;code&gt;172.17.0.4:8000&lt;/code&gt; - then store this IP for later.&lt;/p&gt;
+&lt;code&gt;172.17.0.3:8000&lt;/code&gt; - then store this IP for later.&lt;/p&gt;
 
 
 &lt;figure &gt;
