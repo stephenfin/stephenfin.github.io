@@ -124,7 +124,7 @@ manually.</p>
 <p>First up, Patchwork. Clone the Patchwork repo and bring up the project, as
 described in the <a href="https://patchwork.readthedocs.io/en/latest/development/installation/">docs</a>:</p>
 
-<pre><code>$ git clone https://github.com/getpatchwork/patchwork
+<pre><code class="language-shell">$ git clone https://github.com/getpatchwork/patchwork
 
 $ cd patchwork
 $ docker-compose build
@@ -134,7 +134,7 @@ $ docker-compose up
 <p>You should also create an superuser that you can use manage the instance. I
 used <code>admin</code> and <code>tester</code> for username and password, respectively:</p>
 
-<pre><code>$ docker-compose run web python manage.py createsuperuser
+<pre><code class="language-shell">$ docker-compose run web python manage.py createsuperuser
 </code></pre>
 
 <p>Once initialized, you should be able to browse Patchwork at <code>localhost:8000</code>.
@@ -146,7 +146,7 @@ this demo.</p>
 <p>Now for Jenkins. We&rsquo;ll follow the instructions provided on the the <a href="https://hub.docker.com/_/jenkins/">Docker
 Hub</a> page. Run:</p>
 
-<pre><code>$ docker pull jenkins
+<pre><code class="language-shell">$ docker pull jenkins
 $ docker run --name myjenkins -p 8080:8080 -p 50000:50000 \
     -v /var/jenkins_home jenkins
 </code></pre>
@@ -196,7 +196,7 @@ Patchwork instance. This is necessary so Jenkins can communicate with the
 instance. You can extract the IP address using <code>docker inspect</code>, per <a href="http://stackoverflow.com/a/20686101/613428">this
 StackOverflow answer</a>:</p>
 
-<pre><code>$ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
+<pre><code class="language-shell">$ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
     &lt;CONTAINER_NAME_OR_ID&gt;
 </code></pre>
 
@@ -340,7 +340,7 @@ previously. Add a new &ldquo;Execute Shell&rdquo; build step to the <em>Build</e
 the script provided below there, updating the IP address or credentials where
 necessary:</p>
 
-<pre><code>#!/usr/bin/env bash
+<pre><code class="language-shell">#!/usr/bin/env bash
 
 ##################################################
 # Constants
@@ -468,7 +468,7 @@ hard-code these for now, using the Jenkins username and token and Patchwork
 username and password we configured/collected earlier. We&rsquo;re also going to
 create some function stubs, which we will populate later.</p>
 
-<pre><code>##################################################
+<pre><code class="language-shell">##################################################
 # Constants
 ##################################################
 
@@ -519,7 +519,7 @@ given that it has no dependencies per se).</p>
 <p>The below section of the script deals with reading these events from the
 Patchwork API.</p>
 
-<pre><code>##################################################
+<pre><code class="language-shell">##################################################
 # Main
 ##################################################
 
@@ -536,7 +536,7 @@ Note that, in a future version of the API, we should support an <code>embed</cod
 parameter that would allow us to embed the patch and series in the response and
 avoid these additional requests.</p>
 
-<pre><code># Extract patch and series URLs from each event, and create jobs based on
+<pre><code class="language-shell"># Extract patch and series URLs from each event, and create jobs based on
 # these
 
 patches_series=$(echo &quot;$response&quot; | jq -rc '.[] | .payload.patch + &quot;,&quot; + .payload.series')
@@ -557,7 +557,7 @@ we already defined a stub for. Implementing this function is rather simple,
 given that we have already configured the job and gathered all required
 parameters and credentials. Replace the above stub with the below function.</p>
 
-<pre><code>function submit_job() {
+<pre><code class="language-shell">function submit_job() {
   local patch
   local patch_id
   local series_id
@@ -617,7 +617,7 @@ wiki</a>.</p>
 the <a href="https://patchwork.readthedocs.io/en/latest/development/installation/#import-mailing-list-archives">Patchwork documentation</a> and make use Mailman archives. I downloaded
 the archives for January 2017, like so:</p>
 
-<pre><code>$ curl https://gist.github.com/stephenfin/d13183dad40f8c472234cb26777355c3 \
+<pre><code class="language-shell">$ curl https://gist.github.com/stephenfin/d13183dad40f8c472234cb26777355c3 \
     | gunzip &gt; sample-series.mbox
 </code></pre>
 
@@ -627,7 +627,7 @@ not be accessible from the Docker containers.</p>
 <p>Once downloaded, use the <code>parsearchive</code> tool provided with Patchwork to load
 the archive:</p>
 
-<pre><code>$ docker-compose run web python manage.py parsearchive \
+<pre><code class="language-shell">$ docker-compose run web python manage.py parsearchive \
     --list-id=patchwork.ozlabs.org \
     sample-series.mbox
 </code></pre>
