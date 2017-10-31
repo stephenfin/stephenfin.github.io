@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/</link>
+    <description>Recent content in Categories on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
+    <lastBuildDate>Fri, 15 Jul 2016 11:26:37 +0100</lastBuildDate>
+    
+	<atom:link href="https://that.guru/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>C</title>
+      <link>https://that.guru/categories/c/</link>
+      <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
+      
+      <guid>https://that.guru/categories/c/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Howto</title>
+      <link>https://that.guru/categories/howto/</link>
+      <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
+      
+      <guid>https://that.guru/categories/howto/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Openstack</title>
+      <link>https://that.guru/categories/openstack/</link>
+      <pubDate>Tue, 31 Oct 2017 17:08:33 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/openstack/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Patchwork</title>
+      <link>https://that.guru/categories/patchwork/</link>
+      <pubDate>Sun, 12 Feb 2017 22:27:38 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/patchwork/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Random</title>
+      <link>https://that.guru/categories/random/</link>
+      <pubDate>Wed, 13 Jul 2016 14:33:21 +0100</pubDate>
+      
+      <guid>https://that.guru/categories/random/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Sysadmin</title>
+      <link>https://that.guru/categories/sysadmin/</link>
+      <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
+      
+      <guid>https://that.guru/categories/sysadmin/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tips</title>
+      <link>https://that.guru/categories/tips/</link>
+      <pubDate>Mon, 06 Feb 2017 14:33:53 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/tips/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

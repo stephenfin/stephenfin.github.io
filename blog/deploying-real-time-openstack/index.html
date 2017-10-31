@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Deploying Real Time Openstack &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-80652159-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf">CV</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2017 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Deploying Real Time Openstack</h1>
+    <span class="post-date">Oct 31, 2017 &middot; 12 minute read &middot; <a href="https://that.guru/blog/deploying-real-time-openstack/#disqus_thread">Comments</a>
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/openstack">openstack</a>
+    </span>
+    <div class="document">
+
+
+<p>Recent versions of OpenStack nova have added support for real-time instances,
+that is, instances that provide the determinism and performance guarantees
+required by real-time applications. While this work was finally marked complete in the
+OpenStack Ocata release, it built upon lots of features added in previously
+releases.</p>
+<p>The below is a guide that covers a basic, single-node deployment of OpenStack
+suitable for evaluating basic real-time instance functionality. We use CentOS
+7, but the same instructions can be modified for RHEL 7 or Fedora, and any
+CentOS-specific aspects are called out. Also note that we're using DevStack:
+you obviously shouldn't be using this in production (I hear <a class="reference external" href="https://www.redhat.com/en/technologies/linux-platforms/openstack-platform">Red Hat OpenStack
+Platform</a> is pretty swell!).</p>
+<div class="section" id="host-bios-configuration">
+<h2>Host Bios Configuration</h2>
+<p>Configure your BIOS as recommended in the <a class="reference external" href="https://rt.wiki.kernel.org/index.php/HOWTO:_Build_an_RT-application">rt-wiki</a> page. The most important
+steps are:</p>
+<ul class="simple">
+<li>Disable power management, including CPU sleep states</li>
+<li>Disable hyper-threading or any option related to logical processors</li>
+</ul>
+<p>These are standard steps used in benchmarking as both sets of features can
+result in non-deterministic behavior.</p>
+</div>
+<div class="section" id="host-os-configuration">
+<h2>Host OS Configuration</h2>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Most of the commands below must be run with root privileges</p>
+</div>
+<ol class="arabic">
+<li><p class="first">Download and install CentOS 7.</p>
+</li>
+<li><p class="first">Log in as <cite>root</cite>.</p>
+<p>Most of the following steps require root privileges. While you can do this
+with <cite>sudo</cite>, it's generally easier to log in as the <cite>root</cite> user. Do this
+now.</p>
+<pre class="code shell literal-block">
+$ su -
+</pre>
+</li>
+<li><p class="first">Enable the <cite>rt</cite> repo.</p>
+<pre class="code shell literal-block">
+$ <span class="name builtin">echo</span> <span class="literal string">&lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
+# CentOS-RT.repo
+#
+# The Real Time (RT) repository.
+#
+
+[rt]
+name=CentOS-$releasever - rt
+baseurl=http://mirror.centos.org/centos/$releasever/rt/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+enabled=1
+EOF</span>
+
+$ sudo yum update -y
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Most online guides will point you to a CERN repo for these packages. I
+had no success with this as some packages were missing. However, the
+steps to do this are below, just in case they're helpful.</p>
+<pre class="code shell last literal-block">
+$ wget http://linuxsoft.cern.ch/cern/centos/7/rt/CentOS-RT.repo /etc/yum.repos.d/CentOS-RT.repo
+$ wget http://linuxsoft.cern.ch/cern/centos/7/os/x86_64/RPM-GPG-KEY-cern /etc/pki/rpm-gpg/RPM-GPG-KEY-cern
+$ sudo yum groupinstall RT
+</pre>
+</div>
+</li>
+<li><p class="first">Install dependencies.</p>
+<p>The most critical of these are <tt class="docutils literal"><span class="pre">kernel-rt</span></tt> and <tt class="docutils literal"><span class="pre">kernel-rt-kvm</span></tt>, but
+these have dependencies of their own. When I was installing this, there was
+a conflict between the version installed by default (<tt class="docutils literal">&#64;anaconda</tt>) and the
+one provided by the <tt class="docutils literal">rt</tt> repo. To resolve this, I simply removed the
+conflicting versino and installed the one provided by the <tt class="docutils literal">rt</tt> repo.</p>
+<pre class="code shell literal-block">
+$ yum remove tuned
+$ yum install -y tuned-2.7.1-5.el7
+</pre>
+<p>After this, install the aforementioned dependencies along with some required
+by CentOS specifically.</p>
+<pre class="code shell literal-block">
+$ yum install -y centos-release-qemu-ev
+$ yum install -y tuned-profiles-realtime tuned-profiles-nfv
+$ yum install -y kernel-rt.x86_64 kernel-rt-kvm.x86_64
+</pre>
+</li>
+<li><p class="first">Configure the realtime profile.</p>
+<p>We want to isolate some cores from the kernel and will use the <tt class="docutils literal">tuned</tt>
+application with the profiles installed above to do this.</p>
+<p>First, dump info about your NUMA topology.</p>
+<pre class="code shell literal-block">
+$ lscpu <span class="punctuation">|</span> grep ^NUMA
+NUMA node<span class="operator">(</span>s<span class="operator">)</span>:          2
+NUMA node0 CPU<span class="operator">(</span>s<span class="operator">)</span>:     0,2,4,6,8,10
+NUMA node1 CPU<span class="operator">(</span>s<span class="operator">)</span>:     1,3,5,7,9,11
+</pre>
+<p>This processor, an <a class="reference external" href="https://ark.intel.com/products/81897/Intel-Xeon-Processor-E5-2609-v3-15M-Cache-1_90-GHz">Intel Xeon E5-2609-v3</a>, has six cores and we've got
+two of them. We want to isolate some of these cores. CPU0 should be excluded
+from the possible cores as it handles console interrupts while a second core
+should be kept free for other host overhead processes. Let's take a highly
+scientific approach and isolate four of the six cores from each socket
+because why not?</p>
+<pre class="code shell literal-block">
+$ <span class="name builtin">echo</span> <span class="literal string double">&quot;isolated_cores=4-11&quot;</span> &gt;&gt; /etc/tuned/realtime-virtual-host-variables.conf
+</pre>
+</li>
+<li><p class="first">Load the realtime profile.</p>
+<pre class="code shell literal-block">
+$ systemctl <span class="name builtin">enable</span> tuned
+$ systemctl start tuned
+$ tuned-adm profile realtime-virtual-host
+</pre>
+<p>You should confirm that the profile has been applied.</p>
+<pre class="code shell literal-block">
+$ grep <span class="name variable">tuned_params</span><span class="operator">=</span> /boot/grub2/grub.cfg
+<span class="name builtin">set</span> <span class="name variable">tuned_params</span><span class="operator">=</span><span class="literal string double">&quot;isolcpus=4-11 nohz=on nohz_full=4-11 intel_pstate=disable nosoftlockup&quot;</span>
+</pre>
+</li>
+<li><p class="first">Configure huge pages.</p>
+<p>First, add the following to <tt class="docutils literal">GRUB_CMDLINE_LINUX</tt> in <tt class="docutils literal">/etc/default/grub</tt>.</p>
+<pre class="code text literal-block">
+default_hugepagesz=1G
+</pre>
+<p>Save this configuration.</p>
+<pre class="code shell literal-block">
+$ grub2-mkconfig -o /boot/grub2/grub.cfg
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.10.0-327.13.1.el7.x86_64
+<span class="keyword">done</span>
+</pre>
+<p>Because we're using a number of CPUs from each NUMA node, we want to assign
+a number hugepages to each node. We're going to assign four per node.</p>
+<pre class="code shell literal-block">
+$ <span class="name builtin">echo</span> <span class="literal number">4</span> &gt; /sys/devices/system/node/node0/hugepages/hugepages-1048576kB/nr_hugepages
+$ <span class="name builtin">echo</span> <span class="literal number">4</span> &gt; /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
+</pre>
+<p>We want to make this persistent. While you can configure persistent
+hugepages via the <tt class="docutils literal">GRUB_CMDLINE_LINUX</tt> option, you cannot do this on a
+per-NUMA node basis. We're going to use our own <cite>systemd</cite> unit files to
+solve this problem until such a time as <a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=1232350">bug #1232350</a> is resolved. This
+solution is taken from that bug.</p>
+<pre class="code shell literal-block">
+$ cat <span class="literal string">&lt;&lt; EOF &gt; /usr/lib/systemd/system/hugetlb-gigantic-pages.service
+[Unit]
+Description=HugeTLB Gigantic Pages Reservation
+DefaultDependencies=no
+Before=dev-hugepages.mount
+ConditionPathExists=/sys/devices/system/node
+ConditionKernelCommandLine=hugepagesz=1G
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/systemd/hugetlb-reserve-pages
+
+[Install]
+WantedBy=sysinit.target
+EOF</span>
+
+$ cat <span class="literal string">&lt;&lt; EOF &gt; /usr/lib/systemd/hugetlb-reserve-pages
+#!/bin/bash
+
+nodes_path=/sys/devices/system/node/
+if [ ! -d $nodes_path ]; then
+  echo &quot;ERROR: $nodes_path does not exist&quot;
+  exit 1
+fi
+
+reserve_pages()
+{
+  echo $1 &gt; $nodes_path/$2/hugepages/hugepages-1048576kB/nr_hugepages
+}
+
+reserve_pages 4 node0
+reserve_pages 4 node1
+EOF</span>
+
+$ chmod +x /usr/lib/systemd/hugetlb-reserve-pages
+$ systemctl <span class="name builtin">enable</span> hugetlb-gigantic-pages
+</pre>
+</li>
+<li><p class="first">Reboot the host to apply changes.</p>
+</li>
+<li><p class="first">Verify that changes have been applied.</p>
+<p>You want to ensure the <cite>tuned</cite> profile is loaded and the changes it has made
+have taken effect, such as adding <tt class="docutils literal">isolcpus</tt> and related parameters to the
+boot command. In addition, you want to make sure your own hugepage
+configuration has been applied.</p>
+<pre class="code shell literal-block">
+$ tuned-adm active
+Current active profile: realtime-virtual-host
+
+$ cat /proc/cmdline
+<span class="name variable">BOOT_IMAGE</span><span class="operator">=</span>/vmlinuz-3.10.0-327.18.2.rt56.223.el7_2.x86_64 <span class="name variable">root</span><span class="operator">=</span>/dev/mapper/rhel_virtlab502-root ro <span class="name variable">crashkernel</span><span class="operator">=</span>auto rd.lvm.lv<span class="operator">=</span>rhel_virtlab502/root rd.lvm.lv<span class="operator">=</span>rhel_virtlab502/swap <span class="name variable">console</span><span class="operator">=</span>ttyS1,115200 <span class="name variable">default_hugepagesz</span><span class="operator">=</span>1G <span class="name variable">isolcpus</span><span class="operator">=</span>3,5,7 <span class="name variable">nohz</span><span class="operator">=</span>on <span class="name variable">nohz_full</span><span class="operator">=</span>3,5,7 <span class="name variable">intel_pstate</span><span class="operator">=</span>disable nosoftlockup
+
+$ cat /sys/module/kvm/parameters/lapic_timer_advance_ns
+<span class="literal number">1000</span>  <span class="comment single"># this should be a non-0 value
+</span>
+$ cat /sys/devices/system/node/node0/hugepages/hugepages-1048576kB/nr_hugepages
+4
+$ cat /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
+4
+</pre>
+</li>
+<li><p class="first">Verify that system interrupts are disabled.</p>
+<p>You should install the <cite>rt-tests</cite> package, then run the <cite>hwlatdetect</cite>
+utility it provides to validate correct behavior.</p>
+<pre class="code shell literal-block">
+$ yum install -y rt-tests
+
+$ hwlatdetect
+      hwlatdetect:  <span class="name builtin">test</span> duration <span class="literal number">120</span> seconds
+   parameters:
+        Latency threshold: 10us
+        Sample window:     1000000us
+        Sample width:      500000us
+     Non-sampling period:  500000us
+        Output File:       None
+
+Starting <span class="name builtin">test</span>
+<span class="name builtin">test</span> finished
+Max Latency: 0us
+Samples recorded: 0
+Samples exceeding threshold: 0
+</pre>
+<p>If this shows any samples exceeding threshold, something is wrong and you
+should retrace your steps.</p>
+</li>
+<li><p class="first">Verify &quot;real-time readiness&quot;.</p>
+<p>The <cite>rteval</cite> utility can be used to evaluate system suitability for RT
+Linux. It must be run for a long duration, so you should put this running
+and come back to it later.</p>
+<pre class="code shell literal-block">
+$ yum install rteval
+
+$ rteval --onlyload --duration<span class="operator">=</span>4h --verbose
+</pre>
+</li>
+</ol>
+</div>
+<div class="section" id="guest-image-configuration">
+<h2>Guest Image Configuration</h2>
+<p>We're going to need a real-time image for the guest too. I did this manually on
+another machine using <cite>virt-install</cite>. Much of the configuration is duplicated
+from the host.</p>
+<ol class="arabic">
+<li><p class="first">Boot the guest and configure it using a <cite>root</cite> user.</p>
+<p>We don't actually care about most of the configuration here wrt to RAM and
+CPU count since we'll be changing this later. The only things to note are
+that we're using the same OS as the host (CentOS) for ease-of-use and we
+have both network connectivity (so we can install packages) and a serial
+connection (so we can interact with the guest).</p>
+<pre class="code literal-block">
+$ sudo virt-install \
+  --name centos7 \
+  --ram 4096 \
+  --disk path=./centos7.qcow2,size=8 \
+  --vcpus 4 \
+  --os-type linux \
+  --os-variant centos7.0 \
+  --network bridge=virbr0 \
+  --graphics none \
+  --console pty,target_type=serial \
+  --location 'http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso' \
+  --extra-args 'console=ttyS0,115200n8 serial'
+
+# ... follow prompts
+</pre>
+</li>
+<li><p class="first">Enable the <cite>rt</cite> repo.</p>
+<pre class="code shell literal-block">
+$ <span class="name builtin">echo</span> <span class="literal string">&lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
+# CentOS-RT.repo
+#
+# The Real Time (RT) repository.
+#
+
+[rt]
+name=CentOS-$releasever - rt
+baseurl=http://mirror.centos.org/centos/$releasever/rt/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+enabled=1
+EOF</span>
+
+$ sudo yum update -y
+</pre>
+</li>
+<li><p class="first">Install dependencies.</p>
+<p>We naturally don't need the <tt class="docutils literal"><span class="pre">kernel-rt-kvm</span></tt> module, but we do need the
+<tt class="docutils literal"><span class="pre">kernel-rt</span></tt> package and some other dependencies. Seeing as we're using
+CentOS for the guest too, we have to deal with the same <cite>tuned</cite> dependency
+conflict.</p>
+<pre class="code shell literal-block">
+$ yum remove tuned
+$ yum install -y tuned-2.7.1-5.el7
+</pre>
+<p>After this, install the aforementioned dependencies along with some required
+by CentOS specifically.</p>
+<pre class="code shell literal-block">
+$ yum install -y centos-release-qemu-ev
+$ yum install -y tuned-profiles-realtime tuned-profiles-nfv
+$ yum install -y kernel-rt.x86_64
+</pre>
+</li>
+<li><p class="first">Configure the realtime profile.</p>
+<p>Configure the <cite>tuned</cite> profile toisolate the two CPUs we reserved for
+real-time in the flavour (i.e. <tt class="docutils literal"><span class="pre">^0-1</span></tt>, so <tt class="docutils literal">2</tt> and <tt class="docutils literal">3</tt>)</p>
+<pre class="code shell literal-block">
+$ <span class="name builtin">echo</span> <span class="literal string double">&quot;isolated_cores=2,3&quot;</span> &gt;&gt; /etc/tuned/realtime-virtual-guest-variables.conf
+</pre>
+</li>
+<li><p class="first">Load the realtime profile.</p>
+<pre class="code shell literal-block">
+$ systemctl <span class="name builtin">enable</span> tuned
+$ systemctl start tuned
+$ tuned-adm profile realtime-virtual-guest
+</pre>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Note that we're using the <em>guest</em> profile here - not the <em>host</em> one.</p>
+</div>
+<p>You should confirm that the profile has been applied.</p>
+<blockquote>
+<p>$ grep tuned_params= /boot/grub2/grub.cfg
+set tuned_params=&quot;isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup&quot;</p>
+</blockquote>
+</li>
+<li><p class="first">Configure hugepages.</p>
+<p>First, add the following to <tt class="docutils literal">GRUB_CMDLINE_LINUX</tt> in <tt class="docutils literal">/etc/default/grub</tt>.</p>
+<pre class="code text literal-block">
+default_hugepagesz=1G
+</pre>
+<p>Save this configuration.</p>
+<pre class="code shell literal-block">
+$ grub2-mkconfig -o /boot/grub2/grub.cfg
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.10.0-327.13.1.el7.x86_64
+<span class="keyword">done</span>
+</pre>
+<p>We don't need to enable these as this will be done from the OpenStack side.</p>
+</li>
+<li><p class="first">Install testing dependencies.</p>
+<p>We're going to be doing some testing later. Best to install these
+dependencies now.</p>
+<pre class="code shell literal-block">
+$ yum install -y epel-release
+$ yum install -y rt-tests stress
+</pre>
+</li>
+<li><p class="first">Reboot the guest to apply changes.</p>
+</li>
+<li><p class="first">Verify the changes have been applied.</p>
+<p>Once again, you want to ensure the <cite>tuned</cite> profile is loaded and applied,
+and that the hugepages have been configured.</p>
+<pre class="code shell literal-block">
+$ tuned-adm active
+Current active profile: realtime-virtual-guest
+
+$ uname -a
+Linux guest.localdomain 3.10.0-693.2.2.rt56.623.el7.x86_64 <span class="comment single">#1 SMP PREEMPT RT Sun Jan 01 00:00:00 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+</span>
+$ cat /proc/cmdline
+<span class="name variable">BOOT_IMAGE</span><span class="operator">=</span>/vmlinuz-3.10.0-693.2.2.rt56.623.el7.x86_64 <span class="name variable">root</span><span class="operator">=</span>/dev/mapper/centos-root ro rd.lvm.lv<span class="operator">=</span>centos/root rd.lvm.lv<span class="operator">=</span>centos/swap <span class="name variable">console</span><span class="operator">=</span>ttyS0,115200n8 <span class="name variable">default_hugepagesz</span><span class="operator">=</span>1G <span class="name variable">isolcpus</span><span class="operator">=</span>2,3 <span class="name variable">nohz</span><span class="operator">=</span>on <span class="name variable">nohz_full</span><span class="operator">=</span>2,3 <span class="name variable">rcu_nocbs</span><span class="operator">=</span>2,3 <span class="name variable">intel_pstate</span><span class="operator">=</span>disable nosoftlockup
+</pre>
+</li>
+<li><p class="first">Install OpenStack-specific dependencies.</p>
+<p>We want to use <cite>cloud-init</cite> to configure stuff in OpenStack, so let's
+install the various dependencies required. This is taken from <a class="reference external" href="https://docs.openstack.org/image-guide/centos-image.html">the OpenStack
+docs</a>.</p>
+<pre class="code shell literal-block">
+$ yum install -y acpid
+$ systemctl <span class="name builtin">enable</span> acpid
+$ yum install -y cloud-init cloud-utils-growpart
+$ <span class="name builtin">echo</span> <span class="literal string double">&quot;NOZEROCONF=yes&quot;</span> &gt;&gt; /etc/sysconfig/network
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We don't need to configure a console interface as <cite>virt-install</cite> has
+already done this for us.</p>
+</div>
+<p>Once this is done, you can shutdown the guest.</p>
+<pre class="code shell literal-block">
+$ poweroff
+</pre>
+</li>
+<li><p class="first">Clean up the image.</p>
+<p>We want to strip stuff like MAC addresses from the guest. This should be
+done wherever you ran <cite>virt-install</cite>.</p>
+<pre class="code shell literal-block">
+$ sudo virt-sysprep -d centos7
+</pre>
+<p>If this is successful, you can undefine and shrink the image. It's now ready
+for use later.</p>
+<pre class="code shell literal-block">
+$ sudo virsh undefine centos7
+$ sudo qemu-img convert -O qcow2 -c centos7.qcow2 centos7-small.qcow2
+</pre>
+</li>
+</ol>
+</div>
+<div class="section" id="nova-configuration">
+<h2>Nova Configuration</h2>
+<ol class="arabic">
+<li><p class="first">Log back into your standard user.</p>
+<p>We no longer need to run as root and DevStack, which I'm using here, will
+refuse to run this way.</p>
+</li>
+<li><p class="first">Install and configure OpenStack.</p>
+<p>I used DevStack for this, though you can use anything you want. This feature
+relies on features first included in the Pike release so you should deploy a
+suitable version. Given that I'm using DevStack, I'm simply going to use the
+<cite>stable/pike</cite> variant of DevStack and all dependencies.</p>
+<pre class="code shell literal-block">
+$ git clone https://github.com/openstack-dev/devstack/
+$ <span class="name builtin">cd</span> devstack
+$ git checkout stable/pike
+
+$ <span class="name builtin">echo</span> <span class="literal string">&lt;&lt; EOF &gt; local.conf
+[[local|localrc]]
+GLANCE_V1_ENABLED=False
+
+CINDER_BRANCH=stable/pike
+GLANCE_BRANCH=stable/pike
+HORIZON_BRANCH=stable/pike
+KEYSTONE_BRANCH=stable/pike
+NEUTRON_BRANCH=stable/pike
+NEUTRON_FWAAS_BRANCH=stable/pike
+NOVA_BRANCH=stable/pike
+SWIFT_BRANCH=stable/pike
+
+ADMIN_PASSWORD=password
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+HORIZON_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+
+[[post-config|$NOVA_CONF]]
+[DEFAULT]
+firewall_driver=nova.virt.firewall.NoopFirewallDriver
+scheduler_default_filters=RamFilter,ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,PciPassthroughFilter,NUMATopologyFilter
+vcpu_pin_set=4-11
+EOF</span>
+
+$ ./stack.sh  <span class="comment single"># wait for successful deployment
+</span>
+$ . openrc admin
+</pre>
+<p>You can use a mostly stock configuration with the exception of one
+configuration option: <tt class="docutils literal">[DEFAULT] vcpu_pin_set</tt>. This should be configured
+for the <tt class="docutils literal"><span class="pre">nova-compute</span></tt> service and should be set to the mask configured by
+<cite>tuned</cite> earlier.</p>
+</li>
+<li><p class="first">Validate deployment.</p>
+<p>Once this has deployed, you can check the logs of the <tt class="docutils literal"><span class="pre">nova-compute</span></tt>
+service to make sure the <tt class="docutils literal">vcpu_pin_set</tt> configuration has been successful.
+If deploying using <cite>stable/pike</cite> DevStack, you can do this using
+<cite>journalctl</cite>.</p>
+<pre class="code shell literal-block">
+$ sudo journalctl -u devstack&#64;n-cpu.service <span class="punctuation">|</span> grep <span class="literal string single">'Total usable vcpus'</span> <span class="punctuation">|</span> tail -1
+<span class="name variable">vcpu_pin_set</span> <span class="operator">=</span> 4-11
+$ sudo journalctl -u devstack&#64;n-cpu.service <span class="punctuation">|</span> grep <span class="literal string single">'Total usable vcpus'</span> <span class="punctuation">|</span> tail -1
+Total usable vcpus: 8, total allocated vcpus: 0
+</pre>
+<p>This is as expected, given that we we were using a <tt class="docutils literal"><span class="pre">4-11</span></tt> mask and have
+not yet deployed any instances.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">I'm sure there's a better way to do this filtering with <cite>journalctl</cite>.</p>
+</div>
+</li>
+<li><p class="first">Configure flavor.</p>
+<p>Once you've verified everything, you can create your custom real-time
+flavor. To do this, first configure your environment variables.</p>
+<pre class="code shell literal-block">
+$ openstack flavor create --vcpus <span class="literal number">4</span> --ram <span class="literal number">4096</span> --disk <span class="literal number">20</span> rt1.small
+$ openstack flavor <span class="name builtin">set</span> rt1.small <span class="literal string escape">\
+</span>    --property <span class="literal string single">'hw:cpu_policy=dedicated'</span> <span class="literal string escape">\
+</span>    --property <span class="literal string single">'hw:cpu_realtime=yes'</span> <span class="literal string escape">\
+</span>    --property <span class="literal string single">'hw:cpu_realtime_mask=^0-1'</span> <span class="literal string escape">\
+</span>    --property <span class="literal string single">'hw:mem_page_size=1GB'</span>
+</pre>
+<p>By way of an explanation, these various properties correspond to the
+following.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal">hw:cpu_policy=dedicated</tt></dt>
+<dd><p class="first last">This indicates that instances must have exclusive pCPUs assigned to them.</p>
+</dd>
+<dt><tt class="docutils literal">hw:cpu_realtime=yes</tt></dt>
+<dd><p class="first last">This indicates that instances will have a real-time policy.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">hw:cpu_realtime_mask=&quot;^0-1&quot;</span></tt></dt>
+<dd><p class="first last">This indicates that all instance vCPUs <em>except</em> vCPUs 0 and 1 will have a
+real-time policy.</p>
+</dd>
+<dt><tt class="docutils literal">hw:mem_page_size=1GB</tt></dt>
+<dd><p class="first last">This indicates that instances will have a sole 1 GB huge page assigned to
+them.</p>
+</dd>
+</dl>
+<p>For more information, refer to <a class="reference external" href="https://docs.openstack.org/nova/latest/user/flavors">the nova docs</a>.</p>
+</li>
+<li><p class="first">Configure image.</p>
+<p>We're going to use the <cite>centos7-small.qcow2</cite> created previously. Upload this
+to <cite>glance</cite>.</p>
+<pre class="code shell literal-block">
+$ openstack image create --disk-format qcow2 --container-format bare <span class="literal string escape">\
+</span>    --public --file ./centos-small.qcow2 centos-rt
+</pre>
+</li>
+<li><p class="first">(Optional) Configure security groups and keypairs.</p>
+<p>We want to ensure we can both ping the instance and SSH into it. This
+requires ICMP and TCP port 22 rules in the security group for the project.
+This is necessary because I installed using DevStack but may not be
+necessary using other deployment tools.</p>
+<pre class="code shell literal-block">
+$ <span class="name builtin">echo</span> OS_PROJECT_NAME
+demo
+$ openstack project list <span class="punctuation">|</span> grep -w demo
+<span class="punctuation">|</span> f5a2496e6edf4ef4b5ffe62b01a8bf4b <span class="punctuation">|</span> demo               <span class="punctuation">|</span>
+$ openstack security group list <span class="punctuation">|</span> grep -w f5a2496e6edf4ef4b5ffe62b01a8bf4b
+<span class="punctuation">|</span> 466ffc5e-114d-43a4-8854-db490c6b4571 <span class="punctuation">|</span> default <span class="punctuation">|</span> Default security group <span class="punctuation">|</span> f5a2496e6edf4ef4b5ffe62b01a8bf4b <span class="punctuation">|</span>
+
+$ openstack security group rule create --proto icmp <span class="literal string escape">\
+</span>    466ffc5e-114d-43a4-8854-db490c6b4571
+$ openstack security group rule create --proto tcp --dst-port <span class="literal number">22</span> <span class="literal string escape">\
+</span>    466ffc5e-114d-43a4-8854-db490c6b4571
+</pre>
+<p>In addition, we want to create a keypair so we can ssh into the instance.</p>
+<pre class="code shell literal-block">
+$ openstack keypair create --public-key .ssh/id_rsa.pub default-key
+</pre>
+</li>
+</ol>
+</div>
+<div class="section" id="testing">
+<h2>Testing</h2>
+<p>Now we have everything configured, we're going to create an instance and run
+our tests.</p>
+<ol class="arabic">
+<li><p class="first">Boot instance</p>
+<pre class="code shell literal-block">
+  $ openstack server create --flavor rt1.small --image centos-rt <span class="literal string escape">\
+</span>      --key-name default-key rt-server
+
+.. note::
+
+   This initially failed <span class="keyword">for</span> me with the following error message::
+
+     Could not access KVM kernel module: Permission denied
+     failed to initialize KVM: Permission denied
+
+   I was able to resolve this with the following commands, taken from <span class="literal string backtick">`</span>a related bugzilla<span class="literal string backtick">`</span>__.
+
+   .. code-block:: shell
+
+      $ sudo rmmod kvm_intel
+      $ sudo rmmod kvm
+      $ sudo modprobe kvm
+      $ sudo modprobe kvm_intel
+
+   __ https://bugzilla.redhat.com/show_bug.cgi?id<span class="operator">=</span>950436
+</pre>
+</li>
+<li><p class="first">Connect floating IP.</p>
+<p>This is necessary so we can SSH into the instance.</p>
+<pre class="code shell literal-block">
+$ openstack floating ip create public
++---------------------+--------------------------------------+
+<span class="punctuation">|</span> Field               <span class="punctuation">|</span> Value                                <span class="punctuation">|</span>
++---------------------+--------------------------------------+
+<span class="punctuation">|</span> created_at          <span class="punctuation">|</span> 2017-01-01T00:00:00Z                 <span class="punctuation">|</span>
+<span class="punctuation">|</span> description         <span class="punctuation">|</span>                                      <span class="punctuation">|</span>
+<span class="punctuation">|</span> fixed_ip_address    <span class="punctuation">|</span> None                                 <span class="punctuation">|</span>
+<span class="punctuation">|</span> floating_ip_address <span class="punctuation">|</span> 172.24.4.9                           <span class="punctuation">|</span>
+<span class="punctuation">|</span> floating_network_id <span class="punctuation">|</span> 5e123439-bbe8-479b-ab32-cc66d1a34ae2 <span class="punctuation">|</span>
+<span class="punctuation">|</span> id                  <span class="punctuation">|</span> cb62400c-983f-4468-949c-a64fb6b47827 <span class="punctuation">|</span>
+<span class="punctuation">|</span> name                <span class="punctuation">|</span> 172.24.4.9                           <span class="punctuation">|</span>
+<span class="punctuation">|</span> port_id             <span class="punctuation">|</span> None                                 <span class="punctuation">|</span>
+<span class="punctuation">|</span> project_id          <span class="punctuation">|</span> f5a2496e6edf4ef4b5ffe62b01a8bf4b     <span class="punctuation">|</span>
+<span class="punctuation">|</span> revision_number     <span class="punctuation">|</span> <span class="literal number">0</span>                                    <span class="punctuation">|</span>
+<span class="punctuation">|</span> router_id           <span class="punctuation">|</span> None                                 <span class="punctuation">|</span>
+<span class="punctuation">|</span> status              <span class="punctuation">|</span> DOWN                                 <span class="punctuation">|</span>
+<span class="punctuation">|</span> updated_at          <span class="punctuation">|</span> 2017-01-01T00:00:00Z                 <span class="punctuation">|</span>
++---------------------+--------------------------------------+
+
+$ openstack server add floating ip rt-server 172.24.4.9
+</pre>
+</li>
+<li><p class="first">SSH to guest.</p>
+<pre class="code shell literal-block">
+$ openstack server ssh rt-server --login centos
+</pre>
+</li>
+<li><p class="first">Run <cite>cyclictest</cite> to confirm expected latencies.</p>
+<p>We're going to run a intensive process, <cite>stress</cite>, and then use <cite>cyclictest</cite>
+to confirm that guest latencies are within expected limits.</p>
+<pre class="code shell literal-block">
+$ taskset -c <span class="literal number">2</span> stress --cpu 4
+</pre>
+<p>This will result in four processes running on vCPU 2. Once this is running,
+start <cite>cyclictest</cite> in another tab.</p>
+<pre class="code shell literal-block">
+$ taskset -c <span class="literal number">2</span> cyclictest -m -n -q -p95 -D 24h -h100 -i <span class="literal number">200</span> &gt; cyclictest.out
+</pre>
+<p>This will run for 24 hours (<tt class="docutils literal"><span class="pre">-D</span> 24h</tt>). Once done, you can check the output
+(in <tt class="docutils literal">cyclictest.out</tt>) to see if it's within expected tolerances. The RT
+Wiki <a class="reference external" href="https://rt.wiki.kernel.org/index.php/CONFIG_PREEMPT_RT_Patch#Platforms_Tested_and_in_Use_with_CONFIG_PREEMPT_RT">lists some example latencies so you can get an idea of what you can
+expect</a>.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="resources">
+<h2>Resources</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://events.linuxfoundation.org/sites/events/files/slides/cyclictest.pdf">http://events.linuxfoundation.org/sites/events/files/slides/cyclictest.pdf</a></li>
+</ul>
+</div>
+</div>
+  </div>
+  <div id="disqus_thread"></div>
+</div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</body>
+</html>
+

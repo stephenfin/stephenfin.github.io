@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Stephen Finucane (Fin-oo-can)</title>
-    <link>https://that.guru/categories/openstack/index.xml</link>
-    <description>Recent content on Stephen Finucane (Fin-oo-can)</description>
+    <title>Openstack on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/openstack/</link>
+    <description>Recent content in Openstack on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 31 Oct 2017 17:08:33 +0000</lastBuildDate>
+    
+	<atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Deploying Real Time Openstack</title>
+      <link>https://that.guru/blog/deploying-real-time-openstack/</link>
+      <pubDate>Tue, 31 Oct 2017 17:08:33 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/deploying-real-time-openstack/</guid>
+      <description>Recent versions of OpenStack nova have added support for real-time instances, that is, instances that provide the determinism and performance guarantees required by real-time applications. While this work was finally marked complete in the OpenStack Ocata release, it built upon lots of features added in previously releases.
+The below is a guide that covers a basic, single-node deployment of OpenStack suitable for evaluating basic real-time instance functionality. We use CentOS 7, but the same instructions can be modified for RHEL 7 or Fedora, and any CentOS-specific aspects are called out.</description>
+    </item>
     
     <item>
       <title>Open Python paths with vim</title>
@@ -15,25 +28,8 @@
       <pubDate>Mon, 06 Feb 2017 14:33:53 +0000</pubDate>
       
       <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
-      <description>&lt;p&gt;In OpenStack nova land, you run tests by specifying their Python paths, like
-so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This is also how tests are run and reported by the CI. If a tests fails when
-run locally or in the CI, the failure will be reported with similar Python
-module path-style references. These take a little cleanup to get a usable file
-path that we can use to open the file, so I automated it.&lt;/p&gt;
-
-&lt;script src=&#34;//gist.github.com/stephenfin/ea6bb2d650060d2a998a2dcd41f58291.js&#34;&gt;&lt;/script&gt;
-
-&lt;p&gt;Download and copy this to somewhere on your path, then run it like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ cd $openstack_nova_dir
-$ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
-&lt;/code&gt;&lt;/pre&gt;
-</description>
+      <description>In OpenStack nova land, you run tests by specifying their Python paths, like so:
+$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI. If a tests fails when run locally or in the CI, the failure will be reported with similar Python module path-style references. These take a little cleanup to get a usable file path that we can use to open the file, so I automated it.</description>
     </item>
     
     <item>
@@ -42,143 +38,8 @@ $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
       <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
       
       <guid>https://that.guru/blog/how-to-use-git-review/</guid>
-      <description>
-
-&lt;p&gt;&lt;code&gt;git-review&lt;/code&gt; is a Python wrapper for many of the common Git commands used in
-conjunction with Gerrit. It encapsulates many of the most common commands used,
-in order to speed things up.&lt;/p&gt;
-
-&lt;p&gt;It&amp;rsquo;s possible to use Gerrit without using the &lt;code&gt;git-review&lt;/code&gt; tool. All the
-commands we use below have their plain &lt;code&gt;git&lt;/code&gt; equivalents. However, the question
-remains: why would you want to? The &lt;code&gt;git-review&lt;/code&gt; tool speeds things up, and is
-used by a number of teams outside Intel (including MediaWiki and OpenStack).&lt;/p&gt;
-
-&lt;p&gt;This guide is borrows heavily from the original Openstack guide, found here:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;https://wiki.openstack.org/wiki/Gerrit_Workflow
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;a-word-on-workflows&#34;&gt;A word on workflows&lt;/h2&gt;
-
-&lt;p&gt;Gerrit, like Git, is extremely flexible. There is no one true way to work with
-it. However, Git has two predominant &amp;ldquo;workflows&amp;rdquo;: the merge workflow, and the
-rebase workflow. Each of these have their pros and cons, but both work equally
-well with standard Git. This is not the case with Gerrit. While the former
-workflow is possible, it&amp;rsquo;s very awkward (Gerrit doesn&amp;rsquo;t handle merge commits
-very well). Hence, despite the issues that can occur from &amp;ldquo;rewriting history&amp;rdquo;
-in the rebase workflow, it&amp;rsquo;s the best option.&lt;/p&gt;
-
-&lt;h2 id=&#34;initial-steps&#34;&gt;Initial steps&lt;/h2&gt;
-
-&lt;p&gt;First, install the tool. On Fedora 16 and up:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ dnf install git-review
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Navigate to the project you wish to use, and ensure you can connect to the
-Gerrit server:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ cd &amp;lt;repo&amp;gt;
-$ git review -s
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You may get a warning like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;No &#39;.gitreview&#39; file found in this repository.
-We don&#39;t know where your gerrit is. Please manually create
-a remote named gerrit and try again.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If so, you likely have your Gerrit review server&amp;rsquo;s &amp;ldquo;remote&amp;rdquo; called &lt;code&gt;origin&lt;/code&gt; or
-something similar. You can check this like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git remote -v
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You&amp;rsquo;ll likely get something like so, where the url points to a Gerrit project:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;origin  &amp;lt;url&amp;gt; (fetch)
-origin  &amp;lt;url&amp;gt; (push)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Assuming this is the case, just rename the remote:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git remote rename origin gerrit
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If this isn&amp;rsquo;t (i.e. you have more than one remote), you may want to rename
-the relevant remote or add a new one for Gerrit:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git remote add gerrit [url]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;making-and-uploading-changesets&#34;&gt;Making and uploading changesets&lt;/h2&gt;
-
-&lt;p&gt;Checkout a feature branch using your teams naming conventions:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git checkout -b &amp;lt;topic_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; You should always work on feature branches when working with Gerrit.
-If you work on &lt;code&gt;master&lt;/code&gt; or &lt;code&gt;development&lt;/code&gt;, you&amp;rsquo;re going to get merge conflicts
-when you pull in the latest changes from Gerrit/upstream.&lt;/p&gt;
-
-&lt;p&gt;Now make some changes: add some new files, delete old ones, do what you have to
-do. Following this, save the changes:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git commit -as  # this is the same as `git add -u` and `git commit -as`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This should create a new commit. You can upload this changeset like so:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git remote update  # to get latest changes
-$ git review &amp;lt;upstream_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; This will automatically rebase the change against the upstream master.&lt;/p&gt;
-
-&lt;p&gt;If you now go to Gerrit, you&amp;rsquo;ll see a new changeset there. Its &amp;ldquo;Branch&amp;rdquo; will
-correspond with the value of &lt;code&gt;&amp;lt;upstream_branch&amp;gt;&lt;/code&gt;, while the &amp;ldquo;Topic&amp;rdquo; will
-correspond with the value of &lt;code&gt;&amp;lt;topic_branch&amp;gt;&lt;/code&gt; (i.e. your local branch).&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; In Gerrit, the &amp;ldquo;Branch&amp;rdquo; means the Git branch that the commit is meant
-for. However, the &amp;ldquo;Topic&amp;rdquo; has no bearing on the actual underlying repo. Instead
-it is merely used to gather similar changes together.&lt;/p&gt;
-
-&lt;h2 id=&#34;reworking-a-changeset&#34;&gt;Reworking a changeset&lt;/h2&gt;
-
-&lt;p&gt;No one&amp;rsquo;s perfect, and neither is your code. When you need to rework some, you
-do so using the &lt;code&gt;rebase&lt;/code&gt; and &lt;code&gt;commit --amend&lt;/code&gt; tools. For example:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[make changes...]
-$ git commit -a --amend
-$ git review &amp;lt;upstream_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Alternatively&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git rebase -i &amp;lt;ancestor&amp;gt;
-[make changes...]
-$ git review &amp;lt;upstream_branch&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; If you delete a commit using rebase, you &lt;em&gt;will&lt;/em&gt; need to manually
-abandon it. Unfortunately there doesn&amp;rsquo;t seem to be any way to avoid this.&lt;/p&gt;
-
-&lt;h2 id=&#34;collaboration&#34;&gt;Collaboration&lt;/h2&gt;
-
-&lt;p&gt;If you want to review/rework someone else&amp;rsquo;s changes, it&amp;rsquo;s very easy to do. This
-is great for collaboration/pair-programming.&lt;/p&gt;
-
-&lt;p&gt;To check out someone else&amp;rsquo;s code, you&amp;rsquo;ll want the &amp;ldquo;change id&amp;rdquo;. When you have
-this, just use the following change:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git review -d &amp;lt;change_id&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This will checkout the change, and all changes that it depends on (i.e. the
-branch).&lt;/p&gt;
-</description>
+      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.
+It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the commands we use below have their plain git equivalents. However, the question remains: why would you want to? The git-review tool speeds things up, and is used by a number of teams outside Intel (including MediaWiki and OpenStack).</description>
     </item>
     
     <item>
@@ -187,81 +48,7 @@ branch).&lt;/p&gt;
       <pubDate>Tue, 06 Dec 2016 15:32:46 +0000</pubDate>
       
       <guid>https://that.guru/blog/mtus-in-neutron/</guid>
-      <description>&lt;p&gt;I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly
-setting MTU values was easier said than done. This has been massively improved
-in recent releases, but getting us to this point required a lot of work and, in
-particular, a lot of changes to the MTU-related configuration options available
-over the course of Liberty and Newton. The below table tries to collect these
-changes in a coherent table.&lt;/p&gt;
-
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Configuration Option&lt;/th&gt;
-&lt;th&gt;Version&lt;/th&gt;
-&lt;th&gt;Commit&lt;/th&gt;
-&lt;th&gt;Comments&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;segment_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Liberty&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;path_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Liberty&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;segment_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Mitaka&lt;/td&gt;
-&lt;td&gt;b2d0985d&lt;/td&gt;
-&lt;td&gt;Default set to 1500&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;global_physnet_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Mitaka&lt;/td&gt;
-&lt;td&gt;ae45cd57&lt;/td&gt;
-&lt;td&gt;New name for &lt;code&gt;segment_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;path_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Mitaka&lt;/td&gt;
-&lt;td&gt;7a4633a9&lt;/td&gt;
-&lt;td&gt;Default set to 1500&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;global_physnet_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Newton&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;path_mtu&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;Newton&lt;/td&gt;
-&lt;td&gt;38531ca5&lt;/td&gt;
-&lt;td&gt;Default set to 0&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;These options are described in the docs for both &lt;a href=&#34;http://docs.openstack.org/mitaka/networking-guide/config-mtu.html&#34;&gt;Mitaka&lt;/a&gt; and
-&lt;a href=&#34;http://docs.openstack.org/newton/networking-guide/config-mtu.html&#34;&gt;Newton&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;In addition, it&amp;rsquo;s also worth noting that the default for &lt;code&gt;global_physnet_mtu&lt;/code&gt;
-in TripleO was changed from 1400 to 1500 as part of &lt;a href=&#34;https://bugs.launchpad.net/tripleo/+bug/1590101&#34;&gt;bug 1590101&lt;/a&gt;.&lt;/p&gt;
-</description>
+      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton. The below table tries to collect these changes in a coherent table.</description>
     </item>
     
     <item>
@@ -270,225 +57,8 @@ in TripleO was changed from 1400 to 1500 as part of &lt;a href=&#34;https://bugs
       <pubDate>Thu, 30 Jun 2016 10:55:58 +0100</pubDate>
       
       <guid>https://that.guru/blog/resizing-pinned-to-unpinned/</guid>
-      <description>
-
-&lt;p&gt;OpenStack Nova provides support for &lt;a href=&#34;http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html&#34;&gt;resize operations&lt;/a&gt;, or the
-changing of the &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; associated with instance. This allows you to
-add or remove resources from the instance, in addition to modifying other
-configuration associated with the flavor.&lt;/p&gt;
-
-&lt;p&gt;There were reports that resizing an instance from a &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;pinned
-flavor&lt;/a&gt; to a unpinned one did not result in the pinning being
-removed. The opposite was also reportedly true. I investigated this to see if
-this was the case.&lt;/p&gt;
-
-&lt;h1 id=&#34;steps&#34;&gt;Steps&lt;/h1&gt;
-
-&lt;h2 id=&#34;create-the-required-flavors&#34;&gt;Create the required flavors&lt;/h2&gt;
-
-&lt;p&gt;The first step we&amp;rsquo;ll do is create two new flavors - &lt;code&gt;test.unpinned&lt;/code&gt; and
-&lt;code&gt;test.pinned&lt;/code&gt;. Begin by creating these:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack flavor create test.unpinned \
-  --id 100 --ram 2048 --disk 0 --vcpus 2
-$ openstack flavor create test.pinned \
-  --id 101 --ram 2048 --disk 0 --vcpus 2
-$ openstack flavor set test.pinned --property &amp;quot;hw:cpu_policy=dedicated&amp;quot;
-
-$ openstack flavor list
-+-----+---------------+-------+------+-----------+-------+-----------+
-| ID  | Name          |   RAM | Disk | Ephemeral | VCPUs | Is Public |
-+-----+---------------+-------+------+-----------+-------+-----------+
-| 1   | m1.tiny       |   512 |    1 |         0 |     1 | True      |
-| 101 | test.unpinned |  2048 |    0 |         0 |     2 | True      |
-| 101 | test.pinned   |  2048 |    0 |         0 |     2 | True      |
-| 2   | m1.small      |  2048 |   20 |         0 |     1 | True      |
-| 3   | m1.medium     |  4096 |   40 |         0 |     2 | True      |
-| 4   | m1.large      |  8192 |   80 |         0 |     4 | True      |
-| 42  | m1.nano       |    64 |    0 |         0 |     1 | True      |
-| 5   | m1.xlarge     | 16384 |  160 |         0 |     8 | True      |
-| 84  | m1.micro      |   128 |    0 |         0 |     1 | True      |
-+-----+---------------+-------+------+-----------+-------+-----------+
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;create-a-new-instance&#34;&gt;Create a new instance&lt;/h2&gt;
-
-&lt;p&gt;Now create the new instance, based on the &lt;code&gt;test.pinned&lt;/code&gt; flavor:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack image list
-+--------------------------------------+---------------------------------+--------+
-| ID                                   | Name                            | Status |
-+--------------------------------------+---------------------------------+--------+
-| c44bba29-653e-4ddf-963d-442af4c33a13 | cirros-0.3.4-x86_64-uec         | active |
-| 8b0284ee-ae6c-4e80-b5ee-26895d574717 | cirros-0.3.4-x86_64-uec-ramdisk | active |
-| 855c2971-aedc-4d5f-a366-73bb14707965 | cirros-0.3.4-x86_64-uec-kernel  | active |
-+--------------------------------------+---------------------------------+--------+
-
-$ openstack server create --flavor=test.pinned \
-  --image=cirros-0.3.4-x86_64-uec --wait test1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;validate-that-the-instance-is-pinned&#34;&gt;Validate that the instance is pinned&lt;/h2&gt;
-
-&lt;p&gt;Ensure the instance is actually pinned in the first place before we resize
-anything:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack server list
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| ID                                   | Name  | Status | Networks                                               |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-
-$ sudo virsh list
- Id    Name                           State
-----------------------------------------------------
- 1     instance-00000001              running
-
-$ sudo virsh dumpxml instance-00000001
-&amp;lt;domain type=&#39;kvm&#39; id=&#39;1&#39;&amp;gt;
-  &amp;lt;name&amp;gt;instance-00000001&amp;lt;/name&amp;gt;
-  ...
-  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;2&amp;lt;/vcpu&amp;gt;
-  &amp;lt;cputune&amp;gt;
-    &amp;lt;shares&amp;gt;2048&amp;lt;/shares&amp;gt;
-    &amp;lt;vcpupin vcpu=&#39;0&#39; cpuset=&#39;1&#39;/&amp;gt;
-    &amp;lt;vcpupin vcpu=&#39;1&#39; cpuset=&#39;21&#39;/&amp;gt;
-    &amp;lt;emulatorpin cpuset=&#39;1,21&#39;/&amp;gt;
-  &amp;lt;/cputune&amp;gt;
-  &amp;lt;numatune&amp;gt;
-    &amp;lt;memory mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
-    &amp;lt;memnode cellid=&#39;0&#39; mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
-  &amp;lt;/numatune&amp;gt;
-  ...
-  &amp;lt;cpu&amp;gt;
-    &amp;lt;topology sockets=&#39;1&#39; cores=&#39;1&#39; threads=&#39;2&#39;/&amp;gt;
-    &amp;lt;numa&amp;gt;
-      &amp;lt;cell id=&#39;0&#39; cpus=&#39;0-1&#39; memory=&#39;2097152&#39; unit=&#39;KiB&#39;/&amp;gt;
-    &amp;lt;/numa&amp;gt;
-  &amp;lt;/cpu&amp;gt;
-  ...
-&amp;lt;/domain&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;resize-the-instance-to-the-unpinned-flavor&#34;&gt;Resize the instance to the unpinned flavor&lt;/h2&gt;
-
-&lt;p&gt;Seeing as pinning was in effect, we can now resize to the &lt;code&gt;test.unpinned&lt;/code&gt;
-flavor:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack server resize test1 --flavor test.unpinned --wait
-complete
-
-$ openstack server list
-+--------------------------------------+-------+---------------+--------------------------------------------------------+
-| ID                                   | Name  | Status        | Networks                                               |
-+--------------------------------------+-------+---------------+--------------------------------------------------------+
-| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | VERIFY_RESIZE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
-+--------------------------------------+-------+---------------+--------------------------------------------------------+
-
-$ openstack server resize test1 --confirm
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;validate-that-the-instance-is-no-longer-pinned&#34;&gt;Validate that the instance is no longer pinned&lt;/h2&gt;
-
-&lt;p&gt;Once resized, check to see if the instance has been unpinned:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack server list
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| ID                                   | Name  | Status | Networks                                               |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-
-$ sudo virsh list
- Id    Name                           State
-----------------------------------------------------
- 2     instance-00000001              running
-
-$ sudo virsh dumpxml instance-00000001
-&amp;lt;domain type=&#39;kvm&#39; id=&#39;2&#39;&amp;gt;
-  &amp;lt;name&amp;gt;instance-00000002&amp;lt;/name&amp;gt;
-  ...
-  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;2&amp;lt;/vcpu&amp;gt;
-  &amp;lt;cputune&amp;gt;
-    &amp;lt;shares&amp;gt;2048&amp;lt;/shares&amp;gt;
-  &amp;lt;/cputune&amp;gt;
-  ...
-&amp;lt;/domain&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;resize-the-instance-back-to-the-pinned-flavor&#34;&gt;Resize the instance back to the pinned flavor&lt;/h2&gt;
-
-&lt;p&gt;Let&amp;rsquo;s go back the other way, and resize back to the &lt;code&gt;test.pinned&lt;/code&gt; flavor:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack server resize test1 --flavor test.pinned --wait
-complete
-
-$ openstack server list
-+--------------------------------------+-------+---------------+--------------------------------------------------------+
-| ID                                   | Name  | Status        | Networks                                               |
-+--------------------------------------+-------+---------------+--------------------------------------------------------+
-| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | VERIFY_RESIZE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
-+--------------------------------------+-------+---------------+--------------------------------------------------------+
-
-$ openstack server resize test1 --confirm
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;validate-that-the-instance-is-pinned-once-more&#34;&gt;Validate that the instance is pinned once more&lt;/h2&gt;
-
-&lt;p&gt;Finally, ensure the instance is once again pinned:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack server list
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| ID                                   | Name  | Status | Networks                                               |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| 857597cb-266b-4032-8030-e3cc76ebf0e7 | test1 | ACTIVE | private=10.0.0.3, fd2a:ec16:99e1:0:f816:3eff:fe99:df9f |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-
-$ sudo virsh list
- Id    Name                           State
-----------------------------------------------------
- 3     instance-00000001              running
-
-$ sudo virsh dumpxml instance-00000001
-&amp;lt;domain type=&#39;kvm&#39; id=&#39;3&#39;&amp;gt;
-  &amp;lt;name&amp;gt;instance-00000001&amp;lt;/name&amp;gt;
-  ...
-  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;2&amp;lt;/vcpu&amp;gt;
-  &amp;lt;cputune&amp;gt;
-    &amp;lt;shares&amp;gt;2048&amp;lt;/shares&amp;gt;
-    &amp;lt;vcpupin vcpu=&#39;0&#39; cpuset=&#39;1&#39;/&amp;gt;
-    &amp;lt;vcpupin vcpu=&#39;1&#39; cpuset=&#39;21&#39;/&amp;gt;
-    &amp;lt;emulatorpin cpuset=&#39;1,21&#39;/&amp;gt;
-  &amp;lt;/cputune&amp;gt;
-  &amp;lt;numatune&amp;gt;
-    &amp;lt;memory mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
-    &amp;lt;memnode cellid=&#39;0&#39; mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
-  &amp;lt;/numatune&amp;gt;
-  ...
-  &amp;lt;cpu&amp;gt;
-    &amp;lt;topology sockets=&#39;1&#39; cores=&#39;1&#39; threads=&#39;2&#39;/&amp;gt;
-    &amp;lt;numa&amp;gt;
-      &amp;lt;cell id=&#39;0&#39; cpus=&#39;0-1&#39; memory=&#39;2097152&#39; unit=&#39;KiB&#39;/&amp;gt;
-    &amp;lt;/numa&amp;gt;
-  &amp;lt;/cpu&amp;gt;
-  ...
-&amp;lt;/domain&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;result&#34;&gt;Result&lt;/h1&gt;
-
-&lt;p&gt;It is possible to resize from pinned to unpinned, and from unpinned to pinned.
-No issues here.&lt;/p&gt;
-
-&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;OpenStack Administrator Guide: Compute flavors&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;OpenStack Administrator Guide: Enabling advanced CPU topologies in
-guests&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor.
+There were reports that resizing an instance from a pinned flavor to a unpinned one did not result in the pinning being removed. The opposite was also reportedly true. I investigated this to see if this was the case.</description>
     </item>
     
     <item>
@@ -497,175 +67,8 @@ guests&lt;/a&gt;&lt;/li&gt;
       <pubDate>Wed, 29 Jun 2016 17:52:20 +0100</pubDate>
       
       <guid>https://that.guru/blog/cpu-pinning-with-image-metadata/</guid>
-      <description>
-
-&lt;p&gt;OpenStack Nova allows the specification of &lt;a href=&#34;http://docs.openstack.org/image-guide/image-metadata.html&#34;&gt;image metadata&lt;/a&gt; to
-provide per-instance metadata. This is similar to the &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;flavor&lt;/a&gt; &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html#extra-specs&#34;&gt;extra
-specs&lt;/a&gt;. The CPU pinning feature makes use of this to allow for
-configuration of CPU policies and CPU thread policies via such metdata.&lt;/p&gt;
-
-&lt;p&gt;Someone suggested to me that CPU policies many not be being applied correctly
-when stored as image metadata rather than flavor properties. I decided to
-investigate this claim.&lt;/p&gt;
-
-&lt;p&gt;Commit &lt;a href=&#34;https://github.com/openstack/nova/tree/8bafc9&#34;&gt;&lt;code&gt;8bafc9&lt;/code&gt;&lt;/a&gt; of Nova was used for this testing. Much of
-this feature has been &lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;documented upstreamed&lt;/a&gt; since conducting
-this testing.&lt;/p&gt;
-
-&lt;h1 id=&#34;steps&#34;&gt;Steps&lt;/h1&gt;
-
-&lt;h2 id=&#34;create-a-custom-image-with-metadata&#34;&gt;Create a custom image with metadata&lt;/h2&gt;
-
-&lt;p&gt;The first step is to create a new image and save metadata against this image.
-To do this, we&amp;rsquo;ll duplicate an existing image and modify this duplicate. Begin
-by duplicating the image:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack image list
-+--------------------------------------+---------------------------------+--------+
-| ID                                   | Name                            | Status |
-+--------------------------------------+---------------------------------+--------+
-| a3450a21-f012-4807-a514-0838750d430e | cirros-0.3.4-x86_64-uec         | active |
-| 742bc914-e60c-4eab-9e5b-0a1c19ec1a84 | cirros-0.3.4-x86_64-uec-ramdisk | active |
-| 3e507ab7-080d-4eea-845a-69950ec139b8 | cirros-0.3.4-x86_64-uec-kernel  | active |
-+--------------------------------------+---------------------------------+--------+
-
-$ openstack image save --file cirros.img a3450a21-f012-4807-a514-0838750d430e
-
-$ openstack image create --file cirros.img cirros-0.3.4-x86_64-pinned
-+------------------+------------------------------------------------------+
-| Field            | Value                                                |
-+------------------+------------------------------------------------------+
-| checksum         | eb9139e4942121f22bbc2afc0400b2a4                     |
-| container_format | bare                                                 |
-| created_at       | 2016-02-16T09:40:12Z                                 |
-| disk_format      | raw                                                  |
-| file             | /v2/images/e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6/file |
-| id               | e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6                 |
-| min_disk         | 0                                                    |
-| min_ram          | 0                                                    |
-| name             | cirros-0.3.4-x86_64-pinned                           |
-| owner            | c1e8c7671b0f4016a9250a8787de6930                     |
-| protected        | False                                                |
-| schema           | /v2/schemas/image                                    |
-| size             | 25165824                                             |
-| status           | active                                               |
-| tags             |                                                      |
-| updated_at       | 2016-02-16T09:40:12Z                                 |
-| virtual_size     | None                                                 |
-| visibility       | private                                              |
-+------------------+------------------------------------------------------+
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Next up, add the metadata to the image. We&amp;rsquo;ll only worry about CPU pinning, by
-way of CPU policies, ignoring CPU thread pinning for now.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack image set cirros-0.3.4-x86_64-pinned --property hw_cpu_policy=dedicated
-
-$ openstack image list
-+--------------------------------------+---------------------------------+--------+
-| ID                                   | Name                            | Status |
-+--------------------------------------+---------------------------------+--------+
-| e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6 | cirros-0.3.4-x86_64-pinned      | active |
-| a3450a21-f012-4807-a514-0838750d430e | cirros-0.3.4-x86_64-uec         | active |
-| 742bc914-e60c-4eab-9e5b-0a1c19ec1a84 | cirros-0.3.4-x86_64-uec-ramdisk | active |
-| 3e507ab7-080d-4eea-845a-69950ec139b8 | cirros-0.3.4-x86_64-uec-kernel  | active |
-+--------------------------------------+---------------------------------+--------+
-
-$ openstack image show cirros-0.3.4-x86_64-pinned
-+------------------+------------------------------------------------------+
-| Field            | Value                                                |
-+------------------+------------------------------------------------------+
-| checksum         | eb9139e4942121f22bbc2afc0400b2a4                     |
-| container_format | bare                                                 |
-| created_at       | 2016-02-16T09:40:12Z                                 |
-| disk_format      | raw                                                  |
-| file             | /v2/images/e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6/file |
-| id               | e3e7d5a5-b044-493a-b3e1-fa9ba6225ed6                 |
-| min_disk         | 0                                                    |
-| min_ram          | 0                                                    |
-| name             | cirros-0.3.4-x86_64-pinned                           |
-| owner            | c1e8c7671b0f4016a9250a8787de6930                     |
-| properties       | hw_cpu_policy=&#39;dedicated&#39;                            |
-| protected        | False                                                |
-| schema           | /v2/schemas/image                                    |
-| size             | 25165824                                             |
-| status           | active                                               |
-| tags             |                                                      |
-| updated_at       | 2016-02-16T09:41:42Z                                 |
-| virtual_size     | None                                                 |
-| visibility       | private                                              |
-+------------------+------------------------------------------------------+
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;create-a-new-instance&#34;&gt;Create a new instance&lt;/h2&gt;
-
-&lt;p&gt;Now create the flavor. There&amp;rsquo;s no need to specify any metadata on the flavors:
-it&amp;rsquo;s already specified in the image:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack flavor list
-+----+-----------+-------+------+-----------+-------+-----------+
-| ID | Name      |   RAM | Disk | Ephemeral | VCPUs | Is Public |
-+----+-----------+-------+------+-----------+-------+-----------+
-| 1  | m1.tiny   |   512 |    1 |         0 |     1 | True      |
-| 2  | m1.small  |  2048 |   20 |         0 |     1 | True      |
-| 3  | m1.medium |  4096 |   40 |         0 |     2 | True      |
-| 4  | m1.large  |  8192 |   80 |         0 |     4 | True      |
-| 42 | m1.nano   |    64 |    0 |         0 |     1 | True      |
-| 5  | m1.xlarge | 16384 |  160 |         0 |     8 | True      |
-| 84 | m1.micro  |   128 |    0 |         0 |     1 | True      |
-+----+-----------+-------+------+-----------+-------+-----------+
-
-$ openstack server create --flavor=m1.small --image=cirros-0.3.4-x86_64-pinned --wait test1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;validate-that-the-instance-has-been-created&#34;&gt;Validate that the instance has been created&lt;/h2&gt;
-
-&lt;p&gt;Finally, ensure that things behave as expected. Instances should define an NUMA
-topology and CPU pinning in the libvirt XML file:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ openstack server list
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| ID                                   | Name  | Status | Networks                                               |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-| 22c1afeb-06d8-4f6d-a8d8-7ea40ea9ff47 | test1 | ACTIVE | private=fd4d:adb9:5ebe:0:f816:3eff:fecd:a674, 10.0.0.3 |
-+--------------------------------------+-------+--------+--------------------------------------------------------+
-
-$ sudo virsh list
- Id    Name                           State
-----------------------------------------------------
- 4     instance-00000002              running
-
-$ sudo virsh dumpxml 4
-&amp;lt;domain type=&#39;kvm&#39; id=&#39;4&#39;&amp;gt;
-  &amp;lt;name&amp;gt;instance-00000002&amp;lt;/name&amp;gt;
-  &amp;lt;vcpu placement=&#39;static&#39;&amp;gt;1&amp;lt;/vcpu&amp;gt;
-  ...
-  &amp;lt;cputune&amp;gt;
-    &amp;lt;shares&amp;gt;1024&amp;lt;/shares&amp;gt;
-    &amp;lt;vcpupin vcpu=&#39;0&#39; cpuset=&#39;1&#39;/&amp;gt;
-    &amp;lt;emulatorpin cpuset=&#39;1&#39;/&amp;gt;
-  &amp;lt;/cputune&amp;gt;
-  &amp;lt;numatune&amp;gt;
-    &amp;lt;memory mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
-    &amp;lt;memnode cellid=&#39;0&#39; mode=&#39;strict&#39; nodeset=&#39;0&#39;/&amp;gt;
-  &amp;lt;/numatune&amp;gt;
-  ...
-&amp;lt;/domain&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;result&#34;&gt;Result&lt;/h1&gt;
-
-&lt;p&gt;The image metadata is being loaded as expected. No issues here.&lt;/p&gt;
-
-&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-flavors.html&#34;&gt;OpenStack Administrator Guide: Compute flavors&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html&#34;&gt;OpenStack Administrator Guide: Enabling advanced CPU topologies in
-guests&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://docs.openstack.org/image-guide/image-metadata.html&#34;&gt;OpenStack Virtual Machine Image Guide: Image metadata&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description>OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.
+Someone suggested to me that CPU policies many not be being applied correctly when stored as image metadata rather than flavor properties. I decided to investigate this claim.</description>
     </item>
     
   </channel>
