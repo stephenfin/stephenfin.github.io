@@ -22,6 +22,15 @@
     </item>
     
     <item>
+      <title>Documentation</title>
+      <link>https://that.guru/categories/documentation/</link>
+      <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/documentation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Howto</title>
       <link>https://that.guru/categories/howto/</link>
       <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
@@ -33,7 +42,7 @@
     <item>
       <title>Openstack</title>
       <link>https://that.guru/categories/openstack/</link>
-      <pubDate>Tue, 31 Oct 2017 17:08:33 +0000</pubDate>
+      <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
       
       <guid>https://that.guru/categories/openstack/</guid>
       <description></description>

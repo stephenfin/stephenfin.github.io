@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://that.guru/blog/create-pdfs-for-openstack/</loc>
+    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://that.guru/blog/deploying-real-time-openstack/</loc>
     <lastmod>2017-10-31T17:08:33+00:00</lastmod>
   </url>
@@ -99,7 +104,7 @@
   
   <url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2017-10-31T17:08:33+00:00</lastmod>
+    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -116,6 +121,12 @@
   </url>
   
   <url>
+    <loc>https://that.guru/categories/documentation/</loc>
+    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://that.guru/categories/howto/</loc>
     <lastmod>2016-07-15T11:26:37+01:00</lastmod>
     <priority>0</priority>
@@ -123,7 +134,7 @@
   
   <url>
     <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2017-10-31T17:08:33+00:00</lastmod>
+    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -141,7 +152,7 @@
   
   <url>
     <loc>https://that.guru/</loc>
-    <lastmod>2017-10-31T17:08:33+00:00</lastmod>
+    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
     <priority>0</priority>
   </url>
   

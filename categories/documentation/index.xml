@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Documentation on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/documentation/</link>
+    <description>Recent content in Documentation on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
+    <lastBuildDate>Wed, 06 Dec 2017 16:03:48 +0000</lastBuildDate>
+    
+	<atom:link href="https://that.guru/categories/documentation/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Building PDFs for OpenStack documentation</title>
+      <link>https://that.guru/blog/create-pdfs-for-openstack/</link>
+      <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
+      <description>I&#39;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats. In this instance, I was interested in PDF.
+Sphinx doesn&#39;t actually provide a native PDF builder (although other packages do). Instead, you have to generate LaTeX sources and then generate a PDF for this.</description>
+    </item>
+    
+  </channel>
+</rss>

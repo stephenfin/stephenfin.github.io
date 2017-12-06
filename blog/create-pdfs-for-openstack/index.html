@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Building PDFs for OpenStack documentation &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-80652159-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf">CV</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2017 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Building PDFs for OpenStack documentation</h1>
+    <span class="post-date">Dec 6, 2017 &middot; 4 minute read &middot; <a href="https://that.guru/blog/create-pdfs-for-openstack/#disqus_thread">Comments</a>
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/openstack">openstack</a><a class="label" href="https://that.guru/categories/documentation">documentation</a>
+    </span>
+    <div class="document">
+
+
+<p>I've only ever really worked with HTML and man page builds for the
+documentation various of <a class="reference external" href="https://docs.openstack.org/">various OpenStack projects</a>. However, OpenStack
+uses Sphinx across the board and Sphinx, being the awesome tool that it is,
+supports many other output formats. In this instance, I was interested in
+<em>PDF</em>.</p>
+<p>Sphinx doesn't actually provide a native PDF builder (<a class="reference external" href="http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.latex.LaTeXBuilder">although other packages
+do</a>). Instead, you have to generate LaTeX sources and then generate a PDF for
+this. This means you need to have a pretty well fleshed out TeX installation.
+As such, the first step is to install the dependencies.</p>
+<div class="section" id="install-dependendencies">
+<h2>Install Dependendencies</h2>
+<p>We need a number of packages to build the LaTeX sources and convert them into a
+PDF. I'm using Fedora 27 which means package names may need to be adjusted
+accordingly. Do note, however, that these names should work equally well on
+RHEL and RHEL derivatives like CentOS).</p>
+<ul>
+<li><p class="first"><tt class="docutils literal">texlive</tt> (TeX Live)</p>
+<p>Per the description of this package in the Fedora repos.</p>
+<blockquote>
+<p>The TeX Live software distribution offers a complete TeX system for a
+variety of Unix, Macintosh, Windows and other platforms. It encompasses
+programs for editing, typesetting, previewing and printing of TeX documents
+in many different languages, and a large collection of TeX macros and font
+libraries.</p>
+<p>The distribution includes extensive general documentation about TeX, as
+well as the documentation for the included software packages.</p>
+</blockquote>
+<p>This is the basic thing we need to actually build LaTeX documents and convert
+them to PDF. The package itself includes multiple other dependencies, either
+because they are necessary for a minimal install or they form a standard
+library of sorts. I'm not sure which.</p>
+</li>
+<li><p class="first"><tt class="docutils literal">latexmk</tt></p>
+<p>Per the description of this package in the Fedora repos.</p>
+<blockquote>
+<p>Latexmk is a perl script for running LaTeX the correct number of times to
+resolve cross references, etc.; it also runs auxiliary programs (bibtex,
+makeindex if necessary, and dvips and/or a previewer as requested).  It has
+a number of other useful capabilities, for example to start a previewer and
+then run latex whenever the source files are updated, so that the previewer
+gives an up-to-date view of the document.  The script runs on both UNIX and
+MS-WINDOWS (95, ME, XP, etc).  This script is a corrected and improved
+version of the original version of latexmk.</p>
+</blockquote>
+<p>This is a tool that Sphinx uses, via some makefiles it includes with the
+built sources to ease converting the built LaTeX sources into PDFs.</p>
+</li>
+</ul>
+<p>You also need a variety of other packages which aren't included as part of the
+<tt class="docutils literal">texlive</tt> installation. The base Sphinx template has the following
+requirements.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">texlive-fncychap</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-titlesec</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-tabulary</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-framed</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-wrapfig</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-upquote</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-capt-of</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">texlive-needspace</span></tt></li>
+</ul>
+<p>In addition, <tt class="docutils literal">openstackdocstheme</tt>, the theme used for all official OpenStack
+projects, provides a LaTeX template with the following dependencies.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">texlive-polyglossia</span></tt></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">I built this list manually by running <tt class="docutils literal">make</tt> and then installing whatever
+dependency <tt class="docutils literal">latexmk</tt> complained about. There's probably easier ways to do
+this, such as installing a larger package but I'm not aware of it at this
+time.</p>
+</div>
+<p>Installation of all the above.</p>
+<pre class="code shell literal-block">
+$ sudo dnf install texlive latexmk texlive-fncychap texlive-titlesec <span class="literal string escape">\
+</span>    texlive-tabulary texlive-framed texlive-wrapfig texlive-upquote <span class="literal string escape">\
+</span>    texlive-capt-of texlive-needspace texlive-polyglossia
+</pre>
+</div>
+<div class="section" id="get-some-documentation">
+<h2>Get Some Documentation</h2>
+<p>I didn't have specific project in mind, so I've decided to build the project
+documentation for the <tt class="docutils literal">openstackdocstheme</tt> project. As mentioned previously,
+this project provides <a class="reference external" href="https://github.com/openstack/openstackdocstheme">the theme used for all Official OpenStack projects</a>.
+Given that this is the base for most projects' documentation, it figures that
+it contains all the necessary configuration to build PDFs. If, however, you are
+planning to build docs for some other project, you should ensure that this is
+project is <a class="reference external" href="https://docs.openstack.org/openstackdocstheme/latest/">configured correctly for PDF builds</a>.</p>
+<p>To begin, clone the repo locally.</p>
+<pre class="code shell literal-block">
+$ git clone https://github.com/openstack/openstackdocstheme
+</pre>
+<p>Once cloned, create a virtual environment and install the dependencies.</p>
+<pre class="code shell literal-block">
+$ virtualenv .venv
+$ <span class="name builtin">source</span> .venv
+$ pip install -e .
+</pre>
+<p>In the case of <tt class="docutils literal">openstackdocstheme</tt>, Sphinx isn't installed by default.
+Let's install that too.</p>
+<pre class="code shell literal-block">
+$ pip install Sphinx
+</pre>
+</div>
+<div class="section" id="build-the-docs">
+<h2>Build The Docs</h2>
+<p>Now that we have both our dependencies and source documentation in place, it's
+time to actually build some PDFs. Sphinx actually provides a number of helpful
+targets in the Makefile generated by <tt class="docutils literal"><span class="pre">sphinx-quickstart</span></tt>. However, OpenStack
+projects don't tend to use these so we're going to take the (still exceedingly
+simple) two-step process. Firstly, build the LaTeX sources. Seeing as this is a
+Python project, we're going to use the <a class="reference external" href="http://www.sphinx-doc.org/en/stable/setuptools.html">setuptools integration</a></p>
+<pre class="code shell literal-block">
+$ python setup.py build_sphinx -b latex
+</pre>
+<p>All OpenStack projects place their documentation source and builds in
+<tt class="docutils literal">doc/source</tt> and <tt class="docutils literal">doc/build</tt> respectively. The above command should
+generate a number of files in <tt class="docutils literal">doc/build/latex</tt> including a very helpful
+makefile. We're going to use that now to complete the process of generating a
+PDF.</p>
+<pre class="code shell literal-block">
+$ make -C doc/build/latex
+</pre>
+<p>This should emit a <em>lot</em> of text, followed by something that looks like this.</p>
+<pre class="literal-block">
+Output written on os-doc-demo.pdf (23 pages).
+Transcript written on os-doc-demo.log.
+=== TeX engine is 'XeTeX'
+Latexmk: Index file 'os-doc-demo.idx' was written
+Latexmk: Log file says output to 'os-doc-demo.pdf'
+Latexmk: All targets (os-doc-demo.pdf) are up-to-date
+</pre>
+<p>Once complete, you can find your compiled PDF in the same build directory (in
+this case, <tt class="docutils literal"><span class="pre">doc/build/latex/os-doc-demo.pdf</span></tt>)</p>
+</div>
+</div>
+  </div>
+  <div id="disqus_thread"></div>
+</div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</body>
+</html>
+
