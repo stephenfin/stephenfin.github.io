@@ -7,10 +7,22 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 06 Dec 2017 16:03:48 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 08 Dec 2017 10:40:31 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Evolution Calendar Issues</title>
+      <link>https://that.guru/blog/evolution-calendar-issues/</link>
+      <pubDate>Fri, 08 Dec 2017 10:40:31 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
+      <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
+ The calendar backend servicing &amp;quot;XXX&amp;quot; encountered an error.
+The reported error was “SQLite error code &#39;11&#39;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
+ Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&#39;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
+    </item>
     
     <item>
       <title>Building PDFs for OpenStack documentation</title>

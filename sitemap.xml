@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://that.guru/blog/evolution-calendar-issues/</loc>
+    <lastmod>2017-12-08T10:40:31+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://that.guru/blog/create-pdfs-for-openstack/</loc>
     <lastmod>2017-12-06T16:03:48+00:00</lastmod>
   </url>
@@ -104,7 +109,7 @@
   
   <url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
+    <lastmod>2017-12-08T10:40:31+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -152,7 +157,7 @@
   
   <url>
     <loc>https://that.guru/</loc>
-    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
+    <lastmod>2017-12-08T10:40:31+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -164,7 +169,7 @@
   
   <url>
     <loc>https://that.guru/categories/tips/</loc>
-    <lastmod>2017-02-06T14:33:53+00:00</lastmod>
+    <lastmod>2017-12-08T10:40:31+00:00</lastmod>
     <priority>0</priority>
   </url>
   

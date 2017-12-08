@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>Evolution Calendar Issues &middot; stephenfin</title>
+
+  
+  <link rel="stylesheet" href="https://that.guru/css/poole.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
+  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
+  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
+  <link href="https://that.guru/favicon.png" rel="icon">
+
+  
+  
+  
+  
+
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-80652159-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+</head>
+<body class="theme-base-08">
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      
+      <h1>stephenfin</h1>
+      <p class="lead">A word to the wise&hellip;</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
+      
+      <li class="sidebar-nav-item"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf">CV</a></li>
+      
+    </ul>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">
+      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
+      
+      
+      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
+      
+      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
+      </li>
+    </ul>
+
+    
+
+    <p>Copyright &copy; 2017 <a href="https://that.guru/license/">License</a><br/>
+       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
+  </div>
+</div>
+
+
+<div class="content container">
+  <div class="post">
+    <h1 class="post-title">Evolution Calendar Issues</h1>
+    <span class="post-date">Dec 8, 2017 &middot; 4 minute read &middot; <a href="https://that.guru/blog/evolution-calendar-issues/#disqus_thread">Comments</a>
+    
+    <br/>
+    <a class="label" href="https://that.guru/categories/tips">tips</a>
+    </span>
+    <div class="document">
+
+
+<p>I started Evolution this morning and noticed half of my calendar events were
+missing. Attempts to refresh said calendar resulted in the following errors
+message:</p>
+<blockquote>
+<p>The calendar backend servicing &quot;XXX&quot; encountered an error.</p>
+<p>The reported error was “SQLite error code '11': database disk image is
+malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.</p>
+</blockquote>
+<p>Just the start I wanted to my Friday morning. Unfortunately the Evolution
+documentation didn't provided any guidelines on fixing a corrupted database and
+the best advice I found, aside from deleting and recreating the account in
+Evolution, was to run an integrity check on the offending database <a class="footnote-reference" href="#id4" id="id1">[1]</a>.</p>
+<p>I knew from this guide that my main Evolution configuration was stored in
+<tt class="docutils literal">.local/share/evolution</tt>, but a look through the <tt class="docutils literal">calendar</tt> subdirectory
+yielded nothing. Googling <tt class="docutils literal">ECacheObjects</tt> curiously didn't bring anything up,
+but a search on GitHub did identify the offending service,
+<tt class="docutils literal"><span class="pre">evolution-data-server</span></tt> <a class="footnote-reference" href="#id5" id="id2">[2]</a>. Unfortunately while I was able to find
+something that look like directory containing &quot;private data&quot; <a class="footnote-reference" href="#id6" id="id3">[3]</a>, I didn't
+know what build configuration had been used and couldn't find the folder
+locally.</p>
+<p>Now Linux provides a very helpful feature where it show all files currently
+marked as open by a given process. To use this, I first needed to find the
+process responsible for maintaining the calendar.</p>
+<pre class="code shell literal-block">
+$ ps aux <span class="punctuation">|</span> grep evolution
+sfinucan  <span class="literal number">2552</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.3 <span class="literal number">1717928</span> <span class="literal number">59912</span> ?       SLsl Dec07   <span class="literal number">0</span>:02 /usr/libexec/evolution-source-registry
+sfinucan  <span class="literal number">2616</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1242008</span> <span class="literal number">50640</span> ?       Ssl  Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-calendar-factory
+sfinucan  <span class="literal number">2696</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.9 <span class="literal number">2803208</span> <span class="literal number">182632</span> ?      SLl  Dec07   <span class="literal number">0</span>:19 /usr/libexec/evolution-calendar-factory-subprocess --factory caldav <span class="operator">[</span>...<span class="operator">]</span>
+sfinucan  <span class="literal number">2738</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1255468</span> <span class="literal number">48452</span> ?       Sl   Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-calendar-factory-subprocess --factory contacts <span class="operator">[</span>...<span class="operator">]</span>
+sfinucan  <span class="literal number">2754</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1152708</span> <span class="literal number">44496</span> ?       Ssl  Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-addressbook-factory
+sfinucan  <span class="literal number">2766</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1329236</span> <span class="literal number">47984</span> ?       Sl   Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-calendar-factory-subprocess --factory <span class="name builtin">local</span> <span class="operator">[</span>...<span class="operator">]</span>
+sfinucan  <span class="literal number">2787</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1440644</span> <span class="literal number">46152</span> ?       Sl   Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory <span class="name builtin">local</span> <span class="operator">[</span>...<span class="operator">]</span>
+sfinucan  <span class="literal number">2925</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1536780</span> <span class="literal number">54080</span> tty2    Sl+  Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution/evolution-alarm-notify
+sfinucan  <span class="literal number">9496</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1443748</span> <span class="literal number">59028</span> ?       SLl  <span class="literal number">10</span>:27   <span class="literal number">0</span>:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory google <span class="operator">[</span>...<span class="operator">]</span>
+sfinucan  <span class="literal number">9503</span>  <span class="literal number">2</span>.0  <span class="literal number">1</span>.6 <span class="literal number">4220880</span> <span class="literal number">332836</span> tty2   SLl+ <span class="literal number">10</span>:27   <span class="literal number">0</span>:32 evolution
+sfinucan <span class="literal number">10611</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.0 <span class="literal number">119728</span>   <span class="literal number">972</span> pts/1    S+   <span class="literal number">10</span>:55   <span class="literal number">0</span>:00 grep --color<span class="operator">=</span>auto evolution
+</pre>
+<p>This looked promising and I took the <tt class="docutils literal"><span class="pre">evolution-calendar-factory-subprocess</span></tt>
+process with the <tt class="docutils literal">caldav</tt> <em>factory</em> to be the most likely candidate. Let's
+see what this has open.</p>
+<pre class="code shell literal-block">
+$ ls -l /proc/2696/fd <span class="punctuation">|</span> grep *.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">7</span> <span class="literal number">21</span>:39 <span class="literal number">12</span> -&gt; /home/sfinucan/.cache/evolution/calendar/fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">13</span> -&gt; /home/sfinucan/.cache/evolution/calendar/853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">14</span> -&gt; /home/sfinucan/.cache/evolution/calendar/9ff6cfa62a76324ab004c9c4a09ecec0a96c0956/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">15</span> -&gt; /home/sfinucan/.cache/evolution/calendar/41464062e9943c630c2bb3171b67d4e1a2cf8a93/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">16</span> -&gt; /home/sfinucan/.cache/evolution/calendar/6e9502d1c38772667d06ed809e1012bb0178a62d/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">17</span> -&gt; /home/sfinucan/.cache/evolution/calendar/f22562ff5b1e02106f69e957a7a18513bec94cab/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">18</span> -&gt; /home/sfinucan/.cache/evolution/calendar/6d11aa1cdaf7e1a1c7ff83b464f319b8bf0b8b08/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">22</span> -&gt; /home/sfinucan/.cache/evolution/calendar/f90f25baabe8d65bb2d1d8197dac7a450bcb46e7/cache.db
+lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">23</span> -&gt; /home/sfinucan/.cache/evolution/calendar/fd8b197130da0ca054ab698175e0b3dd16e1b52d/cache.db
+</pre>
+<p>That looks promising. Time to kill the various <tt class="docutils literal">evolution</tt> processes and go
+fix those databases.</p>
+<pre class="code shell literal-block">
+$ sudo pkill evolution
+$ sudo pkill -9 evolution-*
+</pre>
+<pre class="code shell literal-block">
+$ $ <span class="keyword">for</span> i in <span class="keyword">$(</span>find . -path <span class="literal string double">&quot;./trash&quot;</span> -prune -o -name <span class="literal string double">&quot;cache.db&quot;</span> -print<span class="keyword">)</span><span class="punctuation">;</span> <span class="keyword">do</span>
+→ <span class="name builtin">echo</span> <span class="literal string double">&quot;</span><span class="name variable">$i</span><span class="literal string double">&quot;</span><span class="punctuation">;</span>
+→ sqlite3 <span class="literal string double">&quot;</span><span class="name variable">$i</span><span class="literal string double">&quot;</span> <span class="literal string double">&quot;pragma integrity_check;&quot;</span><span class="punctuation">;</span>
+→ <span class="keyword">done</span>
+./41464062e9943c630c2bb3171b67d4e1a2cf8a93/cache.db
+ok
+./9ff6cfa62a76324ab004c9c4a09ecec0a96c0956/cache.db
+ok
+./f22562ff5b1e02106f69e957a7a18513bec94cab/cache.db
+ok
+./f90f25baabe8d65bb2d1d8197dac7a450bcb46e7/cache.db
+ok
+./fd8b197130da0ca054ab698175e0b3dd16e1b52d/cache.db
+ok
+./6d11aa1cdaf7e1a1c7ff83b464f319b8bf0b8b08/cache.db
+ok
+./fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
+*** in database main ***
+On tree page <span class="literal number">2935</span> cell <span class="literal number">492</span>: Rowid <span class="literal number">3396</span> out of order
+On tree page <span class="literal number">2935</span> cell <span class="literal number">491</span>: Rowid <span class="literal number">3394</span> out of order
+On tree page <span class="literal number">2935</span> cell <span class="literal number">490</span>: Rowid <span class="literal number">3392</span> out of order
+On tree page <span class="literal number">2935</span> cell <span class="literal number">489</span>: Rowid <span class="literal number">3390</span> out of order
+Page <span class="literal number">1635</span>: btreeInitPage<span class="operator">()</span> returns error code <span class="literal number">11</span>
+On tree page <span class="literal number">2935</span> cell <span class="literal number">487</span>: Rowid <span class="literal number">3386</span> out of order
+Page <span class="literal number">1634</span>: btreeInitPage<span class="operator">()</span> returns error code <span class="literal number">11</span>
+Page <span class="literal number">1762</span>: btreeInitPage<span class="operator">()</span> returns error code <span class="literal number">11</span>
+On tree page <span class="literal number">2935</span> cell <span class="literal number">419</span>: Rowid <span class="literal number">3289</span> out of order
+Page <span class="literal number">1243</span> is never used
+Page <span class="literal number">1255</span> is never used
+Page <span class="literal number">1263</span> is never used
+row <span class="literal number">1934</span> missing from index IDX_SUMMARY
+row <span class="literal number">1934</span> missing from index IDX_COMPLETED
+row <span class="literal number">1934</span> missing from index IDX_DUE
+row <span class="literal number">1934</span> missing from index IDX_OCCUREND
+row <span class="literal number">1934</span> missing from index IDX_OCCURSTART
+row <span class="literal number">1934</span> missing from index sqlite_autoindex_ECacheObjects_1
+row <span class="literal number">1938</span> missing from index IDX_SUMMARY
+row <span class="literal number">1938</span> missing from index IDX_COMPLETED
+row <span class="literal number">1938</span> missing from index IDX_DUE
+row <span class="literal number">1938</span> missing from index sqlite_autoindex_ECacheObjects_1
+row <span class="literal number">1939</span> missing from index IDX_SUMMARY
+row <span class="literal number">1939</span> missing from index IDX_COMPLETED
+row <span class="literal number">1939</span> missing from index IDX_DUE
+row <span class="literal number">1941</span> missing from index IDX_SUMMARY
+row <span class="literal number">1941</span> missing from index IDX_COMPLETED
+row <span class="literal number">1941</span> missing from index IDX_DUE
+row <span class="literal number">1941</span> missing from index sqlite_autoindex_ECacheObjects_1
+Error: database disk image is malformed
+./853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
+ok
+./6e9502d1c38772667d06ed809e1012bb0178a62d/cache.db
+ok
+</pre>
+<p>We have our offending database. Now, we could simply remove this and be done
+but, to be honest, I don't really trust the rest of them now. Seeing as
+everything is already stored in the cloud, I can simply delete these caches.</p>
+<pre class="code shell literal-block">
+$ rm -f .
+</pre>
+<p>Problem solved.</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://ubuntuforums.org/showthread.php?t=2215232#post12978225">https://ubuntuforums.org/showthread.php?t=2215232#post12978225</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/src/libebackend/e-cache.h">https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/src/libebackend/e-cache.h</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/CMakeLists.txt#L178">https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/CMakeLists.txt#L178</a></td></tr>
+</tbody>
+</table>
+</div>
+  </div>
+  <div id="disqus_thread"></div>
+</div>
+
+
+<script type="text/javascript">
+var disqus_shortname = "thatguru";
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = "thatguru";
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</body>
+</html>
+
