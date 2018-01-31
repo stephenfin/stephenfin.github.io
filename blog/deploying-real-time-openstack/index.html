@@ -79,7 +79,7 @@
 
     
 
-    <p>Copyright &copy; 2017 <a href="https://that.guru/license/">License</a><br/>
+    <p>Copyright &copy; 2018 <a href="https://that.guru/license/">License</a><br/>
        Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
   </div>
 </div>
@@ -127,17 +127,17 @@ result in non-deterministic behavior.</p>
 <ol class="arabic">
 <li><p class="first">Download and install CentOS 7.</p>
 </li>
-<li><p class="first">Log in as <cite>root</cite>.</p>
+<li><p class="first">Log in as <tt class="docutils literal">root</tt>.</p>
 <p>Most of the following steps require root privileges. While you can do this
-with <cite>sudo</cite>, it's generally easier to log in as the <cite>root</cite> user. Do this
+with <tt class="docutils literal">sudo</tt>, it's generally easier to log in as the <tt class="docutils literal">root</tt> user. Do this
 now.</p>
 <pre class="code shell literal-block">
 $ su -
 </pre>
 </li>
-<li><p class="first">Enable the <cite>rt</cite> repo.</p>
+<li><p class="first">Enable the <tt class="docutils literal">rt</tt> repo.</p>
 <pre class="code shell literal-block">
-$ <span class="name builtin">echo</span> <span class="literal string">&lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
+$ cat <span class="literal string">&lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
 # CentOS-RT.repo
 #
 # The Real Time (RT) repository.
@@ -235,7 +235,7 @@ $ <span class="name builtin">echo</span> <span class="literal number">4</span> &
 </pre>
 <p>We want to make this persistent. While you can configure persistent
 hugepages via the <tt class="docutils literal">GRUB_CMDLINE_LINUX</tt> option, you cannot do this on a
-per-NUMA node basis. We're going to use our own <cite>systemd</cite> unit files to
+per-NUMA node basis. We're going to use our own <tt class="docutils literal">systemd</tt> unit files to
 solve this problem until such a time as <a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=1232350">bug #1232350</a> is resolved. This
 solution is taken from that bug.</p>
 <pre class="code shell literal-block">
@@ -281,9 +281,9 @@ $ systemctl <span class="name builtin">enable</span> hugetlb-gigantic-pages
 <li><p class="first">Reboot the host to apply changes.</p>
 </li>
 <li><p class="first">Verify that changes have been applied.</p>
-<p>You want to ensure the <cite>tuned</cite> profile is loaded and the changes it has made
-have taken effect, such as adding <tt class="docutils literal">isolcpus</tt> and related parameters to the
-boot command. In addition, you want to make sure your own hugepage
+<p>You want to ensure the <tt class="docutils literal">tuned</tt> profile is loaded and the changes it has
+made have taken effect, such as adding <tt class="docutils literal">isolcpus</tt> and related parameters
+to the boot command. In addition, you want to make sure your own hugepage
 configuration has been applied.</p>
 <pre class="code shell literal-block">
 $ tuned-adm active
@@ -302,7 +302,7 @@ $ cat /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
 </pre>
 </li>
 <li><p class="first">Verify that system interrupts are disabled.</p>
-<p>You should install the <cite>rt-tests</cite> package, then run the <cite>hwlatdetect</cite>
+<p>You should install the <tt class="docutils literal"><span class="pre">rt-tests</span></tt> package, then run the <tt class="docutils literal">hwlatdetect</tt>
 utility it provides to validate correct behavior.</p>
 <pre class="code shell literal-block">
 $ yum install -y rt-tests
@@ -326,7 +326,7 @@ Samples exceeding threshold: <span class="literal number">0</span>
 should retrace your steps.</p>
 </li>
 <li><p class="first">Verify &quot;real-time readiness&quot;.</p>
-<p>The <cite>rteval</cite> utility can be used to evaluate system suitability for RT
+<p>The <tt class="docutils literal">rteval</tt> utility can be used to evaluate system suitability for RT
 Linux. It must be run for a long duration, so you should put this running
 and come back to it later.</p>
 <pre class="code shell literal-block">
@@ -340,10 +340,10 @@ $ rteval --onlyload --duration<span class="operator">=</span>4h --verbose
 <div class="section" id="guest-image-configuration">
 <h2>Guest Image Configuration</h2>
 <p>We're going to need a real-time image for the guest too. I did this manually on
-another machine using <cite>virt-install</cite>. Much of the configuration is duplicated
+another machine using <tt class="docutils literal"><span class="pre">virt-install</span></tt>. Much of the configuration is duplicated
 from the host.</p>
 <ol class="arabic">
-<li><p class="first">Boot the guest and configure it using a <cite>root</cite> user.</p>
+<li><p class="first">Boot the guest and configure it using a <tt class="docutils literal">root</tt> user.</p>
 <p>We don't actually care about most of the configuration here wrt to RAM and
 CPU count since we'll be changing this later. The only things to note are
 that we're using the same OS as the host (CentOS) for ease-of-use and we
@@ -366,7 +366,7 @@ $ sudo virt-install \
 # ... follow prompts
 </pre>
 </li>
-<li><p class="first">Enable the <cite>rt</cite> repo.</p>
+<li><p class="first">Enable the <tt class="docutils literal">rt</tt> repo.</p>
 <pre class="code shell literal-block">
 $ <span class="name builtin">echo</span> <span class="literal string">&lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
 # CentOS-RT.repo
@@ -388,7 +388,7 @@ $ sudo yum update -y
 <li><p class="first">Install dependencies.</p>
 <p>We naturally don't need the <tt class="docutils literal"><span class="pre">kernel-rt-kvm</span></tt> module, but we do need the
 <tt class="docutils literal"><span class="pre">kernel-rt</span></tt> package and some other dependencies. Seeing as we're using
-CentOS for the guest too, we have to deal with the same <cite>tuned</cite> dependency
+CentOS for the guest too, we have to deal with the same <tt class="docutils literal">tuned</tt> dependency
 conflict.</p>
 <pre class="code shell literal-block">
 $ yum remove tuned
@@ -403,7 +403,7 @@ $ yum install -y kernel-rt.x86_64
 </pre>
 </li>
 <li><p class="first">Configure the realtime profile.</p>
-<p>Configure the <cite>tuned</cite> profile toisolate the two CPUs we reserved for
+<p>Configure the <tt class="docutils literal">tuned</tt> profile toisolate the two CPUs we reserved for
 real-time in the flavour (i.e. <tt class="docutils literal"><span class="pre">^0-1</span></tt>, so <tt class="docutils literal">2</tt> and <tt class="docutils literal">3</tt>)</p>
 <pre class="code shell literal-block">
 $ <span class="name builtin">echo</span> <span class="literal string double">&quot;isolated_cores=2,3&quot;</span> &gt;&gt; /etc/tuned/realtime-virtual-guest-variables.conf
@@ -450,7 +450,7 @@ $ yum install -y rt-tests stress
 <li><p class="first">Reboot the guest to apply changes.</p>
 </li>
 <li><p class="first">Verify the changes have been applied.</p>
-<p>Once again, you want to ensure the <cite>tuned</cite> profile is loaded and applied,
+<p>Once again, you want to ensure the <tt class="docutils literal">tuned</tt> profile is loaded and applied,
 and that the hugepages have been configured.</p>
 <pre class="code shell literal-block">
 $ tuned-adm active
@@ -464,7 +464,7 @@ $ cat /proc/cmdline
 </pre>
 </li>
 <li><p class="first">Install OpenStack-specific dependencies.</p>
-<p>We want to use <cite>cloud-init</cite> to configure stuff in OpenStack, so let's
+<p>We want to use <tt class="docutils literal"><span class="pre">cloud-init</span></tt> to configure stuff in OpenStack, so let's
 install the various dependencies required. This is taken from <a class="reference external" href="https://docs.openstack.org/image-guide/centos-image.html">the OpenStack
 docs</a>.</p>
 <pre class="code shell literal-block">
@@ -475,7 +475,7 @@ $ <span class="name builtin">echo</span> <span class="literal string double">&qu
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">We don't need to configure a console interface as <cite>virt-install</cite> has
+<p class="last">We don't need to configure a console interface as <tt class="docutils literal"><span class="pre">virt-install</span></tt> has
 already done this for us.</p>
 </div>
 <p>Once this is done, you can shutdown the guest.</p>
@@ -485,7 +485,7 @@ $ poweroff
 </li>
 <li><p class="first">Clean up the image.</p>
 <p>We want to strip stuff like MAC addresses from the guest. This should be
-done wherever you ran <cite>virt-install</cite>.</p>
+done wherever you ran <tt class="docutils literal"><span class="pre">virt-install</span></tt>.</p>
 <pre class="code shell literal-block">
 $ sudo virt-sysprep -d centos7
 </pre>
@@ -509,7 +509,7 @@ refuse to run this way.</p>
 <p>I used DevStack for this, though you can use anything you want. This feature
 relies on features first included in the Pike release so you should deploy a
 suitable version. Given that I'm using DevStack, I'm simply going to use the
-<cite>stable/pike</cite> variant of DevStack and all dependencies.</p>
+<tt class="docutils literal">stable/pike</tt> variant of DevStack and all dependencies.</p>
 <pre class="code shell literal-block">
 $ git clone https://github.com/openstack-dev/devstack/
 $ <span class="name builtin">cd</span> devstack
@@ -548,15 +548,15 @@ $ . openrc admin
 <p>You can use a mostly stock configuration with the exception of one
 configuration option: <tt class="docutils literal">[DEFAULT] vcpu_pin_set</tt>. This should be configured
 for the <tt class="docutils literal"><span class="pre">nova-compute</span></tt> service and should be set to the mask configured by
-<cite>tuned</cite> earlier.</p>
+<tt class="docutils literal">tuned</tt> earlier.</p>
 </li>
 <li><p class="first">Validate deployment.</p>
 <p>Once this has deployed, you can check the logs of the <tt class="docutils literal"><span class="pre">nova-compute</span></tt>
 service to make sure the <tt class="docutils literal">vcpu_pin_set</tt> configuration has been successful.
-If deploying using <cite>stable/pike</cite> DevStack, you can do this using
-<cite>journalctl</cite>.</p>
+If deploying using <tt class="docutils literal">stable/pike</tt> DevStack, you can do this using
+<tt class="docutils literal">journalctl</tt>.</p>
 <pre class="code shell literal-block">
-$ sudo journalctl -u devstack&#64;n-cpu.service <span class="punctuation">|</span> grep <span class="literal string single">'Total usable vcpus'</span> <span class="punctuation">|</span> tail -1
+$ sudo journalctl -u devstack&#64;n-cpu.service <span class="punctuation">|</span> grep <span class="literal string single">'vcpu_pin_set'</span> <span class="punctuation">|</span> tail -1
 <span class="name variable">vcpu_pin_set</span> <span class="operator">=</span> <span class="literal number">4</span>-11
 $ sudo journalctl -u devstack&#64;n-cpu.service <span class="punctuation">|</span> grep <span class="literal string single">'Total usable vcpus'</span> <span class="punctuation">|</span> tail -1
 Total usable vcpus: <span class="literal number">8</span>, total allocated vcpus: <span class="literal number">0</span>
@@ -600,8 +600,8 @@ them.</p>
 <p>For more information, refer to <a class="reference external" href="https://docs.openstack.org/nova/latest/user/flavors">the nova docs</a>.</p>
 </li>
 <li><p class="first">Configure image.</p>
-<p>We're going to use the <cite>centos7-small.qcow2</cite> created previously. Upload this
-to <cite>glance</cite>.</p>
+<p>We're going to use the <tt class="docutils literal"><span class="pre">centos7-small.qcow2</span></tt> created previously. Upload
+this to <tt class="docutils literal">glance</tt>.</p>
 <pre class="code shell literal-block">
 $ openstack image create --disk-format qcow2 --container-format bare <span class="literal string escape">\
 </span>    --public --file ./centos-small.qcow2 centos-rt
@@ -691,14 +691,14 @@ $ openstack server add floating ip rt-server <span class="literal number">172</s
 $ openstack server ssh rt-server --login centos
 </pre>
 </li>
-<li><p class="first">Run <cite>cyclictest</cite> to confirm expected latencies.</p>
-<p>We're going to run a intensive process, <cite>stress</cite>, and then use <cite>cyclictest</cite>
-to confirm that guest latencies are within expected limits.</p>
+<li><p class="first">Run <tt class="docutils literal">cyclictest</tt> to confirm expected latencies.</p>
+<p>We're going to run a intensive process, <tt class="docutils literal">stress</tt>, and then use
+<tt class="docutils literal">cyclictest</tt> to confirm that guest latencies are within expected limits.</p>
 <pre class="code shell literal-block">
 $ taskset -c <span class="literal number">2</span> stress --cpu <span class="literal number">4</span>
 </pre>
 <p>This will result in four processes running on vCPU 2. Once this is running,
-start <cite>cyclictest</cite> in another tab.</p>
+start <tt class="docutils literal">cyclictest</tt> in another tab.</p>
 <pre class="code shell literal-block">
 $ taskset -c <span class="literal number">2</span> cyclictest -m -n -q -p95 -D 24h -h100 -i <span class="literal number">200</span> &gt; cyclictest.out
 </pre>
