@@ -639,27 +639,24 @@ our tests.</p>
 <ol class="arabic">
 <li><p class="first">Boot instance</p>
 <pre class="code shell literal-block">
-  $ openstack server create --flavor rt1.small --image centos-rt <span class="literal string escape">\
-</span>      --key-name default-key rt-server
-
-.. note::
-
-   This initially failed <span class="keyword">for</span> me with the following error message::
-
-     Could not access KVM kernel module: Permission denied
-     failed to initialize KVM: Permission denied
-
-   I was able to resolve this with the following commands, taken from <span class="literal string backtick">`</span>a related bugzilla<span class="literal string backtick">`</span>__.
-
-   .. code-block:: shell
-
-      $ sudo rmmod kvm_intel
-      $ sudo rmmod kvm
-      $ sudo modprobe kvm
-      $ sudo modprobe kvm_intel
-
-   __ https://bugzilla.redhat.com/show_bug.cgi?id<span class="operator">=</span><span class="literal number">950436</span>
+$ openstack server create --flavor rt1.small --image centos-rt <span class="literal string escape">\
+</span>    --key-name default-key rt-server
 </pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This initially failed for me with the following error message:</p>
+<pre class="literal-block">
+Could not access KVM kernel module: Permission denied
+failed to initialize KVM: Permission denied
+</pre>
+<p>I was able to resolve this with the following commands, taken from <a class="reference external" href="https://bugzilla.redhat.com/show_bug.cgi?id=950436">a related bugzilla</a>.</p>
+<pre class="code shell last literal-block">
+$ sudo rmmod kvm_intel
+$ sudo rmmod kvm
+$ sudo modprobe kvm
+$ sudo modprobe kvm_intel
+</pre>
+</div>
 </li>
 <li><p class="first">Connect floating IP.</p>
 <p>This is necessary so we can SSH into the instance.</p>
