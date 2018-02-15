@@ -1,99 +1,163 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<html lang="en-IE">
+
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta name="author" content="Stephen Finucane">
+<meta name="description" content="In OpenStack nova land, you run tests by specifying their Python paths, like so:
+$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI. If a tests fails when run locally or in the CI, the failure will be reported with similar Python module path-style references. These take a little cleanup to get a usable file path that we can use to open the file, so I automated it.">
 
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta property="og:title" content="Open Python paths with vim" />
+<meta property="og:description" content="In OpenStack nova land, you run tests by specifying their Python paths, like so:
+$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI. If a tests fails when run locally or in the CI, the failure will be reported with similar Python module path-style references. These take a little cleanup to get a usable file path that we can use to open the file, so I automated it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://that.guru/blog/open-python-paths-with-vim/" />
 
-  <title>Open Python paths with vim &middot; stephenfin</title>
 
-  
-  <link rel="stylesheet" href="https://that.guru/css/poole.css">
-  <link rel="stylesheet" href="https://that.guru/css/hyde.css">
-  <link rel="stylesheet" href="https://that.guru/css/poole-overrides.css">
-  <link rel="stylesheet" href="https://that.guru/css/hyde-overrides.css">
-  <link rel="stylesheet" href="https://that.guru/css/hyde-x.css">
-  
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-  
 
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://that.guru/touch-icon-144-precomposed.png">
-  <link href="https://that.guru/favicon.png" rel="icon">
+<meta property="article:published_time" content="2017-02-06T14:33:53&#43;00:00"/>
 
-  
-  
-  
-  
+<meta property="article:modified_time" content="2017-02-06T14:33:53&#43;00:00"/>
 
-  <meta name="description" content="">
-  <meta name="keywords" content="">
-  
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-    ga('create', 'UA-80652159-1', 'auto');
-    ga('send', 'pageview');
-  </script>
-  
-</head>
-<body class="theme-base-08">
-<div class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      
-      <h1>stephenfin</h1>
-      <p class="lead">A word to the wise&hellip;</p>
-    </div>
 
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-item"><a href="https://that.guru/">Home</a></li>
-      
-      <li class="sidebar-nav-item"><a href="https://that.guru/about/">About</a></li>
-      
-      <li class="sidebar-nav-item"><a href="https://that.guru/blog/">Archives</a></li>
-      
-      <li class="sidebar-nav-item"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf">CV</a></li>
-      
-    </ul>
 
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-item">
-      <a href="https://www.github.com/stephenfin"><i class="fa fa-github-square fa-3x"></i></a>
-      
-      
-      <a href="https://www.linkedin.com/in/stephenfinucane"><i class="fa fa-linkedin-square fa-3x"></i></a>
-      
-      
-      <a href="https://www.twitter.com/stephenfin"><i class="fa fa-twitter-square fa-3x"></i></a>
-      
-      <a href="https://that.guru/index.xml" type="application/rss+xml"><i class="fa fa-rss-square fa-3x"></i></a>
-      </li>
-    </ul>
 
+
+
+
+
+
+
+
+<title>
+
+
+     Open Python paths with vim 
+
+</title>
+<link rel="canonical" href="https://that.guru/blog/open-python-paths-with-vim/">
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:500">
+
+
+
+    <link rel="stylesheet" href="https://that.guru/css/reset.css">
+    <link rel="stylesheet" href="https://that.guru/css/pygments.css">
+    <link rel="stylesheet" href="https://that.guru/css/main.css">
     
 
-    <p>Copyright &copy; 2018 <a href="https://that.guru/license/">License</a><br/>
-       Powered by <a href="http://gohugo.io">Hugo</a> and <a href="https://github.com/zyro/hyde-x">Hyde-X</a></p>
-  </div>
+
+
+
+<link rel="shortcut icon"
+
+    href="https://that.guru/img/favicon.ico"
+
+>
+
+
+
+
+
+
+
+
+</head>
+
+
+<body lang="">
+
+<section class="header">
+    <div class="container">
+        <div class="content">
+            
+            <a href="https://that.guru/"><img class="avatar" src="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=50" rcset="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=100 2x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=150 3x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=200 4x"></a>
+            
+            <a href="https://that.guru/"><div class="name">Stephen Finucane</div></a>
+            
+            <nav>
+                <ul>
+                    
+                        <li class="nav-about"><a href="https://that.guru/about/"><span>About</span></a></li>
+                    
+                        <li class="nav-archives"><a href="https://that.guru/blog/"><span>Archives</span></a></li>
+                    
+                        <li class="nav-cv"><a href="https://that.guru/media/cv_stephen_finucane_-_may_2016.pdf"><span>CV</span></a></li>
+                    
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+        
+            <a href="https://www.github.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/github.svg" alt="github" /></a>
+        
+
+        
+            <a href="https://www.twitter.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/twitter.svg" alt="twitter" /></a>
+        
+
+	
+
+        
+
+        
+
+        
+            <a href="https://www.linkedin.com/in/stephenfinucane" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/linkedin.svg" alt="linkedin" /></a>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+            <a href="mailto:stephen@that.guru"><img class="icon" src="https://that.guru/img/email.svg" alt="email" /></a>
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+<section class="main">
+    <div class="container">
+        <div class="content">
+            <div class="page-heading">
+
+    Open Python paths with vim
+
 </div>
 
-
-<div class="content container">
-  <div class="post">
-    <h1 class="post-title">Open Python paths with vim</h1>
-    <span class="post-date">Feb 6, 2017 &middot; 1 minute read &middot; <a href="https://that.guru/blog/open-python-paths-with-vim/#disqus_thread">Comments</a>
-    
-    <br/>
-    <a class="label" href="https://that.guru/categories/tips">tips</a><a class="label" href="https://that.guru/categories/openstack">openstack</a>
-    </span>
-    <p>In OpenStack nova land, you run tests by specifying their Python paths, like
+            <div class="markdown">
+                <p>In OpenStack nova land, you run tests by specifying their Python paths, like
 so:</p>
 
 <pre><code>$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
@@ -112,33 +176,30 @@ path that we can use to open the file, so I automated it.</p>
 $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
 </code></pre>
 
-  </div>
-  <div id="disqus_thread"></div>
-</div>
+            </div>
+        </div>
+    </div>
+</section>
 
 
-<script type="text/javascript">
-var disqus_shortname = "thatguru";
-(function () {
-    var s = document.createElement('script'); s.async = true;
-    s.type = 'text/javascript';
-    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
-    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-}());
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-80652159-1', 'auto');
+ga('send', 'pageview');
 </script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
 
 
 
-<script type="text/javascript">
-    var disqus_shortname = "thatguru";
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
 
 
 </body>
