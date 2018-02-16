@@ -118,10 +118,8 @@ The Autotest scripts execute unit tests by making shell-like calls to utilities,
       
       <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
       <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant.
-BuildReactor  Site Source Overview
-This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
- Installation
-Install from the Chrome store.</description>
+BuildReactor This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
+ Site Source  Installation Install from the Chrome store.</description>
     </item>
     
     <item>

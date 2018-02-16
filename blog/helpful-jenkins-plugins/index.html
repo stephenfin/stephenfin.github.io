@@ -10,17 +10,13 @@
 <meta name="referrer" content="no-referrer">
 <meta name="author" content="Stephen Finucane">
 <meta name="description" content="It&rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant.
-BuildReactor  Site Source Overview
-This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
- Installation
-Install from the Chrome store.">
+BuildReactor This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
+ Site Source  Installation Install from the Chrome store.">
 
 <meta property="og:title" content="Working with Jenkins &#43; Chrome" />
 <meta property="og:description" content="It&rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant.
-BuildReactor  Site Source Overview
-This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
- Installation
-Install from the Chrome store." />
+BuildReactor This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
+ Site Source  Installation Install from the Chrome store." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://that.guru/blog/helpful-jenkins-plugins/" />
 
@@ -171,19 +167,18 @@ Chrome that make working with pre-3.0 Jenkins a little more pleasant.</p>
 
 <h1 id="buildreactor">BuildReactor</h1>
 
+<p>This provides a current statuses of a user-defined number of Jenkins jobs.  It
+also gives notifications when projects pass/fail.</p>
+
 <ul>
 <li><a href="https://chrome.google.com/webstore/detail/buildreactor/agfdekbncfakhgofmaacjfkpbhjhpjmp">Site</a></li>
 <li><a href="https://github.com/AdamNowotny/BuildReactor">Source</a></li>
+</ul>
 
-<li><p>Overview</p>
+<h2 id="installation">Installation</h2>
 
-<p>This provides a current statuses of a user-defined number of Jenkins jobs.
-It also gives notifications when projects pass/fail.</p></li>
-
-<li><p>Installation</p>
-
-<p>Install from the Chrome store. Once installed, &ldquo;Add&rdquo; a new view, give it a
-name (i.e. &ldquo;Open vSwitch&rdquo;) and configure the following settings:</p>
+<p>Install from the Chrome store. Once installed, &ldquo;Add&rdquo; a new view, give it a name
+(i.e. &ldquo;Open vSwitch&rdquo;) and configure the following settings:</p>
 
 <pre><code>Server: jenkins.example.com:8080
 User:   [leave empty]
@@ -192,26 +187,24 @@ Pass:   [leave empty]
 
 <p>Substitute the appropriate URL for your local server. Once done, select the
 &ldquo;Show&rdquo; button, and select which of the projects you want to display. Then
-&ldquo;Save&rdquo;. You should now be able to get an overview of your builds by
-clicking on the toolbar icon. You should also get notifications.  This is
-easier to parse than the emails, IMO.</p></li>
-</ul>
+&ldquo;Save&rdquo;. You should now be able to get an overview of your builds by clicking on
+the toolbar icon. You should also get notifications.  This is easier to parse
+than the emails, IMO.</p>
 
 <h1 id="doony">Doony</h1>
+
+<p>This provides a new, ultra-usable stylesheet for Jenkins. IMO it makes Jenkins
+easier to work with.</p>
 
 <ul>
 <li><a href="https://github.com/kevinburke/doony#chrome-extension">Site</a></li>
 <li><a href="https://github.com/kevinburke/doony">Source</a></li>
+</ul>
 
-<li><p>Overview</p>
+<h2 id="installation-1">Installation</h2>
 
-<p>This provides a new, ultra-usable stylesheet for Jenkins. IMO it makes
-Jenkins easier to work with.</p></li>
-
-<li><p>Installation</p>
-
-<p>Follow the guide on the README. When modifying the &lsquo;manifest.json&rsquo; file,
-add the following URLs:</p>
+<p>Follow the guide on the README. When modifying the <code>manifest.json</code> file, add
+the following URLs:</p>
 
 <pre><code>&quot;matches&quot;: [
   &quot;https://jenkins.ci.cloudbees.com/*&quot;,
@@ -223,9 +216,8 @@ add the following URLs:</p>
 ],
 </code></pre>
 
-<p>Substitute the appropriate URL for you local server. Don&rsquo;t forget to
-&ldquo;reload&rdquo; the plugin once installed.</p></li>
-</ul>
+<p>Substitute the appropriate URL for you local server. Don&rsquo;t forget to &ldquo;reload&rdquo;
+the plugin once installed.</p>
 
             </div>
         </div>

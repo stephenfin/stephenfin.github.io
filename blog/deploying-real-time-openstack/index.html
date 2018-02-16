@@ -484,10 +484,10 @@ $ tuned-adm profile realtime-virtual-guest
 <p class="last">Note that we're using the <em>guest</em> profile here - not the <em>host</em> one.</p>
 </div>
 <p>You should confirm that the profile has been applied.</p>
-<blockquote>
-<p>$ grep tuned_params= /boot/grub2/grub.cfg
-set tuned_params=&quot;isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup&quot;</p>
-</blockquote>
+<pre class="code shell literal-block">
+$ grep <span class="name variable">tuned_params</span><span class="operator">=</span> /boot/grub2/grub.cfg
+<span class="name builtin">set</span> <span class="name variable">tuned_params</span><span class="operator">=</span><span class="literal string double">&quot;isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup&quot;</span>
+</pre>
 </li>
 <li><p class="first">Configure hugepages.</p>
 <p>First, add the following to <tt class="docutils literal">GRUB_CMDLINE_LINUX</tt> in <tt class="docutils literal">/etc/default/grub</tt>.</p>
