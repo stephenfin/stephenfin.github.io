@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 08 Dec 2017 10:40:31 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 15 May 2018 15:10:08 +0100</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Automatically Set The Name of tmux Windows</title>
+      <link>https://that.guru/blog/automatically-set-tmux-window-name/</link>
+      <pubDate>Tue, 15 May 2018 15:10:08 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
+      <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
+What I&#39;m looking to achieve is a prompt like the following:
+ More specifically, I want $(hostname): $(basename $PWD).</description>
+    </item>
     
     <item>
       <title>Evolution Calendar Issues</title>
@@ -140,7 +151,7 @@ BuildReactor This provides a current statuses of a user-defined number of Jenkin
       <guid>https://that.guru/blog/mutt-archives/</guid>
       <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.
 To begin, first go to the archive site for your given mailing list. This will probably be a Pipermail instance. Once here, identify the archives you require:
- Download the archive   Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:</description>
+  Download the archive   Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:</description>
     </item>
     
     <item>

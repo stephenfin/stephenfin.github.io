@@ -90,7 +90,7 @@ BuildReactor This provides a current statuses of a user-defined number of Jenkin
       <guid>https://that.guru/blog/mutt-archives/</guid>
       <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.
 To begin, first go to the archive site for your given mailing list. This will probably be a Pipermail instance. Once here, identify the archives you require:
- Download the archive   Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:</description>
+  Download the archive   Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:</description>
     </item>
     
     <item>

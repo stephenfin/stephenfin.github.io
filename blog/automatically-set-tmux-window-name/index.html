@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-IE">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta name="author" content="Stephen Finucane">
+<meta name="description" content="I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
+What I&#39;m looking to achieve is a prompt like the following:
+ More specifically, I want $(hostname): $(basename $PWD).">
+
+<meta property="og:title" content="Automatically Set The Name of tmux Windows" />
+<meta property="og:description" content="I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
+What I&#39;m looking to achieve is a prompt like the following:
+ More specifically, I want $(hostname): $(basename $PWD)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://that.guru/blog/automatically-set-tmux-window-name/" />
+
+
+
+<meta property="article:published_time" content="2018-05-15T15:10:08&#43;01:00"/>
+
+<meta property="article:modified_time" content="2018-05-15T15:10:08&#43;01:00"/>
+
+
+
+
+
+
+
+
+
+
+
+
+<title>
+
+
+     Automatically Set The Name of tmux Windows 
+
+</title>
+<link rel="canonical" href="https://that.guru/blog/automatically-set-tmux-window-name/">
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:500">
+
+
+
+    <link rel="stylesheet" href="https://that.guru/css/reset.css">
+    <link rel="stylesheet" href="https://that.guru/css/pygments.css">
+    <link rel="stylesheet" href="https://that.guru/css/main.css">
+    
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://that.guru/img/favicon.ico"
+
+>
+
+
+
+
+
+
+
+
+</head>
+
+
+<body lang="">
+
+<section class="header">
+    <div class="container">
+        <div class="content">
+            
+            <a href="https://that.guru/"><img class="avatar" src="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=50" rcset="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=100 2x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=150 3x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=200 4x"></a>
+            
+            <a href="https://that.guru/"><div class="name">Stephen Finucane</div></a>
+            
+            <nav>
+                <ul>
+                    
+                        <li class="nav-about"><a href="https://that.guru/about/"><span>About</span></a></li>
+                    
+                        <li class="nav-archives"><a href="https://that.guru/blog/"><span>Archives</span></a></li>
+                    
+                        <li class="nav-cv"><a href="https://that.guru/media/cv_stephen_finucane_-_april_2018.pdf"><span>CV</span></a></li>
+                    
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+        
+            <a href="https://www.github.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/github.svg" alt="github" /></a>
+        
+
+        
+            <a href="https://www.twitter.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/twitter.svg" alt="twitter" /></a>
+        
+
+	
+
+        
+
+        
+
+        
+            <a href="https://www.linkedin.com/in/stephenfinucane" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/linkedin.svg" alt="linkedin" /></a>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+            <a href="mailto:stephen@that.guru"><img class="icon" src="https://that.guru/img/email.svg" alt="email" /></a>
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
+        <div class="content">
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    Automatically Set The Name of tmux Windows
+
+</div>
+
+                    <div class="initials"><a href="https://that.guru"></a></div>
+                </div>
+                <div class="meta">
+                    
+                    <div class="date" title='Tue May 15 2018 15:10:08 IST'>May 15, 2018</div>
+                    
+                    
+		    <div class="reading-time"><div class="middot"></div>2 minutes read</div>
+                    
+                </div>
+            </div>
+            <div class="markdown">
+                <div class="document">
+
+
+<p>I recently updated to Fedora 28 which includes a updated version of <em>tmux</em> -
+<em>tmux 2.7</em>. I quickly noted that my window title was no longer being set as
+before and eventually identified the issue: a breaking change in 2.7. Below is
+my guide on ensuring <em>tmux</em> displays a useful title for each window.</p>
+<p>What I'm looking to achieve is a prompt like the following:</p>
+<div class="figure">
+<img alt="/media/automatically-set-tmux-window-name.png" src="https://that.guru/media/automatically-set-tmux-window-name.png" />
+</div>
+<p>More specifically, I want <tt class="docutils literal">$(hostname): $(basename $PWD)</tt>. <em>tmux</em> provides
+two ways to do this.</p>
+<div class="section" id="the-automatic-rename-options">
+<h2>The <tt class="docutils literal"><span class="pre">automatic-rename</span></tt> options</h2>
+<p>The <a class="reference external" href="http://man7.org/linux/man-pages/man1/tmux.1.html">tmux(1)</a> man page describes the following options:</p>
+<blockquote>
+<dl class="docutils">
+<dt><strong>automatic-rename</strong> <em>[on | off]</em></dt>
+<dd><p class="first">Control automatic window renaming.  When this setting is enabled, tmux will
+rename the window automatically using the format specified by
+<tt class="docutils literal"><span class="pre">automatic-rename-format</span></tt>. This flag is automatically disabled for an
+individual window when a name is specified at creation with <tt class="docutils literal"><span class="pre">new-window</span></tt> or
+<tt class="docutils literal"><span class="pre">new-session</span></tt>, or later with <tt class="docutils literal"><span class="pre">rename-window</span></tt>, or with a terminal escape
+sequence.  It may be switched off globally with:</p>
+<pre class="last literal-block">
+set-window-option -g automatic-rename off
+</pre>
+</dd>
+<dt><strong>automatic-rename-format</strong> <em>format</em></dt>
+<dd>The format (see FORMATS) used when the <tt class="docutils literal"><span class="pre">automatic-rename</span></tt> option is
+enabled.</dd>
+<dt><strong>status-interval</strong> <em>interval</em></dt>
+<dd>Update the status line every interval seconds.  By default, updates will
+occur every 15 seconds.  A setting of zero disables redrawing at interval.</dd>
+</dl>
+</blockquote>
+<p>We can use a combination of these to configure the status line by adding the
+following to our <tt class="docutils literal">.tmux.conf</tt> file:</p>
+<pre class="literal-block">
+set-option -g status-interval 1
+set-option -g automatic-rename on
+set-option -g automatic-rename-format '#{b:pane_current_path}'
+</pre>
+<p>More detail can be found in a related <a class="reference external" href="https://stackoverflow.com/questions/28376611">StackOverflow question</a>.</p>
+<p>Unfortunately this is not ideal as there will still be some lag between the
+window name being set and it being reflected in the UI. This brings us to the
+alternative.</p>
+</div>
+<div class="section" id="terminal-escape-sequences">
+<h2>Terminal escape sequences</h2>
+<p><em>tmux</em> can also take advantage of terminal escape sequences. By emitting these
+from our shell, we can ensure the changes to the window name happen
+automatically. To this end, <a class="reference external" href="http://man7.org/linux/man-pages/man1/bash.1.html">bash(1)</a> provides the <tt class="docutils literal">PROMPT_COMMAND</tt> shell
+variable:</p>
+<blockquote>
+<dl class="docutils">
+<dt><strong>PROMPT_COMMAND</strong></dt>
+<dd>If set, the value is executed as a command prior to issuing each primary
+prompt.</dd>
+</dl>
+</blockquote>
+<p>We can configure this in our <tt class="docutils literal">.bashrc</tt> file like so:</p>
+<pre class="literal-block">
+case &quot;$TERM&quot; in
+linux|xterm*|rxvt*)
+  export PROMPT_COMMAND='echo -ne &quot;\033]0;${HOSTNAME%%.*}: ${PWD##*/}\007&quot;'
+  ;;
+screen*)
+  export PROMPT_COMMAND='echo -ne &quot;\033k${HOSTNAME%%.*}: ${PWD##*/}\033\\&quot; '
+  ;;
+*)
+  ;;
+esac
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is actually a little more complicated that necessary but it with ensure
+we get the format requested both when we're using <em>tmux</em> (the latter case)
+and when we are not (the former).</p>
+</div>
+<p>You also need to configure the following in your <tt class="docutils literal">.tmux.conf</tt> in order to
+work around the breaking change mentioned above:</p>
+<pre class="literal-block">
+set -g allow-rename on
+</pre>
+<p>Once done, restart <em>tmux</em> as you'll see your changes propagated.</p>
+</div>
+</div>
+                <br>
+		<p class="back-to-posts"><a href="https://that.guru/blog/">Back to posts</a></p>
+            </div>
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-80652159-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
+
+
+</body>
+</html>
+
