@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Networking on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/networking/</link>
+    <description>Recent content in Networking on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
+    <lastBuildDate>Tue, 25 Sep 2018 13:58:13 +0100</lastBuildDate>
+    
+	<atom:link href="https://that.guru/categories/networking/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Configuring SR-IOV for a Mellanox ConnectX-3 NIC</title>
+      <link>https://that.guru/blog/sriov-mellanox-connectx-3/</link>
+      <pubDate>Tue, 25 Sep 2018 13:58:13 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
+      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&#39;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 (Ethernet, low profile) from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&#39;ve dealt with in Nova have been a great bunch and (c) it was cheap.</description>
+    </item>
+    
+  </channel>
+</rss>

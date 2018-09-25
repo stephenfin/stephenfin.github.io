@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en-IE">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta name="author" content="Stephen Finucane">
+<meta name="description" content="So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&#39;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 (Ethernet, low profile) from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&#39;ve dealt with in Nova have been a great bunch and (c) it was cheap.">
+
+<meta property="og:title" content="Configuring SR-IOV for a Mellanox ConnectX-3 NIC" />
+<meta property="og:description" content="So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&#39;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 (Ethernet, low profile) from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&#39;ve dealt with in Nova have been a great bunch and (c) it was cheap." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://that.guru/blog/sriov-mellanox-connectx-3/" />
+
+
+
+<meta property="article:published_time" content="2018-09-25T13:58:13&#43;01:00"/>
+
+<meta property="article:modified_time" content="2018-09-25T13:58:13&#43;01:00"/>
+
+
+
+
+
+
+
+
+
+
+
+
+<title>
+
+
+     Configuring SR-IOV for a Mellanox ConnectX-3 NIC 
+
+</title>
+<link rel="canonical" href="https://that.guru/blog/sriov-mellanox-connectx-3/">
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:500">
+
+
+
+    <link rel="stylesheet" href="https://that.guru/css/reset.css">
+    <link rel="stylesheet" href="https://that.guru/css/pygments.css">
+    <link rel="stylesheet" href="https://that.guru/css/main.css">
+    
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://that.guru/img/favicon.ico"
+
+>
+
+
+
+
+
+
+
+
+</head>
+
+
+<body lang="">
+
+<section class="header">
+    <div class="container">
+        <div class="content">
+            
+            <a href="https://that.guru/"><img class="avatar" src="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=50" rcset="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=100 2x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=150 3x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=200 4x"></a>
+            
+            <a href="https://that.guru/"><div class="name">Stephen Finucane</div></a>
+            
+            <nav>
+                <ul>
+                    
+                        <li class="nav-about"><a href="https://that.guru/about/"><span>About</span></a></li>
+                    
+                        <li class="nav-archives"><a href="https://that.guru/blog/"><span>Archives</span></a></li>
+                    
+                        <li class="nav-cv"><a href="https://that.guru/media/cv_stephen_finucane_-_april_2018.pdf"><span>CV</span></a></li>
+                    
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+        
+            <a href="https://www.github.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/github.svg" alt="github" /></a>
+        
+
+        
+            <a href="https://www.twitter.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/twitter.svg" alt="twitter" /></a>
+        
+
+	
+
+        
+
+        
+
+        
+            <a href="https://www.linkedin.com/in/stephenfinucane" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/linkedin.svg" alt="linkedin" /></a>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+            <a href="mailto:stephen@that.guru"><img class="icon" src="https://that.guru/img/email.svg" alt="email" /></a>
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+<section class="main">
+    <div class="container">
+        <div class="content">
+            <div class="page-heading">
+
+    Configuring SR-IOV for a Mellanox ConnectX-3 NIC
+
+</div>
+
+            <div class="markdown">
+                <div class="document">
+
+
+<p>So <a class="reference external" href="https://en.wikipedia.org/wiki/Single-root_input/output_virtualization">SR-IOV</a> support in my <a class="reference external" href="https://ark.intel.com/products/84804/Intel-Ethernet-Server-Adapter-I350-T2V2">Intel I350-T2V2</a> decided to stop working recently
+(or maybe it never worked - I can't be sure), meaning it was time to pick up a
+new SR-IOV NIC for testing/development. I settled on a used <a class="reference external" href="http://www.mellanox.com/page/products_dyn?product_family=127">Mellanox
+ConnectX-3</a> (Ethernet, low profile) from eBay because (a) it supported SR-IOV
+and other cool things like RDMA over Ethernet (<a class="reference external" href="https://en.wikipedia.org/wiki/RDMA_over_Converged_Ethernet">RoCE</a>), (b) the Mellanox guys
+I've dealt with in Nova have been a great bunch and (c) it was cheap. For what
+it's worth, I also got a pair of <a class="reference external" href="https://en.wikipedia.org/wiki/Small_form-factor_pluggable_transceiver">SFP</a> cables</p>
+<p>The first time I configured this, I followed the instructions from the
+<a class="reference external" href="officialguide">Mellanox website</a>. This mandated downloading a tarball and
+using their custom installer script, <tt class="docutils literal">mlnxofedinstall</tt>, to install the
+drivers and various tools. It was only when I later reinstalled the OS on this
+machine that I discovered this was wholly unnecessary: Ubuntu 16.04 (and
+presumably 18.04) already include everything you need to configure and use
+these NICs. As such, here is &quot;Stephen's Guide to Using Mellanox ConnectX-3
+Cards Without All That C***&quot;.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites</h2>
+<p>It should go without saying, but you need a Mellanox ConnectX-3 card for this
+to be of any use. In addition, I'm using Ubuntu 16.04 because that's what that
+OpenStack gate uses, but I think most of this stuff is packaged on Fedora too.</p>
+</div>
+<div class="section" id="enable-sr-iov-in-the-firmware">
+<h2>Enable SR-IOV in the firmware</h2>
+<p>The ConnectX-3 allows you to configure the amount of VFs available on the
+device. To do this, the <a class="reference external" href="https://community.mellanox.com/docs/DOC-2365">official guide</a> would have you run the <tt class="docutils literal">mlxconfig</tt>
+tool, which is installed by the aforementioned <tt class="docutils literal">mlnxofedinstall</tt> tool.
+However, Mellanox have an open source version of this tool, <tt class="docutils literal">mstconfig</tt>,
+which fulfils the same purpose as is available as part of the <a class="reference external" href="https://github.com/Mellanox/mstflint">mstflint</a>
+package. Install this:</p>
+<pre class="code shell literal-block">
+$ sudo apt install mstflint
+</pre>
+<p>Once installed, inspect the current configuration of the device. To do this,
+you need to find the PCI address of the device, which is pretty easy when you
+only have one such device in your system:</p>
+<pre class="code shell literal-block">
+$ lspci <span class="punctuation">|</span> grep Mellanox
+<span class="literal number">02</span>:00.0 Ethernet controller: Mellanox Technologies MT27500 Family <span class="operator">[</span>ConnectX-3<span class="operator">]</span>
+$ sudo mstconfig -d <span class="literal number">02</span>:00.0 query
+
+Device <span class="comment single">#1:
+</span>----------
+
+Device type:    ConnectX3
+PCI device:     <span class="literal number">02</span>:00.0
+
+Configurations:                              Current
+         SRIOV_EN                            <span class="literal number">1</span>
+         NUM_OF_VFS                          <span class="literal number">8</span>
+         LOG_BAR_SIZE                        <span class="literal number">3</span>
+         BOOT_OPTION_ROM_EN_P1               <span class="literal number">1</span>
+         BOOT_VLAN_EN_P1                     <span class="literal number">0</span>
+         BOOT_RETRY_CNT_P1                   <span class="literal number">0</span>
+         LEGACY_BOOT_PROTOCOL_P1             <span class="literal number">1</span>
+         BOOT_VLAN_P1                        <span class="literal number">1</span>
+         BOOT_OPTION_ROM_EN_P2               <span class="literal number">1</span>
+         BOOT_VLAN_EN_P2                     <span class="literal number">0</span>
+         BOOT_RETRY_CNT_P2                   <span class="literal number">0</span>
+         LEGACY_BOOT_PROTOCOL_P2             <span class="literal number">1</span>
+         BOOT_VLAN_P2                        <span class="literal number">1</span>
+</pre>
+<p>As you can see, I already have SR-IOV enabled (<tt class="docutils literal">SRIOV_EN=1</tt>) and have enabled
+eight VFs (<tt class="docutils literal">NUM_OF_VFS=8</tt>). If this wasn't the case though, you'd need to
+configure these attributes. You can do so using the <tt class="docutils literal">mstconfig</tt> tool again.
+For example:</p>
+<pre class="code shell literal-block">
+$ sudo mstconfig -d <span class="literal number">02</span>:00.0 <span class="name builtin">set</span> <span class="name variable">SRIOV_EN</span><span class="operator">=</span><span class="literal number">1</span> <span class="name variable">NUM_OF_VFS</span><span class="operator">=</span><span class="literal number">8</span>
+
+Device <span class="comment single">#1:
+</span>----------
+
+Device type:    ConnectX3
+PCI device:     <span class="literal number">02</span>:00.0
+
+Configurations:                              Current         New
+         SRIOV_EN                            <span class="literal number">1</span>               <span class="literal number">1</span>
+         NUM_OF_VFS                          <span class="literal number">8</span>               <span class="literal number">8</span>
+         LOG_BAR_SIZE                        <span class="literal number">3</span>               <span class="literal number">3</span>
+         BOOT_OPTION_ROM_EN_P1               <span class="literal number">1</span>               <span class="literal number">1</span>
+         BOOT_VLAN_EN_P1                     <span class="literal number">0</span>               <span class="literal number">0</span>
+         BOOT_RETRY_CNT_P1                   <span class="literal number">0</span>               <span class="literal number">0</span>
+         LEGACY_BOOT_PROTOCOL_P1             <span class="literal number">1</span>               <span class="literal number">1</span>
+         BOOT_VLAN_P1                        <span class="literal number">1</span>               <span class="literal number">1</span>
+         BOOT_OPTION_ROM_EN_P2               <span class="literal number">1</span>               <span class="literal number">1</span>
+         BOOT_VLAN_EN_P2                     <span class="literal number">0</span>               <span class="literal number">0</span>
+         BOOT_RETRY_CNT_P2                   <span class="literal number">0</span>               <span class="literal number">0</span>
+         LEGACY_BOOT_PROTOCOL_P2             <span class="literal number">1</span>               <span class="literal number">1</span>
+         BOOT_VLAN_P2                        <span class="literal number">1</span>               <span class="literal number">1</span>
+
+ Apply new Configuration? ? <span class="operator">(</span>y/n<span class="operator">)</span> <span class="operator">[</span>n<span class="operator">]</span> :
+</pre>
+<p>If applying configuration, you should now reboot and then inspect the
+configuration to ensure it has persisted:</p>
+<pre class="code shell literal-block">
+$ sudo mstconfig -d <span class="literal number">02</span>:00.0 query
+</pre>
+<p>Once the device's firmware is configured, we can move on to configuring the
+driver.</p>
+</div>
+<div class="section" id="enable-sr-iov-in-the-driver">
+<h2>Enable SR-IOV in the driver</h2>
+<p>As with <tt class="docutils literal">mstconfig</tt> above, Ubuntu 16.04 also provides in-tree alternatives to
+the drivers provided in the tarball o' doom. Better yet, these drivers are
+provided and enabled by default: all we need to do is configure them.</p>
+<p>As noted in the <a class="reference external" href="officialguide">original guide</a>, this can be done by
+creating (or editing) the <tt class="docutils literal">/etc/modprobe.d/mlx4_core.conf</tt> file. Add the
+following to that file:</p>
+<pre class="code shell literal-block">
+options mlx4_core <span class="name variable">num_vfs</span><span class="operator">=</span><span class="literal number">8</span> <span class="name variable">port_type_array</span><span class="operator">=</span><span class="literal number">2</span>,2 <span class="name variable">probe_vf</span><span class="operator">=</span><span class="literal number">8</span>
+</pre>
+<p>Reproducing (in slightly modified form) from the guide, this means:</p>
+<blockquote>
+<ul>
+<li><p class="first"><strong>num_vfs</strong> - is the number of VF required for this server, in this
+example 8 VFs.</p>
+</li>
+<li><p class="first"><strong>port_type_array</strong> - is the port type of the interface, 1 is for
+infiniBand, 2 for Ethernet. In this example, both ports are Ethernet.</p>
+</li>
+<li><p class="first"><strong>probe_vf</strong> - is the number of VF to be probed in the hypervisor. Probed
+in the hypervisor means that the VF will also have interface in the
+hypervisor (e.g. can be seen using the command <tt class="docutils literal">ifconfig</tt>).  In this
+example there are no probed VFs. When running <tt class="docutils literal">ifconfig</tt>, no new
+interfaces will be added (per VF). In case, <tt class="docutils literal">probe_vf</tt> was equal to 1
+for example, we would get 2 new interfaces in the hypervisor (check
+<tt class="docutils literal">ifconfig <span class="pre">-a</span></tt>), one each port.</p>
+<p>Probed VFs can be used by the IT administrator to monitor the traffic on
+that hypervisor without the need of doing that via logging to the VM
+itself.</p>
+</li>
+</ul>
+</blockquote>
+<p>Of these, the <tt class="docutils literal">probe_vf</tt> one is particularly important. Without this, you'll
+see the VFs listed under their parent PF with <tt class="docutils literal">ip link</tt> but each VF will not
+have its own netdev. Nova requires that these devices do have their own netdev
+so this is a necessity.</p>
+<p>Once this is configured, save the file and reload the driver.</p>
+<pre class="code shell literal-block">
+$ sudo modprobe -r mlx4_en
+$ sudo modprobe mlx4_en
+</pre>
+<p>You should now see the devices listed in <tt class="docutils literal">ip link</tt>:</p>
+<pre class="code shell literal-block">
+$ ip link
+<span class="literal number">1</span>: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class="literal number">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span class="literal number">1</span>
+    link/loopback <span class="literal number">00</span>:00:00:00:00:00 brd <span class="literal number">00</span>:00:00:00:00:00
+<span class="literal number">2</span>: enp5s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="literal number">1500</span> qdisc mq state UP mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether 0c:c4:7a:d8:bd:72 brd ff:ff:ff:ff:ff:ff
+<span class="literal number">3</span>: enp6s0: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether 0c:c4:7a:d8:bd:73 brd ff:ff:ff:ff:ff:ff
+<span class="literal number">6</span>: enp2s0: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop portid e41d2d03004c47c0 state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether e4:1d:2d:4c:47:c0 brd ff:ff:ff:ff:ff:ff
+    vf <span class="literal number">0</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">1</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">2</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">3</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">4</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">5</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">6</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">7</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+<span class="literal number">7</span>: enp2s0d1: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop portid e41d2d03004c47c1 state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether e4:1d:2d:4c:47:c1 brd ff:ff:ff:ff:ff:ff
+    vf <span class="literal number">0</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">1</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">2</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">3</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">4</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">5</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">6</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+    vf <span class="literal number">7</span> MAC <span class="literal number">00</span>:00:00:00:00:00, vlan <span class="literal number">4095</span>, spoof checking off, link-state auto
+<span class="literal number">8</span>: enp2s0f1: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop portid e41d2d03004c47c0 state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether ce:c9:04:d2:00:a4 brd ff:ff:ff:ff:ff:ff
+<span class="literal number">9</span>: enp2s0f1d1: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop portid e41d2d03004c47c1 state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether ce:20:d7:8b:38:6c brd ff:ff:ff:ff:ff:ff
+<span class="literal number">10</span>: enp2s0f2: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop portid e41d2d03004c47c0 state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether fe:a0:dc:21:1f:4c brd ff:ff:ff:ff:ff:ff
+<span class="literal number">11</span>: enp2s0f2d1: &lt;BROADCAST,MULTICAST&gt; mtu <span class="literal number">1500</span> qdisc noop portid e41d2d03004c47c1 state DOWN mode DEFAULT group default qlen <span class="literal number">1000</span>
+    link/ether <span class="literal number">46</span>:a5:f9:9c:ee:27 brd ff:ff:ff:ff:ff:ff
+....
+</pre>
+</div>
+</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-80652159-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
+
+
+</body>
+</html>
+
