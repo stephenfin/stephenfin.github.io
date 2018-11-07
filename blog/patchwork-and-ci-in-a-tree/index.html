@@ -22,7 +22,7 @@ With the upcoming release of Patchwork 2.0, Patchwork will provides first class 
 
 <meta property="article:published_time" content="2017-02-12T22:27:38&#43;00:00"/>
 
-<meta property="article:modified_time" content="2017-02-12T22:27:38&#43;00:00"/>
+<meta property="article:modified_time" content="2018-11-07T22:36:31&#43;00:00"/>
 
 
 
@@ -115,6 +115,8 @@ With the upcoming release of Patchwork 2.0, Patchwork will provides first class 
         
 
         
+
+        
             <a href="https://www.twitter.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/twitter.svg" alt="twitter" /></a>
         
 
@@ -126,6 +128,8 @@ With the upcoming release of Patchwork 2.0, Patchwork will provides first class 
 
         
             <a href="https://www.linkedin.com/in/stephenfinucane" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/linkedin.svg" alt="linkedin" /></a>
+        
+
         
 
         
@@ -174,11 +178,13 @@ functionality. However, I aim to build upon this later and this should still
 serve to illustrate most of the key concepts. An even simpler guide will be
 available in the Patchwork documentation shortly.</p>
 
+<p><strong>NOTE:</strong> This guide has been updated since publication to reflect the changes
+found in Patchwork 2.0.</p>
+
 <h2 id="initializing-services">Initializing Services</h2>
 
 <p>Before we begin, we need to install both Patchwork and Jenkins. I chose to use
-Docker for this, though Patchwork can also be installed using Vagrant or
-manually.</p>
+Docker for this, though Patchwork can also be installed manually.</p>
 
 <h3 id="patchwork">Patchwork</h3>
 
@@ -192,10 +198,12 @@ $ docker-compose build
 $ docker-compose up
 </code></pre>
 
+<p>Leave this running and jump to another tab.</p>
+
 <p>You should also create an superuser that you can use manage the instance. I
 used <code>admin</code> and <code>tester</code> for username and password, respectively:</p>
 
-<pre><code class="language-shell">$ docker-compose run web python manage.py createsuperuser
+<pre><code class="language-shell">$ docker-compose run --rm web python manage.py createsuperuser
 </code></pre>
 
 <p>Once initialized, you should be able to browse Patchwork at <code>localhost:8000</code>.
@@ -244,7 +252,7 @@ default <code>Patchwork</code> project. Record all of these details for future s
 
 <p>There isn&rsquo;t really much initial configuration necessary for Patchwork. You
 should already have a user account created and Patchwork will use the default
-default <em>Patchwork</em> project. One step that <em>is</em> necessary is to assign your
+default <code>Patchwork</code> project. One step that <em>is</em> necessary is to assign your
 user, <code>admin</code> in this case, as a maintainer of the <code>Patchwork</code> project. This is
 necessary to ensure we can upload test results, change the state of patches
 etc. You can do this using the admin console:</p>
@@ -257,7 +265,8 @@ Patchwork instance. This is necessary so Jenkins can communicate with the
 instance. You can extract the IP address using <code>docker inspect</code>, per <a href="http://stackoverflow.com/a/20686101/613428">this
 StackOverflow answer</a>:</p>
 
-<pre><code class="language-shell">$ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
+<pre><code class="language-shell">$ docker inspect \
+    -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
     &lt;CONTAINER_NAME_OR_ID&gt;
 </code></pre>
 
@@ -466,7 +475,7 @@ else
 fi
 </code></pre>
 
-<p>You&rsquo;ll notice we&rsquo;re really not taking advantage of Jenkins&rsquo; power here, but
+<p>You&rsquo;ll notice we&rsquo;re really not taking advantage of Jenkins&rsquo; power here but
 bear with me: these are baby steps.</p>
 
 <p>Once done, you should have something like the following:</p>
@@ -587,8 +596,13 @@ Patchwork API.</p>
 # Pull in latest events
 
 response=$(curl -s -u &quot;$PATCHWORK_USER:$PATCHWORK_PASS&quot; \
+  -H &quot;Host: $PATCHWORK_URL \
   http://${PATCHWORK_URL}/api/1.0/events/?category=patch-completed)
 </code></pre>
+
+<p><strong>Note:</strong> The use of the <code>Host:</code> header is important - without this, responses
+will be returned using <code>localhost</code> as the host name. This won&rsquo;t be usable from
+another container.</p>
 
 <p>The response from the <code>/events</code> API will include links to the created patch
 and, for the <code>patch-completed</code> event, the patch series which is providing the
@@ -600,39 +614,33 @@ avoid these additional requests.</p>
 <pre><code class="language-shell"># Extract patch and series URLs from each event, and create jobs based on
 # these
 
-patches_series=$(echo &quot;$response&quot; | jq -rc '.[] | .payload.patch + &quot;,&quot; + .payload.series')
+patches_series=$(echo &quot;$response&quot; | jq -rc '.[] | .payload.patch.url + &quot;,&quot; + .payload.series.id')
 echo &quot;$patches_series&quot; | while IFS=, read -r patch series; do
   echo &quot;Submitting job&quot;
   echo &quot;Patch URL: $patch&quot;
-  echo &quot;Series URL: $series&quot;
+  echo &quot;Series ID: $series&quot;
 
   submit_job &quot;$patch&quot; &quot;$series&quot;
-
-  exit 1
 done
 </code></pre>
 
-<p>Once we have the <code>patch_url</code> and <code>series_url</code>, we can submit the job to
-Jenkins. We&rsquo;re going to do this via a call to the <code>submit_job</code> function, which
-we already defined a stub for. Implementing this function is rather simple,
-given that we have already configured the job and gathered all required
-parameters and credentials. Replace the above stub with the below function.</p>
+<p>Once we have the <code>patch_url</code> and <code>series_id</code>, we can submit the job to Jenkins.
+We&rsquo;re going to do this via a call to the <code>submit_job</code> function, which we
+already defined a stub for. Implementing this function is rather simple, given
+that we have already configured the job and gathered all required parameters
+and credentials. Replace the above stub with the below function.</p>
 
 <pre><code class="language-shell">function submit_job() {
-  local patch
-  local patch_id
+  local patch_url
   local series_id
   local mbox_url
   local build_url
 
-  patch=$(curl -s &quot;$1&quot;)
-  series=$(curl -s &quot;$2&quot;)
-  patch_id=$(echo &quot;$patch&quot; | jq -rc '.id')
-  series_id=$(echo &quot;$series&quot; | jq -rc '.id')
+  patch=$(curl &quot;$1&quot;)
+  series_id=&quot;$2&quot;
 
-  # we need to build this manually to ensure the Patchwork IP address is used
-  mbox_url=&quot;http://$PATCHWORK_URL/patch/${patch_id}/mbox/?series=${series_id}&quot;
-  check_url=&quot;http://$PATCHWORK_URL/api/1.0/patches/${patch_id}/checks/&quot;
+  mbox_url=&quot;$(echo $patch | jq -rc '.mbox')?series=$series_id&quot;
+  check_url=&quot;$(echo $patch | jq -rc '.checks')&quot;
   build_url=&quot;http://$JENKINS_USER:$JENKINS_TOKEN@$JENKINS_URL/job/$JOB_NAME/build&quot;
 
   echo &quot;Submitting job: $build_url&quot;
@@ -653,14 +661,9 @@ parameters and credentials. Replace the above stub with the below function.</p>
 }
 </code></pre>
 
-<p>There are a couple of important points to note here:</p>
+<p>There are a two important points to note related to how the Jenkins API works:</p>
 
 <ul>
-<li><p>We&rsquo;re building the <code>mbox_url</code> and <code>check_url</code> URLs manually, rather than
-extracting it from the <code>patch</code> response. This is because the response will be
-relative to the Patchwork Docker domain, or <code>localhost</code>, which Jenkins cannot
-access.</p></li>
-
 <li><p>The Jenkins API requires parameters be passed via a JSON body rather than
 than individual fields. This differs from Patchwork.</p></li>
 
@@ -674,9 +677,10 @@ wiki</a>.</p>
 
 <h2 id="add-patches-to-patchwork">Add Patches to Patchwork</h2>
 
-<p>Once done, it&rsquo;s time to load in some patches. We&rsquo;re going to once again follow
-the <a href="https://patchwork.readthedocs.io/en/latest/development/installation/#import-mailing-list-archives">Patchwork documentation</a> and make use Mailman archives. I downloaded
-the archives for January 2017, like so:</p>
+<p>Once done, it&rsquo;s time to load in some patches. In practice, this would happen
+automatically but, as this is for testing only, we&rsquo;re going to once again
+follow the <a href="https://patchwork.readthedocs.io/en/latest/development/installation/#import-mailing-list-archives">Patchwork documentation</a> and make use Mailman archives. I
+downloaded the archives for January 2017, like so:</p>
 
 <pre><code class="language-shell">$ curl https://gist.github.com/stephenfin/d13183dad40f8c472234cb26777355c3 \
     | gunzip &gt; sample-series.mbox
@@ -717,11 +721,11 @@ features available in the next version of Patchwork, namely:</p>
 <ul>
 <li><p><em>Checks</em>, available in <a href="https://github.com/getpatchwork/patchwork/">Patchwork 1.1</a></p></li>
 
-<li><p><em>REST API</em>, available in the upcoming Patchwork 2.0</p></li>
+<li><p><em>REST API</em>, available in Patchwork 2.0</p></li>
 
-<li><p><em>Series</em>, available in the upcoming Patchwork 2.0</p></li>
+<li><p><em>Series</em>, available in Patchwork 2.0</p></li>
 
-<li><p><em>Events</em>, still WIP but planned for the upcoming Patchwork 2.0</p></li>
+<li><p><em>Events</em>, available in Patchwork 2.0</p></li>
 </ul>
 
 <p>Not all of these features are required for building an automated testing
@@ -738,10 +742,7 @@ projects using a mailing list workflow.</p>
 <ul>
 <li><p>A better permissions model for Patchwork users</p></li>
 
-<li><p>Support for an <code>embed</code> parameter in all API endpoints, allowing us to
-minimize requests to the API</p></li>
-
-<li><p><a href="https://en.wikipedia.org/wiki/HTTP_ETag">ETag</a> support, again helping us minimize API traffic</p></li>
+<li><p><a href="https://en.wikipedia.org/wiki/HTTP_ETag">ETag</a> support, allowing us to minimize requests to the API</p></li>
 
 <li><p>Better upstream documentation</p></li>
 </ul>
