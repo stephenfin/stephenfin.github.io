@@ -164,10 +164,10 @@ $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 P
                 <div class="document">
 
 
-<p>In a <a class="reference external" href="sriov">previous post</a>, I provided a guide on configuring SR-IOV for a
-Mellanox ConnectX-3 NIC. I've since picked up a second one of these and was
-attempting to follow through on the same guide. However, when I attempted to
-&quot;<em>query</em>&quot; the device, I saw the following:</p>
+<p>In a <a class="reference external" href="https://that.guru/blog/sriov-mellanox-connectx-3">previous post</a>, I provided a guide on configuring SR-IOV for a Mellanox
+ConnectX-3 NIC. I've since picked up a second one of these and was attempting
+to follow through on the same guide. However, when I attempted to &quot;<em>query</em>&quot; the
+device, I saw the following:</p>
 <pre class="literal-block">
 $ sudo mstconfig -d 02:00.0 query
 
@@ -190,8 +190,8 @@ too.</p>
 </div>
 <div class="section" id="identify-and-download-firmware">
 <h2>Identify and Download Firmware</h2>
-<p>As you can see on the <a class="reference external" href="firmware">firmware download page</a>, there are a variety
-of ConnectX-3 models available, each with different feature sets (Ethernet vs.
+<p>As you can see on the <a class="reference external" href="http://www.mellanox.com/page/firmware_table_ConnectX3EN">firmware download page</a>, there are a variety of
+ConnectX-3 models available, each with different feature sets (Ethernet vs.
 Infiniband, two ports vs. four). You need to figure out which one you have.
 These models are identified by their <strong>OPN</strong> and <strong>PSID</strong>. I've still to figure
 out how to identify the former, but the latter is easily identified using the
@@ -209,11 +209,11 @@ VSD:
 PSID:            MT_108012002
 </pre>
 <p>So with our PSID to hand - <tt class="docutils literal">MT_108012002</tt> in this case - we can proceed to
-downloading the correct firmware from the <a class="reference external" href="firmware">firmware site</a>. There
-doesn't seem to be anyway to download by just PSID so I had to click through
-the list of OPNs until I found the OPN with a PSID that matches. In my case,
-this was <tt class="docutils literal"><span class="pre">MCX312A-XCBT</span></tt> for firmware version <tt class="docutils literal">2.42.5000</tt>. Download the
-relevant firmware to your host. For example:</p>
+downloading the correct firmware from the firmware download page. There doesn't
+seem to be anyway to download by just PSID so I had to click through the list
+of OPNs until I found the OPN with a PSID that matches. In my case, this was
+<tt class="docutils literal"><span class="pre">MCX312A-XCBT</span></tt> for firmware version <tt class="docutils literal">2.42.5000</tt>. Download the relevant
+firmware to your host. For example:</p>
 <pre class="literal-block">
 $ wget http://www.mellanox.com/downloads/firmware/fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
 </pre>
@@ -221,10 +221,10 @@ $ wget http://www.mellanox.com/downloads/firmware/fw-ConnectX3-rel-2_42_5000-MCX
 <div class="section" id="update-firmware">
 <h2>Update Firmware</h2>
 <p>With our firmware update to hand, it's time to actually update the NIC. For
-this section, I initially followed the <cite>guide &lt;updating&gt;</cite> provided by Mellanox.
-However, <a class="reference external" href="sriov">as before</a>, I didn't want to install anything that wasn't
-already provided with my distro. As such the instructions provided below are a
-suitable alternative.</p>
+this section, I initially followed the <a class="reference external" href="http://www.mellanox.com/page/firmware_NIC_FW_update">updating guide</a> provided by Mellanox.
+However, as before, I didn't want to install anything that wasn't already
+provided with my distro. As such the instructions provided below are a suitable
+alternative.</p>
 <p>Firstly, extract the firmware you downloaded previously. For example:</p>
 <pre class="literal-block">
 $ unzip fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
@@ -270,7 +270,7 @@ Configurations:                              Current
          LEGACY_BOOT_PROTOCOL_P2             1
          BOOT_VLAN_P2                        1
 </pre>
-<p>Easy peasy. Now back to <a class="reference external" href="sriov">configuring SR-IOV</a>.</p>
+<p>Easy peasy. Now back to <a class="reference external" href="https://that.guru/blog/sriov-mellanox-connectx-3">configuring SR-IOV</a>.</p>
 </div>
 </div>
             </div>
