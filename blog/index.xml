@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Tue, 25 Sep 2018 13:58:13 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 06 Feb 2019 15:41:09 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Updating the Firmware for a Mellanox ConnectX-3 NIC</title>
+      <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
+      <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
+      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&#39;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;quot;query&amp;quot; the device, I saw the following:
+$ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 PCI device: 02:00.0 -E- Failed to query device: 02:00.0. Unsupported FW (version 2.</description>
+    </item>
     
     <item>
       <title>Configuring SR-IOV for a Mellanox ConnectX-3 NIC</title>

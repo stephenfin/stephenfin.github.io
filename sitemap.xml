@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://that.guru/blog/updating-mellanox-connectx-3/</loc>
+    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://that.guru/blog/sriov-mellanox-connectx-3/</loc>
     <lastmod>2018-09-27T00:00:00+00:00</lastmod>
   </url>
@@ -119,7 +124,7 @@
   
   <url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2018-09-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -149,13 +154,13 @@
   
   <url>
     <loc>https://that.guru/categories/networking/</loc>
-    <lastmod>2018-09-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2018-09-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -173,7 +178,7 @@
   
   <url>
     <loc>https://that.guru/</loc>
-    <lastmod>2018-09-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
     <priority>0</priority>
   </url>
   
