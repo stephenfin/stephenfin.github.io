@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 06 Feb 2019 15:41:09 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 10 Feb 2019 14:08:56 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Poon Hill Trek</title>
+      <link>https://that.guru/blog/poon-hill-trek/</link>
+      <pubDate>Sun, 10 Feb 2019 14:08:56 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/poon-hill-trek/</guid>
+      <description>So, there I was, in Nepal for two weeks with a friend, wanting to try some of the world-renowned trekking along with exploring the cities of Kathmandu and Pokhara. I only had two weeks, which unfortunately ruled out both the famous Everest Base Camp and Annapurna Circuit treks, along with treks through the less well known but apparently stunning Langtang Valley, given that all take a minimum of nine days to complete.</description>
+    </item>
     
     <item>
       <title>Updating the Firmware for a Mellanox ConnectX-3 NIC</title>
