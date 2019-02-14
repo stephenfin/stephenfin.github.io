@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en-IE">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta name="author" content="Stephen Finucane">
+<meta name="description" content="Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&quot;.
+Hostdev First, the hostdev VIF type:
+ The hostdev method is preferred for both performance and guest isolation reasons.">
+
+<meta property="og:title" content="Direct vs Hostdev Interfaces in nova" />
+<meta property="og:description" content="Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&quot;.
+Hostdev First, the hostdev VIF type:
+ The hostdev method is preferred for both performance and guest isolation reasons." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://that.guru/blog/direct-vs-hostdev-interfaces/" />
+
+
+
+<meta property="article:published_time" content="2019-02-14T16:41:52&#43;00:00"/>
+
+<meta property="article:modified_time" content="2019-02-14T16:41:52&#43;00:00"/>
+
+
+
+
+
+
+
+
+
+
+
+
+<title>
+
+
+     Direct vs Hostdev Interfaces in nova 
+
+</title>
+<link rel="canonical" href="https://that.guru/blog/direct-vs-hostdev-interfaces/">
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:500">
+
+
+
+    <link rel="stylesheet" href="https://that.guru/css/reset.css">
+    <link rel="stylesheet" href="https://that.guru/css/pygments.css">
+    <link rel="stylesheet" href="https://that.guru/css/main.css">
+    
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://that.guru/img/favicon.ico"
+
+>
+
+
+
+
+
+
+
+
+</head>
+
+
+<body lang="">
+
+<section class="header">
+    <div class="container">
+        <div class="content">
+            
+            <a href="https://that.guru/"><img class="avatar" src="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=50" rcset="https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=100 2x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=150 3x, https://gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=200 4x"></a>
+            
+            <a href="https://that.guru/"><div class="name">Stephen Finucane</div></a>
+            
+            <nav>
+                <ul>
+                    
+                        <li class="nav-about"><a href="https://that.guru/about/"><span>About</span></a></li>
+                    
+                        <li class="nav-archives"><a href="https://that.guru/blog/"><span>Archives</span></a></li>
+                    
+                        <li class="nav-cv"><a href="https://that.guru/media/cv_stephen_finucane_-_april_2018.pdf"><span>CV</span></a></li>
+                    
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="icons">
+    <div class="container">
+        <div class="content">
+        
+            <a href="https://www.github.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/github.svg" alt="github" /></a>
+        
+
+        
+
+        
+            <a href="https://www.twitter.com/stephenfin" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/twitter.svg" alt="twitter" /></a>
+        
+
+	
+
+        
+
+        
+
+        
+            <a href="https://www.linkedin.com/in/stephenfinucane" target="_blank" rel="noopener"><img class="icon" src="https://that.guru/img/linkedin.svg" alt="linkedin" /></a>
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+            <a href="mailto:stephen@that.guru"><img class="icon" src="https://that.guru/img/email.svg" alt="email" /></a>
+        
+
+        
+
+        
+        </div>
+    </div>
+</section>
+
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
+        <div class="content">
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    Direct vs Hostdev Interfaces in nova
+
+</div>
+
+                    <div class="initials"><a href="https://that.guru"></a></div>
+                </div>
+                <div class="meta">
+                    
+                    <div class="date" title='Thu Feb 14 2019 16:41:52 UTC'>Feb 14, 2019</div>
+                    
+                    
+		    <div class="reading-time"><div class="middot"></div>2 minutes read</div>
+                    
+                </div>
+            </div>
+            <div class="markdown">
+                <div class="document">
+
+
+<p>Mostly a note for myself. There are two types of SR-IOV'y networks supported in
+nova: <tt class="docutils literal">direct</tt> and <tt class="docutils literal">hostdev</tt>. Confusingly, the latter corresponds to
+passthrough of the virtual function (VF), while the former corresponds to
+macvtap. The difference between these is described rather succinctly in an Oracle
+whitepaper titled <a class="reference external" href="https://cloud.oracle.com/iaas/whitepapers/installing_kvm_multi_vnics.pdf">&quot;Installing and Configuring KVM on Bare Metal Instances with
+Multi-VNIC&quot;</a>.</p>
+<div class="section" id="hostdev">
+<h2>Hostdev</h2>
+<p>First, the hostdev VIF type:</p>
+<blockquote>
+<p>The hostdev method is preferred for both performance and guest isolation
+reasons. It provides the guest with direct access to the PCI device, created
+as part of the configuration of SR-IOV on the hypervisor. A PCI device is
+known as a virtual function (VF)and represents an actual interface into the
+hardware of the hypervisor (bare metal instance). This allows the guest to
+have both maximum throughput and maximum isolation:</p>
+<ul class="simple">
+<li>Maximum throughput because there is no operating system between the guest
+and the network</li>
+<li>Maximum isolation because the hypervisor operating system is not involved
+beyond providing the hardware interface (the overhead is minimal)</li>
+</ul>
+<p>The disadvantage of the hostdev method is that it isn't possible to emulate
+a different device type. So, the guest operating system must have a driver
+available that matches the hardware type provided by the hypervisor.</p>
+</blockquote>
+<p>As a user, you are likely to encounter the driver issues outlined above when
+using something like CirrOS image deployed by DevStack.</p>
+</div>
+<div class="section" id="direct">
+<h2>Direct</h2>
+<p>Then the direct VIF type which, again, is not really &quot;direct&quot;:</p>
+<blockquote>
+<p>The direct method relies on hypervisor-configured network interfaces to
+provide connectivity to the guest operating systems. However, the network
+configuration provided by the hypervisor is minimal: the guest operating
+system still issues all the DHCP and related higher-level networking
+management, while the hypervisor simply provides an interface for the guest
+to operate on.</p>
+<p>The direct method allows KVM to natively emulate some common network
+interface types that are typically found in most current and legacy
+operating systems. The following emulations have been observed to work: the
+e1000 (Intel FastEthernet driver) and the virtio (KVM native) device types,
+although the virtio driver might still require you to inject a driver into a
+Windows operating system. This is useful for prepackaged, virtual machines
+because their configurations are typically static and are looking for
+specific hardware types.</p>
+</blockquote>
+</div>
+</div>
+                <br>
+                
+                <p class="back-to-posts"><a href="https://that.guru/blog">Back to posts</a></p>
+            </div>
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-80652159-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  
+
+  <script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+  </script>
+
+
+
+
+
+</body>
+</html>
+

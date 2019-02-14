@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 10 Feb 2019 14:08:56 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 14 Feb 2019 16:41:52 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Direct vs Hostdev Interfaces in nova</title>
+      <link>https://that.guru/blog/direct-vs-hostdev-interfaces/</link>
+      <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
+      <description>Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &amp;quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&amp;quot;.
+Hostdev First, the hostdev VIF type:
+ The hostdev method is preferred for both performance and guest isolation reasons.</description>
+    </item>
     
     <item>
       <title>Poon Hill Trek</title>
