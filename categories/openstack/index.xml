@@ -13,22 +13,21 @@
     
     
     <item>
-      <title>Updating the Firmware for a Mellanox ConnectX-3 NIC</title>
+      <title>Updating Mellanox ConnectX-3 NIC firmware</title>
       <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
       <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
-      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;ldquo;query&amp;rdquo; the device, I saw the following:
-$ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 PCI device: 02:00.0 -E- Failed to query device: 02:00.0. Unsupported FW (version 2.</description>
+      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide.</description>
     </item>
     
     <item>
       <title>Configuring SR-IOV for a Mellanox ConnectX-3 NIC</title>
       <link>https://that.guru/blog/sriov-mellanox-connectx-3/</link>
-      <pubDate>Tue, 25 Sep 2018 13:58:13 +0100</pubDate>
+      <pubDate>Tue, 25 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
-      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&amp;rsquo;ve dealt with in Nova have been a great bunch and &amp;copy; it was cheap.</description>
+      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development.</description>
     </item>
     
     <item>
@@ -37,8 +36,7 @@ $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 P
       <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
       
       <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
-      <description>I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats. In this instance, I was interested in PDF.
-Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (although other packages do). Instead, you have to generate LaTeX sources and then generate a PDF for this.</description>
+      <description>I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats.</description>
     </item>
     
     <item>
@@ -47,8 +45,7 @@ Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (although other p
       <pubDate>Tue, 31 Oct 2017 17:08:33 +0000</pubDate>
       
       <guid>https://that.guru/blog/deploying-real-time-openstack/</guid>
-      <description>Recent versions of OpenStack nova have added support for real-time instances, that is, instances that provide the determinism and performance guarantees required by real-time applications. While this work was finally marked complete in the OpenStack Ocata release, it built upon lots of features added in previously releases.
-The below is a guide that covers a basic, single-node deployment of OpenStack suitable for evaluating basic real-time instance functionality. We use CentOS 7, but the same instructions can be modified for RHEL 7 or Fedora, and any CentOS-specific aspects are called out.</description>
+      <description>Recent versions of OpenStack nova have added support for real-time instances, that is, instances that provide the determinism and performance guarantees required by real-time applications.</description>
     </item>
     
     <item>
@@ -58,7 +55,7 @@ The below is a guide that covers a basic, single-node deployment of OpenStack su
       
       <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
       <description>In OpenStack nova land, you run tests by specifying their Python paths, like so:
-$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI. If a tests fails when run locally or in the CI, the failure will be reported with similar Python module path-style references. These take a little cleanup to get a usable file path that we can use to open the file, so I automated it.</description>
+$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI.</description>
     </item>
     
     <item>
@@ -67,8 +64,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
       
       <guid>https://that.guru/blog/how-to-use-git-review/</guid>
-      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.
-It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the commands we use below have their plain git equivalents. However, the question remains: why would you want to? The git-review tool speeds things up, and is used by a number of teams outside Intel (including MediaWiki and OpenStack).</description>
+      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.</description>
     </item>
     
     <item>
@@ -77,7 +73,7 @@ It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the
       <pubDate>Tue, 06 Dec 2016 15:32:46 +0000</pubDate>
       
       <guid>https://that.guru/blog/mtus-in-neutron/</guid>
-      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton. The below table tries to collect these changes in a coherent table.</description>
+      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton.</description>
     </item>
     
     <item>
@@ -86,8 +82,7 @@ It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the
       <pubDate>Thu, 30 Jun 2016 10:55:58 +0100</pubDate>
       
       <guid>https://that.guru/blog/resizing-pinned-to-unpinned/</guid>
-      <description>OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor.
-There were reports that resizing an instance from a pinned flavor to a unpinned one did not result in the pinning being removed. The opposite was also reportedly true. I investigated this to see if this was the case.</description>
+      <description>OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor.</description>
     </item>
     
     <item>
@@ -96,8 +91,7 @@ There were reports that resizing an instance from a pinned flavor to a unpinned 
       <pubDate>Wed, 29 Jun 2016 17:52:20 +0100</pubDate>
       
       <guid>https://that.guru/blog/cpu-pinning-with-image-metadata/</guid>
-      <description>OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.
-Someone suggested to me that CPU policies many not be being applied correctly when stored as image metadata rather than flavor properties. I decided to investigate this claim.</description>
+      <description>OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.</description>
     </item>
     
   </channel>

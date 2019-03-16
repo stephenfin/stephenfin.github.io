@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 08 Dec 2017 10:40:31 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 15 May 2018 15:10:08 +0100</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Automatically Set The Name of tmux Windows</title>
+      <link>https://that.guru/blog/automatically-set-tmux-window-name/</link>
+      <pubDate>Tue, 15 May 2018 15:10:08 +0100</pubDate>
+      
+      <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
+      <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.</description>
+    </item>
     
     <item>
       <title>Evolution Calendar Issues</title>
@@ -18,10 +27,7 @@
       <pubDate>Fri, 08 Dec 2017 10:40:31 +0000</pubDate>
       
       <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
-      <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
- The calendar backend servicing &amp;ldquo;XXX&amp;rdquo; encountered an error.
-The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
- Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&amp;rsquo;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
+      <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:</description>
     </item>
     
     <item>
@@ -31,7 +37,7 @@ The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database d
       
       <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
       <description>In OpenStack nova land, you run tests by specifying their Python paths, like so:
-$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI. If a tests fails when run locally or in the CI, the failure will be reported with similar Python module path-style references. These take a little cleanup to get a usable file path that we can use to open the file, so I automated it.</description>
+$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI.</description>
     </item>
     
     <item>
@@ -40,7 +46,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Tue, 31 Jan 2017 22:43:38 +0000</pubDate>
       
       <guid>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</guid>
-      <description>Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard backlight turned off immediately after turning it on. I figured installing Windows again might be a good move (I also miss Office), but that turned out a little more difficult that anticipated.</description>
+      <description>Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard backlight turned off immediately after turning it on.</description>
     </item>
     
     <item>
@@ -49,7 +55,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Sat, 10 Dec 2016 20:16:27 +0000</pubDate>
       
       <guid>https://that.guru/blog/install-netbeans-on-fedora-25/</guid>
-      <description>It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t say I miss it. However, I want to work on a plugin for Jenkins which means diving back in. Netbeans was my IDE of choice when I last worked with Java but unfortunately Netbeans is not packaged for Fedora (presumably due to it&amp;rsquo;s use of Oracle&amp;rsquo;s JDK rather than OpenJDK?). As such, if you want to avoid using Eclipse then you need to install Netbeans &amp;ldquo;by hand&amp;rdquo;.</description>
+      <description>It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t say I miss it. However, I want to work on a plugin for Jenkins which means diving back in.</description>
     </item>
     
     <item>
@@ -58,8 +64,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
       
       <guid>https://that.guru/blog/how-to-use-git-review/</guid>
-      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.
-It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the commands we use below have their plain git equivalents. However, the question remains: why would you want to? The git-review tool speeds things up, and is used by a number of teams outside Intel (including MediaWiki and OpenStack).</description>
+      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.</description>
     </item>
     
     <item>
@@ -68,7 +73,7 @@ It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the
       <pubDate>Tue, 06 Dec 2016 15:32:46 +0000</pubDate>
       
       <guid>https://that.guru/blog/mtus-in-neutron/</guid>
-      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton. The below table tries to collect these changes in a coherent table.</description>
+      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton.</description>
     </item>
     
     <item>
@@ -77,9 +82,7 @@ It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the
       <pubDate>Wed, 13 Jul 2016 14:46:56 +0100</pubDate>
       
       <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
-      <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant.
-BuildReactor This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
- Site Source  Installation Install from the Chrome store.</description>
+      <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.</description>
     </item>
     
     <item>
@@ -88,9 +91,7 @@ BuildReactor This provides a current statuses of a user-defined number of Jenkin
       <pubDate>Wed, 13 Jul 2016 10:59:30 +0100</pubDate>
       
       <guid>https://that.guru/blog/mutt-archives/</guid>
-      <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.
-To begin, first go to the archive site for your given mailing list. This will probably be a Pipermail instance. Once here, identify the archives you require:
-  Download the archive   Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:</description>
+      <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.</description>
     </item>
     
     <item>
@@ -99,7 +100,7 @@ To begin, first go to the archive site for your given mailing list. This will pr
       <pubDate>Mon, 11 Jul 2016 18:11:38 +0100</pubDate>
       
       <guid>https://that.guru/blog/sane-outlook/</guid>
-      <description>I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility. Sadly, Outlooks defaults to settings that seemingly encourage bad email ettiquete. Fortunately, we can wrangle Outlook into working some bit normally. You still need to do a bit of work (removing the Outlook context header, giving out to people for top-posting (☺), etc.</description>
+      <description>I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility.</description>
     </item>
     
     <item>
@@ -108,8 +109,7 @@ To begin, first go to the archive site for your given mailing list. This will pr
       <pubDate>Sat, 09 Jul 2016 18:08:16 +0100</pubDate>
       
       <guid>https://that.guru/blog/how-i-work/</guid>
-      <description>Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&amp;rsquo;ve worked, during my time here. Note that this has evolved massively over the past three years, so expect what I say now to have changed significantly a year down the line.
-At the moment, I work predominantly on nova, though I contribute to many other projects like openstack-manuals, oslo.</description>
+      <description>Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&amp;rsquo;ve worked, during my time here.</description>
     </item>
     
     <item>
@@ -118,7 +118,7 @@ At the moment, I work predominantly on nova, though I contribute to many other p
       <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
       
       <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
-      <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels. One tricky part of this configuration was my use of multiple authentication layers. I have ZNC configured to use a server password, but I also have my nick registered on freenode and I would like to use SASL to authenticate this. It turns out that this is relatively easy to do.</description>
+      <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels.</description>
     </item>
     
   </channel>

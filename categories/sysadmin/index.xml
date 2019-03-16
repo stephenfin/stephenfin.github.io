@@ -18,7 +18,7 @@
       <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
       
       <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
-      <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels. One tricky part of this configuration was my use of multiple authentication layers. I have ZNC configured to use a server password, but I also have my nick registered on freenode and I would like to use SASL to authenticate this. It turns out that this is relatively easy to do.</description>
+      <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels.</description>
     </item>
     
   </channel>

@@ -18,8 +18,7 @@
       <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
       
       <guid>https://that.guru/blog/gnu-autotest/</guid>
-      <description>GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.k.a. the GNU Build System.
-The Autotest scripts execute unit tests by making shell-like calls to utilities, Python scripts and C unit test applications, and comparing their return values (exit code, stdout and stderr) to predefined values. To do this, Autotest defines a number of M4 macros, such as AT_INIT and AT_CLEANUP.</description>
+      <description>GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.</description>
     </item>
     
   </channel>

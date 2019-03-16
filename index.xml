@@ -18,8 +18,7 @@
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
-      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.
-In this talk I explored some of the tools that one can use to make this process easier, such as debtcollector, reno and pbr, and contrast these with alternatives used in other projects. The idea was to raise awareness of these tools mainly among developers of open source libraries but also anyone that works on a Python library or application that wishes to maintain stable interfaces and/or document changes in their product.</description>
+      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.</description>
     </item>
     
     <item>
@@ -28,9 +27,7 @@ In this talk I explored some of the tools that one can use to make this process 
       <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
       
       <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
-      <description>Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &amp;ldquo;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&amp;rdquo;.
-Hostdev First, the hostdev VIF type:
- The hostdev method is preferred for both performance and guest isolation reasons.</description>
+      <description>Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap.</description>
     </item>
     
     <item>
@@ -39,26 +36,25 @@ Hostdev First, the hostdev VIF type:
       <pubDate>Sun, 10 Feb 2019 14:08:56 +0000</pubDate>
       
       <guid>https://that.guru/blog/poon-hill-trek/</guid>
-      <description>So, there I was, in Nepal for two weeks with a friend, wanting to try some of the world-renowned trekking along with exploring the cities of Kathmandu and Pokhara. I only had two weeks, which unfortunately ruled out both the famous Everest Base Camp and Annapurna Circuit treks, along with treks through the less well known but apparently stunning Langtang Valley, given that all take a minimum of nine days to complete.</description>
+      <description>So, there I was, in Nepal for two weeks with a friend, wanting to try some of the world-renowned trekking along with exploring the cities of Kathmandu and Pokhara.</description>
     </item>
     
     <item>
-      <title>Updating the Firmware for a Mellanox ConnectX-3 NIC</title>
+      <title>Updating Mellanox ConnectX-3 NIC firmware</title>
       <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
       <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
-      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;ldquo;query&amp;rdquo; the device, I saw the following:
-$ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 PCI device: 02:00.0 -E- Failed to query device: 02:00.0. Unsupported FW (version 2.</description>
+      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide.</description>
     </item>
     
     <item>
       <title>Configuring SR-IOV for a Mellanox ConnectX-3 NIC</title>
       <link>https://that.guru/blog/sriov-mellanox-connectx-3/</link>
-      <pubDate>Tue, 25 Sep 2018 13:58:13 +0100</pubDate>
+      <pubDate>Tue, 25 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
-      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&amp;rsquo;ve dealt with in Nova have been a great bunch and &amp;copy; it was cheap.</description>
+      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development.</description>
     </item>
     
     <item>
@@ -67,9 +63,7 @@ $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 P
       <pubDate>Tue, 15 May 2018 15:10:08 +0100</pubDate>
       
       <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
-      <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
-What I&amp;rsquo;m looking to achieve is a prompt like the following:
-  More specifically, I want $(hostname): $(basename $PWD).</description>
+      <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.</description>
     </item>
     
     <item>
@@ -78,10 +72,7 @@ What I&amp;rsquo;m looking to achieve is a prompt like the following:
       <pubDate>Fri, 08 Dec 2017 10:40:31 +0000</pubDate>
       
       <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
-      <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
- The calendar backend servicing &amp;ldquo;XXX&amp;rdquo; encountered an error.
-The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
- Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&amp;rsquo;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
+      <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:</description>
     </item>
     
     <item>
@@ -90,8 +81,7 @@ The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database d
       <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
       
       <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
-      <description>I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats. In this instance, I was interested in PDF.
-Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (although other packages do). Instead, you have to generate LaTeX sources and then generate a PDF for this.</description>
+      <description>I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats.</description>
     </item>
     
     <item>
@@ -100,8 +90,7 @@ Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (although other p
       <pubDate>Tue, 31 Oct 2017 17:08:33 +0000</pubDate>
       
       <guid>https://that.guru/blog/deploying-real-time-openstack/</guid>
-      <description>Recent versions of OpenStack nova have added support for real-time instances, that is, instances that provide the determinism and performance guarantees required by real-time applications. While this work was finally marked complete in the OpenStack Ocata release, it built upon lots of features added in previously releases.
-The below is a guide that covers a basic, single-node deployment of OpenStack suitable for evaluating basic real-time instance functionality. We use CentOS 7, but the same instructions can be modified for RHEL 7 or Fedora, and any CentOS-specific aspects are called out.</description>
+      <description>Recent versions of OpenStack nova have added support for real-time instances, that is, instances that provide the determinism and performance guarantees required by real-time applications.</description>
     </item>
     
     <item>
@@ -111,7 +100,7 @@ The below is a guide that covers a basic, single-node deployment of OpenStack su
       
       <guid>https://that.guru/blog/patchwork-and-ci-in-a-tree/</guid>
       <description>This has been a long time in the works.
-With the upcoming release of Patchwork 2.0, Patchwork will provides first class support for series, or collections of patches, and expose these (and much more besides) over a new REST API. Coupled with the Check support added in 1.1, we will be able to use Patchwork with continuous integration and automated testing tools like Jenkins to validate projects using the mailing list workflow.</description>
+With the upcoming release of Patchwork 2.0, Patchwork will provides first class support for series, or collections of patches, and expose these (and much more besides) over a new REST API.</description>
     </item>
     
     <item>
@@ -121,7 +110,7 @@ With the upcoming release of Patchwork 2.0, Patchwork will provides first class 
       
       <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
       <description>In OpenStack nova land, you run tests by specifying their Python paths, like so:
-$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI. If a tests fails when run locally or in the CI, the failure will be reported with similar Python module path-style references. These take a little cleanup to get a usable file path that we can use to open the file, so I automated it.</description>
+$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is also how tests are run and reported by the CI.</description>
     </item>
     
     <item>
@@ -130,7 +119,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Tue, 31 Jan 2017 22:43:38 +0000</pubDate>
       
       <guid>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</guid>
-      <description>Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard backlight turned off immediately after turning it on. I figured installing Windows again might be a good move (I also miss Office), but that turned out a little more difficult that anticipated.</description>
+      <description>Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard backlight turned off immediately after turning it on.</description>
     </item>
     
     <item>
@@ -139,7 +128,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Sat, 10 Dec 2016 20:16:27 +0000</pubDate>
       
       <guid>https://that.guru/blog/install-netbeans-on-fedora-25/</guid>
-      <description>It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t say I miss it. However, I want to work on a plugin for Jenkins which means diving back in. Netbeans was my IDE of choice when I last worked with Java but unfortunately Netbeans is not packaged for Fedora (presumably due to it&amp;rsquo;s use of Oracle&amp;rsquo;s JDK rather than OpenJDK?). As such, if you want to avoid using Eclipse then you need to install Netbeans &amp;ldquo;by hand&amp;rdquo;.</description>
+      <description>It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t say I miss it. However, I want to work on a plugin for Jenkins which means diving back in.</description>
     </item>
     
     <item>
@@ -148,8 +137,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
       
       <guid>https://that.guru/blog/how-to-use-git-review/</guid>
-      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.
-It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the commands we use below have their plain git equivalents. However, the question remains: why would you want to? The git-review tool speeds things up, and is used by a number of teams outside Intel (including MediaWiki and OpenStack).</description>
+      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.</description>
     </item>
     
     <item>
@@ -158,7 +146,7 @@ It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the
       <pubDate>Tue, 06 Dec 2016 15:32:46 +0000</pubDate>
       
       <guid>https://that.guru/blog/mtus-in-neutron/</guid>
-      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton. The below table tries to collect these changes in a coherent table.</description>
+      <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton.</description>
     </item>
     
     <item>
@@ -167,8 +155,7 @@ It&amp;rsquo;s possible to use Gerrit without using the git-review tool. All the
       <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
       
       <guid>https://that.guru/blog/gnu-autotest/</guid>
-      <description>GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.k.a. the GNU Build System.
-The Autotest scripts execute unit tests by making shell-like calls to utilities, Python scripts and C unit test applications, and comparing their return values (exit code, stdout and stderr) to predefined values. To do this, Autotest defines a number of M4 macros, such as AT_INIT and AT_CLEANUP.</description>
+      <description>GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.</description>
     </item>
     
     <item>
@@ -177,9 +164,7 @@ The Autotest scripts execute unit tests by making shell-like calls to utilities,
       <pubDate>Wed, 13 Jul 2016 14:46:56 +0100</pubDate>
       
       <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
-      <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.0 Jenkins a little more pleasant.
-BuildReactor This provides a current statuses of a user-defined number of Jenkins jobs. It also gives notifications when projects pass/fail.
- Site Source  Installation Install from the Chrome store.</description>
+      <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.</description>
     </item>
     
     <item>
@@ -189,7 +174,7 @@ BuildReactor This provides a current statuses of a user-defined number of Jenkin
       
       <guid>https://that.guru/blog/how-are-datacenters-physically-wired/</guid>
       <description>I sent this question to my team in Intel some time ago.
- I gave a run down on SDN, NFV and all things Open to the OpenStack new hires today. One of the questions that came out of this concerned the physical wiring of server room or datacenter using SDN. Does anyone have any info on how n servers in a datacenter would be physically connected (where n &amp;gt;= 100, for example)?</description>
+ I gave a run down on SDN, NFV and all things Open to the OpenStack new hires today.</description>
     </item>
     
     <item>
@@ -198,9 +183,7 @@ BuildReactor This provides a current statuses of a user-defined number of Jenkin
       <pubDate>Wed, 13 Jul 2016 10:59:30 +0100</pubDate>
       
       <guid>https://that.guru/blog/mutt-archives/</guid>
-      <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.
-To begin, first go to the archive site for your given mailing list. This will probably be a Pipermail instance. Once here, identify the archives you require:
-  Download the archive   Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:</description>
+      <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.</description>
     </item>
     
     <item>
@@ -209,7 +192,7 @@ To begin, first go to the archive site for your given mailing list. This will pr
       <pubDate>Mon, 11 Jul 2016 18:11:38 +0100</pubDate>
       
       <guid>https://that.guru/blog/sane-outlook/</guid>
-      <description>I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility. Sadly, Outlooks defaults to settings that seemingly encourage bad email ettiquete. Fortunately, we can wrangle Outlook into working some bit normally. You still need to do a bit of work (removing the Outlook context header, giving out to people for top-posting (☺), etc.</description>
+      <description>I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility.</description>
     </item>
     
     <item>
@@ -218,8 +201,7 @@ To begin, first go to the archive site for your given mailing list. This will pr
       <pubDate>Sat, 09 Jul 2016 18:08:16 +0100</pubDate>
       
       <guid>https://that.guru/blog/how-i-work/</guid>
-      <description>Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&amp;rsquo;ve worked, during my time here. Note that this has evolved massively over the past three years, so expect what I say now to have changed significantly a year down the line.
-At the moment, I work predominantly on nova, though I contribute to many other projects like openstack-manuals, oslo.</description>
+      <description>Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&amp;rsquo;ve worked, during my time here.</description>
     </item>
     
     <item>
@@ -228,8 +210,7 @@ At the moment, I work predominantly on nova, though I contribute to many other p
       <pubDate>Thu, 30 Jun 2016 10:55:58 +0100</pubDate>
       
       <guid>https://that.guru/blog/resizing-pinned-to-unpinned/</guid>
-      <description>OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor.
-There were reports that resizing an instance from a pinned flavor to a unpinned one did not result in the pinning being removed. The opposite was also reportedly true. I investigated this to see if this was the case.</description>
+      <description>OpenStack Nova provides support for resize operations, or the changing of the flavor associated with instance. This allows you to add or remove resources from the instance, in addition to modifying other configuration associated with the flavor.</description>
     </item>
     
     <item>
@@ -238,8 +219,7 @@ There were reports that resizing an instance from a pinned flavor to a unpinned 
       <pubDate>Wed, 29 Jun 2016 17:52:20 +0100</pubDate>
       
       <guid>https://that.guru/blog/cpu-pinning-with-image-metadata/</guid>
-      <description>OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.
-Someone suggested to me that CPU policies many not be being applied correctly when stored as image metadata rather than flavor properties. I decided to investigate this claim.</description>
+      <description>OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.</description>
     </item>
     
     <item>
@@ -248,7 +228,7 @@ Someone suggested to me that CPU policies many not be being applied correctly wh
       <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
       
       <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
-      <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels. One tricky part of this configuration was my use of multiple authentication layers. I have ZNC configured to use a server password, but I also have my nick registered on freenode and I would like to use SASL to authenticate this. It turns out that this is relatively easy to do.</description>
+      <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels.</description>
     </item>
     
     <item>
@@ -257,7 +237,7 @@ Someone suggested to me that CPU policies many not be being applied correctly wh
       <pubDate>Sat, 25 Jun 2016 23:33:13 +0100</pubDate>
       
       <guid>https://that.guru/about/</guid>
-      <description>Stephen is a software developer at Red Hat. He works on OpenStack, with a focus on NFV enablement. He previously worked for Intel, where he worked on OpenStack and contributed to both Intel&amp;rsquo;s DPDK-focused fork of Open vSwitch - DPDK vSwitch - along with Open vSwitch itself. He holds a first class honors degree in Computer Engineering from the University of Limerick, Ireland.</description>
+      <description>Stephen is a software developer at Red Hat. He works on OpenStack, with a focus on NFV enablement. He previously worked for Intel, where he worked on OpenStack and contributed to both Intel&amp;rsquo;s DPDK-focused fork of Open vSwitch - DPDK vSwitch - along with Open vSwitch itself.</description>
     </item>
     
     <item>
@@ -266,7 +246,7 @@ Someone suggested to me that CPU policies many not be being applied correctly wh
       <pubDate>Sat, 25 Jun 2016 19:27:50 +0100</pubDate>
       
       <guid>https://that.guru/license/</guid>
-      <description>Attribution-ShareAlike 4.0 International Creative Commons Corporation (“Creative Commons”) is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an “as-is” basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.</description>
+      <description>Attribution-ShareAlike 4.0 International Creative Commons Corporation (“Creative Commons”) is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship.</description>
     </item>
     
     <item>

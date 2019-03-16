@@ -18,8 +18,7 @@
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
-      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.
-In this talk I explored some of the tools that one can use to make this process easier, such as debtcollector, reno and pbr, and contrast these with alternatives used in other projects. The idea was to raise awareness of these tools mainly among developers of open source libraries but also anyone that works on a Python library or application that wishes to maintain stable interfaces and/or document changes in their product.</description>
+      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.</description>
     </item>
     
   </channel>

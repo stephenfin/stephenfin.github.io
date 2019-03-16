@@ -19,7 +19,7 @@
       
       <guid>https://that.guru/blog/patchwork-and-ci-in-a-tree/</guid>
       <description>This has been a long time in the works.
-With the upcoming release of Patchwork 2.0, Patchwork will provides first class support for series, or collections of patches, and expose these (and much more besides) over a new REST API. Coupled with the Check support added in 1.1, we will be able to use Patchwork with continuous integration and automated testing tools like Jenkins to validate projects using the mailing list workflow.</description>
+With the upcoming release of Patchwork 2.0, Patchwork will provides first class support for series, or collections of patches, and expose these (and much more besides) over a new REST API.</description>
     </item>
     
   </channel>

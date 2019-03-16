@@ -19,7 +19,7 @@
       
       <guid>https://that.guru/blog/how-are-datacenters-physically-wired/</guid>
       <description>I sent this question to my team in Intel some time ago.
- I gave a run down on SDN, NFV and all things Open to the OpenStack new hires today. One of the questions that came out of this concerned the physical wiring of server room or datacenter using SDN. Does anyone have any info on how n servers in a datacenter would be physically connected (where n &amp;gt;= 100, for example)?</description>
+ I gave a run down on SDN, NFV and all things Open to the OpenStack new hires today.</description>
     </item>
     
     <item>
