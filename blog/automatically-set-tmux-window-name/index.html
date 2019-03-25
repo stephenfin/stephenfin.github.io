@@ -10,13 +10,13 @@
 <meta name="referrer" content="no-referrer">
 <meta name="author" content="Stephen Finucane">
 <meta name="description" content="I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
-What I&#39;m looking to achieve is a prompt like the following:
- More specifically, I want $(hostname): $(basename $PWD).">
+What I&rsquo;m looking to achieve is a prompt like the following:
+  More specifically, I want $(hostname): $(basename $PWD).">
 
 <meta property="og:title" content="Automatically Set The Name of tmux Windows" />
 <meta property="og:description" content="I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
-What I&#39;m looking to achieve is a prompt like the following:
- More specifically, I want $(hostname): $(basename $PWD)." />
+What I&rsquo;m looking to achieve is a prompt like the following:
+  More specifically, I want $(hostname): $(basename $PWD)." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://that.guru/blog/automatically-set-tmux-window-name/" />
 
@@ -177,71 +177,84 @@ What I&#39;m looking to achieve is a prompt like the following:
                 </div>
             </div>
             <div class="markdown">
-                <div class="document">
-
+                
 
 <p>I recently updated to Fedora 28 which includes a updated version of <em>tmux</em> -
 <em>tmux 2.7</em>. I quickly noted that my window title was no longer being set as
 before and eventually identified the issue: a breaking change in 2.7. Below is
 my guide on ensuring <em>tmux</em> displays a useful title for each window.</p>
-<p>What I'm looking to achieve is a prompt like the following:</p>
-<div class="figure">
-<img alt="/media/automatically-set-tmux-window-name.png" src="https://that.guru/media/automatically-set-tmux-window-name.png" />
-</div>
-<p>More specifically, I want <tt class="docutils literal">$(hostname): $(basename $PWD)</tt>. <em>tmux</em> provides
+
+<p>What I&rsquo;m looking to achieve is a prompt like the following:</p>
+
+
+<figure>
+    
+        <img src="https://that.guru/media/automatically-set-tmux-window-name.png" alt="tmux prompt" />
+    
+    
+</figure>
+
+
+<p>More specifically, I want <code>$(hostname): $(basename $PWD)</code>. <em>tmux</em> provides
 two ways to do this.</p>
-<div class="section" id="the-automatic-rename-options">
-<h2>The <tt class="docutils literal"><span class="pre">automatic-rename</span></tt> options</h2>
-<p>The <a class="reference external" href="http://man7.org/linux/man-pages/man1/tmux.1.html">tmux(1)</a> man page describes the following options:</p>
+
+<h2 id="the-automatic-rename-options">The <code>automatic-rename</code> options</h2>
+
+<p>The <a href="http://man7.org/linux/man-pages/man1/tmux.1.html"><code>tmux(1)</code></a> man page describes the following options:</p>
+
 <blockquote>
-<dl class="docutils">
+<dl>
 <dt><strong>automatic-rename</strong> <em>[on | off]</em></dt>
-<dd><p class="first">Control automatic window renaming.  When this setting is enabled, tmux will
+<dd><p>Control automatic window renaming.  When this setting is enabled, tmux will
 rename the window automatically using the format specified by
-<tt class="docutils literal"><span class="pre">automatic-rename-format</span></tt>. This flag is automatically disabled for an
-individual window when a name is specified at creation with <tt class="docutils literal"><span class="pre">new-window</span></tt> or
-<tt class="docutils literal"><span class="pre">new-session</span></tt>, or later with <tt class="docutils literal"><span class="pre">rename-window</span></tt>, or with a terminal escape
+<code>automatic-rename-format</code>. This flag is automatically disabled for an
+individual window when a name is specified at creation with <code>new-window</code> or
+<code>new-session</code>, or later with <code>rename-window</code>, or with a terminal escape
 sequence.  It may be switched off globally with:</p>
-<pre class="last literal-block">
-set-window-option -g automatic-rename off
-</pre>
-</dd>
+
+<pre><code>set-window-option -g automatic-rename off
+</code></pre></dd>
 <dt><strong>automatic-rename-format</strong> <em>format</em></dt>
-<dd>The format (see FORMATS) used when the <tt class="docutils literal"><span class="pre">automatic-rename</span></tt> option is
-enabled.</dd>
+<dd><p>The format (see <code>FORMATS</code>) used when the <code>automatic-rename</code> option is
+enabled.</p></dd>
 <dt><strong>status-interval</strong> <em>interval</em></dt>
-<dd>Update the status line every interval seconds.  By default, updates will
-occur every 15 seconds.  A setting of zero disables redrawing at interval.</dd>
+<dd><p>Update the status line every interval seconds.  By default, updates will
+occur every 15 seconds.  A setting of zero disables redrawing at interval.</p></dd>
 </dl>
 </blockquote>
+
 <p>We can use a combination of these to configure the status line by adding the
-following to our <tt class="docutils literal">.tmux.conf</tt> file:</p>
-<pre class="literal-block">
-set-option -g status-interval 1
+following to our <code>.tmux.conf</code> file:</p>
+
+<pre><code>set-option -g status-interval 1
 set-option -g automatic-rename on
 set-option -g automatic-rename-format '#{b:pane_current_path}'
-</pre>
-<p>More detail can be found in a related <a class="reference external" href="https://stackoverflow.com/questions/28376611">StackOverflow question</a>.</p>
+</code></pre>
+
+<p>More detail can be found in a related <a href="https://stackoverflow.com/questions/28376611">StackOverflow question</a>.</p>
+
 <p>Unfortunately this is not ideal as there will still be some lag between the
 window name being set and it being reflected in the UI. This brings us to the
 alternative.</p>
-</div>
-<div class="section" id="terminal-escape-sequences">
-<h2>Terminal escape sequences</h2>
+
+<h2 id="terminal-escape-sequences">Terminal escape sequences</h2>
+
 <p><em>tmux</em> can also take advantage of terminal escape sequences. By emitting these
 from our shell, we can ensure the changes to the window name happen
-automatically. To this end, <a class="reference external" href="http://man7.org/linux/man-pages/man1/bash.1.html">bash(1)</a> provides the <tt class="docutils literal">PROMPT_COMMAND</tt> shell
+automatically. To this end, <a href="http://man7.org/linux/man-pages/man1/bash.1.html"><code>bash(1)</code></a> provides the <code>PROMPT_COMMAND</code> shell
 variable:</p>
+
 <blockquote>
-<dl class="docutils">
+<dl>
 <dt><strong>PROMPT_COMMAND</strong></dt>
 <dd>If set, the value is executed as a command prior to issuing each primary
 prompt.</dd>
 </dl>
 </blockquote>
-<p>We can configure this in our <tt class="docutils literal">.bashrc</tt> file like so:</p>
-<pre class="literal-block">
-case &quot;$TERM&quot; in
+
+<p>We can configure this in our <code>.bashrc</code> file like so:</p>
+
+<pre><code>case &quot;$TERM&quot; in
 linux|xterm*|rxvt*)
   export PROMPT_COMMAND='echo -ne &quot;\033]0;${HOSTNAME%%.*}: ${PWD##*/}\007&quot;'
   ;;
@@ -251,21 +264,26 @@ screen*)
 *)
   ;;
 esac
-</pre>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is actually a little more complicated that necessary but it with ensure
-we get the format requested both when we're using <em>tmux</em> (the latter case)
+</code></pre>
+
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>This is actually a little more complicated that necessary but it with ensure
+we get the format requested both when we&rsquo;re using <em>tmux</em> (the latter case)
 and when we are not (the former).</p>
 </div>
-<p>You also need to configure the following in your <tt class="docutils literal">.tmux.conf</tt> in order to
+</aside>
+
+
+<p>You also need to configure the following in your <code>.tmux.conf</code> in order to
 work around the breaking change mentioned above:</p>
-<pre class="literal-block">
-set -g allow-rename on
-</pre>
-<p>Once done, restart <em>tmux</em> as you'll see your changes propagated.</p>
-</div>
-</div>
+
+<pre><code>set -g allow-rename on
+</code></pre>
+
+<p>Once done, restart <em>tmux</em> as you&rsquo;ll see your changes propagated.</p>
+
                 <br>
                 
                 <p class="back-to-posts"><a href="https://that.guru/blog">Back to posts</a></p>

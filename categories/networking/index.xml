@@ -18,7 +18,7 @@
       <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
       
       <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
-      <description>Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &amp;quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&amp;quot;.
+      <description>Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &amp;ldquo;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&amp;rdquo;.
 Hostdev First, the hostdev VIF type:
  The hostdev method is preferred for both performance and guest isolation reasons.</description>
     </item>
@@ -29,7 +29,7 @@ Hostdev First, the hostdev VIF type:
       <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
-      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&#39;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;quot;query&amp;quot; the device, I saw the following:
+      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;ldquo;query&amp;rdquo; the device, I saw the following:
 $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 PCI device: 02:00.0 -E- Failed to query device: 02:00.0. Unsupported FW (version 2.</description>
     </item>
     
@@ -39,7 +39,7 @@ $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 P
       <pubDate>Tue, 25 Sep 2018 13:58:13 +0100</pubDate>
       
       <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
-      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&#39;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 (Ethernet, low profile) from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&#39;ve dealt with in Nova have been a great bunch and (c) it was cheap.</description>
+      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&amp;rsquo;ve dealt with in Nova have been a great bunch and &amp;copy; it was cheap.</description>
     </item>
     
   </channel>

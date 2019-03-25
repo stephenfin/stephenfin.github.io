@@ -18,7 +18,7 @@
       <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
       
       <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
-      <description>Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &amp;quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&amp;quot;.
+      <description>Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &amp;ldquo;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&amp;rdquo;.
 Hostdev First, the hostdev VIF type:
  The hostdev method is preferred for both performance and guest isolation reasons.</description>
     </item>
@@ -38,7 +38,7 @@ Hostdev First, the hostdev VIF type:
       <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
-      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&#39;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;quot;query&amp;quot; the device, I saw the following:
+      <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide. However, when I attempted to &amp;ldquo;query&amp;rdquo; the device, I saw the following:
 $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 PCI device: 02:00.0 -E- Failed to query device: 02:00.0. Unsupported FW (version 2.</description>
     </item>
     
@@ -48,7 +48,7 @@ $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 P
       <pubDate>Tue, 25 Sep 2018 13:58:13 +0100</pubDate>
       
       <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
-      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&#39;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 (Ethernet, low profile) from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&#39;ve dealt with in Nova have been a great bunch and (c) it was cheap.</description>
+      <description>So SR-IOV support in my Intel I350-T2V2 decided to stop working recently (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a new SR-IOV NIC for testing/development. I settled on a used Mellanox ConnectX-3 from eBay because (a) it supported SR-IOV and other cool things like RDMA over Ethernet (RoCE), (b) the Mellanox guys I&amp;rsquo;ve dealt with in Nova have been a great bunch and &amp;copy; it was cheap.</description>
     </item>
     
     <item>
@@ -58,8 +58,8 @@ $ sudo mstconfig -d 02:00.0 query Device #1: ---------- Device type: ConnectX3 P
       
       <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
       <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.7. Below is my guide on ensuring tmux displays a useful title for each window.
-What I&#39;m looking to achieve is a prompt like the following:
- More specifically, I want $(hostname): $(basename $PWD).</description>
+What I&amp;rsquo;m looking to achieve is a prompt like the following:
+  More specifically, I want $(hostname): $(basename $PWD).</description>
     </item>
     
     <item>
@@ -69,9 +69,9 @@ What I&#39;m looking to achieve is a prompt like the following:
       
       <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
       <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
- The calendar backend servicing &amp;quot;XXX&amp;quot; encountered an error.
-The reported error was “SQLite error code &#39;11&#39;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
- Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&#39;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
+ The calendar backend servicing &amp;ldquo;XXX&amp;rdquo; encountered an error.
+The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
+ Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&amp;rsquo;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
     </item>
     
     <item>
@@ -80,8 +80,8 @@ The reported error was “SQLite error code &#39;11&#39;: database disk image is
       <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
       
       <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
-      <description>I&#39;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats. In this instance, I was interested in PDF.
-Sphinx doesn&#39;t actually provide a native PDF builder (although other packages do). Instead, you have to generate LaTeX sources and then generate a PDF for this.</description>
+      <description>I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats. In this instance, I was interested in PDF.
+Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (although other packages do). Instead, you have to generate LaTeX sources and then generate a PDF for this.</description>
     </item>
     
     <item>

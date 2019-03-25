@@ -10,15 +10,15 @@
 <meta name="referrer" content="no-referrer">
 <meta name="author" content="Stephen Finucane">
 <meta name="description" content="I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
- The calendar backend servicing &quot;XXX&quot; encountered an error.
-The reported error was “SQLite error code &#39;11&#39;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
- Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&#39;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].">
+ The calendar backend servicing &ldquo;XXX&rdquo; encountered an error.
+The reported error was “SQLite error code &lsquo;11&rsquo;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
+ Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&rsquo;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].">
 
 <meta property="og:title" content="Evolution Calendar Issues" />
 <meta property="og:description" content="I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
- The calendar backend servicing &quot;XXX&quot; encountered an error.
-The reported error was “SQLite error code &#39;11&#39;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
- Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&#39;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1]." />
+ The calendar backend servicing &ldquo;XXX&rdquo; encountered an error.
+The reported error was “SQLite error code &lsquo;11&rsquo;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
+ Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&rsquo;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1]." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://that.guru/blog/evolution-calendar-issues/" />
 
@@ -165,72 +165,75 @@ The reported error was “SQLite error code &#39;11&#39;: database disk image is
 </div>
 
             <div class="markdown">
-                <div class="document">
-
-
-<p>I started Evolution this morning and noticed half of my calendar events were
+                <p>I started Evolution this morning and noticed half of my calendar events were
 missing. Attempts to refresh said calendar resulted in the following errors
 message:</p>
+
 <blockquote>
-<p>The calendar backend servicing &quot;XXX&quot; encountered an error.</p>
-<p>The reported error was “SQLite error code '11': database disk image is
+<p>The calendar backend servicing &ldquo;XXX&rdquo; encountered an error.</p>
+
+<p>The reported error was “SQLite error code &lsquo;11&rsquo;: database disk image is
 malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.</p>
 </blockquote>
+
 <p>Just the start I wanted to my Friday morning. Unfortunately the Evolution
-documentation didn't provided any guidelines on fixing a corrupted database and
+documentation didn&rsquo;t provided any guidelines on fixing a corrupted database and
 the best advice I found, aside from deleting and recreating the account in
-Evolution, was to run an integrity check on the offending database <a class="footnote-reference" href="#id4" id="id1">[1]</a>.</p>
+Evolution, was to run an integrity check on the offending database <a href="https://ubuntuforums.org/showthread.php?t=2215232#post12978225">[1]</a>.</p>
+
 <p>I knew from this guide that my main Evolution configuration was stored in
-<tt class="docutils literal">.local/share/evolution</tt>, but a look through the <tt class="docutils literal">calendar</tt> subdirectory
-yielded nothing. Googling <tt class="docutils literal">ECacheObjects</tt> curiously didn't bring anything up,
-but a search on GitHub did identify the offending service,
-<tt class="docutils literal"><span class="pre">evolution-data-server</span></tt> <a class="footnote-reference" href="#id5" id="id2">[2]</a>. Unfortunately while I was able to find
-something that look like directory containing &quot;private data&quot; <a class="footnote-reference" href="#id6" id="id3">[3]</a>, I didn't
-know what build configuration had been used and couldn't find the folder
-locally.</p>
+<code>.local/share/evolution</code>, but a look through the <code>calendar</code> subdirectory yielded
+nothing. Googling <code>ECacheObjects</code> curiously didn&rsquo;t bring anything up, but a
+search on GitHub did identify the offending service, <code>evolution-data-server</code>
+<a href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/src/libebackend/e-cache.h">[2]</a>. Unfortunately while I was able to find something that look like
+directory containing &ldquo;private data&rdquo; <a href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/CMakeLists.txt#L178">[3]</a>, I didn&rsquo;t know what build
+configuration had been used and couldn&rsquo;t find the folder locally.</p>
+
 <p>Now Linux provides a very helpful feature where it show all files currently
 marked as open by a given process. To use this, I first needed to find the
 process responsible for maintaining the calendar.</p>
-<pre class="code shell literal-block">
-$ ps aux <span class="punctuation">|</span> grep evolution
-sfinucan  <span class="literal number">2552</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.3 <span class="literal number">1717928</span> <span class="literal number">59912</span> ?       SLsl Dec07   <span class="literal number">0</span>:02 /usr/libexec/evolution-source-registry
-sfinucan  <span class="literal number">2616</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1242008</span> <span class="literal number">50640</span> ?       Ssl  Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-calendar-factory
-sfinucan  <span class="literal number">2696</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.9 <span class="literal number">2803208</span> <span class="literal number">182632</span> ?      SLl  Dec07   <span class="literal number">0</span>:19 /usr/libexec/evolution-calendar-factory-subprocess --factory caldav <span class="operator">[</span>...<span class="operator">]</span>
-sfinucan  <span class="literal number">2738</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1255468</span> <span class="literal number">48452</span> ?       Sl   Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-calendar-factory-subprocess --factory contacts <span class="operator">[</span>...<span class="operator">]</span>
-sfinucan  <span class="literal number">2754</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1152708</span> <span class="literal number">44496</span> ?       Ssl  Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-addressbook-factory
-sfinucan  <span class="literal number">2766</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1329236</span> <span class="literal number">47984</span> ?       Sl   Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-calendar-factory-subprocess --factory <span class="name builtin">local</span> <span class="operator">[</span>...<span class="operator">]</span>
-sfinucan  <span class="literal number">2787</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1440644</span> <span class="literal number">46152</span> ?       Sl   Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory <span class="name builtin">local</span> <span class="operator">[</span>...<span class="operator">]</span>
-sfinucan  <span class="literal number">2925</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1536780</span> <span class="literal number">54080</span> tty2    Sl+  Dec07   <span class="literal number">0</span>:00 /usr/libexec/evolution/evolution-alarm-notify
-sfinucan  <span class="literal number">9496</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.2 <span class="literal number">1443748</span> <span class="literal number">59028</span> ?       SLl  <span class="literal number">10</span>:27   <span class="literal number">0</span>:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory google <span class="operator">[</span>...<span class="operator">]</span>
-sfinucan  <span class="literal number">9503</span>  <span class="literal number">2</span>.0  <span class="literal number">1</span>.6 <span class="literal number">4220880</span> <span class="literal number">332836</span> tty2   SLl+ <span class="literal number">10</span>:27   <span class="literal number">0</span>:32 evolution
-sfinucan <span class="literal number">10611</span>  <span class="literal number">0</span>.0  <span class="literal number">0</span>.0 <span class="literal number">119728</span>   <span class="literal number">972</span> pts/1    S+   <span class="literal number">10</span>:55   <span class="literal number">0</span>:00 grep --color<span class="operator">=</span>auto evolution
-</pre>
-<p>This looked promising and I took the <tt class="docutils literal"><span class="pre">evolution-calendar-factory-subprocess</span></tt>
-process with the <tt class="docutils literal">caldav</tt> <em>factory</em> to be the most likely candidate. Let's
+
+<pre><code>$ ps aux | grep evolution
+sfinucan  2552  0.0  0.3 1717928 59912 ?       SLsl Dec07   0:02 /usr/libexec/evolution-source-registry
+sfinucan  2616  0.0  0.2 1242008 50640 ?       Ssl  Dec07   0:00 /usr/libexec/evolution-calendar-factory
+sfinucan  2696  0.0  0.9 2803208 182632 ?      SLl  Dec07   0:19 /usr/libexec/evolution-calendar-factory-subprocess --factory caldav [...]
+sfinucan  2738  0.0  0.2 1255468 48452 ?       Sl   Dec07   0:00 /usr/libexec/evolution-calendar-factory-subprocess --factory contacts [...]
+sfinucan  2754  0.0  0.2 1152708 44496 ?       Ssl  Dec07   0:00 /usr/libexec/evolution-addressbook-factory
+sfinucan  2766  0.0  0.2 1329236 47984 ?       Sl   Dec07   0:00 /usr/libexec/evolution-calendar-factory-subprocess --factory local [...]
+sfinucan  2787  0.0  0.2 1440644 46152 ?       Sl   Dec07   0:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory local [...]
+sfinucan  2925  0.0  0.2 1536780 54080 tty2    Sl+  Dec07   0:00 /usr/libexec/evolution/evolution-alarm-notify
+sfinucan  9496  0.0  0.2 1443748 59028 ?       SLl  10:27   0:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory google [...]
+sfinucan  9503  2.0  1.6 4220880 332836 tty2   SLl+ 10:27   0:32 evolution
+sfinucan 10611  0.0  0.0 119728   972 pts/1    S+   10:55   0:00 grep --color=auto evolution
+</code></pre>
+
+<p>This looked promising and I took the <code>evolution-calendar-factory-subprocess</code>
+process with the <code>caldav</code> <em>factory</em> to be the most likely candidate. Let&rsquo;s
 see what this has open.</p>
-<pre class="code shell literal-block">
-$ ls -l /proc/2696/fd <span class="punctuation">|</span> grep *.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">7</span> <span class="literal number">21</span>:39 <span class="literal number">12</span> -&gt; /home/sfinucan/.cache/evolution/calendar/fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">13</span> -&gt; /home/sfinucan/.cache/evolution/calendar/853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">14</span> -&gt; /home/sfinucan/.cache/evolution/calendar/9ff6cfa62a76324ab004c9c4a09ecec0a96c0956/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">15</span> -&gt; /home/sfinucan/.cache/evolution/calendar/41464062e9943c630c2bb3171b67d4e1a2cf8a93/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">16</span> -&gt; /home/sfinucan/.cache/evolution/calendar/6e9502d1c38772667d06ed809e1012bb0178a62d/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">17</span> -&gt; /home/sfinucan/.cache/evolution/calendar/f22562ff5b1e02106f69e957a7a18513bec94cab/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">18</span> -&gt; /home/sfinucan/.cache/evolution/calendar/6d11aa1cdaf7e1a1c7ff83b464f319b8bf0b8b08/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">22</span> -&gt; /home/sfinucan/.cache/evolution/calendar/f90f25baabe8d65bb2d1d8197dac7a450bcb46e7/cache.db
-lrwx------. <span class="literal number">1</span> sfinucan sfinucan <span class="literal number">64</span> Dec  <span class="literal number">8</span> <span class="literal number">10</span>:27 <span class="literal number">23</span> -&gt; /home/sfinucan/.cache/evolution/calendar/fd8b197130da0ca054ab698175e0b3dd16e1b52d/cache.db
-</pre>
-<p>That looks promising. Time to kill the various <tt class="docutils literal">evolution</tt> processes and go
+
+<pre><code>$ ls -l /proc/2696/fd | grep *.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  7 21:39 12 -&gt; /home/sfinucan/.cache/evolution/calendar/fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 13 -&gt; /home/sfinucan/.cache/evolution/calendar/853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 14 -&gt; /home/sfinucan/.cache/evolution/calendar/9ff6cfa62a76324ab004c9c4a09ecec0a96c0956/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 15 -&gt; /home/sfinucan/.cache/evolution/calendar/41464062e9943c630c2bb3171b67d4e1a2cf8a93/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 16 -&gt; /home/sfinucan/.cache/evolution/calendar/6e9502d1c38772667d06ed809e1012bb0178a62d/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 17 -&gt; /home/sfinucan/.cache/evolution/calendar/f22562ff5b1e02106f69e957a7a18513bec94cab/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 18 -&gt; /home/sfinucan/.cache/evolution/calendar/6d11aa1cdaf7e1a1c7ff83b464f319b8bf0b8b08/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 22 -&gt; /home/sfinucan/.cache/evolution/calendar/f90f25baabe8d65bb2d1d8197dac7a450bcb46e7/cache.db
+lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 23 -&gt; /home/sfinucan/.cache/evolution/calendar/fd8b197130da0ca054ab698175e0b3dd16e1b52d/cache.db
+</code></pre>
+
+<p>That looks promising. Time to kill the various <code>evolution</code> processes and go
 fix those databases.</p>
-<pre class="code shell literal-block">
-$ sudo pkill evolution
+
+<pre><code>$ sudo pkill evolution
 $ sudo pkill -9 evolution-*
-</pre>
-<pre class="code shell literal-block">
-$ $ <span class="keyword">for</span> i in <span class="keyword">$(</span>find . -path <span class="literal string double">&quot;./trash&quot;</span> -prune -o -name <span class="literal string double">&quot;cache.db&quot;</span> -print<span class="keyword">)</span><span class="punctuation">;</span> <span class="keyword">do</span>
-→ <span class="name builtin">echo</span> <span class="literal string double">&quot;</span><span class="name variable">$i</span><span class="literal string double">&quot;</span><span class="punctuation">;</span>
-→ sqlite3 <span class="literal string double">&quot;</span><span class="name variable">$i</span><span class="literal string double">&quot;</span> <span class="literal string double">&quot;pragma integrity_check;&quot;</span><span class="punctuation">;</span>
-→ <span class="keyword">done</span>
+</code></pre>
+
+<pre><code>$ $ for i in $(find . -path &quot;./trash&quot; -prune -o -name &quot;cache.db&quot; -print); do
+→ echo &quot;$i&quot;;
+→ sqlite3 &quot;$i&quot; &quot;pragma integrity_check;&quot;;
+→ done
 ./41464062e9943c630c2bb3171b67d4e1a2cf8a93/cache.db
 ok
 ./9ff6cfa62a76324ab004c9c4a09ecec0a96c0956/cache.db
@@ -245,67 +248,51 @@ ok
 ok
 ./fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
 *** in database main ***
-On tree page <span class="literal number">2935</span> cell <span class="literal number">492</span>: Rowid <span class="literal number">3396</span> out of order
-On tree page <span class="literal number">2935</span> cell <span class="literal number">491</span>: Rowid <span class="literal number">3394</span> out of order
-On tree page <span class="literal number">2935</span> cell <span class="literal number">490</span>: Rowid <span class="literal number">3392</span> out of order
-On tree page <span class="literal number">2935</span> cell <span class="literal number">489</span>: Rowid <span class="literal number">3390</span> out of order
-Page <span class="literal number">1635</span>: btreeInitPage<span class="operator">()</span> returns error code <span class="literal number">11</span>
-On tree page <span class="literal number">2935</span> cell <span class="literal number">487</span>: Rowid <span class="literal number">3386</span> out of order
-Page <span class="literal number">1634</span>: btreeInitPage<span class="operator">()</span> returns error code <span class="literal number">11</span>
-Page <span class="literal number">1762</span>: btreeInitPage<span class="operator">()</span> returns error code <span class="literal number">11</span>
-On tree page <span class="literal number">2935</span> cell <span class="literal number">419</span>: Rowid <span class="literal number">3289</span> out of order
-Page <span class="literal number">1243</span> is never used
-Page <span class="literal number">1255</span> is never used
-Page <span class="literal number">1263</span> is never used
-row <span class="literal number">1934</span> missing from index IDX_SUMMARY
-row <span class="literal number">1934</span> missing from index IDX_COMPLETED
-row <span class="literal number">1934</span> missing from index IDX_DUE
-row <span class="literal number">1934</span> missing from index IDX_OCCUREND
-row <span class="literal number">1934</span> missing from index IDX_OCCURSTART
-row <span class="literal number">1934</span> missing from index sqlite_autoindex_ECacheObjects_1
-row <span class="literal number">1938</span> missing from index IDX_SUMMARY
-row <span class="literal number">1938</span> missing from index IDX_COMPLETED
-row <span class="literal number">1938</span> missing from index IDX_DUE
-row <span class="literal number">1938</span> missing from index sqlite_autoindex_ECacheObjects_1
-row <span class="literal number">1939</span> missing from index IDX_SUMMARY
-row <span class="literal number">1939</span> missing from index IDX_COMPLETED
-row <span class="literal number">1939</span> missing from index IDX_DUE
-row <span class="literal number">1941</span> missing from index IDX_SUMMARY
-row <span class="literal number">1941</span> missing from index IDX_COMPLETED
-row <span class="literal number">1941</span> missing from index IDX_DUE
-row <span class="literal number">1941</span> missing from index sqlite_autoindex_ECacheObjects_1
+On tree page 2935 cell 492: Rowid 3396 out of order
+On tree page 2935 cell 491: Rowid 3394 out of order
+On tree page 2935 cell 490: Rowid 3392 out of order
+On tree page 2935 cell 489: Rowid 3390 out of order
+Page 1635: btreeInitPage() returns error code 11
+On tree page 2935 cell 487: Rowid 3386 out of order
+Page 1634: btreeInitPage() returns error code 11
+Page 1762: btreeInitPage() returns error code 11
+On tree page 2935 cell 419: Rowid 3289 out of order
+Page 1243 is never used
+Page 1255 is never used
+Page 1263 is never used
+row 1934 missing from index IDX_SUMMARY
+row 1934 missing from index IDX_COMPLETED
+row 1934 missing from index IDX_DUE
+row 1934 missing from index IDX_OCCUREND
+row 1934 missing from index IDX_OCCURSTART
+row 1934 missing from index sqlite_autoindex_ECacheObjects_1
+row 1938 missing from index IDX_SUMMARY
+row 1938 missing from index IDX_COMPLETED
+row 1938 missing from index IDX_DUE
+row 1938 missing from index sqlite_autoindex_ECacheObjects_1
+row 1939 missing from index IDX_SUMMARY
+row 1939 missing from index IDX_COMPLETED
+row 1939 missing from index IDX_DUE
+row 1941 missing from index IDX_SUMMARY
+row 1941 missing from index IDX_COMPLETED
+row 1941 missing from index IDX_DUE
+row 1941 missing from index sqlite_autoindex_ECacheObjects_1
 Error: database disk image is malformed
 ./853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
 ok
 ./6e9502d1c38772667d06ed809e1012bb0178a62d/cache.db
 ok
-</pre>
+</code></pre>
+
 <p>We have our offending database. Now, we could simply remove this and be done
-but, to be honest, I don't really trust the rest of them now. Seeing as
+but, to be honest, I don&rsquo;t really trust the rest of them now. Seeing as
 everything is already stored in the cloud, I can simply delete these caches.</p>
-<pre class="code shell literal-block">
-$ rm -f .
-</pre>
+
+<pre><code>$ rm -f .
+</code></pre>
+
 <p>Problem solved.</p>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://ubuntuforums.org/showthread.php?t=2215232#post12978225">https://ubuntuforums.org/showthread.php?t=2215232#post12978225</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/src/libebackend/e-cache.h">https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/src/libebackend/e-cache.h</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/CMakeLists.txt#L178">https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/CMakeLists.txt#L178</a></td></tr>
-</tbody>
-</table>
-</div>
+
             </div>
         </div>
     </div>

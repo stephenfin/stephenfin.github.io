@@ -19,9 +19,9 @@
       
       <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
       <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:
- The calendar backend servicing &amp;quot;XXX&amp;quot; encountered an error.
-The reported error was “SQLite error code &#39;11&#39;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
- Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&#39;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
+ The calendar backend servicing &amp;ldquo;XXX&amp;rdquo; encountered an error.
+The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database disk image is malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.
+ Just the start I wanted to my Friday morning. Unfortunately the Evolution documentation didn&amp;rsquo;t provided any guidelines on fixing a corrupted database and the best advice I found, aside from deleting and recreating the account in Evolution, was to run an integrity check on the offending database [1].</description>
     </item>
     
     <item>

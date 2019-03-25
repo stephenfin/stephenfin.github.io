@@ -9,12 +9,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
 <meta name="author" content="Stephen Finucane">
-<meta name="description" content="Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&quot;.
+<meta name="description" content="Mostly a note for myself. There are two types of SR-IOV&rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &ldquo;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&rdquo;.
 Hostdev First, the hostdev VIF type:
  The hostdev method is preferred for both performance and guest isolation reasons.">
 
 <meta property="og:title" content="Direct vs Hostdev Interfaces in nova" />
-<meta property="og:description" content="Mostly a note for myself. There are two types of SR-IOV&#39;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &quot;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&quot;.
+<meta property="og:description" content="Mostly a note for myself. There are two types of SR-IOV&rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap. The difference between these is described rather succinctly in an Oracle whitepaper titled &ldquo;Installing and Configuring KVM on Bare Metal Instances with Multi-VNIC&rdquo;.
 Hostdev First, the hostdev VIF type:
  The hostdev method is preferred for both performance and guest isolation reasons." />
 <meta property="og:type" content="article" />
@@ -177,18 +177,19 @@ Hostdev First, the hostdev VIF type:
                 </div>
             </div>
             <div class="markdown">
-                <div class="document">
+                
 
+<p>Mostly a note for myself. There are two types of SR-IOV&rsquo;y networks supported in
+nova: <code>direct</code> and <code>hostdev</code>. Confusingly, the latter corresponds to passthrough
+of the virtual function (VF), while the former corresponds to macvtap. The
+difference between these is described rather succinctly in an Oracle whitepaper
+titled <a href="https://cloud.oracle.com/iaas/whitepapers/installing_kvm_multi_vnics.pdf">&ldquo;Installing and Configuring KVM on Bare Metal Instances with
+Multi-VNIC&rdquo;</a>.</p>
 
-<p>Mostly a note for myself. There are two types of SR-IOV'y networks supported in
-nova: <tt class="docutils literal">direct</tt> and <tt class="docutils literal">hostdev</tt>. Confusingly, the latter corresponds to
-passthrough of the virtual function (VF), while the former corresponds to
-macvtap. The difference between these is described rather succinctly in an Oracle
-whitepaper titled <a class="reference external" href="https://cloud.oracle.com/iaas/whitepapers/installing_kvm_multi_vnics.pdf">&quot;Installing and Configuring KVM on Bare Metal Instances with
-Multi-VNIC&quot;</a>.</p>
-<div class="section" id="hostdev">
-<h2>Hostdev</h2>
+<h2 id="hostdev">Hostdev</h2>
+
 <p>First, the hostdev VIF type:</p>
+
 <blockquote>
 <p>The hostdev method is preferred for both performance and guest isolation
 reasons. It provides the guest with direct access to the PCI device, created
@@ -196,22 +197,27 @@ as part of the configuration of SR-IOV on the hypervisor. A PCI device is
 known as a virtual function (VF)and represents an actual interface into the
 hardware of the hypervisor (bare metal instance). This allows the guest to
 have both maximum throughput and maximum isolation:</p>
-<ul class="simple">
-<li>Maximum throughput because there is no operating system between the guest
-and the network</li>
-<li>Maximum isolation because the hypervisor operating system is not involved
-beyond providing the hardware interface (the overhead is minimal)</li>
+
+<ul>
+<li><p>Maximum throughput because there is no operating system between the guest
+and the network</p></li>
+
+<li><p>Maximum isolation because the hypervisor operating system is not involved
+beyond providing the hardware interface (the overhead is minimal)</p></li>
 </ul>
-<p>The disadvantage of the hostdev method is that it isn't possible to emulate
+
+<p>The disadvantage of the hostdev method is that it isn&rsquo;t possible to emulate
 a different device type. So, the guest operating system must have a driver
 available that matches the hardware type provided by the hypervisor.</p>
 </blockquote>
+
 <p>As a user, you are likely to encounter the driver issues outlined above when
 using something like CirrOS image deployed by DevStack.</p>
-</div>
-<div class="section" id="direct">
-<h2>Direct</h2>
-<p>Then the direct VIF type which, again, is not really &quot;direct&quot;:</p>
+
+<h2 id="direct">Direct</h2>
+
+<p>Then the direct VIF type which, again, is not really &ldquo;direct&rdquo;:</p>
+
 <blockquote>
 <p>The direct method relies on hypervisor-configured network interfaces to
 provide connectivity to the guest operating systems. However, the network
@@ -219,6 +225,7 @@ configuration provided by the hypervisor is minimal: the guest operating
 system still issues all the DHCP and related higher-level networking
 management, while the hypervisor simply provides an interface for the guest
 to operate on.</p>
+
 <p>The direct method allows KVM to natively emulate some common network
 interface types that are typically found in most current and legacy
 operating systems. The following emulations have been observed to work: the
@@ -228,8 +235,7 @@ Windows operating system. This is useful for prepackaged, virtual machines
 because their configurations are typically static and are looking for
 specific hardware types.</p>
 </blockquote>
-</div>
-</div>
+
                 <br>
                 
                 <p class="back-to-posts"><a href="https://that.guru/blog">Back to posts</a></p>
