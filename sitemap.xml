@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</loc>
+    <lastmod>2019-03-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://that.guru/blog/direct-vs-hostdev-interfaces/</loc>
     <lastmod>2019-02-14T16:41:52+00:00</lastmod>
   </url>
@@ -187,6 +192,12 @@
   </url>
   
   <url>
+    <loc>https://that.guru/categories/python/</loc>
+    <lastmod>2019-03-23T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://that.guru/categories/random/</loc>
     <lastmod>2016-07-13T14:33:21+01:00</lastmod>
     <priority>0</priority>
@@ -194,13 +205,19 @@
   
   <url>
     <loc>https://that.guru/</loc>
-    <lastmod>2019-02-14T16:41:52+00:00</lastmod>
+    <lastmod>2019-03-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/sysadmin/</loc>
     <lastmod>2016-06-26T14:00:39+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/talks/</loc>
+    <lastmod>2019-03-23T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
