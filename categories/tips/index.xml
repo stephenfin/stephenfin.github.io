@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Tue, 15 May 2018 15:10:08 +0100</lastBuildDate>
+    <lastBuildDate>Tue, 15 May 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>Automatically Set The Name of tmux Windows</title>
       <link>https://that.guru/blog/automatically-set-tmux-window-name/</link>
-      <pubDate>Tue, 15 May 2018 15:10:08 +0100</pubDate>
+      <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
       <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.</description>
@@ -24,7 +24,7 @@
     <item>
       <title>Evolution Calendar Issues</title>
       <link>https://that.guru/blog/evolution-calendar-issues/</link>
-      <pubDate>Fri, 08 Dec 2017 10:40:31 +0000</pubDate>
+      <pubDate>Fri, 08 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
       <description>I started Evolution this morning and noticed half of my calendar events were missing. Attempts to refresh said calendar resulted in the following errors message:</description>
@@ -33,7 +33,7 @@
     <item>
       <title>Open Python paths with vim</title>
       <link>https://that.guru/blog/open-python-paths-with-vim/</link>
-      <pubDate>Mon, 06 Feb 2017 14:33:53 +0000</pubDate>
+      <pubDate>Mon, 06 Feb 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
       <description>In OpenStack nova land, you run tests by specifying their Python paths, like so:
@@ -43,7 +43,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     <item>
       <title>Creating a Windows 7 USB on Fedora 25</title>
       <link>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</link>
-      <pubDate>Tue, 31 Jan 2017 22:43:38 +0000</pubDate>
+      <pubDate>Tue, 31 Jan 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</guid>
       <description>Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard backlight turned off immediately after turning it on.</description>
@@ -52,52 +52,52 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     <item>
       <title>Install Netbeans on Fedora 25</title>
       <link>https://that.guru/blog/install-netbeans-on-fedora-25/</link>
-      <pubDate>Sat, 10 Dec 2016 20:16:27 +0000</pubDate>
+      <pubDate>Sat, 10 Dec 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/install-netbeans-on-fedora-25/</guid>
       <description>It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t say I miss it. However, I want to work on a plugin for Jenkins which means diving back in.</description>
     </item>
     
     <item>
-      <title>Using git-review</title>
-      <link>https://that.guru/blog/how-to-use-git-review/</link>
-      <pubDate>Tue, 06 Dec 2016 15:48:32 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/how-to-use-git-review/</guid>
-      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.</description>
-    </item>
-    
-    <item>
       <title>MTUs in neutron</title>
       <link>https://that.guru/blog/mtus-in-neutron/</link>
-      <pubDate>Tue, 06 Dec 2016 15:32:46 +0000</pubDate>
+      <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/mtus-in-neutron/</guid>
       <description>I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton.</description>
     </item>
     
     <item>
-      <title>Working with Jenkins &#43; Chrome</title>
-      <link>https://that.guru/blog/helpful-jenkins-plugins/</link>
-      <pubDate>Wed, 13 Jul 2016 14:46:56 +0100</pubDate>
+      <title>Using git-review</title>
+      <link>https://that.guru/blog/how-to-use-git-review/</link>
+      <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
       
-      <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
-      <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.</description>
+      <guid>https://that.guru/blog/how-to-use-git-review/</guid>
+      <description>git-review is a Python wrapper for many of the common Git commands used in conjunction with Gerrit. It encapsulates many of the most common commands used, in order to speed things up.</description>
     </item>
     
     <item>
       <title>Loading mailing list archives with Mutt</title>
       <link>https://that.guru/blog/mutt-archives/</link>
-      <pubDate>Wed, 13 Jul 2016 10:59:30 +0100</pubDate>
+      <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/mutt-archives/</guid>
       <description>You can use Mutt to load archives from a mailing list. This is useful for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing list.</description>
     </item>
     
     <item>
+      <title>Working with Jenkins &#43; Chrome</title>
+      <link>https://that.guru/blog/helpful-jenkins-plugins/</link>
+      <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
+      <description>It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on OpenStack, really). However, I had a few tricks picked up around plugins for Chrome that make working with pre-3.</description>
+    </item>
+    
+    <item>
       <title>Sane Outlook: Making plain text better in Outlook</title>
       <link>https://that.guru/blog/sane-outlook/</link>
-      <pubDate>Mon, 11 Jul 2016 18:11:38 +0100</pubDate>
+      <pubDate>Mon, 11 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/sane-outlook/</guid>
       <description>I like well-formatted, plain text emails, and I like reading them in a monospace font. I find plain text to be more readable, and provides less ways for people to impact this legibility.</description>
@@ -106,7 +106,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     <item>
       <title>How I Work</title>
       <link>https://that.guru/blog/how-i-work/</link>
-      <pubDate>Sat, 09 Jul 2016 18:08:16 +0100</pubDate>
+      <pubDate>Sat, 09 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/how-i-work/</guid>
       <description>Next Friday is the last week of this stint at Intel, so I figured now was as good a time as ever to do a write up on how I work, or, more accurately, how I&amp;rsquo;ve worked, during my time here.</description>
@@ -115,7 +115,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     <item>
       <title>Configuring ZNC with HexChat</title>
       <link>https://that.guru/blog/znc-sasl-server-pass/</link>
-      <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
+      <pubDate>Sun, 26 Jun 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
       <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels.</description>

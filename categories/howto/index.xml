@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 15 Jul 2016 11:26:37 +0100</lastBuildDate>
+    <lastBuildDate>Fri, 15 Jul 2016 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/howto/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>GNU Autotest</title>
       <link>https://that.guru/blog/gnu-autotest/</link>
-      <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
+      <pubDate>Fri, 15 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/gnu-autotest/</guid>
       <description>GNU Autotest is a test framework that, together with supporting scripts and unit test files, can unit test an application. Autotest is part of the Autotools library, a.</description>

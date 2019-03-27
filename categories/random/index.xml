@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 13 Jul 2016 14:33:21 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 13 Jul 2016 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/random/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>How are datacenters physically wired?</title>
       <link>https://that.guru/blog/how-are-datacenters-physically-wired/</link>
-      <pubDate>Wed, 13 Jul 2016 14:33:21 +0100</pubDate>
+      <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/how-are-datacenters-physically-wired/</guid>
       <description>I sent this question to my team in Intel some time ago.
@@ -25,7 +25,7 @@
     <item>
       <title>Hello, World!</title>
       <link>https://that.guru/blog/hello-world/</link>
-      <pubDate>Sat, 25 Jun 2016 18:50:22 +0100</pubDate>
+      <pubDate>Sat, 25 Jun 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/hello-world/</guid>
       <description>This is my new, Hugo-powered blog. I have a backlog of articles to publish, so expect to see lots of material going up here in the next few weeks.</description>

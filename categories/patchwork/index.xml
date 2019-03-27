@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 12 Feb 2017 22:27:38 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 12 Feb 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/patchwork/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>Patchwork and CI in a tree</title>
       <link>https://that.guru/blog/patchwork-and-ci-in-a-tree/</link>
-      <pubDate>Sun, 12 Feb 2017 22:27:38 +0000</pubDate>
+      <pubDate>Sun, 12 Feb 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/patchwork-and-ci-in-a-tree/</guid>
       <description>This has been a long time in the works.

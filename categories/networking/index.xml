@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Thu, 14 Feb 2019 16:41:52 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 14 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/networking/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>Direct vs Hostdev Interfaces in nova</title>
       <link>https://that.guru/blog/direct-vs-hostdev-interfaces/</link>
-      <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
+      <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
       <description>Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in nova: direct and hostdev. Confusingly, the latter corresponds to passthrough of the virtual function (VF), while the former corresponds to macvtap.</description>
@@ -24,7 +24,7 @@
     <item>
       <title>Updating Mellanox ConnectX-3 NIC firmware</title>
       <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
-      <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
+      <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
       <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide.</description>

@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 15 Jul 2016 11:26:37 +0100</lastBuildDate>
+    <lastBuildDate>Fri, 15 Jul 2016 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>C</title>
       <link>https://that.guru/categories/c/</link>
-      <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
+      <pubDate>Fri, 15 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/c/</guid>
       <description></description>
@@ -24,7 +24,7 @@
     <item>
       <title>Documentation</title>
       <link>https://that.guru/categories/documentation/</link>
-      <pubDate>Wed, 06 Dec 2017 16:03:48 +0000</pubDate>
+      <pubDate>Wed, 06 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/documentation/</guid>
       <description></description>
@@ -33,7 +33,7 @@
     <item>
       <title>Howto</title>
       <link>https://that.guru/categories/howto/</link>
-      <pubDate>Fri, 15 Jul 2016 11:26:37 +0100</pubDate>
+      <pubDate>Fri, 15 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/howto/</guid>
       <description></description>
@@ -42,7 +42,7 @@
     <item>
       <title>Libvirt</title>
       <link>https://that.guru/categories/libvirt/</link>
-      <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
+      <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/libvirt/</guid>
       <description></description>
@@ -51,7 +51,7 @@
     <item>
       <title>Networking</title>
       <link>https://that.guru/categories/networking/</link>
-      <pubDate>Thu, 14 Feb 2019 16:41:52 +0000</pubDate>
+      <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/networking/</guid>
       <description></description>
@@ -60,7 +60,7 @@
     <item>
       <title>Openstack</title>
       <link>https://that.guru/categories/openstack/</link>
-      <pubDate>Wed, 06 Feb 2019 15:41:09 +0000</pubDate>
+      <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/openstack/</guid>
       <description></description>
@@ -69,7 +69,7 @@
     <item>
       <title>Patchwork</title>
       <link>https://that.guru/categories/patchwork/</link>
-      <pubDate>Sun, 12 Feb 2017 22:27:38 +0000</pubDate>
+      <pubDate>Sun, 12 Feb 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/patchwork/</guid>
       <description></description>
@@ -87,7 +87,7 @@
     <item>
       <title>Random</title>
       <link>https://that.guru/categories/random/</link>
-      <pubDate>Wed, 13 Jul 2016 14:33:21 +0100</pubDate>
+      <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/random/</guid>
       <description></description>
@@ -96,7 +96,7 @@
     <item>
       <title>Sysadmin</title>
       <link>https://that.guru/categories/sysadmin/</link>
-      <pubDate>Sun, 26 Jun 2016 14:00:39 +0100</pubDate>
+      <pubDate>Sun, 26 Jun 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/sysadmin/</guid>
       <description></description>
@@ -105,7 +105,7 @@
     <item>
       <title>Tips</title>
       <link>https://that.guru/categories/tips/</link>
-      <pubDate>Tue, 15 May 2018 15:10:08 +0100</pubDate>
+      <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/tips/</guid>
       <description></description>
@@ -114,7 +114,7 @@
     <item>
       <title>Travel</title>
       <link>https://that.guru/categories/travel/</link>
-      <pubDate>Sun, 10 Feb 2019 14:08:56 +0000</pubDate>
+      <pubDate>Sun, 10 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/travel/</guid>
       <description></description>

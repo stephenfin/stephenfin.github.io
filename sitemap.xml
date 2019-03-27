@@ -9,17 +9,17 @@
   
   <url>
     <loc>https://that.guru/blog/direct-vs-hostdev-interfaces/</loc>
-    <lastmod>2019-02-14T16:41:52+00:00</lastmod>
+    <lastmod>2019-02-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/poon-hill-trek/</loc>
-    <lastmod>2019-02-10T14:08:56+00:00</lastmod>
+    <lastmod>2019-02-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/updating-mellanox-connectx-3/</loc>
-    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
+    <lastmod>2019-02-06T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -29,97 +29,97 @@
   
   <url>
     <loc>https://that.guru/blog/automatically-set-tmux-window-name/</loc>
-    <lastmod>2018-05-15T15:10:08+01:00</lastmod>
+    <lastmod>2018-05-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/evolution-calendar-issues/</loc>
-    <lastmod>2017-12-08T10:40:31+00:00</lastmod>
+    <lastmod>2017-12-08T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/create-pdfs-for-openstack/</loc>
-    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
+    <lastmod>2017-12-06T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/deploying-real-time-openstack/</loc>
-    <lastmod>2017-10-31T17:08:33+00:00</lastmod>
+    <lastmod>2017-10-31T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/patchwork-and-ci-in-a-tree/</loc>
-    <lastmod>2018-11-07T22:36:31+00:00</lastmod>
+    <lastmod>2018-11-07T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/open-python-paths-with-vim/</loc>
-    <lastmod>2017-02-06T14:33:53+00:00</lastmod>
+    <lastmod>2017-02-06T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</loc>
-    <lastmod>2017-01-31T22:43:38+00:00</lastmod>
+    <lastmod>2017-01-31T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/install-netbeans-on-fedora-25/</loc>
-    <lastmod>2016-12-10T20:16:27+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/blog/how-to-use-git-review/</loc>
-    <lastmod>2016-12-06T15:48:32+00:00</lastmod>
+    <lastmod>2016-12-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/mtus-in-neutron/</loc>
-    <lastmod>2016-12-06T15:32:46+00:00</lastmod>
+    <lastmod>2016-12-06T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/blog/how-to-use-git-review/</loc>
+    <lastmod>2016-12-06T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/gnu-autotest/</loc>
-    <lastmod>2016-07-15T11:26:37+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/blog/helpful-jenkins-plugins/</loc>
-    <lastmod>2016-07-13T14:46:56+01:00</lastmod>
+    <lastmod>2016-07-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/how-are-datacenters-physically-wired/</loc>
-    <lastmod>2016-07-13T14:33:21+01:00</lastmod>
+    <lastmod>2016-07-13T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/mutt-archives/</loc>
-    <lastmod>2016-07-13T10:59:30+01:00</lastmod>
+    <lastmod>2016-07-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/blog/helpful-jenkins-plugins/</loc>
+    <lastmod>2016-07-13T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/sane-outlook/</loc>
-    <lastmod>2016-07-11T18:11:38+01:00</lastmod>
+    <lastmod>2016-07-11T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/how-i-work/</loc>
-    <lastmod>2016-07-09T18:08:16+01:00</lastmod>
+    <lastmod>2016-07-09T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/resizing-pinned-to-unpinned/</loc>
-    <lastmod>2016-06-30T10:55:58+01:00</lastmod>
+    <lastmod>2016-06-30T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/cpu-pinning-with-image-metadata/</loc>
-    <lastmod>2016-06-29T17:52:20+01:00</lastmod>
+    <lastmod>2016-06-29T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/znc-sasl-server-pass/</loc>
-    <lastmod>2016-06-26T14:00:39+01:00</lastmod>
+    <lastmod>2016-06-26T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -134,60 +134,60 @@
   
   <url>
     <loc>https://that.guru/blog/hello-world/</loc>
-    <lastmod>2016-06-25T18:50:22+01:00</lastmod>
+    <lastmod>2016-06-25T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2019-02-14T16:41:52+00:00</lastmod>
+    <lastmod>2019-02-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/c/</loc>
-    <lastmod>2016-07-15T11:26:37+01:00</lastmod>
+    <lastmod>2016-07-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/</loc>
-    <lastmod>2016-07-15T11:26:37+01:00</lastmod>
+    <lastmod>2016-07-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/documentation/</loc>
-    <lastmod>2017-12-06T16:03:48+00:00</lastmod>
+    <lastmod>2017-12-06T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/howto/</loc>
-    <lastmod>2016-07-15T11:26:37+01:00</lastmod>
+    <lastmod>2016-07-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/libvirt/</loc>
-    <lastmod>2019-02-14T16:41:52+00:00</lastmod>
+    <lastmod>2019-02-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/networking/</loc>
-    <lastmod>2019-02-14T16:41:52+00:00</lastmod>
+    <lastmod>2019-02-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2019-02-06T15:41:09+00:00</lastmod>
+    <lastmod>2019-02-06T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/patchwork/</loc>
-    <lastmod>2018-11-07T22:36:31+00:00</lastmod>
+    <lastmod>2018-11-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -199,7 +199,7 @@
   
   <url>
     <loc>https://that.guru/categories/random/</loc>
-    <lastmod>2016-07-13T14:33:21+01:00</lastmod>
+    <lastmod>2016-07-13T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -211,7 +211,7 @@
   
   <url>
     <loc>https://that.guru/categories/sysadmin/</loc>
-    <lastmod>2016-06-26T14:00:39+01:00</lastmod>
+    <lastmod>2016-06-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -223,13 +223,13 @@
   
   <url>
     <loc>https://that.guru/categories/tips/</loc>
-    <lastmod>2018-05-15T15:10:08+01:00</lastmod>
+    <lastmod>2018-05-15T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/travel/</loc>
-    <lastmod>2019-02-10T14:08:56+00:00</lastmod>
+    <lastmod>2019-02-10T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
