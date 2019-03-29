@@ -13,12 +13,67 @@
     
     
     <item>
-      <title>Will somebody *please* tell me what is going on?</title>
+      <title>Will Somebody *Please* Tell Me What Is Going On?</title>
       <link>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</link>
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
-      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.</description>
+      <description>This was a talk I gave at the inaugural PyCon Limerick in March 2019. I explored some tools available within the Python ecosystem that can be used to manage change.</description>
+    </item>
+    
+    <item>
+      <title>Who Needs pandoc When You Have Sphinx?</title>
+      <link>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</link>
+      <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</guid>
+      <description>This was a talk I gave at FOSDEM 2019. In this talk, subtitled &amp;ldquo;An exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I explored some of the less well known aspects of both Sphinx and docutils.</description>
+    </item>
+    
+    <item>
+      <title>How to Double* the Performance of vSwitch-based Deployments</title>
+      <link>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</link>
+      <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</guid>
+      <description>This was a talk I have at the OpenStack Summit Berlin in November 2018. In this talk, I discussed the NUMA-aware vSwitches feature recently added to OpenStack Nova, explaining what it was, why you&amp;rsquo;d want it and how you could use it.</description>
+    </item>
+    
+    <item>
+      <title>The Wonders of NUMA</title>
+      <link>https://that.guru/talks/the-wonders-of-numa/</link>
+      <pubDate>Wed, 23 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/the-wonders-of-numa/</guid>
+      <description>This talk was presented at the OpenStack Summit in Vancouver in May 2018. It provided an in-depth summary of what NUMA is and why it matters so much for high-performance workloads.</description>
+    </item>
+    
+    <item>
+      <title>A Lion, A Head, and A Dash of YAML</title>
+      <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</link>
+      <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</guid>
+      <description>This talk, delivered at FOSDEM 2018, provided a quick dive into the somewhat complicated world of Sphinx extensions. Sphinx is an incredibly powerful tool but, surprisingly for a documentation, suffers from poor quality documentation.</description>
+    </item>
+    
+    <item>
+      <title>Keeping It Real(Time)</title>
+      <link>https://that.guru/talks/keeping-it-real-time/</link>
+      <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/keeping-it-real-time/</guid>
+      <description>This talk was an expanded version of the talk I had given previously at the Sydney OpenStack Summit and, as then, I once again discussed the real-time capabilities of OpenStack Nova.</description>
+    </item>
+    
+    <item>
+      <title>Keeping It Real(Time)</title>
+      <link>https://that.guru/talks/keeping-it-real-time-sydney/</link>
+      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/keeping-it-real-time-sydney/</guid>
+      <description>Update: An expanded version of this talk was delivered at FOSDEM 2018 and is well worth the read if you&amp;rsquo;re interested in this.
+This talk was given as a lightning talk at the OpenStack Summit in Sydney in November 2017.</description>
     </item>
     
   </channel>

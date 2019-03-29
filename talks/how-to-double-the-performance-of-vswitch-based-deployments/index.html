@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>How Are Datacenters Physically Wired? | that.guru</title>
+  <title>How to Double* the Performance of vSwitch-based Deployments | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,7 +18,7 @@
 
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/40XgDxBfYXM);
+      background-image: url(https://source.unsplash.com/HUJDz6CJEaM);
     }
   </style>
 </head>
@@ -30,7 +30,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">How Are Datacenters Physically Wired?</h1>
+    <h1 class="title">How to Double* the Performance of vSwitch-based Deployments</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -60,56 +60,44 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2016-07-13T00:00:00Z'>Jul 13, 2016</time></p>
+  <h1><a href="https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/"><span>How to Double* the Performance of vSwitch-based Deployments</span></a></h1>
+  <p>Presented <time datetime='2018-11-13T00:00:00Z'>Nov 13, 2018</time></p>
 
   <div>
-    <p>I sent this question to my team in Intel some time ago.</p>
+    <p>This was a talk I have at the <a href="https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments">OpenStack Summit Berlin</a> in November 2018. In
+this talk, I discussed the <a href="https://specs.openstack.org/openstack/nova-specs/specs/rocky/implemented/numa-aware-vswitches.html">NUMA-aware vSwitches</a> feature recently added to
+OpenStack Nova, explaining what it was, why you&rsquo;d want it and how you could use
+it.</p>
 
 <blockquote>
-<p>I gave a run down on SDN, NFV and all things Open to the OpenStack new
-hires today. One of the questions that came out of this concerned the
-physical wiring of server room or datacenter using SDN. Does anyone
-have any info on how n servers in a datacenter would be physically
-connected (where n &gt;= 100, for example)? In case it matters, I&rsquo;m
-picturing either a mesh network (high efficiency, high complexity) or
-a hierarchical network of increasingly large-bandwidth switches and
-routers (low efficiency, low complexity), but I&rsquo;m only guessing here.</p>
+<p>vSwitch solutions, such as DPDK-accelerated Open vSwitch, promise to provide
+much of the performance of SR-IOV with increased flexibility and decreased
+operational cost. However, while the switch may be virtual, the hardware that
+the vSwitch and VMs are running on is not. Unlike SR-IOV, NUMA affinity was
+not accounted for when instances using vSwitch-backed networking. This could
+result in a loss of up to 50% of network performance.</p>
+
+<p>This changes in Rocky. With the completion of the NUMA-aware vSwitch feature,
+nova now has the ability to schedule and create you instances in a manner
+that will deliver the maximum possible performance from your vSwitch-powered
+network. Come learn how we did it and how you can start using this new
+functionality in your own deployments.</p>
+
+<p><strong>What can I expect to learn?</strong></p>
+
+<ul>
+<li>How NUMA can adversely affect the performance of your vSwitch-based
+deployment</li>
+<li>What features nova provides to eliminate this performance penalty and how
+you can use this functionality in your own deployments</li>
+<li>The work ongoing to continue improving performance in this area and related
+areas</li>
+</ul>
 </blockquote>
 
-<p><a href="https://ie.linkedin.com/in/robin-giller-1174193b">Robin Giller</a> started with an excellent introduction:</p>
+<p>More information is available on the <a href="https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments">OpenStack Summit Berlin</a> website.</p>
 
-<blockquote>
-<p>I believe that &ldquo;leaf and spine&rdquo; is the current topology of choice,
-moving away from the &ldquo;fat tree&rdquo; architecture of the past when one
-inbound request needed to be routed to one server, who would compute
-and send data back up to the core and out. Leaf and spine is more
-efficient when you&rsquo;ve got lots of east-west traffic. There&rsquo;s an
-explanation of both in the link below, and loads more available - just search
-for leaf and spine.</p>
-
-<p><a href="http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf">http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf</a></p>
-</blockquote>
-
-<p>While the always helpful <a href="https://ie.linkedin.com/in/sean-mooney-7a842429">Sean Mooney</a> provided that little bit
-of additional info:</p>
-
-<blockquote>
-<p>To expand on that, I believe it is leaf spine at the pod level (~5-10 racks
-of servers) with spine switches interconnected in a mesh.</p>
-
-<p>So each spine switch will be connected to leaf top-of-rack switches and then
-interconnected with other spine switches to form a core mesh network.</p>
-
-<p>There is also work in OpenStack around Hierarchical Port Binding to allow
-different overlay technologies to be used at the spine and leaf layers.
-<a href="https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding">https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding</a></p>
-
-<p>With Hierarchical Port Binding you can use VLANs between server and leaf
-level and VXLAN or other more scalable/computationally expensive overlays at
-the leaf/spine level.</p>
-</blockquote>
-
-<p>Interesting stuff.</p>
+<script async class="speakerdeck-embed" data-id="bafb785670034d3097959099f4549c42" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
 
   </div>
 

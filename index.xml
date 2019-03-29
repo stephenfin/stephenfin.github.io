@@ -13,16 +13,16 @@
     
     
     <item>
-      <title>Will somebody *please* tell me what is going on?</title>
+      <title>Will Somebody *Please* Tell Me What Is Going On?</title>
       <link>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</link>
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
-      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.</description>
+      <description>This was a talk I gave at the inaugural PyCon Limerick in March 2019. I explored some tools available within the Python ecosystem that can be used to manage change.</description>
     </item>
     
     <item>
-      <title>Direct vs Hostdev Interfaces in nova</title>
+      <title>Direct vs Hostdev Interfaces in Nova</title>
       <link>https://that.guru/blog/direct-vs-hostdev-interfaces/</link>
       <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
       
@@ -40,12 +40,30 @@
     </item>
     
     <item>
-      <title>Updating Mellanox ConnectX-3 NIC firmware</title>
+      <title>Updating Mellanox ConnectX-3 NIC Firmware</title>
       <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
       <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
       <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide.</description>
+    </item>
+    
+    <item>
+      <title>Who Needs pandoc When You Have Sphinx?</title>
+      <link>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</link>
+      <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</guid>
+      <description>This was a talk I gave at FOSDEM 2019. In this talk, subtitled &amp;ldquo;An exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I explored some of the less well known aspects of both Sphinx and docutils.</description>
+    </item>
+    
+    <item>
+      <title>How to Double* the Performance of vSwitch-based Deployments</title>
+      <link>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</link>
+      <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</guid>
+      <description>This was a talk I have at the OpenStack Summit Berlin in November 2018. In this talk, I discussed the NUMA-aware vSwitches feature recently added to OpenStack Nova, explaining what it was, why you&amp;rsquo;d want it and how you could use it.</description>
     </item>
     
     <item>
@@ -58,12 +76,39 @@
     </item>
     
     <item>
+      <title>The Wonders of NUMA</title>
+      <link>https://that.guru/talks/the-wonders-of-numa/</link>
+      <pubDate>Wed, 23 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/the-wonders-of-numa/</guid>
+      <description>This talk was presented at the OpenStack Summit in Vancouver in May 2018. It provided an in-depth summary of what NUMA is and why it matters so much for high-performance workloads.</description>
+    </item>
+    
+    <item>
       <title>Automatically Set The Name of tmux Windows</title>
       <link>https://that.guru/blog/automatically-set-tmux-window-name/</link>
       <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
       <description>I recently updated to Fedora 28 which includes a updated version of tmux - tmux 2.7. I quickly noted that my window title was no longer being set as before and eventually identified the issue: a breaking change in 2.</description>
+    </item>
+    
+    <item>
+      <title>A Lion, A Head, and A Dash of YAML</title>
+      <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</link>
+      <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</guid>
+      <description>This talk, delivered at FOSDEM 2018, provided a quick dive into the somewhat complicated world of Sphinx extensions. Sphinx is an incredibly powerful tool but, surprisingly for a documentation, suffers from poor quality documentation.</description>
+    </item>
+    
+    <item>
+      <title>Keeping It Real(Time)</title>
+      <link>https://that.guru/talks/keeping-it-real-time/</link>
+      <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/keeping-it-real-time/</guid>
+      <description>This talk was an expanded version of the talk I had given previously at the Sydney OpenStack Summit and, as then, I once again discussed the real-time capabilities of OpenStack Nova.</description>
     </item>
     
     <item>
@@ -85,6 +130,16 @@
     </item>
     
     <item>
+      <title>Keeping It Real(Time)</title>
+      <link>https://that.guru/talks/keeping-it-real-time-sydney/</link>
+      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/keeping-it-real-time-sydney/</guid>
+      <description>Update: An expanded version of this talk was delivered at FOSDEM 2018 and is well worth the read if you&amp;rsquo;re interested in this.
+This talk was given as a lightning talk at the OpenStack Summit in Sydney in November 2017.</description>
+    </item>
+    
+    <item>
       <title>Deploying Real Time Openstack</title>
       <link>https://that.guru/blog/deploying-real-time-openstack/</link>
       <pubDate>Tue, 31 Oct 2017 00:00:00 +0000</pubDate>
@@ -94,7 +149,7 @@
     </item>
     
     <item>
-      <title>Patchwork and CI in a tree</title>
+      <title>Patchwork and CI in a Tree</title>
       <link>https://that.guru/blog/patchwork-and-ci-in-a-tree/</link>
       <pubDate>Sun, 12 Feb 2017 00:00:00 +0000</pubDate>
       
@@ -104,7 +159,7 @@ With the upcoming release of Patchwork 2.0, Patchwork will provides first class 
     </item>
     
     <item>
-      <title>Open Python paths with vim</title>
+      <title>Open Python Paths with vim</title>
       <link>https://that.guru/blog/open-python-paths-with-vim/</link>
       <pubDate>Mon, 06 Feb 2017 00:00:00 +0000</pubDate>
       
@@ -132,7 +187,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>MTUs in neutron</title>
+      <title>MTUs in Neutron</title>
       <link>https://that.guru/blog/mtus-in-neutron/</link>
       <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
       
@@ -159,7 +214,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>How are datacenters physically wired?</title>
+      <title>How Are Datacenters Physically Wired?</title>
       <link>https://that.guru/blog/how-are-datacenters-physically-wired/</link>
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
@@ -169,7 +224,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>Loading mailing list archives with Mutt</title>
+      <title>Loading Mailing List Archives with Mutt</title>
       <link>https://that.guru/blog/mutt-archives/</link>
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
@@ -187,7 +242,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>Sane Outlook: Making plain text better in Outlook</title>
+      <title>Sane Outlook: Making Plain Text Better in Outlook</title>
       <link>https://that.guru/blog/sane-outlook/</link>
       <pubDate>Mon, 11 Jul 2016 00:00:00 +0000</pubDate>
       
@@ -205,7 +260,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>Resizing pinned instances to unpinned</title>
+      <title>Resizing Pinned Instances to Unpinned</title>
       <link>https://that.guru/blog/resizing-pinned-to-unpinned/</link>
       <pubDate>Thu, 30 Jun 2016 00:00:00 +0000</pubDate>
       
@@ -214,7 +269,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>CPU pinning with image metadata</title>
+      <title>CPU Pinning with Image Metadata</title>
       <link>https://that.guru/blog/cpu-pinning-with-image-metadata/</link>
       <pubDate>Wed, 29 Jun 2016 00:00:00 +0000</pubDate>
       

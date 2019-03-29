@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>How Are Datacenters Physically Wired? | that.guru</title>
+  <title>Who Needs pandoc When You Have Sphinx? | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,7 +18,7 @@
 
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/40XgDxBfYXM);
+      background-image: url(https://source.unsplash.com/dGxOgeXAXm8);
     }
   </style>
 </head>
@@ -30,7 +30,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">How Are Datacenters Physically Wired?</h1>
+    <h1 class="title">Who Needs pandoc When You Have Sphinx?</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -60,56 +60,45 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2016-07-13T00:00:00Z'>Jul 13, 2016</time></p>
+  <h1><a href="https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/"><span>Who Needs pandoc When You Have Sphinx?</span></a></h1>
+  <p>Presented <time datetime='2019-02-02T00:00:00Z'>Feb 2, 2019</time></p>
 
   <div>
-    <p>I sent this question to my team in Intel some time ago.</p>
+    <p>This was a talk I gave at <a href="https://fosdem.org/2019/schedule/event/sphinx/">FOSDEM 2019</a>. In this talk, subtitled &ldquo;An
+exploration of the parsers and builders of the Sphinx documentation tool&rdquo;, I
+explored some of the less well known aspects of both Sphinx and docutils.</p>
 
 <blockquote>
-<p>I gave a run down on SDN, NFV and all things Open to the OpenStack new
-hires today. One of the questions that came out of this concerned the
-physical wiring of server room or datacenter using SDN. Does anyone
-have any info on how n servers in a datacenter would be physically
-connected (where n &gt;= 100, for example)? In case it matters, I&rsquo;m
-picturing either a mesh network (high efficiency, high complexity) or
-a hierarchical network of increasingly large-bandwidth switches and
-routers (low efficiency, low complexity), but I&rsquo;m only guessing here.</p>
+<p>Using Sphinx doesn&rsquo;t necessarily mean using reStructuredText for input and
+HTML for output. We explore Sphinx&rsquo;s newfound support for Markdown as well as
+it&rsquo;s broad range output formats available, before moving onto an overview of
+how you can develop your parser and builder extensions.</p>
+
+<p>Sphinx is the documentation tool of choice for an increasing amount of
+projects, both inside and outside Python. Thanks to the success of platforms
+like Read the Docs, building documentation with this toolkit has never been
+easier. Most people associate Sphinx with the reStructuredText syntax
+provided by docutils, and typically output documents to HTML and,
+occasionally, PDF. However, Sphinx is capable of so much more. Since Sphinx
+1.8, it is possible to use source documents written in the CommonMark syntax,
+while the amount of builders provided both in-tree and out-of-tree continue
+to grow.</p>
+
+<p>Through this talk, we explore how one can build their documentation using
+Sphinx and Markdown source documents. We detail the variety of builders
+available as part of the standard Sphinx installation and as third-party
+extensions, including some basic configuration tips for the more commonly
+useful ones like man pages and LaTeX/PDF. Finally, we provide a high-level
+overview on how you can go about writing your own extensions to parse other
+plain-text documentation formats and output in additional documentation
+format. The latter of these will touch on docutils, a foundational component
+of Sphinx, so one can understand the intermediate documentation model it
+provides.</p>
 </blockquote>
 
-<p><a href="https://ie.linkedin.com/in/robin-giller-1174193b">Robin Giller</a> started with an excellent introduction:</p>
+<p>Full information is available on the <a href="https://fosdem.org/2019/schedule/event/sphinx/">FOSDEM</a> website.</p>
 
-<blockquote>
-<p>I believe that &ldquo;leaf and spine&rdquo; is the current topology of choice,
-moving away from the &ldquo;fat tree&rdquo; architecture of the past when one
-inbound request needed to be routed to one server, who would compute
-and send data back up to the core and out. Leaf and spine is more
-efficient when you&rsquo;ve got lots of east-west traffic. There&rsquo;s an
-explanation of both in the link below, and loads more available - just search
-for leaf and spine.</p>
-
-<p><a href="http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf">http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf</a></p>
-</blockquote>
-
-<p>While the always helpful <a href="https://ie.linkedin.com/in/sean-mooney-7a842429">Sean Mooney</a> provided that little bit
-of additional info:</p>
-
-<blockquote>
-<p>To expand on that, I believe it is leaf spine at the pod level (~5-10 racks
-of servers) with spine switches interconnected in a mesh.</p>
-
-<p>So each spine switch will be connected to leaf top-of-rack switches and then
-interconnected with other spine switches to form a core mesh network.</p>
-
-<p>There is also work in OpenStack around Hierarchical Port Binding to allow
-different overlay technologies to be used at the spine and leaf layers.
-<a href="https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding">https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding</a></p>
-
-<p>With Hierarchical Port Binding you can use VLANs between server and leaf
-level and VXLAN or other more scalable/computationally expensive overlays at
-the leaf/spine level.</p>
-</blockquote>
-
-<p>Interesting stuff.</p>
+<script async class="speakerdeck-embed" data-id="c7922a6d0b2c4e6a81cf63d6bba906ae" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
 
   </div>
 

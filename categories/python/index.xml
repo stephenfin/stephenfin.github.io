@@ -13,12 +13,12 @@
     
     
     <item>
-      <title>Will somebody *please* tell me what is going on?</title>
+      <title>Will Somebody *Please* Tell Me What Is Going On?</title>
       <link>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</link>
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
-      <description>Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are removed, things break and are then hopefully fixed. Managing this, from both the developer and user perspective, can be tough.</description>
+      <description>This was a talk I gave at the inaugural PyCon Limerick in March 2019. I explored some tools available within the Python ecosystem that can be used to manage change.</description>
     </item>
     
   </channel>

@@ -13,12 +13,21 @@
     
     
     <item>
-      <title>Updating Mellanox ConnectX-3 NIC firmware</title>
+      <title>Updating Mellanox ConnectX-3 NIC Firmware</title>
       <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
       <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
       <description>In a previous post, I provided a guide on configuring SR-IOV for a Mellanox ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting to follow through on the same guide.</description>
+    </item>
+    
+    <item>
+      <title>How to Double* the Performance of vSwitch-based Deployments</title>
+      <link>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</link>
+      <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</guid>
+      <description>This was a talk I have at the OpenStack Summit Berlin in November 2018. In this talk, I discussed the NUMA-aware vSwitches feature recently added to OpenStack Nova, explaining what it was, why you&amp;rsquo;d want it and how you could use it.</description>
     </item>
     
     <item>
@@ -31,12 +40,40 @@
     </item>
     
     <item>
+      <title>The Wonders of NUMA</title>
+      <link>https://that.guru/talks/the-wonders-of-numa/</link>
+      <pubDate>Wed, 23 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/the-wonders-of-numa/</guid>
+      <description>This talk was presented at the OpenStack Summit in Vancouver in May 2018. It provided an in-depth summary of what NUMA is and why it matters so much for high-performance workloads.</description>
+    </item>
+    
+    <item>
+      <title>Keeping It Real(Time)</title>
+      <link>https://that.guru/talks/keeping-it-real-time/</link>
+      <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/keeping-it-real-time/</guid>
+      <description>This talk was an expanded version of the talk I had given previously at the Sydney OpenStack Summit and, as then, I once again discussed the real-time capabilities of OpenStack Nova.</description>
+    </item>
+    
+    <item>
       <title>Building PDFs for OpenStack documentation</title>
       <link>https://that.guru/blog/create-pdfs-for-openstack/</link>
       <pubDate>Wed, 06 Dec 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
       <description>I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation various of various OpenStack projects. However, OpenStack uses Sphinx across the board and Sphinx, being the awesome tool that it is, supports many other output formats.</description>
+    </item>
+    
+    <item>
+      <title>Keeping It Real(Time)</title>
+      <link>https://that.guru/talks/keeping-it-real-time-sydney/</link>
+      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/keeping-it-real-time-sydney/</guid>
+      <description>Update: An expanded version of this talk was delivered at FOSDEM 2018 and is well worth the read if you&amp;rsquo;re interested in this.
+This talk was given as a lightning talk at the OpenStack Summit in Sydney in November 2017.</description>
     </item>
     
     <item>
@@ -49,7 +86,7 @@
     </item>
     
     <item>
-      <title>Open Python paths with vim</title>
+      <title>Open Python Paths with vim</title>
       <link>https://that.guru/blog/open-python-paths-with-vim/</link>
       <pubDate>Mon, 06 Feb 2017 00:00:00 +0000</pubDate>
       
@@ -59,7 +96,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>MTUs in neutron</title>
+      <title>MTUs in Neutron</title>
       <link>https://that.guru/blog/mtus-in-neutron/</link>
       <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
       
@@ -77,7 +114,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>Resizing pinned instances to unpinned</title>
+      <title>Resizing Pinned Instances to Unpinned</title>
       <link>https://that.guru/blog/resizing-pinned-to-unpinned/</link>
       <pubDate>Thu, 30 Jun 2016 00:00:00 +0000</pubDate>
       
@@ -86,7 +123,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>CPU pinning with image metadata</title>
+      <title>CPU Pinning with Image Metadata</title>
       <link>https://that.guru/blog/cpu-pinning-with-image-metadata/</link>
       <pubDate>Wed, 29 Jun 2016 00:00:00 +0000</pubDate>
       

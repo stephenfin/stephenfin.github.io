@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>MTUs in Neutron | that.guru</title>
+  <title>Sphinx | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,7 +18,7 @@
 
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/qTEj-KMMq_Q);
+      background-image: url(https://source.unsplash.com/hgThOxNqQq0);
     }
   </style>
 </head>
@@ -30,7 +30,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">MTUs in Neutron</h1>
+    <h1 class="title">Categories</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -60,108 +60,7 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2016-12-06T00:00:00Z'>Dec 6, 2016</time></p>
-
-  <div>
-    <p>I&rsquo;m not overly familiar with neutron but it appears that in the past correctly
-setting MTU values was easier said than done. This has been massively improved
-in recent releases, but getting us to this point required a lot of work and, in
-particular, a lot of changes to the MTU-related configuration options available
-over the course of Liberty and Newton. The below table tries to collect these
-changes in a coherent table.</p>
-
-<table>
-<thead>
-<tr>
-<th>Configuration Option</th>
-<th>Version</th>
-<th>Commit</th>
-<th>Comments</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><code>segment_mtu</code></td>
-<td>Liberty</td>
-<td>-</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td><code>path_mtu</code></td>
-<td>Liberty</td>
-<td>-</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td><code>segment_mtu</code></td>
-<td>Mitaka</td>
-<td>b2d0985d</td>
-<td>Default set to 1500</td>
-</tr>
-
-<tr>
-<td><code>global_physnet_mtu</code></td>
-<td>Mitaka</td>
-<td>ae45cd57</td>
-<td>New name for <code>segment_mtu</code></td>
-</tr>
-
-<tr>
-<td><code>path_mtu</code></td>
-<td>Mitaka</td>
-<td>7a4633a9</td>
-<td>Default set to 1500</td>
-</tr>
-
-<tr>
-<td><code>global_physnet_mtu</code></td>
-<td>Newton</td>
-<td>-</td>
-<td>-</td>
-</tr>
-
-<tr>
-<td><code>path_mtu</code></td>
-<td>Newton</td>
-<td>38531ca5</td>
-<td>Default set to 0</td>
-</tr>
-</tbody>
-</table>
-
-<p>These options are described in the docs for both <a href="http://docs.openstack.org/mitaka/networking-guide/config-mtu.html">Mitaka</a> and
-<a href="http://docs.openstack.org/newton/networking-guide/config-mtu.html">Newton</a>.</p>
-
-<p>In addition, it&rsquo;s also worth noting that the default for <code>global_physnet_mtu</code>
-in TripleO was changed from 1400 to 1500 as part of <a href="https://bugs.launchpad.net/tripleo/+bug/1590101">bug 1590101</a>.</p>
-
-  </div>
-
-  <div class="disqus">
-    <div id="disqus_thread"></div>
-<script>
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-  </div>
+  
 
     </main>
   </div>

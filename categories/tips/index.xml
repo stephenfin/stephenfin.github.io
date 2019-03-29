@@ -31,7 +31,7 @@
     </item>
     
     <item>
-      <title>Open Python paths with vim</title>
+      <title>Open Python Paths with vim</title>
       <link>https://that.guru/blog/open-python-paths-with-vim/</link>
       <pubDate>Mon, 06 Feb 2017 00:00:00 +0000</pubDate>
       
@@ -59,7 +59,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>MTUs in neutron</title>
+      <title>MTUs in Neutron</title>
       <link>https://that.guru/blog/mtus-in-neutron/</link>
       <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
       
@@ -77,7 +77,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>Loading mailing list archives with Mutt</title>
+      <title>Loading Mailing List Archives with Mutt</title>
       <link>https://that.guru/blog/mutt-archives/</link>
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
@@ -95,7 +95,7 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
-      <title>Sane Outlook: Making plain text better in Outlook</title>
+      <title>Sane Outlook: Making Plain Text Better in Outlook</title>
       <link>https://that.guru/blog/sane-outlook/</link>
       <pubDate>Mon, 11 Jul 2016 00:00:00 +0000</pubDate>
       

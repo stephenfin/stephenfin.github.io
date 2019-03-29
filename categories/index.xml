@@ -24,7 +24,7 @@
     <item>
       <title>Documentation</title>
       <link>https://that.guru/categories/documentation/</link>
-      <pubDate>Wed, 06 Dec 2017 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/documentation/</guid>
       <description></description>
@@ -90,6 +90,15 @@
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/random/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Sphinx</title>
+      <link>https://that.guru/categories/sphinx/</link>
+      <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/sphinx/</guid>
       <description></description>
     </item>
     
