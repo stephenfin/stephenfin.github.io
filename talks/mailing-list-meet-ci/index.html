@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mailing List, Meet CI | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/pwcKF7L4-no);
+    }
+  </style>
+</head>
+
+<body>
+<div class="home-button">
+  <a class="home-link" href="https://that.guru/"><i class="fas fa-home"></i></a>
+</div>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Mailing List, Meet CI</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <h1><a href="https://that.guru/talks/mailing-list-meet-ci/"><span>Mailing List, Meet CI</span></a></h1>
+  <p>Presented <time datetime='2017-02-05T00:00:00Z'>Feb 5, 2017</time></p>
+
+  <div>
+    <p>This talk was presented as a lightning talk at <a href="https://fosdem.org/2017/schedule/event/patchwork_jenkins/">FOSDEM 2017</a>. It described
+the CI features provided in Patchwork 2.0, which was at the time unreleased. I
+wrote a <a href="https://that.guru/blog/patchwork-and-ci-in-a-tree/">blog post</a> to accompany the talk which is well worth reading
+(updated since to reflect changes in Patchwork 2.0 final).</p>
+
+<blockquote>
+<p>What does it take to implement continuous integration-style automated testing
+into a mailing list-driven software project? Not a lot, actually. In this
+talk, we demonstrate how a simple but easily scaled testing system can be
+implemented for a such a project through the combination of Patchwork, the
+web-based patch tracking system, and open source CI tools such as Jenkins.</p>
+
+<p>At FOSDEM 2016, developers working on Patchwork, the web-based patch tracking
+system, demonstrated some of the ongoing work in Patchwork. This work ranged
+from UI improvements to new features and APIs but, collectively, it had the
+goal of enabling automated testing functionality for software projects
+developed via mailing lists. The Patchwork developers have been busy since
+then and the application, in widespread use since 2008, recently hit the 2.0
+milestone, marking this functionality as complete.</p>
+
+<p>Projects such as the Dataplane Development Kit (DPDK) have quickly adopted
+the features that 2.0 brings, using them to enable real time, automated
+testing of patches sent to the mailing list. This automated testing provides
+a mechanism for developers to not only sidestep the more perfunctory of
+tasks, such as coding standard checks, but also to test changes in
+environments that they may not have at their disposal, such as differing
+hardware or OS configurations. As seen in projects pairing open source code
+collaboration tools like Gerrit or Rietveld with CI systems such as Jenkins
+or BuildBot, this continuous testing can provide huge improvements in
+developer velocity.</p>
+
+<p>In this talk, we demonstrate how to build a basic &ldquo;checkstyle&rdquo; testing system
+through a combination of Patchwork and an off-the-shelf, open source CI
+system. This system will retrieve patches and dependencies, apply and test
+them, and report the results back to both Patchwork and a separate mailing
+list. This configuration demonstrates the best of Patchwork&rsquo;s new features,
+and can be easily extended to cover far more complex testing scenarios.</p>
+</blockquote>
+
+<script async class="speakerdeck-embed" data-id="ce06b0e45f1e460b9fc3d5d96e65ab31" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
+
+  </div>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2019 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://unpkg.com/moment"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-80652159-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

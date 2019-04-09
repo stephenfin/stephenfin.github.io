@@ -169,6 +169,15 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
     </item>
     
     <item>
+      <title>Mailing List, Meet CI</title>
+      <link>https://that.guru/talks/mailing-list-meet-ci/</link>
+      <pubDate>Sun, 05 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/mailing-list-meet-ci/</guid>
+      <description>This talk was presented as a lightning talk at FOSDEM 2017. It described the CI features provided in Patchwork 2.0, which was at the time unreleased.</description>
+    </item>
+    
+    <item>
       <title>Creating a Windows 7 USB on Fedora 25</title>
       <link>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</link>
       <pubDate>Tue, 31 Jan 2017 00:00:00 +0000</pubDate>
@@ -311,6 +320,15 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       
       <guid>https://that.guru/blog/hello-world/</guid>
       <description>This is my new, Hugo-powered blog. I have a backlog of articles to publish, so expect to see lots of material going up here in the next few weeks.</description>
+    </item>
+    
+    <item>
+      <title>A New Patchwork</title>
+      <link>https://that.guru/talks/a-new-patchwork/</link>
+      <pubDate>Sun, 31 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-new-patchwork/</guid>
+      <description>This was my first ever presentation to an audience that wasn&amp;rsquo;t entirely my colleagues or fellow students. It was delivered as a lightning talk at FOSDEM 2016 and focused on the work that had been done to bring Patchwork up-to-date, after it had languished for a couple of years.</description>
     </item>
     
   </channel>

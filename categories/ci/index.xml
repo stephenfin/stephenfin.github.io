@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ci on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/ci/</link>
+    <description>Recent content in Ci on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
+    <lastBuildDate>Sun, 05 Feb 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://that.guru/categories/ci/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Mailing List, Meet CI</title>
+      <link>https://that.guru/talks/mailing-list-meet-ci/</link>
+      <pubDate>Sun, 05 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/mailing-list-meet-ci/</guid>
+      <description>This talk was presented as a lightning talk at FOSDEM 2017. It described the CI features provided in Patchwork 2.0, which was at the time unreleased.</description>
+    </item>
+    
+  </channel>
+</rss>
