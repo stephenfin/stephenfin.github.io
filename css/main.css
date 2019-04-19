@@ -340,7 +340,6 @@ blockquote {
 
 /* Content */
 
-
 h2 {
   display: inline-block;
   background-color: black;
@@ -379,6 +378,25 @@ h2 {
 
 .page-link {
   border-bottom: 3px solid black;
+}
+
+.admonition {
+  margin: 1rem 0;
+  padding-left: 1.75rem;
+  color: #444;
+  border-left: 10px solid black;
+}
+
+.admonition.note::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f129";
+}
+
+.admonition.important::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f071";
 }
 
 /* ==========================================================================

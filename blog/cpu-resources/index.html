@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>NUMA, CPU Pinning and &#39;vcpu_pin_set&#39; | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/FemeYrbdMWE);
+    }
+  </style>
+</head>
+
+<body>
+<div class="home-button">
+  <a class="home-link" href="https://that.guru/"><i class="fas fa-home"></i></a>
+</div>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">NUMA, CPU Pinning and &#39;vcpu_pin_set&#39;</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <p>Published <time datetime='2019-04-19T00:00:00Z'>Apr 19, 2019</time></p>
+
+  <div>
+    
+
+<p>The libvirt driver in the OpenStack Compute service (nova) has supported
+instance NUMA topologies for a number of releases. A NUMA topology can be added
+to an instance either explicitly, using the <code>hw:numa_nodes=N</code> flavor extra
+spec, or implicitly, by requesting a specific mempage size
+(<code>hw:mem_page_size=N</code>) or CPU pinning (<code>hw:cpu_policy=dedicated</code>). For
+historical reasons, it is not possible to request memory pages or CPU pinning
+without getting a NUMA topology meaning every pinned instance or instance with
+hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
+topology associated with it.</p>
+
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>For most of the extra specs mentioned here and below, there exists an
+equivalent image metadata property. These are omitted here for brevity.</p>
+</div>
+</aside>
+
+
+<p>For yet more historical reasons, nova has gained a number of configuration
+options that only apply to these instances with NUMA topologies or those
+without. This article aims to discuss the implications of one of these,
+<code>vcpu_pin_set</code>, through a number of relevant examples.</p>
+
+<h2 id="overview-of-vcpu-pin-set">Overview of <code>vcpu_pin_set</code></h2>
+
+<p>The <code>vcpu_pin_set</code> option has existed in nova for quite some time and describes
+itself as:</p>
+
+<blockquote>
+<p>Defines which physical CPUs (pCPUs) can be used by instance
+virtual CPUs (vCPUs).</p>
+
+<p>Possible values:</p>
+
+<ul>
+<li><p>A comma-separated list of physical CPU numbers that virtual CPUs can be
+allocated to by default. Each element should be either a single CPU number,
+a range of CPU numbers, or a caret followed by a CPU number to be
+excluded from a previous range. For example:</p>
+
+<pre><code>vcpu_pin_set = &quot;4-12,^8,15&quot;
+</code></pre></li>
+</ul>
+</blockquote>
+
+<p>This config option has two purposes. Firstly, the placement service uses it to
+generate the amount of <code>VCPU</code> resources available on a given host using the
+following formula:</p>
+
+<pre><code>(SUM(CONF.vcpu_pin_set) * CONF.cpu_allocation_ratio) - CONF.reserved_host_cpus
+</code></pre>
+
+<p>(where <code>SUM</code> is the sum of CPUs expressed by the CPU mask).</p>
+
+<p>How we do this can be seen at <a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754"><a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754">1</a></a>, <a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661"><a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661">2</a></a>, <a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935"><a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935">3</a></a>.</p>
+
+<p>The number of <code>VCPU</code> resources impacts instances regardless of whether they
+have a NUMA topology or not since potential NUMA/non-NUMA&rsquo;ness is not
+considered at this early stage of scheduling. However, once allocation
+candidates have been provided by placement, we see the original purpose of this
+option emerge: for instances with a NUMA topology, it is used by
+<code>nova-scheduler</code> (specifically by the <code>NUMATopologyFilter</code>) and by
+<code>nova-compute</code> (when building instance XML). NUMA instances either map their
+entire range of instance cores to a range of host cores (for non-pinned
+instances) or each individual instance core to a specific host core (for pinned
+instances), and this mapping is calculated by both <code>nova-scheduler</code>&rsquo;s
+<code>NUMATopologyFilter</code> filter and <code>nova-compute</code> <code>vcpu_pin_set</code> is used to limit
+which of these host cores can be used and allows you to do things like exclude
+every core from a host NUMA node. However, since instances without a NUMA
+topology are entirely floating and are not limited to any host NUMA node, this
+option is totally ignored.</p>
+
+<h2 id="examples">Examples</h2>
+
+<p>Let&rsquo;s look at some examples of how this would be reflected in the real world.
+For all these example, consider a host with two sockets and two CPUs with four
+cores and no hyperthreading (so eight CPUs).</p>
+
+<p><img src="https://that.guru/media/cpu-resources_host-topology.png" alt="Non-NUMA instances without `vcpu_pin_set`" /></p>
+
+<p><em>The host NUMA topology with two sockets and four cores per socket</em></p>
+
+<p>We can see the resources that this reports like so:</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 8     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 8     |
++------------------+-------+
+</code></pre>
+
+<h3 id="non-numa">Non-NUMA</h3>
+
+<p>First, consider an instance without a NUMA topology:</p>
+
+<pre><code>$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
+$ openstack server create --flavor test-flavor ... test-server
+</code></pre>
+
+<p>As this instance does not have a NUMA topology, the instance will float across
+all host cores with no regard for NUMA affinity.</p>
+
+<p><img src="https://that.guru/media/cpu-resources_non-numa.png" alt="Non-NUMA instances without `vcpu_pin_set`" /></p>
+
+<p><em>The host NUMA topology is ignored for instances without a NUMA topology.</em></p>
+
+<p>If we look at what placement is reporting, we can see that our inventory has
+changed accordingly:</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider usage show \
+    6a969900-bbf7-4725-959b-2db3092933b0
++----------------+-------+
+| resource_class | usage |
++----------------+-------+
+| VCPU           |     2 |
+| MEMORY_MB      |   512 |
+| DISK_GB        |     0 |
++----------------+-------+
+</code></pre>
+
+<p>Now let&rsquo;s use <code>vcpu_pin_set</code> to exclude the cores from host NUMA node <code>0</code> as
+seen in the sample <code>nova.conf</code> below, then restart the service:</p>
+
+<pre><code>[DEFAULT]
+vcpu_pin_set = 4-7
+</code></pre>
+
+<p>If we examine the number of resources available in placement, we can see that
+it has changed:</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 4     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 4     |
++------------------+-------+
+</code></pre>
+
+<p>Unfortunately though, because the instance does not have a NUMA topology, this
+option is completely ignored when actually booting the instance. As above, the
+instance continues to run across the entire range of host cores.</p>
+
+<p><img src="https://that.guru/media/cpu-resources_non-numa.png" alt="Non-NUMA instances with `vcpu_pin_set`" /></p>
+
+<p><em>The <code>vcpu_pin_set</code> option is also ignored for instances without a NUMA
+topology.</em></p>
+
+<h3 id="numa-no-pinning">NUMA, no pinning</h3>
+
+<p>Next, consider an instance with a NUMA topology. We can create such an instance
+like so:</p>
+
+<pre><code>$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
+$ openstack flavor set --property hw:numa_nodes=1 test-flavor
+$ openstack server create --flavor test-flavor ... test-server
+</code></pre>
+
+<p>Because this instance has a NUMA topology, the instance will be confined to
+cores from a single host NUMA node.</p>
+
+<p><img src="https://that.guru/media/cpu-resources_numa_wo_vcpu_pin_set.png" alt="NUMA instances without `vcpu_pin_set`" /></p>
+
+<p><em>The host NUMA topology is considered for instances with a NUMA topology.</em></p>
+
+<p>Now, once again we&rsquo;ll use <code>vcpu_pin_set</code> to exclude the cores from host NUMA
+node <code>0</code> via <code>nova.conf</code>:</p>
+
+<pre><code>[DEFAULT]
+vcpu_pin_set = 4-7
+</code></pre>
+
+<p>And again we&rsquo;ll see this change in what&rsquo;s reported to placement:</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 4     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 4     |
++------------------+-------+
+</code></pre>
+
+<p>This time <code>vcpu_pin_set</code> will actually be respected and we&rsquo;ll see it reflected
+in the host cores used by the instance.</p>
+
+<p><img src="https://that.guru/media/cpu-resources_numa_w_vcpu_pin_set.png" alt="NUMA instances with `vcpu_pin_set`" /></p>
+
+<p><em>The <code>vcpu_pin_set</code> option is respected for instances with a NUMA topology, so
+cores <code>0-3</code> are excluded.</em></p>
+
+<h3 id="numa-with-pinning">NUMA, with pinning</h3>
+
+<p>Finally, let&rsquo;s consider pinned instances. We can create such an instance like
+so:</p>
+
+<pre><code>$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
+$ openstack flavor set --property hw:cpu_policy=dedicated test-flavor
+$ openstack server create --flavor test-flavor ... test-server
+</code></pre>
+
+<p>As noted previously, these have an implicit NUMA topology but whereas every
+core of an unpinned instance is mapped to the same range of host cores, the
+cores of pinned instances are mapped to their own individual host cores.</p>
+
+<p><img src="https://that.guru/media/cpu-resources_pinning_wo_vcpu_pin_set.png" alt="Pinned instances without `vcpu_pin_set`" /></p>
+
+<p>Because they have a NUMA topology, pinned instances also respect
+<code>vcpu_pin_set</code>. As always, we can use <code>vcpu_pin_set</code> to exclude the cores from
+host NUMA node <code>0</code> via <code>nova.conf</code>:</p>
+
+<pre><code>[DEFAULT]
+vcpu_pin_set = 4-7
+</code></pre>
+
+<p>As always, we&rsquo;ll see this reflected in placement:</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 4     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 4     |
++------------------+-------+
+</code></pre>
+
+<p>And because pinned instances also have a NUMA topology, we&rsquo;ll also see this
+reflected in the host cores used by the instance.</p>
+
+<p><img src="https://that.guru/media/cpu-resources_pinning_w_vcpu_pin_set.png" alt="Pinned instances with `vcpu_pin_set`" /></p>
+
+<p><em>The <code>vcpu_pin_set</code> option is also respected for instances with CPU pinning.</em></p>
+
+<p>However, it&rsquo;s worth noting here that pinned instances cannot be overcommited.
+Despite the fact that we have an <code>allocation_ratio</code> of 16.0, we can only
+schedule <code>total</code> instances cores. These cores also can&rsquo;t be spread across host
+NUMA nodes unless you&rsquo;ve specifically said otherwise (via the
+<code>hw:numa_nodes=N</code> flavor extra spec).</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>The <code>vcpu_pin_set</code> option is used to generate the amonut of <code>VCPU</code> resources
+available in placement but it otherwise has no effect on instances without a
+NUMA topology. For instances with a NUMA topology, it also controls the host
+cores that the instance can schedule to.</p>
+
+  </div>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2019 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://unpkg.com/moment"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-80652159-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
