@@ -206,6 +206,11 @@ blockquote {
   border-left: 10px solid black;
 }
 
+pre,
+pre code {
+  overflow: auto;
+}
+
 /* Structure */
 
 .header-wrapper {
@@ -427,7 +432,7 @@ h2 {
 
 @media only screen and (max-width: 768px) {
   .title {
-    font-size: 3rem;
+    font-size: 2rem;
   }
 
   .column {
