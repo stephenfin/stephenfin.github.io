@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 19 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 30 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Working With Documentation, The Openstack Way</title>
+      <link>https://that.guru/talks/working-with-documentation-the-openstack-way/</link>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/working-with-documentation-the-openstack-way/</guid>
+      <description>This talk was co-presented with Alex Settle at the Denver OpenStack Summit in April 2019. It serves as a brief history of documentation within OpenStack along with a how-to on contributing to documentation today.</description>
+    </item>
     
     <item>
       <title>NUMA, CPU Pinning and &#39;vcpu_pin_set&#39;</title>
