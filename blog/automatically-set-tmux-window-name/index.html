@@ -72,12 +72,9 @@ my guide on ensuring <em>tmux</em> displays a useful title for each window.</p>
 
 <p>What I&rsquo;m looking to achieve is a prompt like the following:</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/automatically-set-tmux-window-name.png" alt="tmux prompt" />
-    
-    
+    <img src="https://that.guru/media/automatically-set-tmux-window-name.png"
+         alt="tmux prompt"/> 
 </figure>
 
 
@@ -153,14 +150,14 @@ esac
 </code></pre>
 
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>This is actually a little more complicated that necessary but it with ensure
-we get the format requested both when we&rsquo;re using <em>tmux</em> (the latter case)
-and when we are not (the former).</p>
+    
+    
+    <div class="admonition-content">
+This is actually a little more complicated that necessary but it with ensure
+we get the format requested both when we're using *tmux* (the latter case)
+and when we are not (the former).
 </div>
 </aside>
-
 
 <p>You also need to configure the following in your <code>.tmux.conf</code> in order to
 work around the breaking change mentioned above:</p>
@@ -174,7 +171,7 @@ work around the breaking change mentioned above:</p>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
-<script>
+<script type="application/javascript">
     var disqus_config = function () {
     
     
@@ -227,12 +224,16 @@ work around the breaking change mentioned above:</p>
 
 
 
-<script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'UA-80652159-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 

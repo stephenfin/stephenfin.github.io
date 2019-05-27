@@ -144,14 +144,14 @@ projects, provides a LaTeX template with the following dependencies.</p>
 </ul>
 
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>I built this list manually by running <code>make</code> and then installing whatever
-dependency <code>latexmk</code> complained about. There&rsquo;s probably easier ways to do this,
-such as installing a larger package but I&rsquo;m not aware of it at this time.</p>
+    
+    
+    <div class="admonition-content">
+I built this list manually by running `make` and then installing whatever
+dependency `latexmk` complained about. There's probably easier ways to do this,
+such as installing a larger package but I'm not aware of it at this time.
 </div>
 </aside>
-
 
 <p>Installation of all the above.</p>
 
@@ -225,7 +225,7 @@ this case, <code>doc/build/latex/os-doc-demo.pdf</code>)</p>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
-<script>
+<script type="application/javascript">
     var disqus_config = function () {
     
     
@@ -278,12 +278,16 @@ this case, <code>doc/build/latex/os-doc-demo.pdf</code>)</p>
 
 
 
-<script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'UA-80652159-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 

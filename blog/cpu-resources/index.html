@@ -76,13 +76,13 @@ hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
 topology associated with it.</p>
 
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>For most of the extra specs mentioned here and below, there exists an
-equivalent image metadata property. These are omitted here for brevity.</p>
+    
+    
+    <div class="admonition-content">
+For most of the extra specs mentioned here and below, there exists an
+equivalent image metadata property. These are omitted here for brevity.
 </div>
 </aside>
-
 
 <p>For yet more historical reasons, nova has gained a number of configuration
 options that only apply to these instances with NUMA topologies or those
@@ -338,7 +338,7 @@ cores that the instance can schedule to.</p>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
-<script>
+<script type="application/javascript">
     var disqus_config = function () {
     
     
@@ -391,12 +391,16 @@ cores that the instance can schedule to.</p>
 
 
 
-<script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'UA-80652159-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 

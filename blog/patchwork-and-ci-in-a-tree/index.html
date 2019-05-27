@@ -177,17 +177,11 @@ This will return an IP address, in my case <code>172.17.0.3</code>. Ensure you c
 the Patchwork instance via this address (including port) - for example at
 <code>172.17.0.3:8000</code> - then store this IP for later.</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-1.png" alt="Screenshot of newly configured Patchwork instance" />
-    
-    
-    <figcaption>
-        <h4>A Patchwork instance fresh out of the oven</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-1.png"
+         alt="Screenshot of newly configured Patchwork instance"/> <figcaption>
+            <h4>A Patchwork instance fresh out of the oven</h4>
+        </figcaption>
 </figure>
 
 
@@ -220,17 +214,11 @@ something useful. You also need to define two parameters:</p>
 <p>While we could expand the available parameters to avoid hard-coding variables
 and make the job more flexible, we&rsquo;re going to keep it simple for now.</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-2.png" alt="Screenshot of General configuration" />
-    
-    
-    <figcaption>
-        <h4>General</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-2.png"
+         alt="Screenshot of General configuration"/> <figcaption>
+            <h4>General</h4>
+        </figcaption>
 </figure>
 
 
@@ -245,17 +233,11 @@ use Git and the GitHub repo. For reference, the Patchwork repo URL is:</p>
 specifier. You should, however, enable the <em>Clean before checkout</em> behavior, to
 ensure old tests don&rsquo;t corrupt newer tests.</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-3.png" alt="Screenshot of Source Code Management configuration" />
-    
-    
-    <figcaption>
-        <h4>Source Code Management</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-3.png"
+         alt="Screenshot of Source Code Management configuration"/> <figcaption>
+            <h4>Source Code Management</h4>
+        </figcaption>
 </figure>
 
 
@@ -263,34 +245,22 @@ ensure old tests don&rsquo;t corrupt newer tests.</p>
 another script. Simply tick the relevant box and set an &ldquo;authentication token&rdquo;.
 Use <code>hello-world</code> as a token.</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-4.png" alt="Screenshot of Build Triggers configuration" />
-    
-    
-    <figcaption>
-        <h4>Build Triggers</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-4.png"
+         alt="Screenshot of Build Triggers configuration"/> <figcaption>
+            <h4>Build Triggers</h4>
+        </figcaption>
 </figure>
 
 
 <p>The <em>Build Environment</em> section can be mostly ignored. Simply enable timestamps
 in the build output.</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-5.png" alt="Screenshot of Build Environment configuration" />
-    
-    
-    <figcaption>
-        <h4>Build Environment</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-5.png"
+         alt="Screenshot of Build Environment configuration"/> <figcaption>
+            <h4>Build Environment</h4>
+        </figcaption>
 </figure>
 
 
@@ -382,17 +352,11 @@ bear with me: these are baby steps.</p>
 
 <p>Once done, you should have something like the following:</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-6.png" alt="Screenshot of Build configuration" />
-    
-    
-    <figcaption>
-        <h4>Build</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-6.png"
+         alt="Screenshot of Build configuration"/> <figcaption>
+            <h4>Build</h4>
+        </figcaption>
 </figure>
 
 
@@ -400,17 +364,11 @@ bear with me: these are baby steps.</p>
 I&rsquo;m sure the above script could be broken up to make use of this. Some other
 time, perhaps.</p>
 
-
 <figure>
-    
-        <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-7.png" alt="Screenshot of Post-build Actions" />
-    
-    
-    <figcaption>
-        <h4>Post-build Actions</h4>
-        
-    </figcaption>
-    
+    <img src="https://that.guru/media/patchwork-and-ci-in-a-tree-7.png"
+         alt="Screenshot of Post-build Actions"/> <figcaption>
+            <h4>Post-build Actions</h4>
+        </figcaption>
 </figure>
 
 
@@ -653,7 +611,7 @@ projects using a mailing list workflow.</p>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
-<script>
+<script type="application/javascript">
     var disqus_config = function () {
     
     
@@ -706,12 +664,16 @@ projects using a mailing list workflow.</p>
 
 
 
-<script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'UA-80652159-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 

@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Tue, 30 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 27 May 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Trading Flexibility for Performance: The HPC Story in OpenStack</title>
+      <link>https://that.guru/talks/trading-flexibility-for-performance/</link>
+      <pubDate>Mon, 27 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/trading-flexibility-for-performance/</guid>
+      <description>This lightning talk was presented at OpenStack Days CERN in May 2019. It gave an overview of the state of the art for HPC and NFV in the OpenStack Compute.</description>
+    </item>
     
     <item>
       <title>Working With Documentation, The Openstack Way</title>

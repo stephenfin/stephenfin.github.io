@@ -74,7 +74,7 @@ run locally or in the CI, the failure will be reported with similar Python
 module path-style references. These take a little cleanup to get a usable file
 path that we can use to open the file, so I automated it.</p>
 
-<script src="//gist.github.com/stephenfin/ea6bb2d650060d2a998a2dcd41f58291.js"></script>
+<script type="application/javascript" src="//gist.github.com/stephenfin/ea6bb2d650060d2a998a2dcd41f58291.js"></script>
 
 <p>Download and copy this to somewhere on your path, then run it like so:</p>
 
@@ -86,7 +86,7 @@ $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
 
   <div class="disqus">
     <div id="disqus_thread"></div>
-<script>
+<script type="application/javascript">
     var disqus_config = function () {
     
     
@@ -139,12 +139,16 @@ $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
 
 
 
-<script>
-window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-ga('create', 'UA-80652159-1', 'auto');
-ga('send', 'pageview');
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
 </script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 
