@@ -3,8 +3,31 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://that.guru/blog/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://that.guru/categories/</loc>
-    <lastmod>2019-05-27T00:00:00+00:00</lastmod>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/categories/random/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -16,12 +39,6 @@
   
   <url>
     <loc>https://that.guru/categories/nfv/</loc>
-    <lastmod>2019-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/</loc>
     <lastmod>2019-05-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -51,12 +68,6 @@
   <url>
     <loc>https://that.guru/categories/documentation/</loc>
     <lastmod>2019-04-30T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/blog/</loc>
-    <lastmod>2019-04-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -253,12 +264,6 @@
   <url>
     <loc>https://that.guru/blog/helpful-jenkins-plugins/</loc>
     <lastmod>2016-07-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/categories/random/</loc>
-    <lastmod>2016-07-13T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>

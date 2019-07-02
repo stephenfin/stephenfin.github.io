@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Mon, 27 May 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 02 Jul 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Upgrading DD-WRT to OpenWRT on the TP-Link TL-WR1043ND</title>
+      <link>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</link>
+      <pubDate>Tue, 02 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</guid>
+      <description>I had an old TP-Link TL-WR1043ND that was running DD-WRT firmware from 2013. Needless to say, this was pretty ancient and probably should be remedied but, unfortunately, I&amp;rsquo;d been unable to figure out how to do this via the web UI.</description>
+    </item>
     
     <item>
       <title>Trading Flexibility for Performance: The HPC Story in OpenStack</title>
