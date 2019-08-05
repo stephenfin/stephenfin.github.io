@@ -158,5 +158,14 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       <description>OpenStack Nova allows the specification of image metadata to provide per-instance metadata. This is similar to the flavor extra specs. The CPU pinning feature makes use of this to allow for configuration of CPU policies and CPU thread policies via such metdata.</description>
     </item>
     
+    <item>
+      <title>Accelerating Your Cloud With DPDK</title>
+      <link>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</link>
+      <pubDate>Tue, 24 May 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</guid>
+      <description>This was a webinar I presented on behalf of my team in Intel. It was essentially a status report on the state of OVS with DPDK integration in OpenStack.</description>
+    </item>
+    
   </channel>
 </rss>
