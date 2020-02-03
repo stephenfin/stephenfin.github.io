@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Direct vs Hostdev Interfaces in Nova | that.guru</title>
+  <title>Will Someone *Please* Tell Me Whats Going On? (Redux) | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -18,7 +18,7 @@
 
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/3ba59K57wE4);
+      background-image: url(https://source.unsplash.com/uq1pGPS0910);
     }
   </style>
 </head>
@@ -30,7 +30,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Direct vs Hostdev Interfaces in Nova</h1>
+    <h1 class="title">Will Someone *Please* Tell Me Whats Going On? (Redux)</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -60,67 +60,30 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2019-02-14T00:00:00Z'>Feb 14, 2019</time></p>
+  <h1><a href="https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/"><span>Will Someone *Please* Tell Me Whats Going On? (Redux)</span></a></h1>
+  <p>Presented <time datetime='2020-02-01T00:00:00Z'>Feb 1, 2020</time></p>
 
   <div>
-    
-
-<p>Mostly a note for myself. There are two types of SR-IOV&rsquo;y networks supported in
-nova: <code>direct</code> and <code>hostdev</code>. Confusingly, the latter corresponds to passthrough
-of the virtual function (VF), while the former corresponds to macvtap. The
-difference between these is described rather succinctly in an Oracle whitepaper
-titled <a href="https://cloud.oracle.com/iaas/whitepapers/installing_kvm_multi_vnics.pdf">&ldquo;Installing and Configuring KVM on Bare Metal Instances with
-Multi-VNIC&rdquo;</a>.</p>
-
-<h2 id="hostdev">Hostdev</h2>
-
-<p>First, the hostdev VIF type:</p>
+    <p>This was a talk I gave at <a href="https://fosdem.org/2020/schedule/event/python2020_manage_change/">FOSDEM 2020</a>. I had previously given this talk at
+<a href="https://that.guru/talks/will-someone-please-tell-me-whats-going-on/">PyCon Limerick</a>. The summary is repeated below.</p>
 
 <blockquote>
-<p>The hostdev method is preferred for both performance and guest isolation
-reasons. It provides the guest with direct access to the PCI device, created
-as part of the configuration of SR-IOV on the hypervisor. A PCI device is
-known as a virtual function (VF)and represents an actual interface into the
-hardware of the hypervisor (bare metal instance). This allows the guest to
-have both maximum throughput and maximum isolation:</p>
+<p>Software rarely stands still (unless it&rsquo;s TeX). Things are added, things are
+removed, things break and are then hopefully fixed. Managing this, from both
+the developer and user perspective, can be tough. In this talk we examine and
+compare some of the tools that one can use to make this process easier, such
+as &lsquo;debtcollector&rsquo;, &lsquo;reno&rsquo; and &lsquo;towncrier&rsquo;, and contrast these with
+alternatives used in other projects.</p>
 
-<ul>
-<li><p>Maximum throughput because there is no operating system between the guest
-and the network</p></li>
-
-<li><p>Maximum isolation because the hypervisor operating system is not involved
-beyond providing the hardware interface (the overhead is minimal)</p></li>
-</ul>
-
-<p>The disadvantage of the hostdev method is that it isn&rsquo;t possible to emulate
-a different device type. So, the guest operating system must have a driver
-available that matches the hardware type provided by the hypervisor.</p>
+<p>This talk would mainly be of interest to developers of open source libraries,
+though the same tooling can be used for any Python library or application
+that wishes to maintain stable interfaces and/or document changes in their
+product.</p>
 </blockquote>
 
-<p>As a user, you are likely to encounter the driver issues outlined above when
-using something like CirrOS image deployed by DevStack.</p>
+<p>More information is available on the <a href="https://fosdem.org/2020/schedule/event/python2020_manage_change/">FOSDEM 2020</a> website.</p>
 
-<h2 id="direct">Direct</h2>
-
-<p>Then the direct VIF type which, again, is not really &ldquo;direct&rdquo;:</p>
-
-<blockquote>
-<p>The direct method relies on hypervisor-configured network interfaces to
-provide connectivity to the guest operating systems. However, the network
-configuration provided by the hypervisor is minimal: the guest operating
-system still issues all the DHCP and related higher-level networking
-management, while the hypervisor simply provides an interface for the guest
-to operate on.</p>
-
-<p>The direct method allows KVM to natively emulate some common network
-interface types that are typically found in most current and legacy
-operating systems. The following emulations have been observed to work: the
-e1000 (Intel FastEthernet driver) and the virtio (KVM native) device types,
-although the virtio driver might still require you to inject a driver into a
-Windows operating system. This is useful for prepackaged, virtual machines
-because their configurations are typically static and are looking for
-specific hardware types.</p>
-</blockquote>
+<script async class="speakerdeck-embed" data-id="d1fb37e9f76548b3a404e632653b818e" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
 
   </div>
 

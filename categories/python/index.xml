@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>python on Stephen Finucane (Fin-oo-can)</title>
@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 23 Mar 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/python/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Will Someone *Please* Tell Me Whats Going On? (Redux)</title>
+      <link>https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/</link>
+      <pubDate>Sat, 01 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/</guid>
+      <description>This was a talk I gave at FOSDEM 2020. I had previously given this talk at PyCon Limerick. The summary is repeated below.
+ Software rarely stands still (unless it&amp;rsquo;s TeX).</description>
+    </item>
     
     <item>
       <title>Will Somebody *Please* Tell Me What Is Going On?</title>

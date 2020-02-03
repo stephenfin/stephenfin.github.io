@@ -1,23 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://that.guru/blog/</loc>
-    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
-    <priority>0</priority>
+    <loc>https://that.guru/categories/</loc>
+    <lastmod>2020-02-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://that.guru/categories/</loc>
-    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
-    <priority>0</priority>
+    <loc>https://that.guru/categories/openstack/</loc>
+    <lastmod>2020-02-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/categories/python/</loc>
+    <lastmod>2020-02-01T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/</loc>
+    <lastmod>2020-02-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/talks/</loc>
+    <lastmod>2020-02-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/</loc>
+    <lastmod>2020-02-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/blog/</loc>
     <lastmod>2019-07-02T00:00:00+00:00</lastmod>
-    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/categories/random/</loc>
+    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -26,27 +48,13 @@
   </url>
   
   <url>
-    <loc>https://that.guru/categories/random/</loc>
-    <lastmod>2019-07-02T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://that.guru/categories/hpc/</loc>
     <lastmod>2019-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/nfv/</loc>
     <lastmod>2019-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/talks/</loc>
-    <lastmod>2019-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -55,20 +63,13 @@
   </url>
   
   <url>
-    <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2019-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
+    <loc>https://that.guru/categories/documentation/</loc>
+    <lastmod>2019-04-30T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://that.guru/talks/working-with-documentation-the-openstack-way/</loc>
     <lastmod>2019-04-30T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://that.guru/categories/documentation/</loc>
-    <lastmod>2019-04-30T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -82,12 +83,6 @@
   </url>
   
   <url>
-    <loc>https://that.guru/categories/python/</loc>
-    <lastmod>2019-03-23T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://that.guru/blog/direct-vs-hostdev-interfaces/</loc>
     <lastmod>2019-02-14T00:00:00+00:00</lastmod>
   </url>
@@ -95,13 +90,11 @@
   <url>
     <loc>https://that.guru/categories/libvirt/</loc>
     <lastmod>2019-02-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
     <loc>https://that.guru/categories/networking/</loc>
     <lastmod>2019-02-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -112,7 +105,6 @@
   <url>
     <loc>https://that.guru/categories/travel/</loc>
     <lastmod>2019-02-10T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -121,14 +113,13 @@
   </url>
   
   <url>
-    <loc>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</loc>
+    <loc>https://that.guru/categories/sphinx/</loc>
     <lastmod>2019-02-02T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://that.guru/categories/sphinx/</loc>
+    <loc>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</loc>
     <lastmod>2019-02-02T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -154,7 +145,6 @@
   <url>
     <loc>https://that.guru/categories/tips/</loc>
     <lastmod>2018-05-15T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -188,14 +178,13 @@
   </url>
   
   <url>
-    <loc>https://that.guru/blog/patchwork-and-ci-in-a-tree/</loc>
+    <loc>https://that.guru/categories/patchwork/</loc>
     <lastmod>2018-11-07T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://that.guru/categories/patchwork/</loc>
+    <loc>https://that.guru/blog/patchwork-and-ci-in-a-tree/</loc>
     <lastmod>2018-11-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -206,7 +195,6 @@
   <url>
     <loc>https://that.guru/categories/ci/</loc>
     <lastmod>2017-02-05T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -235,20 +223,18 @@
   </url>
   
   <url>
+    <loc>https://that.guru/categories/c/</loc>
+    <lastmod>2016-07-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://that.guru/blog/gnu-autotest/</loc>
     <lastmod>2016-07-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://that.guru/categories/c/</loc>
-    <lastmod>2016-07-15T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://that.guru/categories/howto/</loc>
     <lastmod>2016-07-15T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -294,7 +280,6 @@
   <url>
     <loc>https://that.guru/categories/sysadmin/</loc>
     <lastmod>2016-06-26T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -320,7 +305,6 @@
   <url>
     <loc>https://that.guru/categories/dpdk/</loc>
     <lastmod>2016-05-24T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
