@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VCPUs, PCPUs and Placement | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/hgThOxNqQq0);
+    }
+  </style>
+</head>
+
+<body>
+<div class="home-button">
+  <a class="home-link" href="https://that.guru/"><i class="fas fa-home"></i></a>
+</div>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">VCPUs, PCPUs and Placement</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <p>Published <time datetime='2020-02-12T00:00:00Z'>Feb 12, 2020</time></p>
+
+  <div>
+    
+
+<p>In a <a href="https://that.guru/blog/cpu-resources">previous blog post</a>, I&rsquo;d described how instance NUMA
+topologies and CPU pinning worked in the OpenStack Compute service (nova).
+Starting with the 20.0.0 (Train) release, things have changed somewhat. This
+post serves to explain how things have changed and what impact that will have
+on a typical deployment.</p>
+
+<h2 id="the-pre-train-world">The pre-Train world</h2>
+
+<p>As noted previously, a NUMA topology could be added to an instance either
+explicitly, using the <code>hw:numa_nodes=N</code> flavor extra spec, or implicitly, by
+requesting a specific mempage size (<code>hw:mem_page_size=N</code>) or CPU pinning
+(<code>hw:cpu_policy=dedicated</code>). For historical reasons, it is not possible to
+request memory pages or CPU pinning without getting a NUMA topology meaning
+every pinned instance or instance with hugepages (common when using something
+like Open vSwitch with DPDK) has a NUMA topology associated with it.</p>
+
+<p>The presence of a NUMA topology implies a couple of things. The most
+beneficial of them is that each instance NUMA node is mapped to a unique host
+NUMA node and will only consume CPUs and RAM from that host node. The NUMA
+topology of the instance is exposed to the guest OS meaning well engineered
+applications running in the guest OS are able to able to tune themselves for
+this topology and avoid cross-NUMA node memory accesses and the performance
+penalties these brings. Unfortunately, there have also been some downsides, of
+which two were rather significant. The most impactful of these was the
+inability to correctly live migrate such instances, as noted in bug #1417667
+<a href="https://bugs.launchpad.net/nova/+bug/1417667"><a href="https://bugs.launchpad.net/nova/+bug/1417667">1</a></a>. In short, that bug noted that nova was not recalculating any of its
+CPU or mempage pinning information on a migration, resulting in a failure to
+live migrate to hosts with different NUMA topologies or, worse, individual
+instance NUMA nodes being spread across multiple NUMA nodes or the pinned CPUs
+of pinned instances overlapping with those of other pinned instances. The other
+issue stemmed from nova&rsquo;s schizophrenic model for tracking resource
+utilization, where it used different models for tracking pinned CPUs from
+unpinned or &ldquo;floating&rdquo; CPUs, along with different models for tracking standard
+memory from explicit small and huge page requests. Combined, these led to a
+scenario where operators had to divide their datacenters up into host
+aggregates <a href="https://docs.openstack.org/nova/latest/admin/aggregates.html"><a href="https://docs.openstack.org/nova/latest/admin/aggregates.html">2</a></a> in order to separate normal, unpinned instances from both
+pinned instances and unpinned instances with a NUMA topology.</p>
+
+<h2 id="train-to-the-rescue">Train to the rescue</h2>
+
+<p>Train changes things. Not only does it resolve the live migration issue through
+the completion of the NUMA-aware live migration spec <a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/numa-aware-live-migration.html"><a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/numa-aware-live-migration.html">3</a></a> but it introduces
+an entirely new model for tracking CPU resources that prevents the need to
+shard your datacenter using host aggregates <a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/cpu-resources.html"><a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/cpu-resources.html">4</a></a>. This is made possible by the
+reporting of a new resource type, <code>PCPU</code>, for host CPUs intended to host pinned
+instance CPUs. This is described in the Train release notes <a href="https://docs.openstack.org/releasenotes/nova/train.html#relnotes-20-0-0-stable-train"><a href="https://docs.openstack.org/releasenotes/nova/train.html#relnotes-20-0-0-stable-train">5</a></a>.</p>
+
+<blockquote>
+<p>Compute nodes using the libvirt driver can now report <code>PCPU</code> inventory. This
+is consumed by instances with dedicated (pinned) CPUs. This can be configured
+using the <code>[compute] cpu_dedicated_set</code> config option. The scheduler will
+automatically translate the legacy <code>hw:cpu_policy</code> flavor extra spec or
+<code>hw_cpu_policy</code> image metadata property to <code>PCPU</code> requests, falling back to
+<code>VCPU</code> requests only if no <code>PCPU</code> candidates are found. Refer to the help
+text of the <code>[compute] cpu_dedicated_set</code>, <code>[compute] cpu_shared_set</code> and
+<code>vcpu_pin_set</code> config options for more information.</p>
+</blockquote>
+
+<p>We&rsquo;ll explore how this manifests itself in a bit, but before that we should
+look at how one can migrate from an existing pre-Train deployment using
+<code>[DEFAULT] vcpu_pin_set</code> (or not using it, as the case may be) to these new
+configuration options.</p>
+
+<h2 id="migrating-to-train">Migrating to Train</h2>
+
+<p>The migration from Stein to Train is tricky. In short, we need to migrate from
+<code>[DEFAULT] vcpu_pin_set</code> to a combination of <code>[compute] cpu_shared_set</code> and
+<code>[compute] cpu_dedicated_set</code> and unset <code>[DEFAULT] reserved_host_cpus</code>. How you
+do this is touched upon in the help text for the <code>[DEFAULT] vcpu_pin_set</code>
+<a href="https://docs.openstack.org/nova/train/configuration/config.html#DEFAULT.vcpu_pin_set"><a href="https://docs.openstack.org/nova/train/configuration/config.html#DEFAULT.vcpu_pin_set">6</a></a>, <code>[compute] cpu_shared_set</code> <a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_shared_set"><a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_shared_set">7</a></a> and <code>[compute] cpu_dedicated_set</code>
+<a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_dedicated_set"><a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_dedicated_set">8</a></a> options. As always, a diagram will help:</p>
+
+<p><img src="https://that.guru/media/cpu-resources-redux_migration.png" alt="Migrating `nova.conf`" /></p>
+
+<p>Once this migration is complete, restarting the <code>nova-compute</code> service will
+result in nova automatically &ldquo;reshaping&rdquo; the inventory for the compute node
+stored in placement. Any host CPUs listed in the <code>[compute] cpu_shared_set</code>
+config option will continue to be reported as <code>VCPU</code> inventory, but host CPUs
+listed in the <code>[compute] cpu_dedicated_set</code> config option will be reported as
+<code>PCU</code> inventory.</p>
+
+<h2 id="examples">Examples</h2>
+
+<p>Let&rsquo;s look at some examples of how this would be reflected in the real world.
+For all these examples, consider a host with two sockets and two CPUs with four
+cores and no hyperthreading (so eight CPUs).</p>
+
+<p><img src="https://that.guru/media/cpu-resources_host-topology.png" alt="The basic host" /></p>
+
+<h3 id="hosts-with-unpinned-workloads">Hosts with unpinned workloads</h3>
+
+<p>If your host is only intended for unpinned workloads, you don&rsquo;t need to do
+anything! If neither <code>[compute] cpu_shared_set</code> nor <code>[compute]
+cpu_dedicated_set</code> are configured, the former will default to all host cores.</p>
+
+<p>We can see this in practice by examining the placement records for the given
+compute node. For example:</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 8     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 8     |
++------------------+-------+
+
+$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
+</code></pre>
+
+<p>Optionally, we might decide to exclude a certain number of cores, perhaps
+setting aside some for the host. For example, to reserve core 0 from each host
+NUMA node for the host, configure the following in <code>nova.conf</code>:</p>
+
+<pre><code>[compute]
+cpu_shared_set = 1-3,5-7
+</code></pre>
+
+<p>If we now query placement again, we&rsquo;ll see the number of available <code>VCPU</code>
+inventory has dropped.</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 6     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 6     |
++------------------+-------+
+
+$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
+</code></pre>
+
+<h3 id="hosts-with-pinned-workloads">Hosts with pinned workloads</h3>
+
+<p>Next, let&rsquo;s consider a host that&rsquo;s only intended for pinned workloads.
+Previously, we highly recommended configuring <code>[DEFAULT] vcpu_pin_set</code> as not
+setting this could result in impacted performance for some workloads due to
+contention from the host. The new <code>[compute] cpu_dedicated_set</code> option is
+mandatory because, as noted above, not configuring any option will result in
+all host cores being reported as <code>VCPU</code> inventory. Let&rsquo;s once again reserve
+core 0 from each host NUMA node for the host by configuring our <code>nova.conf</code>
+like so:</p>
+
+<pre><code>[compute]
+cpu_dedicated_set = 1-3,5-7
+</code></pre>
+
+<p>If we query placement, we&rsquo;ll no longer see <code>VCPU</code> inventory but rather <code>PCPU</code>
+inventory.</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
+
+$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 1.0   |
+| max_unit         | 6     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 6     |
++------------------+-------+
+</code></pre>
+
+<aside class="admonition note">
+    
+    
+    <div class="admonition-content">
+`PCPU` inventory will always have an `allocation_ratio` or `1.0`. This is
+because pinned CPUs cannot be oversubscribed.
+</div>
+</aside>
+
+<h2 id="hosts-with-mixed-pinned-and-unpinned-workloads">Hosts with mixed pinned and unpinned workloads</h2>
+
+<p>Finally, let&rsquo;s consider a host with both pinned and unpinned workloads. As
+discussed earlier, this was not previously possible. To do this, we must simple
+configure both <code>[compute] cpu_shared_set</code> and <code>[compute] cpu_dedicated_set</code> on
+the host. Given that we have two host NUMA nodes with for cores per node, let&rsquo;s
+reserve two cores from each node for both pinned and unpinned workloads by
+configuring our <code>nova.conf</code> like so:</p>
+
+<pre><code>[compute]
+cpu_shared_set = 0,1,4,5
+cpu_dedicated_set = 2,3,6,7
+</code></pre>
+
+<p>If we query placement, we&rsquo;ll now see both <code>VCPU</code> and <code>PCPU</code> inventory reported
+alongside each other.</p>
+
+<pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 16.0  |
+| max_unit         | 4     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 4     |
++------------------+-------+
+
+$ openstack --os-placement-api-version 1.18 resource provider inventory show \
+    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
++------------------+-------+
+| Field            | Value |
++------------------+-------+
+| allocation_ratio | 1.0   |
+| max_unit         | 4     |
+| reserved         | 0     |
+| step_size        | 1     |
+| min_unit         | 1     |
+| total            | 4     |
++------------------+-------+
+</code></pre>
+
+<h2 id="summary">Summary</h2>
+
+<p>The ability to place both pinned and unpinned instances on the same compute
+node should lead to higher resource utilization and avoid the need to shard
+your compute, both of which are very useful features for smaller deployments.</p>
+
+  </div>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2020 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://unpkg.com/moment"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 01 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 12 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>VCPUs, PCPUs and Placement</title>
+      <link>https://that.guru/blog/cpu-resources-redux/</link>
+      <pubDate>Wed, 12 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/cpu-resources-redux/</guid>
+      <description>In a previous blog post, I&amp;rsquo;d described how instance NUMA topologies and CPU pinning worked in the OpenStack Compute service (nova). Starting with the 20.</description>
+    </item>
     
     <item>
       <title>Will Someone *Please* Tell Me Whats Going On? (Redux)</title>

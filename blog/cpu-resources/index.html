@@ -141,7 +141,7 @@ option is totally ignored.</p>
 <h2 id="examples">Examples</h2>
 
 <p>Let&rsquo;s look at some examples of how this would be reflected in the real world.
-For all these example, consider a host with two sockets and two CPUs with four
+For all these examples, consider a host with two sockets and two CPUs with four
 cores and no hyperthreading (so eight CPUs).</p>
 
 <p><img src="https://that.guru/media/cpu-resources_host-topology.png" alt="Non-NUMA instances without `vcpu_pin_set`" /></p>
@@ -329,7 +329,7 @@ NUMA nodes unless you&rsquo;ve specifically said otherwise (via the
 
 <h2 id="summary">Summary</h2>
 
-<p>The <code>vcpu_pin_set</code> option is used to generate the amonut of <code>VCPU</code> resources
+<p>The <code>vcpu_pin_set</code> option is used to generate the amount of <code>VCPU</code> resources
 available in placement but it otherwise has no effect on instances without a
 NUMA topology. For instances with a NUMA topology, it also controls the host
 cores that the instance can schedule to.</p>
