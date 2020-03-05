@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 01 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>A Lion, A Head, and A Dash of YAML</title>
+      <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</link>
+      <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</guid>
+      <description>This talk, delivered at PyCon Limerick 2020, was a repeat of a talk I&amp;rsquo;d previously given at FOSDEM 2018. Once again, this talk provided a quick dive into the somewhat complicated world of Sphinx extensions.</description>
+    </item>
     
     <item>
       <title>Will Someone *Please* Tell Me Whats Going On? (Redux)</title>

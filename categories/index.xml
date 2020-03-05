@@ -7,10 +7,28 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 12 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>documentation</title>
+      <link>https://that.guru/categories/documentation/</link>
+      <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/documentation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>sphinx</title>
+      <link>https://that.guru/categories/sphinx/</link>
+      <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/categories/sphinx/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>openstack</title>
@@ -58,15 +76,6 @@
     </item>
     
     <item>
-      <title>documentation</title>
-      <link>https://that.guru/categories/documentation/</link>
-      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/categories/documentation/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>libvirt</title>
       <link>https://that.guru/categories/libvirt/</link>
       <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
@@ -90,15 +99,6 @@
       <pubDate>Sun, 10 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/categories/travel/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>sphinx</title>
-      <link>https://that.guru/categories/sphinx/</link>
-      <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/categories/sphinx/</guid>
       <description></description>
     </item>
     
