@@ -409,16 +409,20 @@ h2 {
    ========================================================================== */
 
 @media only screen and (max-width: 450px) {
+  p, li {
+    font-size: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
   .title {
-    margin: 2rem;
+    margin: 1rem;
   }
 
   blockquote {
     padding-left: 1rem;
-  }
-
-  p {
-    text-align: justify;
   }
 
   .site-nav {
@@ -428,17 +432,26 @@ h2 {
   .site-nav-right {
     display: none;
   }
+
+  .main-inner,
+  .footer-wrapper {
+    padding: 0 1rem;
+  }
 }
 
 @media only screen and (max-width: 768px) {
   .title {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    padding: .25rem 1rem;
   }
 
   .column {
     padding-bottom: 2rem;
   }
 
+  .pages-item {
+    margin-bottom: 1rem;
+  }
 }
 
 @media only screen and (min-width: 769px) {
