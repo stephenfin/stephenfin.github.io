@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 11 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Who is Stephen</title>
+      <link>https://that.guru/about/</link>
+      <pubDate>Mon, 11 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/about/</guid>
+      <description>Stephen is a senior software engineer at Red Hat. He&amp;rsquo;s been heavily involved in the OpenStack community since 2015, including related projects across the Python ecosystem.</description>
+    </item>
     
     <item>
       <title>A Lion, A Head, and A Dash of YAML</title>
@@ -357,15 +366,6 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       
       <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
       <description>Configuring ZNC with HexChat I recently set up ZNC instance to capture whatever I may miss when not connected to any of the many OpenStack IRC channels.</description>
-    </item>
-    
-    <item>
-      <title>Who is Stephen</title>
-      <link>https://that.guru/about/</link>
-      <pubDate>Sat, 25 Jun 2016 23:33:13 +0100</pubDate>
-      
-      <guid>https://that.guru/about/</guid>
-      <description>Stephen is a software developer at Red Hat. He works on OpenStack, with a focus on NFV enablement. He previously worked for Intel, where he worked on OpenStack and contributed to both Intel&amp;rsquo;s DPDK-focused fork of Open vSwitch - DPDK vSwitch - along with Open vSwitch itself.</description>
     </item>
     
     <item>
