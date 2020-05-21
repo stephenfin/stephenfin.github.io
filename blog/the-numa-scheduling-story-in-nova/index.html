@@ -85,44 +85,41 @@ cloud platforms. There are a number of reasons this is not considered an
 acceptable solution in a cloud context. To summarize:</p>
 
 <ul>
-<li>It is seen as a potential security concern for public clouds.</li>
-</ul>
+<li><p>It is seen as a potential security concern for public clouds.</p>
 
 <p>To correctly understand which flavor to use when flavors can map to host
-  resources like CPUs or NUMA nodes would require knowledge of the underlying
-  hardware. This information can be used by a malicious user as a DDOS vector
-  as they could intentionally place their instance on the same NUMA node
-  (opening the opportunity to exhaust memory bandwidth of a NUMA node) and host
-  as their victim. It also exposes information about what hardware a cloud is
-  running indirectly that many clouds would prefer not to share.</p>
+resources like CPUs or NUMA nodes would require knowledge of the underlying
+hardware. This information can be used by a malicious user as a DDOS vector
+as they could intentionally place their instance on the same NUMA node
+(opening the opportunity to exhaust memory bandwidth of a NUMA node) and
+host as their victim. It also exposes information about what hardware a
+cloud is running indirectly that many clouds would prefer not to share.</p></li>
 
-<ul>
-<li>It is a violation of the cloud abstraction.</li>
-</ul>
+<li><p>It is a violation of the cloud abstraction.</p>
 
 <p>OpenStack is a cloud platform intended to provide a consistent API across
-  multiple backend implementations of services. In fact, cloud abstraction is a
-  key element of the <a href="https://docs.openstack.org/nova/latest/contributor/project-scope.html#driver-parity">nova project scope</a>. Virtual NUMA topologies are
-  supported by two main drivers today, Libvirt and HyperV, and while the
-  Libvirt driver and Libvirt in general are much more flexible than other
-  virt drivers in many aspects, nova does strive to keep the differences to a
-  minimum. If we were to encode the semantics of how virtual resources map to
-  physical resources, we would exclude the possibility of achieving
-  interoperability between different drivers or different clouds as well as
-  create barriers to adopting features across multiple drivers.</p>
+multiple backend implementations of services. In fact, cloud abstraction is
+a key element of the <a href="https://docs.openstack.org/nova/latest/contributor/project-scope.html#driver-parity">nova project scope</a>. Virtual NUMA topologies are
+supported by two main drivers today, Libvirt and HyperV, and while the
+Libvirt driver and Libvirt in general are much more flexible than other
+virt drivers in many aspects, nova does strive to keep the differences to a
+minimum. If we were to encode the semantics of how virtual resources map to
+physical resources, we would exclude the possibility of achieving
+interoperability between different drivers or different clouds as well as
+create barriers to adopting features across multiple drivers.</p></li>
 
-<ul>
-<li>It makes our clouds much smaller and less useful.</li>
-</ul>
+<li><p>It makes our clouds much smaller and less useful.</p>
 
 <p>Encoding host specific resource assignment information severely limits the
-  available hosts that can be used to create an instance. It complicates move
-  operations and makes the maintainability and extensibility of the scheduler
-  harder over time. The operational overhead of having to create different
-  flavors for a VM that runs on node 5 vs node 6 and the additional cognitive
-  load that this puts on the end user is a failure in API design. Instead of
-  expressing an abstract policy, the end user and operator needs to understand
-  the intricate mechanics or how the workload compute context is created.</p>
+available hosts that can be used to create an instance. It complicates move
+operations and makes the maintainability and extensibility of the scheduler
+harder over time. The operational overhead of having to create different
+flavors for a VM that runs on node 5 vs node 6 and the additional cognitive
+load that this puts on the end user is a failure in API design. Instead of
+expressing an abstract policy, the end user and operator needs to
+understand the intricate mechanics or how the workload compute context is
+created.</p></li>
+</ul>
 
 <p>There are additional reasons to those listed above, but these alone should
 serve to illustrate that this is not oversight in how nova currently functions
