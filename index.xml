@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Wed, 13 May 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 21 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Why You Can&#39;t Schedule to Host NUMA Nodes in Nova?</title>
+      <link>https://that.guru/blog/the-numa-scheduling-story-in-nova/</link>
+      <pubDate>Thu, 21 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/the-numa-scheduling-story-in-nova/</guid>
+      <description>If I had a euro for every time someone had asked me or someone else working on nova for the ability to schedule an instance to a specific host NUMA node, I might never have to leave the pub (back in halcyon days pre-COVID-19 when pubs were still a thing, that is).</description>
+    </item>
     
     <item>
       <title>A Documentation Driven Approach to Building APIs</title>
