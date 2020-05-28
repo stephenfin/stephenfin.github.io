@@ -70,6 +70,15 @@ Platform Modules (vTPMs) to instances. The below guide demonstrates how you can
 go about testing this feature for yourself. This work was conducted on a Fedora
 31 VM (with nested virt, though that&rsquo;s not relevant) using DevStack master.</p>
 
+<aside class="admonition note">
+    
+    
+    <div class="admonition-content">
+This is all very much work-in-progress at the moment. I am to come back and
+update this if/when things are merged.
+</div>
+</aside>
+
 <h2 id="initial-steps">Initial Steps</h2>
 
 <p>We&rsquo;re going to use DevStack on Fedora 31 to test this. Fedora 31 is necessary
@@ -252,9 +261,16 @@ $ sudo virsh dumpxml instance-0000000d | xmllint --xpath '/domain/devices/tpm' -
   Status: ACTIVE
 </code></pre>
 
-<p>Finally, we can also validate that the rebuild operation works as expected:</p>
+<p>We can also validate that the rebuild operation works as expected:</p>
 
 <pre><code class="language-console">$ openstack server rebuild --wait test.server
+</code></pre>
+
+<p>Finally, we can ensure that things are properly cleaned up once we&rsquo;re finished:</p>
+
+<pre><code class="language-console">$ openstack server delete test.server
+$ openstack secret list --format yaml
+[]
 </code></pre>
 
 <p>QED. 🎉</p>
