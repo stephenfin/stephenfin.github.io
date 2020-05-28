@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Upload CirrOS AMI Images | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/5yEiCUynJ9w/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Upload CirrOS AMI Images</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <p>Published <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time></p>
+
+  <div>
+    <p>I recently had to validate some interactions between the OpenStack Image
+service, <a href="https://docs.openstack.org/glance/latest/">glance</a>, and the Compute service, <a href="https://docs.openstack.org/nova/latest/">nova</a>. For this, I needed
+separate kernel and ramdisk images. Glance supports a variety of image formats,
+which is required since different virtualization backends support different
+image formats. For quite some time, the <a href="https://docs.openstack.org/devstack/latest/">DevStack</a> installer defaulted to
+using AMI images, so if you&rsquo;d run <code>openstack image list</code> on a fresh
+DevStack-based deployment, you&rsquo;d have seen three <a href="https://download.cirros-cloud.net/">CirrOS</a> &ldquo;images&rdquo; with
+differing suffixes: <code>-uec</code>, <code>-uec-ramdisk</code>, and <code>-uec-kernel</code>. This has since
+<a href="https://github.com/openstack/devstack/commit/6fc332d85279865c32f50b081efb25ba7b671a9a">changed</a>, but there&rsquo;s no reason we can&rsquo;t create these types of image still.</p>
+
+<p>First, let&rsquo;s get the image. We&rsquo;re going to want the Ubuntu Enterprise Cloud
+(UEC) CirrOS images:</p>
+
+<pre><code class="language-console">$ wget https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-uec.tar.gz
+</code></pre>
+
+<p>Extract this tarball, which will yield three files: a <code>vmlinuz</code> kernel image,
+a <code>initrd</code> ramdisk image, and a empty mkfs&rsquo;d <code>blank</code> image:</p>
+
+<pre><code class="language-console">$ tar -xvzf cirros-0.5.1-x86_64-uec.tar.gz
+</code></pre>
+
+<p>With those created, we can now create the three images in glance. First, the
+kernel image:</p>
+
+<pre><code class="language-console">$ openstack image create cirros-0.5.1-x86_64-uec-kernel \
+    --public --disk-format aki --container-format aki \
+    --file cirros-0.5.1-x86_64-vmlinuz
+</code></pre>
+
+<p>Then the ramdisk image:</p>
+
+<pre><code class="language-console">$ openstack image create cirros-0.5.1-x86_64-uec-ramdisk \
+    --public --disk-format ari --container-format ari \
+    --file cirros-0.5.1-x86_64-initrd
+</code></pre>
+
+<p>And finally the &ldquo;machine&rdquo; image, which requires references to the kernel and
+ramdisk image by way of image metadata properties:</p>
+
+<pre><code class="language-console">$ openstack image create cirros-0.5.1-x86_64-uec \
+    --property ramdisk_id=52ab2881-3f0e-4d0b-8824-d6c144eb872a \
+    --property kernel_id=b582cf17-1785-4915-9b89-dc31c1794757 \
+    --public --disk-format ami --container-format ami \
+    --file cirros-0.5.1-x86_64-blank.img
+</code></pre>
+
+<p>Once done, you should be able to boot an instance using the machine image:</p>
+
+<pre><code class="language-console">$ openstack server create cirros-server \
+    --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
+</code></pre>
+
+  </div>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2020 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://unpkg.com/moment"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

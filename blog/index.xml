@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
-    <lastBuildDate>Thu, 21 May 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 28 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Upload CirrOS AMI Images</title>
+      <link>https://that.guru/blog/upload-cirros-ami-images/</link>
+      <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/upload-cirros-ami-images/</guid>
+      <description>I recently had to validate some interactions between the OpenStack Image service, glance, and the Compute service, nova. For this, I needed separate kernel and ramdisk images.</description>
+    </item>
     
     <item>
       <title>Why You Can&#39;t Schedule to Host NUMA Nodes in Nova?</title>
