@@ -136,14 +136,14 @@ configuring DevStack to install in virtualenvs by default.
 </div>
 </aside>
 
-<p>We also need to install the <code>swtpm</code> package. This is provided in the Fedora
-repos (yay!):</p>
+<p>We also need to install the <code>swtpm</code> and <code>swtpm_setup</code> binaries. These are
+provided in the Fedora repos (yay!):</p>
 
 <pre><code class="language-console">$ sudo dnf install swtpm swtpm-tools
 </code></pre>
 
-<p>Finally, I&rsquo;m going to be using <code>crudini</code> to ease working with various
-configuration files. Let&rsquo;s install that too:</p>
+<p>Finally, <code>crudini</code> makes working with INI files a breeze. Let&rsquo;s install that
+too:</p>
 
 <pre><code class="language-console">$ sudo dnf install crudini
 </code></pre>
