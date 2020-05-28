@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Emulated Trusted Platform Module (vTPM) in OpenStack 🔐 | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/5tmItJfHkIc/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Emulated Trusted Platform Module (vTPM) in OpenStack 🔐</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <p>Published <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time></p>
+
+  <div>
+    
+
+<p>Work is <a href="https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)">ongoing</a> in nova to provide support for attaching virtual Trusted
+Platform Modules (vTPMs) to instances. The below guide demonstrates how you can
+go about testing this feature for yourself. This work was conducted on a Fedora
+31 VM (with nested virt, though that&rsquo;s not relevant) using DevStack master.</p>
+
+<h2 id="initial-steps">Initial Steps</h2>
+
+<p>We&rsquo;re going to use DevStack on Fedora 31 to test this. Fedora 31 is necessary
+since Ubuntu 18.04 (Bionic) does not provide new enough versions of
+<a href="https://packages.ubuntu.com/bionic/libvirt-daemon">libvirt</a> or <a href="https://packages.ubuntu.com/xenial/qemu-kvm">QEMU</a>, while Ubuntu 20.04 (Focal) is not supported by
+DevStack at the time of writing and was affected by a <a href="https://github.com/sqlalchemy/alembic/issues/699">bug in barbican</a>.
+With a Fedora 31 installation at the ready, let&rsquo;s update and get DevStack:</p>
+
+<pre><code class="language-console">$ sudo dnf upgrade -y
+$ git clone https://opendev.org/openstack/devstack
+$ cd devstack
+</code></pre>
+
+<p>The DevStack installation is pretty bog standard with the key differences being
+that you need to enable the OpenStack Key Manager service, <a href="https://docs.openstack.org/barbican/latest/">barbican</a>, for
+storing secrets along with the virt preview repo to get new versions of libvirt
+and QEMU. Here&rsquo;s a sample <code>local.conf</code>, to be placed into the <code>devstack</code>
+directory:</p>
+
+<pre><code class="language-shell">[[local|localrc]]
+RECLONE=True
+
+## Passwords
+
+ADMIN_PASSWORD=password
+DATABASE_PASSWORD=password
+RABBIT_PASSWORD=password
+HORIZON_PASSWORD=password
+SERVICE_PASSWORD=password
+SERVICE_TOKEN=no-token-password
+
+## Additional plugins and configuration
+
+enable_plugin barbican https://opendev.org/openstack/barbican
+enable_service rabbit mysql key
+
+ENABLE_FEDORA_VIRT_PREVIEW_REPO=true
+</code></pre>
+
+<p>There&rsquo;s also a minor tweak necessary to work around pip 10 refusing to
+uninstall system-provided Python packages:</p>
+
+<pre><code class="language-diff">diff --git inc/python inc/python
+index dd772960..63a3dc19 100644
+--- inc/python
++++ inc/python
+@@ -196,7 +196,7 @@ function pip_install {
+         no_proxy=&quot;${no_proxy:-}&quot; \
+         PIP_FIND_LINKS=$PIP_FIND_LINKS \
+         SETUPTOOLS_SYS_PATH_TECHNIQUE=rewrite \
+-        $cmd_pip $upgrade \
++        $cmd_pip --ignore-installed $upgrade \
+         $@
+     result=$?
+</code></pre>
+
+<aside class="admonition note">
+    
+    
+    <div class="admonition-content">
+Yes, I'm aware that there can be negative implications to this, but it's good
+enough for our purposes here. Hopefully one of us will eventually get around to
+configuring DevStack to install in virtualenvs by default.
+</div>
+</aside>
+
+<p>We also need to install the <code>swtpm</code> package. This is provided in the Fedora
+repos (yay!):</p>
+
+<pre><code class="language-console">$ sudo dnf install swtpm swtpm-tools
+</code></pre>
+
+<p>Finally, I&rsquo;m going to be using <code>crudini</code> to ease working with various
+configuration files. Let&rsquo;s install that too:</p>
+
+<pre><code class="language-console">$ sudo dnf install crudini
+</code></pre>
+
+<p>With all this done, you can stack:</p>
+
+<pre><code class="language-console">./stack.sh
+</code></pre>
+
+<p>Now go make a cup of tea. ☕</p>
+
+<h2 id="configuring-nova">Configuring nova</h2>
+
+<p>With the stack (hopefully) complete, we need to configure nova appropriately.
+This is a simple, single-node &ldquo;can I boot an instance&rdquo; test so we don&rsquo;t need to
+do too much. The key steps are to check out the correct code, given that it&rsquo;s
+not yet merged, add some <code>nova.conf</code> configuration options and create a new
+flavor. First up, let&rsquo;s checkout the correct nova code. You can use the
+checkout link from the <a href="https://packages.ubuntu.com/bionic/libvirt-daemon">Gerrit review</a> for this purpose:</p>
+
+<pre><code class="language-console">$ cd /opt/stack/nova
+# checkout using the &quot;Checkout&quot; link in the &quot;Download&quot; dropdown on the review,
+# which I'm not providing here since it won't age well
+</code></pre>
+
+<p>Now, let&rsquo;s modify the <code>nova.conf</code> file the <code>nova-compute</code> service. We&rsquo;ll use
+<code>crudini</code> for this:</p>
+
+<pre><code class="language-console">$ crudini --set /etc/nova/nova-cpu.conf libvirt swtpm_enabled True
+</code></pre>
+
+<p>Let&rsquo;s restart the various nova services to load both the correct code and the
+configuration changes:</p>
+
+<pre><code class="language-console">$ sudo systemctl restart devstack@n-*
+</code></pre>
+
+<p>With everything restarted, we should be able to see the relevant
+<code>COMPUTE_SECURITY_TPM_*</code> traits reported by our sole compute node:</p>
+
+<pre><code class="language-console">$ openstack --os-placement-api-version 1.20 resource provider trait list \
+    --format value $RP_UUID | grep TPM
+</code></pre>
+
+<p>(where <code>$RP_UUID</code> is the UUID of the resource provider of the compute node,
+which can be found via <code>openstack resource provider list</code>)</p>
+
+<p>This should return the following:</p>
+
+<pre><code>COMPUTE_SECURITY_TPM_1_2
+COMPUTE_SECURITY_TPM_2_0
+</code></pre>
+
+<p>With that done, let&rsquo;s create a suitable flavor. The key feature here is the
+configuration of the <code>hw:tpm_version</code> and <code>hw:tpm_model</code> extra specs.
+<code>hw:tpm_model</code> is optional but <code>hw:tpm_version</code> is required to enable the
+feature:</p>
+
+<pre><code class="language-console">$ openstack flavor create test.vtpm \
+    --ram 512 --disk 1 --vcpus 1 --wait \
+    --property hw:tpm_version=1.2 \
+    --property hw:tpm_model=tpm-tis
+</code></pre>
+
+<h2 id="create-an-instance-with-vtpm">Create an instance with vTPM</h2>
+
+<p>With configuration complete, we can finally proceed to creating an instance.
+Nothing to funky here: simply create an instance using the flavor we created
+previously.</p>
+
+<pre><code class="language-console">$ openstack --os-compute-api-version 2.latest server create test.server \
+    --image cirros-0.5.1-x86_64-disk --flavor test.vtpm \
+    --nic none --wait test.server
+</code></pre>
+
+<p>Once booted, let&rsquo;s check if the generated XML is correct:</p>
+
+<pre><code class="language-console">$ sudo virsh list
+ Id   Name                State
+-----------------------------------
+ 10   instance-0000000d   running
+
+$ sudo virsh dumpxml instance-0000000d | xmllint --xpath '/domain/devices/tpm' -
+&lt;tpm model=&quot;tpm-tis&quot;&gt;
+      &lt;backend type=&quot;emulator&quot; version=&quot;1.2&quot;&gt;
+        &lt;encryption secret=&quot;8cc4e70c-d805-4d48-9302-e3c970d1217b&quot;/&gt;
+      &lt;/backend&gt;
+      &lt;alias name=&quot;tpm0&quot;/&gt;
+    &lt;/tpm&gt;
+</code></pre>
+
+<p>We can also query barbican to see if nova correctly stored keys as expected:</p>
+
+<pre><code class="language-console">$ openstack secret list --format yaml
+- Algorithm: null
+  Bit length: null
+  Content types:
+    default: application/octet-stream
+  Created: '2020-05-28T15:41:05+00:00'
+  Expiration: null
+  Mode: null
+  Name: vTPM secret for instance bbe8bc62-8403-490b-bce3-bd9c8267147e
+  Secret href: http://172.20.4.203/key-manager/v1/secrets/8cc4e70c-d805-4d48-9302-e3c970d1217b
+  Secret type: passphrase
+  Status: ACTIVE
+</code></pre>
+
+<p>Finally, we can also validate that the rebuild operation works as expected:</p>
+
+<pre><code class="language-console">$ openstack server rebuild --wait test.server
+</code></pre>
+
+<p>QED. 🎉</p>
+
+<h2 id="further-reading">Further reading</h2>
+
+<p>The <a href="https://review.opendev.org/#/c/728505/">spec</a> and <a href="https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)">WIP code</a> are well worth a read and contain background
+information on most of the topics discussed here.</p>
+
+<h2 id="package-versions">Package versions</h2>
+
+<p>The following software versions were used. In summary, these correspond to the
+master versions of various OpenStack projects and latest Fedora package
+versions on the day of test:</p>
+
+<ul>
+<li>Distro: Fedora 31 (with virt preview repo via DevStack)</li>
+<li>Kernel: <code>5.3.7-301.fc31.x86_64</code></li>
+<li>Libvirt: 6.3.0</li>
+<li>QEMU: 5.0.0</li>
+<li>DevStack: <code>9a6ae3419c6412a55456aa87b7a790c255f01028</code> (master)</li>
+<li>Nova: <code>de42f9e983cb4d4e94977697f86abf0a05e61cb4</code> (master) (before checking
+out in-progress vTPM changes)</li>
+<li>Barbican: <code>1ad43597352b225b6f3a21ef6c4186330cadf660</code> (master)</li>
+</ul>
+
+  </div>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2020 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://unpkg.com/moment"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

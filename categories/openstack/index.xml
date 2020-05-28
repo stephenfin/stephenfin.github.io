@@ -13,6 +13,15 @@
     
     
     <item>
+      <title>Emulated Trusted Platform Module (vTPM) in OpenStack 🔐</title>
+      <link>https://that.guru/blog/emulated-tpm-in-openstack/</link>
+      <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/emulated-tpm-in-openstack/</guid>
+      <description>Work is ongoing in nova to provide support for attaching virtual Trusted Platform Modules (vTPMs) to instances. The below guide demonstrates how you can go about testing this feature for yourself.</description>
+    </item>
+    
+    <item>
       <title>Upload CirrOS AMI Images</title>
       <link>https://that.guru/blog/upload-cirros-ami-images/</link>
       <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
