@@ -219,7 +219,8 @@ previously.</p>
     --nic none --wait test.server
 </code></pre>
 
-<p>Once booted, let&rsquo;s check if the generated XML is correct:</p>
+<p>Once booted, let&rsquo;s check if the generated XML includes the <a href="https://libvirt.org/formatdomain.html#elementsTpm"><code>&lt;tpm&gt;</code></a> device
+as expected:</p>
 
 <pre><code class="language-console">$ sudo virsh list
  Id   Name                State
