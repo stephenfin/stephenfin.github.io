@@ -10,7 +10,8 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
@@ -60,9 +61,24 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time></p>
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
+      </div>
+    </div>
+  </div>
 
-  <div>
+  <article>
     
 
 <p>Work is <a href="https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)">ongoing</a> in nova to provide support for attaching virtual Trusted
@@ -74,7 +90,7 @@ go about testing this feature for yourself. This work was conducted on a Fedora
     
     
     <div class="admonition-content">
-This is all very much work-in-progress at the moment. I am to come back and
+This is all very much work-in-progress at the moment. I aim to come back and
 update this if/when things are merged.
 </div>
 </aside>
@@ -297,7 +313,7 @@ out in-progress vTPM changes)</li>
 <li>Barbican: <code>1ad43597352b225b6f3a21ef6c4186330cadf660</code> (master)</li>
 </ul>
 
-  </div>
+  </article>
 
   <div class="disqus">
     <div id="disqus_thread"></div>

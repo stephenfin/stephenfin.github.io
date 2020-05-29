@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Upload CirrOS AMI Images | that.guru</title>
+  <title>Using AMI Images in OpenStack | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -10,7 +10,8 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
@@ -30,7 +31,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Upload CirrOS AMI Images</h1>
+    <h1 class="title">Using AMI Images in OpenStack</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -60,9 +61,24 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time></p>
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
+      </div>
+    </div>
+  </div>
 
-  <div>
+  <article>
     <p>I recently had to validate some interactions between the OpenStack Image
 service, <a href="https://docs.openstack.org/glance/latest/">glance</a>, and the Compute service, <a href="https://docs.openstack.org/nova/latest/">nova</a>. For this, I needed
 separate kernel and ramdisk images. Glance supports a variety of image formats,
@@ -116,7 +132,7 @@ ramdisk image by way of image metadata properties:</p>
     --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
 </code></pre>
 
-  </div>
+  </article>
 
   <div class="disqus">
     <div id="disqus_thread"></div>

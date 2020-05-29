@@ -6,7 +6,6 @@
     <description>Recent content on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     <lastBuildDate>Thu, 28 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
@@ -22,7 +21,7 @@
     </item>
     
     <item>
-      <title>Upload CirrOS AMI Images</title>
+      <title>Using AMI Images in OpenStack</title>
       <link>https://that.guru/blog/upload-cirros-ami-images/</link>
       <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
       
@@ -46,15 +45,6 @@
       
       <guid>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</guid>
       <description>This talk was delivered during a Python virtual meetup. The aim was to introduce Django REST Framework and OpenAPI, in order to demonstrate how they could be combined to produce a well-tested, well-documented RESTful API.</description>
-    </item>
-    
-    <item>
-      <title>Who is Stephen</title>
-      <link>https://that.guru/about/</link>
-      <pubDate>Mon, 11 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/about/</guid>
-      <description>Stephen is a senior software engineer at Red Hat. He&amp;rsquo;s been heavily involved in the OpenStack community since 2015, including related projects across the Python ecosystem.</description>
     </item>
     
     <item>
@@ -438,6 +428,15 @@ $ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase  This is 
       
       <guid>https://that.guru/talks/a-new-patchwork/</guid>
       <description>This was my first ever presentation to an audience that wasn&amp;rsquo;t entirely my colleagues or fellow students. It was delivered as a lightning talk at FOSDEM 2016 and focused on the work that had been done to bring Patchwork up-to-date, after it had languished for a couple of years.</description>
+    </item>
+    
+    <item>
+      <title>Who is Stephen?</title>
+      <link>https://that.guru/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/about/</guid>
+      <description>Stephen is a senior software engineer at Red Hat. He&amp;rsquo;s been heavily involved in the OpenStack community since 2015, including related projects across the Python ecosystem.</description>
     </item>
     
   </channel>

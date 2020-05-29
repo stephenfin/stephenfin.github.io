@@ -58,11 +58,6 @@
   </url>
   
   <url>
-    <loc>https://that.guru/about/</loc>
-    <lastmod>2020-05-11T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</loc>
     <lastmod>2020-02-29T00:00:00+00:00</lastmod>
   </url>
@@ -345,6 +340,10 @@
   <url>
     <loc>https://that.guru/talks/a-new-patchwork/</loc>
     <lastmod>2016-01-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://that.guru/about/</loc>
   </url>
   
 </urlset>

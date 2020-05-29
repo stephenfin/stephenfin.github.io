@@ -10,7 +10,8 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
@@ -60,9 +61,24 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2020-02-12T00:00:00Z'>Feb 12, 2020</time></p>
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2020-02-12T00:00:00Z'>Feb 12, 2020</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>7 min read</span>
+      </div>
+    </div>
+  </div>
 
-  <div>
+  <article>
     
 
 <p>In a <a href="https://that.guru/blog/cpu-resources">previous blog post</a>, I&rsquo;d described how instance NUMA
@@ -89,28 +105,28 @@ applications running in the guest OS are able to able to tune themselves for
 this topology and avoid cross-NUMA node memory accesses and the performance
 penalties these brings. Unfortunately, there have also been some downsides, of
 which two were rather significant. The most impactful of these was the
-inability to correctly live migrate such instances, as noted in bug #1417667
-<a href="https://bugs.launchpad.net/nova/+bug/1417667"><a href="https://bugs.launchpad.net/nova/+bug/1417667">1</a></a>. In short, that bug noted that nova was not recalculating any of its
-CPU or mempage pinning information on a migration, resulting in a failure to
-live migrate to hosts with different NUMA topologies or, worse, individual
-instance NUMA nodes being spread across multiple NUMA nodes or the pinned CPUs
-of pinned instances overlapping with those of other pinned instances. The other
-issue stemmed from nova&rsquo;s schizophrenic model for tracking resource
-utilization, where it used different models for tracking pinned CPUs from
-unpinned or &ldquo;floating&rdquo; CPUs, along with different models for tracking standard
-memory from explicit small and huge page requests. Combined, these led to a
-scenario where operators had to divide their datacenters up into host
-aggregates <a href="https://docs.openstack.org/nova/latest/admin/aggregates.html"><a href="https://docs.openstack.org/nova/latest/admin/aggregates.html">2</a></a> in order to separate normal, unpinned instances from both
-pinned instances and unpinned instances with a NUMA topology.</p>
+inability to correctly live migrate such instances, as noted in
+<a href="https://bugs.launchpad.net/nova/+bug/1417667">bug #1417667</a>. In short, that bug noted that nova was not recalculating any
+of its CPU or mempage pinning information on a migration, resulting in a
+failure to live migrate to hosts with different NUMA topologies or, worse,
+individual instance NUMA nodes being spread across multiple NUMA nodes or the
+pinned CPUs of pinned instances overlapping with those of other pinned
+instances. The other issue stemmed from nova&rsquo;s schizophrenic model for tracking
+resource utilization, where it used different models for tracking pinned CPUs
+from unpinned or &ldquo;floating&rdquo; CPUs, along with different models for tracking
+standard memory from explicit small and huge page requests. Combined, these led
+to a scenario where operators had to divide their datacenters up into <a href="https://docs.openstack.org/nova/latest/admin/aggregates.html">host
+aggregates</a> in order to separate normal, unpinned instances from both pinned
+instances and unpinned instances with a NUMA topology.</p>
 
 <h2 id="train-to-the-rescue">Train to the rescue</h2>
 
 <p>Train changes things. Not only does it resolve the live migration issue through
-the completion of the NUMA-aware live migration spec <a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/numa-aware-live-migration.html"><a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/numa-aware-live-migration.html">3</a></a> but it introduces
-an entirely new model for tracking CPU resources that prevents the need to
-shard your datacenter using host aggregates <a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/cpu-resources.html"><a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/cpu-resources.html">4</a></a>. This is made possible by the
+the completion of the <a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/numa-aware-live-migration.html">NUMA-aware live migration spec</a> but it introduces an
+<a href="https://specs.openstack.org/openstack/nova-specs/specs/train/approved/cpu-resources.html">entirely new model for tracking CPU resources</a> that prevents the need to
+shard your datacenter using host aggregates. This is made possible by the
 reporting of a new resource type, <code>PCPU</code>, for host CPUs intended to host pinned
-instance CPUs. This is described in the Train release notes <a href="https://docs.openstack.org/releasenotes/nova/train.html#relnotes-20-0-0-stable-train"><a href="https://docs.openstack.org/releasenotes/nova/train.html#relnotes-20-0-0-stable-train">5</a></a>.</p>
+instance CPUs. This is described in the <a href="https://docs.openstack.org/releasenotes/nova/train.html#relnotes-20-0-0-stable-train">Train release notes</a>.</p>
 
 <blockquote>
 <p>Compute nodes using the libvirt driver can now report <code>PCPU</code> inventory. This
@@ -133,9 +149,9 @@ configuration options.</p>
 <p>The migration from Stein to Train is tricky. In short, we need to migrate from
 <code>[DEFAULT] vcpu_pin_set</code> to a combination of <code>[compute] cpu_shared_set</code> and
 <code>[compute] cpu_dedicated_set</code> and unset <code>[DEFAULT] reserved_host_cpus</code>. How you
-do this is touched upon in the help text for the <code>[DEFAULT] vcpu_pin_set</code>
-<a href="https://docs.openstack.org/nova/train/configuration/config.html#DEFAULT.vcpu_pin_set"><a href="https://docs.openstack.org/nova/train/configuration/config.html#DEFAULT.vcpu_pin_set">6</a></a>, <code>[compute] cpu_shared_set</code> <a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_shared_set"><a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_shared_set">7</a></a> and <code>[compute] cpu_dedicated_set</code>
-<a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_dedicated_set"><a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_dedicated_set">8</a></a> options. As always, a diagram will help:</p>
+do this is touched upon in the help text for the <a href="https://docs.openstack.org/nova/train/configuration/config.html#DEFAULT.vcpu_pin_set"><code>[DEFAULT] vcpu_pin_set</code></a>,
+<a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_shared_set"><code>[compute] cpu_shared_set</code></a> and <a href="https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_dedicated_set"><code>[compute] cpu_dedicated_set</code></a> options.
+As always, a diagram will help:</p>
 
 <p><img src="https://that.guru/media/cpu-resources-redux_migration.png" alt="Migrating `nova.conf`" /></p>
 
@@ -302,7 +318,7 @@ $ openstack --os-placement-api-version 1.18 resource provider inventory show \
 node should lead to higher resource utilization and avoid the need to shard
 your compute, both of which are very useful features for smaller deployments.</p>
 
-  </div>
+  </article>
 
   <div class="disqus">
     <div id="disqus_thread"></div>

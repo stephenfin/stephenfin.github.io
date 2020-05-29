@@ -6,7 +6,6 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <copyright>This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.</copyright>
     <lastBuildDate>Thu, 28 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
@@ -22,7 +21,7 @@
     </item>
     
     <item>
-      <title>Upload CirrOS AMI Images</title>
+      <title>Using AMI Images in OpenStack</title>
       <link>https://that.guru/blog/upload-cirros-ami-images/</link>
       <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
       

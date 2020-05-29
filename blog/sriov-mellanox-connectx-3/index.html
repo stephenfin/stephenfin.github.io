@@ -10,7 +10,8 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
@@ -60,9 +61,24 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <p>Published <time datetime='2018-09-25T00:00:00Z'>Sep 25, 2018</time></p>
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2018-09-25T00:00:00Z'>Sep 25, 2018</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>7 min read</span>
+      </div>
+    </div>
+  </div>
 
-  <div>
+  <article>
     
 
 <p>So <a href="https://en.wikipedia.org/wiki/Single-root_input/output_virtualization">SR-IOV</a> support in my <a href="https://ark.intel.com/products/84804/Intel-Ethernet-Server-Adapter-I350-T2V2">Intel I350-T2V2</a> decided to stop working recently
@@ -270,7 +286,7 @@ deploy this with <a href="https://docs.openstack.org/devstack/rocky/">DevStack</
 too.  These are based on the Rocky release (August 2018) so they probably won&rsquo;t
 age well, but they are a starting point.</p>
 
-  </div>
+  </article>
 
   <div class="disqus">
     <div id="disqus_thread"></div>

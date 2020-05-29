@@ -10,7 +10,8 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
@@ -60,10 +61,23 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <h1><a href="https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/"><span>Who Needs pandoc When You Have Sphinx?</span></a></h1>
-  <p>Presented <time datetime='2019-02-02T00:00:00Z'>Feb 2, 2019</time></p>
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <span>Presented <time datetime='2019-02-02T00:00:00Z'>Feb 2, 2019</time></span>
+      </div>
+    </div>
+  </div>
 
-  <div>
+  <article>
     <p>This was a talk I gave at <a href="https://fosdem.org/2019/schedule/event/sphinx/">FOSDEM 2019</a>. In this talk, subtitled &ldquo;An
 exploration of the parsers and builders of the Sphinx documentation tool&rdquo;, I
 explored some of the less well known aspects of both Sphinx and docutils.</p>
@@ -100,7 +114,7 @@ provides.</p>
 
 <script async class="speakerdeck-embed" data-id="c7922a6d0b2c4e6a81cf63d6bba906ae" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
 
-  </div>
+  </article>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
