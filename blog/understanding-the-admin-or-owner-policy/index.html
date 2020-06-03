@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Understanding the &#39;admin_or_owner&#39; rule in nova policies | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/iC4BsZQaREg/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Understanding the &#39;admin_or_owner&#39; rule in nova policies</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2020-06-03T00:00:00Z'>Jun 3, 2020</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>3 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>The OpenStack Compute service, nova, exposes a <a href="https://docs.openstack.org/nova/latest/configuration/policy.html">rich policy framework</a> that
+provides the ability to configure what certain types of users are allowed to
+do across the API. The policy defaults are stored in code, allowing us to
+define, for example, who is allowed to create or delete an instance, who can
+configure flavors, and so forth. However, these policies are slightly
+confusing. Take the aforementioned policy defining who can delete a specific
+instance. This is configured using the <a href="https://github.com/openstack/nova/blob/20.0.0/nova/policies/servers.py#L219-L228"><code>os_compute_api:servers:delete</code>
+policy</a> and, prior to the 21.0.0 (Ussuri) release, defaulted to the
+<a href="https://github.com/openstack/nova/blob/20.0.0/nova/policies/servers.py#L221"><code>admin_or_owner</code></a> rule. The name of this would suggest that the only person
+that could delete an instance would be an admin or the person that created the
+instance, but a quick test shows this not to be the case. Consider the
+following case, used on a standard DevStack-based installation:</p>
+
+<pre><code class="language-shell">$ source openrc admin
+$ openstack project create --domain default test_project
+$ openstack user create --project test_project --password test testuser1
+$ openstack user create --project test_project --password test testuser2
+</code></pre>
+
+<p>This creates a new project, <code>test_project</code>, along with two new users,
+<code>testuser1</code> and <code>testuser2</code>. We can then use the first of these users to create
+a new instance:</p>
+
+<pre><code class="language-shell">$ cat &lt;&lt; EOF &gt; openrc-testuser1
+export OS_PROJECT_DOMAIN_ID=default
+export OS_USER_DOMAIN_ID=default
+export OS_AUTH_TYPE=password
+export OS_USERNAME=testuser1
+export OS_PASSWORD=test
+export OS_PROJECT_NAME=test_project
+export OS_TENANT_NAME=test_project
+export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
+EOF
+$ source openrc-testuser1
+$ openstack server create --flavor m1.tiny --image cirros-0.5.1-x86_64-disk test-server
+</code></pre>
+
+<p>With the instance created, let&rsquo;s now attempt to delete the server as the second
+user:</p>
+
+<pre><code class="language-shell">$ cat &lt;&lt; EOF &gt; openrc-testuser2
+export OS_PROJECT_DOMAIN_ID=default
+export OS_USER_DOMAIN_ID=default
+export OS_AUTH_TYPE=password
+export OS_USERNAME=testuser2
+export OS_PASSWORD=test
+export OS_PROJECT_NAME=test_project
+export OS_TENANT_NAME=test_project
+export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
+EOF
+$ openstack server delete test-server
+</code></pre>
+
+<p>This succeeds, which at first glance seems wrong but is actually correct.
+Remember, the default rule is <code>admin_or_owner</code> and the &ldquo;owner&rdquo; of an instance
+is not the user - it&rsquo;s the project that the server is created in.  Because both
+<code>testuser1</code> and <code>testuser2</code> are members of the project that the instance was
+created in, <code>test_project</code>, it&rsquo;s possible for <code>testuser2</code> to delete the server
+created by <code>testuser1</code>.</p>
+
+<p>This is confusing, and really lessens the power of policy is nova, which is why
+in the 21.0.0 (Ussuri) release, we have introduced the concept of scope types
+and roles via the <a href="https://review.opendev.org/#/c/686058/">policy defaults refresh blueprint</a>. Though not yet
+enabled by default, this (<a href="https://review.opendev.org/#/q/topic:bp/policy-defaults-refresh">huge</a>) effort allows us to do things like mark a
+user as having read-only permissions for things like servers or project-level
+admin privileges. For example, if we wanted to say that <code>testuser1</code> was an
+admin but <code>testuser2</code> was only allowed read-only permissions, we could do the
+following:</p>
+
+<pre><code class="language-shell">$ openstack role add --project test_project --user testuser1 admin
+$ openstack role add --project test_project --user testuser2 reader
+</code></pre>
+
+<p>This is a big change with significant impacts, but should make policy
+significantly more useful. It is explained in great detail in the nova
+<a href="https://docs.openstack.org/nova/latest/configuration/policy-concepts.html">documentation</a> and <a href="https://docs.openstack.org/releasenotes/nova/ussuri.html#relnotes-21-0-0-stable-ussuri">release notes</a>, and I recommend reading both.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2020 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.26.0/moment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

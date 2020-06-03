@@ -6,10 +6,19 @@
     <description>Recent content in openstack on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 28 May 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Understanding the &#39;admin_or_owner&#39; rule in nova policies</title>
+      <link>https://that.guru/blog/understanding-the-admin-or-owner-policy/</link>
+      <pubDate>Wed, 03 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/understanding-the-admin-or-owner-policy/</guid>
+      <description>The OpenStack Compute service, nova, exposes a rich policy framework that provides the ability to configure what certain types of users are allowed to do across the API.</description>
+    </item>
     
     <item>
       <title>Emulated Trusted Platform Module (vTPM) in OpenStack 🔐</title>
