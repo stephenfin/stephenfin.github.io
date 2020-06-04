@@ -136,7 +136,8 @@ Remember, the default rule is <code>admin_or_owner</code> and the &ldquo;owner&r
 is not the user - it&rsquo;s the project that the server is created in.  Because both
 <code>testuser1</code> and <code>testuser2</code> are members of the project that the instance was
 created in, <code>test_project</code>, it&rsquo;s possible for <code>testuser2</code> to delete the server
-created by <code>testuser1</code>.</p>
+created by <code>testuser1</code>. This &ldquo;project as owner&rdquo; design is consistent across
+nova, with only a <a href="https://specs.openstack.org/openstack/nova-specs/specs/newton/implemented/user-id-based-policy-enforcement.html">few, limited exceptions</a>.</p>
 
 <p>This is confusing, and really lessens the power of policy is nova, which is why
 in the 21.0.0 (Ussuri) release, we have introduced the concept of scope types
