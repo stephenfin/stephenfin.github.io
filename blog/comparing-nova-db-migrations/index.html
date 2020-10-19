@@ -96,7 +96,7 @@ migrations without using <code>nova-manage</code> and everything it entails. Thi
 allow people to test the changes we&rsquo;re making locally and might even help
 people interested in writing their own migrations in the future.</p>
 
-<h2 id="comparing-migrations">Comparing migrations</h2>
+<h2 id="overview">Overview</h2>
 
 <p>When compressing migrations, the expectation is that the before and after of
 the migration should be identical. Nova doesn&rsquo;t have any built-in tests to do
@@ -105,8 +105,8 @@ are effectively:</p>
 
 <ol>
 <li>Create a new empty database.</li>
-<li>Apply migrations <code>N</code> to <code>M</code> from current <code>master</code>, where <code>N</code> is the current
-base migration and <code>M</code> is the migration you wish to compact up to.</li>
+<li>Apply migrations N to M from current <code>master</code>, where N is the current base
+migration and M is the migration you wish to compact up to.</li>
 <li>Dump the schema for the database.</li>
 <li>Drop and recreate the database, then apply the compaction patch.</li>
 <li>Apply the new base migration.</li>
@@ -130,112 +130,105 @@ $ pip install \
 $ pip install -e .
 </code></pre>
 
-<p>You should also navigate to the &ldquo;migration repository&rdquo; in nova, to avoid having
-to manually specify this for the various sqlalchemy-migrate commands.</p>
+<p>You should also navigate to the <em>migration repository</em> in nova, to avoid having
+to manually specify this for the various <em>sqlalchemy-migrate</em> commands.</p>
 
 <pre><code class="language-base">$ cd nova/db/sqlalchemy/migrate_repo
 </code></pre>
 
-<h3 id="sqlite">SQLite</h3>
+<h2 id="sqlite">SQLite</h2>
 
 <p>Since SQLite databases are stored as a single file, there is no additional
-setup necessary. We can get right into generating the schema dumps. To do this,
-we first need to mark our database as version controlled, which will create the
-necessary &ldquo;version table&rdquo;. The name of this version table is configurable in
+setup necessary. SQLite also provides a handy tool to compare databases,
+<code>sqldiff</code>, which is packaged on Fedora 32 at least. Install that first:</p>
+
+<pre><code class="language-bash">$ sudo dnf install sqlite-tools
+</code></pre>
+
+<p>With that installed, we can get right to generating two databases that we can
+then compare using this <code>sqldiff</code> tool. It would of course be possible to dump
+the schemas and compare those, but doing so means we&rsquo;d have to filter out
+things like simple ordering changes that SQLite seems prone to.</p>
+
+<p>Generating the database using <em>sqlalchemy-migrate</em> is a two steps process. We
+first need to mark our database as version controlled, which will create the
+necessary <em>version table</em>. The name of this version table is configurable in
 the <code>migrate.cfg</code> configuration file found in your migration repository and is
 called <code>migrate_version</code> in nova. The <code>version_control</code> command will create
 this table and initialize it for version N, which is the base migration you
 wish to test. For example:</p>
 
-<pre><code class="language-bash">$ python manage.py version_control --database 'sqlite:///nova.db' --version 215
+<pre><code class="language-bash">$ python manage.py version_control --database 'sqlite:///nova_before.db' --version 215
 </code></pre>
 
 <p>Once this is configured, apply all migrations up to M. You can use the
 <code>upgrade</code> command for this. For example:</p>
 
-<pre><code class="language-bash">$ python manage.py upgrade --database 'sqlite:///nova.db' --version 216
+<pre><code class="language-bash">$ python manage.py upgrade --database 'sqlite:///nova_before.db' --version 216
 </code></pre>
 
-<p>Next, dump the schema for this new database. SQLite doesn&rsquo;t provide a dedicated
-tool for this out-of-the-box, so you need to do this from the <code>sqlite3</code> shell.
-Dump this schema to e.g. <code>nova_before.sql</code>. For example:</p>
+<p>Once we have a database instance using the <em>before</em> schema, we can apply the
+code change and repeat the steps above, this time creating a <code>nova_after.db</code>
+database. For example:</p>
 
-<pre><code class="language-bash">$ sqlite3 nova.db
-sqlite&gt; .output nova_before.sql
-sqlite&gt; .dump
-sqlite&gt; .exit
+<pre><code class="language-bash">$ python manage.py version_control --database 'sqlite:///nova_after.db' --version 215
+$ python manage.py upgrade --database 'sqlite:///nova_after.db' --version 216
 </code></pre>
 
-<p>Don&rsquo;t forget to delete the old database file so we can recreate it in the next
-step:</p>
+<p>Now, with these two databases to hand, we an diff them to ensure nothing has
+changed:</p>
 
-<pre><code class="language-bash">$ rm nova.db
+<pre><code>$ sqldiff --schema nova_before.db nova_after.db
 </code></pre>
 
-<p>Now that we have the &ldquo;before&rdquo; schema, apply your change and repeat the steps
-above, this time dumping the schema to e.g. <code>nova_after.db</code>.</p>
-
-<pre><code class="language-bash">$ python manage.py version_control --database 'sqlite:///nova.db' --version 215
-$ python manage.py upgrade --database 'sqlite:///nova.db' --version 216
-$ sqlite3 nova.db
-sqlite&gt; .output nova_after.sql
-sqlite&gt; .dump
-sqlite&gt; .exit
-$ rm nova.db
-</code></pre>
-
-<p>Finally, diff the two schemas to identify any differences:</p>
-
-<pre><code>$ diff nova_before.sql nova_after.sql
-</code></pre>
-
-<h3 id="mysql">MySQL</h3>
+<h2 id="mysql">MySQL</h2>
 
 <p>The steps for MySQL are quite similar to those for SQLite, but we do need to do
 some pre-work - namely, creating a suitable database and user - before we can
 get to validating schemas. Do this now. For example:</p>
 
 <pre><code class="language-bash">$ mysql
-MariaDB [(none)]&gt; CREATE DATABASE nova;
-MariaDB [(none)]&gt; GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'password';
+MariaDB [(none)]&gt; CREATE DATABASE nova_before;
+MariaDB [(none)]&gt; GRANT ALL PRIVILEGES ON nova_before.* TO 'nova'@'localhost' IDENTIFIED BY 'password';
 MariaDB [(none)]&gt; quit;
 </code></pre>
 
 <p>With this created, the steps are similar to those for SQLite. Once again, we
 will use the <code>version_control</code> and <code>upgrade</code> management commands:</p>
 
-<pre><code class="language-bash">$ python manage.py version_control \
-    --database 'mysql+pymysql://nova:password@localhost/nova' --version 215
-$ python manage.py upgrade \
-    --database 'mysql+pymysql://nova:password@localhost/nova' --version 216
+<pre><code class="language-bash">$ python manage.py version_control --database 'mysql+pymysql://nova:password@localhost/nova_before' --version 215
+$ python manage.py upgrade --database 'mysql+pymysql://nova:password@localhost/nova_before' --version 216
 </code></pre>
 
 <p>However, unlike SQLite, we have a specific tool available to dump the DB
-schemas - <code>mysqldump</code>. Use that to dump the &ldquo;before&rdquo; schema:</p>
+schemas - <code>mysqldump</code>. Use that to dump the <em>before</em> schema:</p>
 
-<pre><code class="language-bash">$ mysqldump -d -u nova -ppassword nova &gt; nova_before.sql
+<pre><code class="language-bash">$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &gt; nova_before.sql
 </code></pre>
 
-<p>Once again, don&rsquo;t forget to delete the old database and recreate it.</p>
+<aside class="admonition note">
+    
+    
+    <div class="admonition-content">
+Fedora previously provided a `mysql-utilities` package that provided a
+`mysqldiff` utility for doing this exact thing. However, it was retired in
+Fedora 31 as it was no longer maintained.
+See <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1691185">Bugzilla</a>
+for more details.
+</div>
+</aside>
+
+<p>Once we have a database instance using the <em>before</em> schema, we can apply the
+code change and repeat the steps above, this time creating a <code>nova_after</code>
+database. For example:</p>
 
 <pre><code class="language-bash">$ mysql
-MariaDB [(none)]&gt; DROP DATABASE nova;
-MariaDB [(none)]&gt; CREATE DATABASE nova;
-MariaDB [(none)]&gt; GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'password';
+MariaDB [(none)]&gt; CREATE DATABASE nova_after;
+MariaDB [(none)]&gt; GRANT ALL PRIVILEGES ON nova_after.* TO 'nova'@'localhost' IDENTIFIED BY 'password';
 MariaDB [(none)]&gt; quit;
-</code></pre>
-
-<p>With the before schema to hand, move on to generate the &ldquo;after&rdquo; schema. For
-example:</p>
-
-<pre><code class="language-bash">$ python manage.py version_control \
-    --database 'mysql+pymysql://nova:password@localhost/nova' --version 215
-$ python manage.py upgrade \
-    --database 'mysql+pymysql://nova:password@localhost/nova' --version 216
-$ mysqldump -d -u nova -ppassword nova &gt; nova_after.sql
-$ mysql
-MariaDB [(none)]&gt; DROP DATABASE nova;
-MariaDB [(none)]&gt; quit;
+$ python manage.py version_control --database 'mysql+pymysql://nova:password@localhost/nova_after' --version 215
+$ python manage.py upgrade --database 'mysql+pymysql://nova:password@localhost/nova_after' --version 216
+$ mysqldump --no-data --skip-comments -u nova -ppassword nova_after &gt; nova_after.sql
 </code></pre>
 
 <p>Finally, diff the two schemas to identify any differences:</p>
