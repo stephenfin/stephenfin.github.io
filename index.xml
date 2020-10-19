@@ -6,10 +6,19 @@
     <description>Recent content on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 10 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 19 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://that.guru/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Comparing Nova Database Migrations</title>
+      <link>https://that.guru/blog/comparing-nova-db-migrations/</link>
+      <pubDate>Mon, 19 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/comparing-nova-db-migrations/</guid>
+      <description>One of the goals for the Wallaby release of OpenStack Nova is to compact many of the database migrations that have been slowly building up since the Icehouse release some 6½ years ago.</description>
+    </item>
     
     <item>
       <title>What Is Nova?</title>

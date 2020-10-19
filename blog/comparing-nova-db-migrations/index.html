@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Comparing Nova Database Migrations | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/GK8x_XCcDZg/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Comparing Nova Database Migrations</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2020-10-19T00:00:00Z'>Oct 19, 2020</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    
+
+<p><a href="https://blueprints.launchpad.net/nova/+spec/compact-db-migrations-wallaby">One of the goals</a> for the Wallaby release of OpenStack Nova is to compact
+many of the database migrations that have been slowly building up since the
+Icehouse release some 6½ years ago. We used to do this regularly but stopped
+based on operator feedback suggesting it made upgrades harder than necessary.
+However, things have changed since then and the amount of database migrations
+in each release has slowed considerably. In fact, the latest release, Victoria,
+contained no database migrations whatsoever. This change, coupled with the fact
+that we&rsquo;re still using the effectively dead <a href="https://sqlalchemy-migrate.readthedocs.io/en/latest/">sqlalchemy-migrate</a> library
+rather than something like <a href="https://alembic.sqlalchemy.org/en/latest/">alembic</a> means we now have good reason to kick
+off the compaction.</p>
+
+<p>Below are my notes on this exercises, which demonstrate how to use the current
+migrations without using <code>nova-manage</code> and everything it entails. This should
+allow people to test the changes we&rsquo;re making locally and might even help
+people interested in writing their own migrations in the future.</p>
+
+<h2 id="comparing-migrations">Comparing migrations</h2>
+
+<p>When compressing migrations, the expectation is that the before and after of
+the migration should be identical. Nova doesn&rsquo;t have any built-in tests to do
+this (why would it) so we&rsquo;re going to do this manually. The steps to do this
+are effectively:</p>
+
+<ol>
+<li>Create a new empty database.</li>
+<li>Apply migrations <code>N</code> to <code>M</code> from current <code>master</code>, where <code>N</code> is the current
+base migration and <code>M</code> is the migration you wish to compact up to.</li>
+<li>Dump the schema for the database.</li>
+<li>Drop and recreate the database, then apply the compaction patch.</li>
+<li>Apply the new base migration.</li>
+<li>Dump the schema for the database.</li>
+<li>Compare the schemas from steps 3 and 6, looking for any serious changes.</li>
+</ol>
+
+<p>These steps are implementation differently depending on the RDBMS in use, so
+sample steps for both SQLite and MySQL are provided below. These already assume
+you have your system configured for nova development and can successfully run
+unit tests using <code>tox</code>. You should also have SQLite and MySQL packages
+installed. For all cases, we&rsquo;re going to use a virtualenv to ensure the
+required dependencies are installed so do that first:</p>
+
+<pre><code class="language-bash">$ cd nova
+$ virtualenv .venv
+$ source .venv/bin/activate
+$ pip install \
+    -c https://releases.openstack.org/constraints/upper/master \
+    -r requirements.txt -r test-requirements.txt
+$ pip install -e .
+</code></pre>
+
+<p>You should also navigate to the &ldquo;migration repository&rdquo; in nova, to avoid having
+to manually specify this for the various sqlalchemy-migrate commands.</p>
+
+<pre><code class="language-base">$ cd nova/db/sqlalchemy/migrate_repo
+</code></pre>
+
+<h3 id="sqlite">SQLite</h3>
+
+<p>Since SQLite databases are stored as a single file, there is no additional
+setup necessary. We can get right into generating the schema dumps. To do this,
+we first need to mark our database as version controlled, which will create the
+necessary &ldquo;version table&rdquo;. The name of this version table is configurable in
+the <code>migrate.cfg</code> configuration file found in your migration repository and is
+called <code>migrate_version</code> in nova. The <code>version_control</code> command will create
+this table and initialize it for version N, which is the base migration you
+wish to test. For example:</p>
+
+<pre><code class="language-bash">$ python manage.py version_control --database 'sqlite:///nova.db' --version 215
+</code></pre>
+
+<p>Once this is configured, apply all migrations up to M. You can use the
+<code>upgrade</code> command for this. For example:</p>
+
+<pre><code class="language-bash">$ python manage.py upgrade --database 'sqlite:///nova.db' --version 216
+</code></pre>
+
+<p>Next, dump the schema for this new database. SQLite doesn&rsquo;t provide a dedicated
+tool for this out-of-the-box, so you need to do this from the <code>sqlite3</code> shell.
+Dump this schema to e.g. <code>nova_before.sql</code>. For example:</p>
+
+<pre><code class="language-bash">$ sqlite3 nova.db
+sqlite&gt; .output nova_before.sql
+sqlite&gt; .dump
+sqlite&gt; .exit
+</code></pre>
+
+<p>Don&rsquo;t forget to delete the old database file so we can recreate it in the next
+step:</p>
+
+<pre><code class="language-bash">$ rm nova.db
+</code></pre>
+
+<p>Now that we have the &ldquo;before&rdquo; schema, apply your change and repeat the steps
+above, this time dumping the schema to e.g. <code>nova_after.db</code>.</p>
+
+<pre><code class="language-bash">$ python manage.py version_control --database 'sqlite:///nova.db' --version 215
+$ python manage.py upgrade --database 'sqlite:///nova.db' --version 216
+$ sqlite3 nova.db
+sqlite&gt; .output nova_after.sql
+sqlite&gt; .dump
+sqlite&gt; .exit
+$ rm nova.db
+</code></pre>
+
+<p>Finally, diff the two schemas to identify any differences:</p>
+
+<pre><code>$ diff nova_before.sql nova_after.sql
+</code></pre>
+
+<h3 id="mysql">MySQL</h3>
+
+<p>The steps for MySQL are quite similar to those for SQLite, but we do need to do
+some pre-work - namely, creating a suitable database and user - before we can
+get to validating schemas. Do this now. For example:</p>
+
+<pre><code class="language-bash">$ mysql
+MariaDB [(none)]&gt; CREATE DATABASE nova;
+MariaDB [(none)]&gt; GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'password';
+MariaDB [(none)]&gt; quit;
+</code></pre>
+
+<p>With this created, the steps are similar to those for SQLite. Once again, we
+will use the <code>version_control</code> and <code>upgrade</code> management commands:</p>
+
+<pre><code class="language-bash">$ python manage.py version_control \
+    --database 'mysql+pymysql://nova:password@localhost/nova' --version 215
+$ python manage.py upgrade \
+    --database 'mysql+pymysql://nova:password@localhost/nova' --version 216
+</code></pre>
+
+<p>However, unlike SQLite, we have a specific tool available to dump the DB
+schemas - <code>mysqldump</code>. Use that to dump the &ldquo;before&rdquo; schema:</p>
+
+<pre><code class="language-bash">$ mysqldump -d -u nova -ppassword nova &gt; nova_before.sql
+</code></pre>
+
+<p>Once again, don&rsquo;t forget to delete the old database and recreate it.</p>
+
+<pre><code class="language-bash">$ mysql
+MariaDB [(none)]&gt; DROP DATABASE nova;
+MariaDB [(none)]&gt; CREATE DATABASE nova;
+MariaDB [(none)]&gt; GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'password';
+MariaDB [(none)]&gt; quit;
+</code></pre>
+
+<p>With the before schema to hand, move on to generate the &ldquo;after&rdquo; schema. For
+example:</p>
+
+<pre><code class="language-bash">$ python manage.py version_control \
+    --database 'mysql+pymysql://nova:password@localhost/nova' --version 215
+$ python manage.py upgrade \
+    --database 'mysql+pymysql://nova:password@localhost/nova' --version 216
+$ mysqldump -d -u nova -ppassword nova &gt; nova_after.sql
+$ mysql
+MariaDB [(none)]&gt; DROP DATABASE nova;
+MariaDB [(none)]&gt; quit;
+</code></pre>
+
+<p>Finally, diff the two schemas to identify any differences:</p>
+
+<pre><code>$ diff nova_before.sql nova_after.sql
+</code></pre>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2020 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.26.0/moment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
