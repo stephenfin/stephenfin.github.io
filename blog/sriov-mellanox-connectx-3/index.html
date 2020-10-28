@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
   <link rel="stylesheet" href="https://that.guru/css/default.css"/>
-
   <style type="text/css">
     .header-wrapper {
       background-image: url(https://source.unsplash.com/C9dTdBM3joM/1920x1080);
@@ -51,6 +50,9 @@
           <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
             <i class="fab fa-linkedin"></i>
           </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
         </div>
       </div>
     </nav>
@@ -82,11 +84,11 @@
 
 <p>So <a href="https://en.wikipedia.org/wiki/Single-root_input/output_virtualization">SR-IOV</a> support in my <a href="https://ark.intel.com/products/84804/Intel-Ethernet-Server-Adapter-I350-T2V2">Intel I350-T2V2</a> decided to stop working recently
 (or maybe it never worked - I can&rsquo;t be sure), meaning it was time to pick up a
-new SR-IOV NIC for testing/development. I settled on a used <a href="Ethernet, low profile">Mellanox
-ConnectX-3</a> from eBay because (a) it supported SR-IOV
-and other cool things like RDMA over Ethernet (<a href="https://en.wikipedia.org/wiki/RDMA_over_Converged_Ethernet">RoCE</a>), (b) the Mellanox guys
-I&rsquo;ve dealt with in Nova have been a great bunch and &copy; it was cheap. For what
-it&rsquo;s worth, I also got a pair of <a href="https://en.wikipedia.org/wiki/Small_form-factor_pluggable_transceiver">SFP</a> cables</p>
+new SR-IOV NIC for testing/development. I settled on a used
+<a href="http://www.mellanox.com/page/products_dyn?product_family=127">Mellanox ConnectX-3</a> from eBay because it supported SR-IOV and other cool
+things like RDMA over Ethernet (<a href="https://en.wikipedia.org/wiki/RDMA_over_Converged_Ethernet">RoCE</a>), the Mellanox guys I&rsquo;ve dealt with in
+Nova have been a great bunch and, most crucially at the time, it was cheap. For
+what it&rsquo;s worth, I also got a pair of <a href="https://en.wikipedia.org/wiki/Small_form-factor_pluggable_transceiver">SFP</a> cables</p>
 
 <p>The first time I configured this, I followed the instructions from the
 <a href="https://community.mellanox.com/docs/DOC-2365">Mellanox website</a>. This mandated downloading a tarball and
@@ -336,7 +338,7 @@ age well, but they are a starting point.</p>
       <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
         <i class="fab fa-linkedin"></i>
       </a>
-    </div>
+      </div>
   </footer>
 </div>
 

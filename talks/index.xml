@@ -6,18 +6,21 @@
     <description>Recent content in Talks on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 10 Jun 2020 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Wed, 10 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>What Is Nova?</title>
       <link>https://that.guru/talks/what-is-nova/</link>
       <pubDate>Wed, 10 Jun 2020 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/what-is-nova/</guid>
-      <description>This talk was delivered to a number of Red Hat interns at the start of their internship and served as a brief, high-level overview of the OpenStack Compute (nova) project.</description>
+      <description>&lt;p&gt;This talk was delivered to a number of Red Hat interns at the start of their
+internship and served as a brief, high-level overview of the OpenStack Compute
+(nova) project. On the day, it was bookended by an intro to OpenStack itself
+and an intro to the OpenStack Networking (neutron) project. There isn&amp;rsquo;t really
+a bio of note to share 🤷&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;2760b3b3098343ef84e49cd35b11a8ec&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -26,7 +29,33 @@
       <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</guid>
-      <description>This talk was delivered during a Python virtual meetup. The aim was to introduce Django REST Framework and OpenAPI, in order to demonstrate how they could be combined to produce a well-tested, well-documented RESTful API.</description>
+      <description>&lt;p&gt;This talk was delivered during a &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Python virtual meetup&lt;/a&gt;. The aim was to
+introduce Django REST Framework and OpenAPI, in order to demonstrate how they
+could be combined to produce a well-tested, well-documented RESTful API.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Django REST Framework (DRF) does for REST APIs what Django does for web
+applications more generally. That is, it provides a powerful, flexible
+framework to help quickly building applications. OpenAPI (formerly Swagger)
+provides a machine-readable schema for describing the REST APIs made possible
+by the likes of DRF. When combined, they allow you to do some pretty neat
+things, which we&amp;rsquo;re going to cover in this talk.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Automatic generation of schemas from your API&lt;/li&gt;
+&lt;li&gt;Validation of APIs using schemas&lt;/li&gt;
+&lt;li&gt;Documentation!&lt;/li&gt;
+&lt;li&gt;The competition&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let&amp;rsquo;s see if OpenAPI really is the one API schema to rule them all&amp;hellip;or
+something like that.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Meetup&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;3011a7535ab04961b652b60d18d3a180&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -35,7 +64,33 @@
       <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</guid>
-      <description>This talk, delivered at PyCon Limerick 2020, was a repeat of a talk I&amp;rsquo;d previously given at FOSDEM 2018. Once again, this talk provided a quick dive into the somewhat complicated world of Sphinx extensions.</description>
+      <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt;, was a repeat of a talk I&amp;rsquo;d
+previously given at &lt;a href=&#34;https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/&#34;&gt;FOSDEM 2018&lt;/a&gt;. Once again, this talk provided a quick
+dive into the somewhat complicated world of Sphinx extensions.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If you&amp;rsquo;ve read documentation for a Python library, you&amp;rsquo;ve almost certainly
+seen the end product of a docutils or Sphinx-powered documentation toolchain.
+Sphinx builds upon docutils and together, they provide the tool of choice for
+a majority of projects across the Python ecosystem.&lt;/p&gt;
+
+&lt;p&gt;One of the great advantages of both tools is their inherent customisability
+and extensibility: not only can you customise the output of the tools, be
+that HTML, LaTeX or something else, but you can also write extensions that
+allow you to do things up to and including automatically generating
+documentation for you.&lt;/p&gt;
+
+&lt;p&gt;In this presentation, which is part talk, part workshop, we&amp;rsquo;ll look at the
+basics for building and using your own extension for these tools, with the
+goal of solving the kinds of issues that have been seen in large Python-first
+communities like OpenStack. Some prior Python experience will be necessary,
+but no Sphinx or docutils experience is assumed.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a494e97bf79a480ba7d4ea9e728d734a&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -44,8 +99,27 @@
       <pubDate>Sat, 01 Feb 2020 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/</guid>
-      <description>This was a talk I gave at FOSDEM 2020. I had previously given this talk at PyCon Limerick. The summary is repeated below.
- Software rarely stands still (unless it&amp;rsquo;s TeX).</description>
+      <description>&lt;p&gt;This was a talk I gave at &lt;a href=&#34;https://fosdem.org/2020/schedule/event/python2020_manage_change/&#34;&gt;FOSDEM 2020&lt;/a&gt;. I had previously given this talk at
+&lt;a href=&#34;https://that.guru/talks/will-someone-please-tell-me-whats-going-on/&#34;&gt;PyCon Limerick&lt;/a&gt;. The summary is repeated below.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are
+removed, things break and are then hopefully fixed. Managing this, from both
+the developer and user perspective, can be tough. In this talk we examine and
+compare some of the tools that one can use to make this process easier, such
+as &amp;lsquo;debtcollector&amp;rsquo;, &amp;lsquo;reno&amp;rsquo; and &amp;lsquo;towncrier&amp;rsquo;, and contrast these with
+alternatives used in other projects.&lt;/p&gt;
+
+&lt;p&gt;This talk would mainly be of interest to developers of open source libraries,
+though the same tooling can be used for any Python library or application
+that wishes to maintain stable interfaces and/or document changes in their
+product.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://fosdem.org/2020/schedule/event/python2020_manage_change/&#34;&gt;FOSDEM 2020&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;d1fb37e9f76548b3a404e632653b818e&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -54,7 +128,14 @@
       <pubDate>Mon, 27 May 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/trading-flexibility-for-performance/</guid>
-      <description>This lightning talk was presented at OpenStack Days CERN in May 2019. It gave an overview of the state of the art for HPC and NFV in the OpenStack Compute.</description>
+      <description>&lt;p&gt;This lightning talk was presented at &lt;a href=&#34;https://indico.cern.ch/event/776411/timetable/#20190527&#34;&gt;OpenStack Days CERN&lt;/a&gt; in May 2019. It
+gave an overview of the state of the art for HPC and NFV in the OpenStack
+Compute. The talk focused on three of the most important and complex NFV/HPC
+features in nova - CPU pinning, NUMA awareness and real-time - and detailed
+what they were, why they existed, and how we were trying to make them better.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;5dd03237e78c4d73aaa68e216941b177&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -63,7 +144,26 @@
       <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/working-with-documentation-the-openstack-way/</guid>
-      <description>This talk was co-presented with Alex Settle at the Denver OpenStack Summit in April 2019. It serves as a brief history of documentation within OpenStack along with a how-to on contributing to documentation today.</description>
+      <description>&lt;p&gt;This talk was co-presented with &lt;a href=&#34;https://twitter.com/dewsday/&#34;&gt;Alex Settle&lt;/a&gt; at the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;Denver OpenStack
+Summit&lt;/a&gt; in April 2019. It serves as a brief history of documentation within
+OpenStack along with a how-to on contributing to documentation today.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Back in the old days, OpenStack&amp;rsquo;s documentation was managed by a central team
+and written in the unspeakable horror that is DocBook. Things have changed a
+lot since then, with documentation now spread out across multiple projects
+and Sphinx the documentation tool du jour. This presents a lot of
+opportunities for people, be they long-term contributors or novices, to make
+a real impact to OpenStack&amp;rsquo;s documentation. In this talk, we detail how one
+can get started contributing in this area, be it through writing your own
+guides, using Sphinx to automatically generate docs or simply fixing a typo.
+Viva la documentation!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;OpenStack Summit&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;49008e093b0a465d95b1b36297a89f5c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -72,7 +172,30 @@
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
-      <description>This was a talk I gave at the inaugural PyCon Limerick in March 2019. I explored some tools available within the Python ecosystem that can be used to manage change.</description>
+      <description>&lt;p&gt;This was a talk I gave at the inaugural &lt;a href=&#34;https://pyconlimerick.github.io/&#34;&gt;PyCon Limerick&lt;/a&gt; in March 2019.  I
+explored some tools available within the Python ecosystem that can be used to
+manage change. Naturally, many of these were tools developed and used within
+OpenStack but I looked at other options to help present a more complete picture
+(hint: the OpenStack tools were all more mature, IMO).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Software rarely stands still (unless it&amp;rsquo;s TeX). Things are added, things are
+removed, things break and are then hopefully fixed. Managing this, from both
+the developer and user perspective, can be tough. In this talk we examine and
+compare some of the tools that one can use to make this process easier, such
+as &amp;lsquo;debtcollector&amp;rsquo;, &amp;lsquo;reno&amp;rsquo; and &amp;lsquo;towncrier&amp;rsquo;, and contrast these with
+alternatives used in other projects.&lt;/p&gt;
+
+&lt;p&gt;This talk would mainly be of interest to developers of open source libraries,
+though the same tooling can be used for any Python library or application
+that wishes to maintain stable interfaces and/or document changes in their
+product.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/&#34;&gt;PyCon Limerick&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;278610b590f0450dbe0919e09733431b&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -81,7 +204,42 @@
       <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</guid>
-      <description>This was a talk I gave at FOSDEM 2019. In this talk, subtitled &amp;ldquo;An exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I explored some of the less well known aspects of both Sphinx and docutils.</description>
+      <description>&lt;p&gt;This was a talk I gave at &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM 2019&lt;/a&gt;. In this talk, subtitled &amp;ldquo;An
+exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I
+explored some of the less well known aspects of both Sphinx and docutils.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Using Sphinx doesn&amp;rsquo;t necessarily mean using reStructuredText for input and
+HTML for output. We explore Sphinx&amp;rsquo;s newfound support for Markdown as well as
+it&amp;rsquo;s broad range output formats available, before moving onto an overview of
+how you can develop your parser and builder extensions.&lt;/p&gt;
+
+&lt;p&gt;Sphinx is the documentation tool of choice for an increasing amount of
+projects, both inside and outside Python. Thanks to the success of platforms
+like Read the Docs, building documentation with this toolkit has never been
+easier. Most people associate Sphinx with the reStructuredText syntax
+provided by docutils, and typically output documents to HTML and,
+occasionally, PDF. However, Sphinx is capable of so much more. Since Sphinx
+1.8, it is possible to use source documents written in the CommonMark syntax,
+while the amount of builders provided both in-tree and out-of-tree continue
+to grow.&lt;/p&gt;
+
+&lt;p&gt;Through this talk, we explore how one can build their documentation using
+Sphinx and Markdown source documents. We detail the variety of builders
+available as part of the standard Sphinx installation and as third-party
+extensions, including some basic configuration tips for the more commonly
+useful ones like man pages and LaTeX/PDF. Finally, we provide a high-level
+overview on how you can go about writing your own extensions to parse other
+plain-text documentation formats and output in additional documentation
+format. The latter of these will touch on docutils, a foundational component
+of Sphinx, so one can understand the intermediate documentation model it
+provides.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Full information is available on the &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7922a6d0b2c4e6a81cf63d6bba906ae&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -90,7 +248,41 @@
       <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</guid>
-      <description>This was a talk I have at the OpenStack Summit Berlin in November 2018. In this talk, I discussed the NUMA-aware vSwitches feature recently added to OpenStack Nova, explaining what it was, why you&amp;rsquo;d want it and how you could use it.</description>
+      <description>&lt;p&gt;This was a talk I have at the &lt;a href=&#34;https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments&#34;&gt;OpenStack Summit Berlin&lt;/a&gt; in November 2018. In
+this talk, I discussed the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/rocky/implemented/numa-aware-vswitches.html&#34;&gt;NUMA-aware vSwitches&lt;/a&gt; feature recently added to
+OpenStack Nova, explaining what it was, why you&amp;rsquo;d want it and how you could use
+it.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;vSwitch solutions, such as DPDK-accelerated Open vSwitch, promise to provide
+much of the performance of SR-IOV with increased flexibility and decreased
+operational cost. However, while the switch may be virtual, the hardware that
+the vSwitch and VMs are running on is not. Unlike SR-IOV, NUMA affinity was
+not accounted for when instances using vSwitch-backed networking. This could
+result in a loss of up to 50% of network performance.&lt;/p&gt;
+
+&lt;p&gt;This changes in Rocky. With the completion of the NUMA-aware vSwitch feature,
+nova now has the ability to schedule and create you instances in a manner
+that will deliver the maximum possible performance from your vSwitch-powered
+network. Come learn how we did it and how you can start using this new
+functionality in your own deployments.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What can I expect to learn?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;How NUMA can adversely affect the performance of your vSwitch-based
+deployment&lt;/li&gt;
+&lt;li&gt;What features nova provides to eliminate this performance penalty and how
+you can use this functionality in your own deployments&lt;/li&gt;
+&lt;li&gt;The work ongoing to continue improving performance in this area and related
+areas&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments&#34;&gt;OpenStack Summit Berlin&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;bafb785670034d3097959099f4549c42&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -99,7 +291,59 @@
       <pubDate>Wed, 23 May 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/the-wonders-of-numa/</guid>
-      <description>This talk was presented at the OpenStack Summit in Vancouver in May 2018. It provided an in-depth summary of what NUMA is and why it matters so much for high-performance workloads.</description>
+      <description>&lt;p&gt;This talk was presented at the &lt;a href=&#34;https://www.openstack.org/summit/vancouver-2018/summit-schedule/events/20831/the-wonders-of-numa-or-why-your-high-performance-application-doesnt-perform&#34;&gt;OpenStack Summit in Vancouver&lt;/a&gt; in May 2018.
+It provided an in-depth summary of what NUMA is and why it matters so much for
+high-performance workloads. It was delivered as a lightning talk which, to be
+honest, wasn&amp;rsquo;t really sufficient for such a complicated area (at least in the
+context on NUMA within OpenStack) but the slides should provide a decent
+overview of the topic.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;You select the best possible hardware for the job, you optimize the host OS
+to deliver the best performance ever seen by mankind, and you tweak your
+high-performance vSwitch to ensure nothing, nothing, could possibly stop you
+now. You rub your bloodshot eyes, run &lt;code&gt;openstack server create&lt;/code&gt; and, well,
+things don&amp;rsquo;t look so rosy.&lt;/p&gt;
+
+&lt;p&gt;Welcome to the world of OpenStack on NUMA-based architectures, where one poor
+scheduling decision can result in drastic performance reductions. Thankfully,
+OpenStack realized this some time ago and has been doing many wonderful
+things since then to prevent this pain. In this talk, we shine a light on all
+things NUMA, from both a general and OpenStack-orientated perspective.&lt;/p&gt;
+
+&lt;p&gt;Coming out of this talk, you should know everything there is to know about
+NUMA in OpenStack and will be able to, one can hope, finally put those
+performance issues to bed and get some sleep.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What can I expect to learn?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The talk is multi-faceted, covering a breadth of topics from hardware design
+right up to user interaction with OpenStack deployments. We aim to cover:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;What NUMA is and why it exists&lt;/li&gt;
+&lt;li&gt;How and to what extent NUMA can affect your OpenStack deployment, and the
+techniques we use under-the-hood to prevent any performance degradation&lt;/li&gt;
+&lt;li&gt;What you, as a user, can do to further optimize your instances&amp;rsquo; performance&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In addition, work continues on these features. We also take a look forward at
+some of the work we&amp;rsquo;re doing to further improve things:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Why OVS-DPDK doesn&amp;rsquo;t deliver on NUMA-based systems, and what we&amp;rsquo;re doing
+about it (*)&lt;/li&gt;
+&lt;li&gt;Why live migration with CPU pinning doesn&amp;rsquo;t work, and what we&amp;rsquo;re doing
+about it (*)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;(*) If we haven&amp;rsquo;t already &lt;em&gt;done&lt;/em&gt; something about it by now&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/vancouver-2018/summit-schedule/events/20831/the-wonders-of-numa-or-why-your-high-performance-application-doesnt-perform&#34;&gt;OpenStack Summit Vancouver&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a1fb06c606014e3ca67b79ec9b99b3f0&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -108,7 +352,56 @@
       <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</guid>
-      <description>This talk, delivered at FOSDEM 2018, provided a quick dive into the somewhat complicated world of Sphinx extensions. Sphinx is an incredibly powerful tool but, surprisingly for a documentation, suffers from poor quality documentation.</description>
+      <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM 2018&lt;/a&gt;, provided a quick dive into the
+somewhat complicated world of Sphinx extensions. Sphinx is an incredibly
+powerful tool but, surprisingly for a documentation, suffers from poor quality
+documentation. This talk aimed to fill in some of the blanks for users that
+aren&amp;rsquo;t so familiar with the tool and its inner workings.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The Sphinx documentation tool provides tremendous extensibility and theming
+options; options which are massively underutilized. We demonstrate how you
+can go about writing your own extensions and themes for Sphinx and ultimately
+how you treat your docs like code.&lt;/p&gt;
+
+&lt;p&gt;If you work in open source, then it&amp;rsquo;s increasingly likely that you&amp;rsquo;ve come
+across the Sphinx documentation tool. Originally written by and for the
+Python community, the past few years have seen an increasingly rapid adoption
+by non-Python projects. Recent adopters of Sphinx include the Linux kernel,
+Open vSwitch and the Dataplane Development Kit (DPDK), while other projects
+such as QEMU are preparing plans to migrate. Meanwhile, the Python ecosystem
+itself has only grown in strength and communities such as OpenStack have
+adopted the tool and have made extensive use of it.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, despite the widespread adoption and existence of multiple
+extensions, Sphinx is not always a very well understood tool. Extensions
+provide a pathway to greater functionality, for example, automatically
+generating documentation or generating docs in different output formats.
+Themes, meanwhile, provide a way to give a consistent, project-focused feel
+to your docs. The OpenStack community makes significant use of these
+extensibility features, which allow us to solve a number of problems in an
+automated manner.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;How can I avoid documenting a command line application twice: once in code
+and once in my docs?&lt;/li&gt;
+&lt;li&gt;How can I take a large dataset and automatically convert this into multiple
+human-readable documents?&lt;/li&gt;
+&lt;li&gt;How can I move documents about without breaking links?&lt;/li&gt;
+&lt;li&gt;How can I automatically spell-check my documents?&lt;/li&gt;
+&lt;li&gt;How can I style my docs to match my project website?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Through this talk we will demonstrate how each of the above problems, and how
+many more, can be solved in an easy and automated manner through the power of
+Sphinx extensions and themes. We also demonstrate how you can share your
+extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;07094f5da49e4430b308685cc82080ff&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -117,7 +410,32 @@
       <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/keeping-it-real-time/</guid>
-      <description>This talk was an expanded version of the talk I had given previously at the Sydney OpenStack Summit and, as then, I once again discussed the real-time capabilities of OpenStack Nova.</description>
+      <description>&lt;p&gt;This talk was an expanded version of the talk &lt;a href=&#34;https://that.guru/talks/keeping-it-real-time-sydney&#34;&gt;I had given previously at the
+Sydney OpenStack Summit&lt;/a&gt; and, as then, I once again discussed the real-time
+capabilities of OpenStack Nova. It was delivered at &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/vai_keeping_it_realtime/&#34;&gt;FOSDEM 2018&lt;/a&gt; to a crowd
+of Virtualization and IaaS enthusiasts.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Real-time in OpenStack is a thing now. Let&amp;rsquo;s explore what this actually looks
+like to a user, and (in brief) how it works under the hood.&lt;/p&gt;
+
+&lt;p&gt;Since Juno, OpenStack projects like nova have been on a steady march towards
+adding the features and capabilities that users with NFV and HPC workloads
+really need from their cloud. The latest of these nova features builds upon
+earlier work to finally make real-time workloads in an OpenStack cloud a
+reality. In this talk, we take a peek under the nova hood to see how this
+feature works and how it ties into earlier work in this area (hint: KVM +
+libvirt do most of the heavy lifting). We then demonstrate why this matters
+and how you can use this feature and others like it in your own applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/vai_keeping_it_realtime/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;p&gt;(note: I can&amp;rsquo;t find the original cover photo, sadly. If anyone locates the
+source, please let me know)&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c4cccd2ad97646629b6395d6bf585ea9&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -126,8 +444,46 @@
       <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/keeping-it-real-time-sydney/</guid>
-      <description>Update: An expanded version of this talk was delivered at FOSDEM 2018 and is well worth the read if you&amp;rsquo;re interested in this.
-This talk was given as a lightning talk at the OpenStack Summit in Sydney in November 2017.</description>
+      <description>&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; An &lt;a href=&#34;https://that.guru/talks/keeping-it-real-time&#34;&gt;expanded version of this talk&lt;/a&gt; was delivered at FOSDEM 2018
+and is well worth the read if you&amp;rsquo;re interested in this.&lt;/p&gt;
+
+&lt;p&gt;This talk was given as a lightning talk at the &lt;a href=&#34;https://www.openstack.org/summit/sydney-2017/summit-schedule/events/19861/keeping-it-real-time&#34;&gt;OpenStack Summit in Sydney&lt;/a&gt;
+in November 2017. It focused on the new-found ability of OpenStack Nova to
+schedule real-time instances.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Ever get the feeling your cloud is just a bit too&amp;hellip;cloudy? The flexibility
+and resource utilization that the cloud can offer might seem fantastic at
+first, but things look a little less rosy when you start thinking about the
+performance impacts the cloud can have on your applications, right?&lt;/p&gt;
+
+&lt;p&gt;Never fear: the OpenStack community hears you and and since Juno, projects
+like Nova have been on a steady march towards adding the features and
+capabilities that users with NFV and HPC workloads really need from their
+cloud. The latest of these Nova features builds upon earlier work to finally
+make real-time workloads in an OpenStack cloud a reality. In this talk, we
+take a peek under the Nova hood to see how this feature works and how it ties
+into earlier work in this area. We then demonstrate why this matters and how
+you can use this feature and others like it in your own applications.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What can I expect to learn?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This talk is mainly targeted towards attendees working in the Telco/NFV and
+HPC markets. These attendees are expected to learn about the real time
+features recently added to OpenStack Nova. In addition, these features build
+upon many existing features and we will cover some of these as part of the
+talk.&lt;/p&gt;
+
+&lt;p&gt;By the end of the talk, we would hope that attendees will have vastly
+expanded their knowledge of OpenStack Nova&amp;rsquo;s NFV/HPC capabilities, and would
+be able to use their knowledge of these capabilities in their own
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/sydney-2017/summit-schedule/events/19861/keeping-it-real-time&#34;&gt;OpenStack Summit Sydney&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;22e2838c18d845419d8bc45f9dbe235d&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -136,7 +492,47 @@ This talk was given as a lightning talk at the OpenStack Summit in Sydney in Nov
       <pubDate>Sun, 05 Feb 2017 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/mailing-list-meet-ci/</guid>
-      <description>This talk was presented as a lightning talk at FOSDEM 2017. It described the CI features provided in Patchwork 2.0, which was at the time unreleased.</description>
+      <description>&lt;p&gt;This talk was presented as a lightning talk at &lt;a href=&#34;https://fosdem.org/2017/schedule/event/patchwork_jenkins/&#34;&gt;FOSDEM 2017&lt;/a&gt;. It described
+the CI features provided in Patchwork 2.0, which was at the time unreleased. I
+wrote a &lt;a href=&#34;https://that.guru/blog/patchwork-and-ci-in-a-tree/&#34;&gt;blog post&lt;/a&gt; to accompany the talk which is well worth reading
+(updated since to reflect changes in Patchwork 2.0 final).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;What does it take to implement continuous integration-style automated testing
+into a mailing list-driven software project? Not a lot, actually. In this
+talk, we demonstrate how a simple but easily scaled testing system can be
+implemented for a such a project through the combination of Patchwork, the
+web-based patch tracking system, and open source CI tools such as Jenkins.&lt;/p&gt;
+
+&lt;p&gt;At FOSDEM 2016, developers working on Patchwork, the web-based patch tracking
+system, demonstrated some of the ongoing work in Patchwork. This work ranged
+from UI improvements to new features and APIs but, collectively, it had the
+goal of enabling automated testing functionality for software projects
+developed via mailing lists. The Patchwork developers have been busy since
+then and the application, in widespread use since 2008, recently hit the 2.0
+milestone, marking this functionality as complete.&lt;/p&gt;
+
+&lt;p&gt;Projects such as the Dataplane Development Kit (DPDK) have quickly adopted
+the features that 2.0 brings, using them to enable real time, automated
+testing of patches sent to the mailing list. This automated testing provides
+a mechanism for developers to not only sidestep the more perfunctory of
+tasks, such as coding standard checks, but also to test changes in
+environments that they may not have at their disposal, such as differing
+hardware or OS configurations. As seen in projects pairing open source code
+collaboration tools like Gerrit or Rietveld with CI systems such as Jenkins
+or BuildBot, this continuous testing can provide huge improvements in
+developer velocity.&lt;/p&gt;
+
+&lt;p&gt;In this talk, we demonstrate how to build a basic &amp;ldquo;checkstyle&amp;rdquo; testing system
+through a combination of Patchwork and an off-the-shelf, open source CI
+system. This system will retrieve patches and dependencies, apply and test
+them, and report the results back to both Patchwork and a separate mailing
+list. This configuration demonstrates the best of Patchwork&amp;rsquo;s new features,
+and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;ce06b0e45f1e460b9fc3d5d96e65ab31&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -145,7 +541,29 @@ This talk was given as a lightning talk at the OpenStack Summit in Sydney in Nov
       <pubDate>Tue, 24 May 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</guid>
-      <description>This was a webinar I presented on behalf of my team in Intel. It was essentially a status report on the state of OVS with DPDK integration in OpenStack.</description>
+      <description>&lt;p&gt;This was a webinar I presented on behalf of my team in Intel. It was
+essentially a status report on the state of OVS with DPDK integration in
+OpenStack.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Recent versions of Open vSwitch (OVS) provide an accelerated datapath based
+on the Data Plane Development Kit (DPDK) libraries. This acceleration
+benefits many users, but it is vital for meeting the high performance, high
+determinism requirements of NFV workloads. Open vSwitch (OVS) is the most
+widely deployed switching solution for OpenStack deployments [1], and Intel
+has been working to bring the benefits of OVS with DPDK to OpenStack.&lt;/p&gt;
+
+&lt;p&gt;In this talk, we explore the work that has been done and the work that is
+still ongoing to bring the benefits of OVS with DPDK to OpenStack. We detail
+how users can benefit from these changes, and impact they can expect to see.
+Finally, we detail how users can get started exploring these changes
+themselves.&lt;/p&gt;
+
+&lt;p&gt;[1] &lt;a href=&#34;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&#34;&gt;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;4dd4f9d543c840b9b4c9b6c81d0774ef&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
     <item>
@@ -154,7 +572,64 @@ This talk was given as a lightning talk at the OpenStack Summit in Sydney in Nov
       <pubDate>Sun, 31 Jan 2016 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/a-new-patchwork/</guid>
-      <description>This was my first ever presentation to an audience that wasn&amp;rsquo;t entirely my colleagues or fellow students. It was delivered as a lightning talk at FOSDEM 2016 and focused on the work that had been done to bring Patchwork up-to-date, after it had languished for a couple of years.</description>
+      <description>&lt;p&gt;This was my first ever presentation to an audience that wasn&amp;rsquo;t entirely my
+colleagues or fellow students. It was delivered as a lightning talk at &lt;a href=&#34;https://fosdem.org/2016/schedule/event/patchwork/&#34;&gt;FOSDEM
+2016&lt;/a&gt; and focused on the work that had been done to bring &lt;a href=&#34;http://jk.ozlabs.org/projects/patchwork/&#34;&gt;Patchwork&lt;/a&gt;
+up-to-date, after it had languished for a couple of years.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Mailing lists are the bedrock of many open source software projects, and have
+been so since the early days of the Internet. However, mailing lists can
+struggle to compete with code collaboration tools like Gerrit and Rietveld,
+many of which offer features such as integration with automated testing tools
+and patch tracking. How can such features be integrated into existing,
+mailing list-based projects like the Linux kernel or DPDK? The presenter
+reports on the ongoing work around the widely-deployed &amp;lsquo;patchwork&amp;rsquo; tool to do
+just this.&lt;/p&gt;
+
+&lt;p&gt;Tracking of patches between development mailing lists and automated testing
+tools can be accomplished using patchwork. patchwork provides a web interface
+for patches submitted to mailing lists and presents them alongside any
+comments. patchwork also supports the tracking of the state of patches, be
+they Accepted, Rejected or Under Review. By design, patchwork is not intended
+to replace mailing lists but rather supplement them: these features are
+entirely optional, but where used can help ease the burden on maintainers by
+removing the need to perform tedious, time-consuming and low-value tasks like
+manual sorting. patchwork is already widely deployed for many projects, and
+instances can be found on kernel.org, dpdk.org and openembedded.org, to name
+but a few. There are also many projects, including Open vSwitch and QEMU,
+that can be found on ozlabs.org, which is maintained by the original author
+of patchwork.&lt;/p&gt;
+
+&lt;p&gt;This talk outlines the ongoing work to supplement development mailing lists
+with web-based workflows using patchwork. We demonstrate how features such as
+continuous integration support, automated patch and series tracking and a
+vastly expanded API help position the combination of the Mailing List and
+patchwork as a viable, feature-competitive alternative to tools such as
+Gerrit or Rietveld. We also detail some of the complexities of structuring
+the inherently unstructured data found on mailing lists. How do I identify a
+series of patches, for example? How do identify a reply to a patch? How do I
+identify a patch itself?&lt;/p&gt;
+
+&lt;p&gt;This talk be of particular interest to testers of open source, mailing
+list-based projects such as the Linux kernel, QEMU, DPDK or Open vSwitch.
+These users will be able take advantage of features like support for
+continuous integration servers and series tracking to develop automated,
+distributed testing infrastructures. Communities like OpenStack have shown
+that such infrastructures are critical for delivering software faster while
+reducing risk and maintenance cost. Such an infrastructure is currently being
+developed for the DPDK community, and it is easy to envision a similar
+roll-out for other projects with similar requirements.&lt;/p&gt;
+
+&lt;p&gt;It will also be of interest to the developers of these projects. These
+developers can already use patchwork as a tool to track patch backlogs,
+maintain personal TODO lists, or just browse submissions via a web UI/XML-RPC
+API. However, the new features provide these users with functionality that
+can help automate even more of the tedious yet necessary overhead tasks.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;83af5ed2a4c646cba0ccba30955807f3&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+</description>
     </item>
     
   </channel>
