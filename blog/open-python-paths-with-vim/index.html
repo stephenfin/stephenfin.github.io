@@ -82,20 +82,15 @@
   <article>
     <p>In OpenStack nova land, you run tests by specifying their Python paths, like
 so:</p>
-
 <pre><code>$ tox -e py27 nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
 </code></pre>
-
 <p>This is also how tests are run and reported by the CI. If a tests fails when
 run locally or in the CI, the failure will be reported with similar Python
 module path-style references. These take a little cleanup to get a usable file
 path that we can use to open the file, so I automated it.</p>
-
 <script type="application/javascript" src="https://gist.github.com/stephenfin/ea6bb2d650060d2a998a2dcd41f58291.js"></script>
 
-
 <p>Download and copy this to somewhere on your path, then run it like so:</p>
-
 <pre><code>$ cd $openstack_nova_dir
 $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
 </code></pre>

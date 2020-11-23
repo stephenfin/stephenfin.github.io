@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Working with Jenkins &#43; Chrome | that.guru</title>
+  <title>Plain Text Email in Evolution 3.38 | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://that.guru/css/default.css"/>
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/hEC6zxdFF0M/1920x1080);
+      background-image: url(https://source.unsplash.com/AwmCuTXL97Q/1920x1080);
     }
   </style>
 </head>
@@ -29,7 +29,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Working with Jenkins &#43; Chrome</h1>
+    <h1 class="title">Plain Text Email in Evolution 3.38</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -73,56 +73,49 @@
         <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
       </div>
       <div class="byline-meta-content">
-        <time datetime='2016-07-13T00:00:00Z'>Jul 13, 2016</time>
+        <time datetime='2020-11-23T00:00:00Z'>Nov 23, 2020</time>
         <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>1 min read</span>
       </div>
     </div>
   </div>
 
   <article>
-    <p>It&rsquo;s been a while since I had to work with Jenkins directly (since I started on
-OpenStack, really). However, I had a few tricks picked up around plugins for
-Chrome that make working with pre-3.0 Jenkins a little more pleasant.</p>
-<h1 id="buildreactor">BuildReactor</h1>
-<p>This provides a current statuses of a user-defined number of Jenkins jobs.  It
-also gives notifications when projects pass/fail.</p>
-<ul>
-<li><a href="https://chrome.google.com/webstore/detail/buildreactor/agfdekbncfakhgofmaacjfkpbhjhpjmp">Site</a></li>
-<li><a href="https://github.com/AdamNowotny/BuildReactor">Source</a></li>
-</ul>
-<h2 id="installation">Installation</h2>
-<p>Install from the Chrome store. Once installed, &ldquo;Add&rdquo; a new view, give it a name
-(i.e. &ldquo;Open vSwitch&rdquo;) and configure the following settings:</p>
-<pre><code>Server: jenkins.example.com:8080
-User:   [leave empty]
-Pass:   [leave empty]
-</code></pre>
-<p>Substitute the appropriate URL for your local server. Once done, select the
-&ldquo;Show&rdquo; button, and select which of the projects you want to display. Then
-&ldquo;Save&rdquo;. You should now be able to get an overview of your builds by clicking on
-the toolbar icon. You should also get notifications.  This is easier to parse
-than the emails, IMO.</p>
-<h1 id="doony">Doony</h1>
-<p>This provides a new, ultra-usable stylesheet for Jenkins. IMO it makes Jenkins
-easier to work with.</p>
-<ul>
-<li><a href="https://github.com/kevinburke/doony#chrome-extension">Site</a></li>
-<li><a href="https://github.com/kevinburke/doony">Source</a></li>
-</ul>
-<h2 id="installation-1">Installation</h2>
-<p>Follow the guide on the README. When modifying the <code>manifest.json</code> file, add
-the following URLs:</p>
-<pre><code>&quot;matches&quot;: [
-  &quot;https://jenkins.ci.cloudbees.com/*&quot;,
-  &quot;http://localhost:8080/*&quot;,
-  &quot;https://jenkins.example.com:8080/*&quot;,
-  &quot;http://jenkins.example.com:8080/*&quot;,
-  &quot;https://jenkins.example.com/*&quot;,
-  &quot;http://jenkins.example.com/*&quot;,
-],
-</code></pre>
-<p>Substitute the appropriate URL for you local server. Don&rsquo;t forget to &ldquo;reload&rdquo;
-the plugin once installed.</p>
+    <p>I recently upgraded to Fedora 33, which comes with Evolution 3.38 (previously
+3.36, iirc). Following the upgrade, I noticed that quoting in plain text emails
+appeared to have regressed. Previously, Evolution would wrap quotes at your
+recommended width, but by selecting the email and changing the style from
+&ldquo;Normal&rdquo; to &ldquo;Preformatted&rdquo;, you could avoid this text wrapping. With Evolution
+3.38, this no longer works, necessitating manual line wrapping which is rather
+hit and miss: I managed to send mails where the message I was replying to ended
+up unquoted.</p>
+<p>I haven&rsquo;t figured out the quoting issue, though <a href="https://gitlab.gnome.org/GNOME/evolution/-/issues/1235">issue 1235</a> looks
+promising, but the wrapping issue is thankfully solvable. Turns out there&rsquo;s a
+new (to me) &ldquo;Wrap quoted text in replies&rdquo; option available in the &ldquo;Composer
+Preferences&rdquo; pane of the &ldquo;Evolution Preferences&rdquo; pane, which accessible via
+&ldquo;Edit &gt; Preferences&rdquo;.</p>
+<figure>
+    <img src="https://that.guru/media/plain-text-in-evolution-3-38-1.png"
+         alt="The Composer Preferences Pane"/> <figcaption>
+            <h4>Composer Preferences</h4>
+        </figcaption>
+</figure>
+
+<p>Compare before and after:</p>
+<figure>
+    <img src="https://that.guru/media/plain-text-in-evolution-3-38-2.png"
+         alt="Before (with &#39;Wrap quoted text in replies&#39; checked)"/> <figcaption>
+            <h4>Before (with &#39;Wrap quoted text in replies&#39; checked)</h4>
+        </figcaption>
+</figure>
+
+<figure>
+    <img src="https://that.guru/media/plain-text-in-evolution-3-38-3.png"
+         alt="After (with &#39;Wrap quoted text in replies&#39; unchecked)"/> <figcaption>
+            <h4>After (with &#39;Wrap quoted text in replies&#39; unchecked)</h4>
+        </figcaption>
+</figure>
+
+<p>Usable email again!</p>
 
   </article>
 

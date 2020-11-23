@@ -86,7 +86,6 @@ in recent releases, but getting us to this point required a lot of work and, in
 particular, a lot of changes to the MTU-related configuration options available
 over the course of Liberty and Newton. The below table tries to collect these
 changes in a coherent table.</p>
-
 <table>
 <thead>
 <tr>
@@ -96,7 +95,6 @@ changes in a coherent table.</p>
 <th>Comments</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td><code>segment_mtu</code></td>
@@ -104,42 +102,36 @@ changes in a coherent table.</p>
 <td>-</td>
 <td>-</td>
 </tr>
-
 <tr>
 <td><code>path_mtu</code></td>
 <td>Liberty</td>
 <td>-</td>
 <td>-</td>
 </tr>
-
 <tr>
 <td><code>segment_mtu</code></td>
 <td>Mitaka</td>
 <td>b2d0985d</td>
 <td>Default set to 1500</td>
 </tr>
-
 <tr>
 <td><code>global_physnet_mtu</code></td>
 <td>Mitaka</td>
 <td>ae45cd57</td>
 <td>New name for <code>segment_mtu</code></td>
 </tr>
-
 <tr>
 <td><code>path_mtu</code></td>
 <td>Mitaka</td>
 <td>7a4633a9</td>
 <td>Default set to 1500</td>
 </tr>
-
 <tr>
 <td><code>global_physnet_mtu</code></td>
 <td>Newton</td>
 <td>-</td>
 <td>-</td>
 </tr>
-
 <tr>
 <td><code>path_mtu</code></td>
 <td>Newton</td>
@@ -148,10 +140,8 @@ changes in a coherent table.</p>
 </tr>
 </tbody>
 </table>
-
 <p>These options are described in the docs for both <a href="http://docs.openstack.org/mitaka/networking-guide/config-mtu.html">Mitaka</a> and
 <a href="http://docs.openstack.org/newton/networking-guide/config-mtu.html">Newton</a>.</p>
-
 <p>In addition, it&rsquo;s also worth noting that the default for <code>global_physnet_mtu</code>
 in TripleO was changed from 1400 to 1500 as part of <a href="https://bugs.launchpad.net/tripleo/+bug/1590101">bug 1590101</a>.</p>
 

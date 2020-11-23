@@ -80,25 +80,18 @@
   </div>
 
   <article>
-    
-
-<p>OpenStack Nova provides support for <a href="http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html">resize operations</a>, or the
+    <p>OpenStack Nova provides support for <a href="http://docs.openstack.org/user-guide/cli_change_the_size_of_your_server.html">resize operations</a>, or the
 changing of the <a href="http://docs.openstack.org/admin-guide/compute-flavors.html">flavor</a> associated with instance. This allows you to
 add or remove resources from the instance, in addition to modifying other
 configuration associated with the flavor.</p>
-
 <p>There were reports that resizing an instance from a <a href="http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html">pinned
 flavor</a> to a unpinned one did not result in the pinning being
 removed. The opposite was also reportedly true. I investigated this to see if
 this was the case.</p>
-
 <h1 id="steps">Steps</h1>
-
 <h2 id="create-the-required-flavors">Create the required flavors</h2>
-
 <p>The first step we&rsquo;ll do is create two new flavors - <code>test.unpinned</code> and
 <code>test.pinned</code>. Begin by creating these:</p>
-
 <pre><code>$ openstack flavor create test.unpinned \
   --id 100 --ram 2048 --disk 0 --vcpus 2
 $ openstack flavor create test.pinned \
@@ -120,11 +113,8 @@ $ openstack flavor list
 | 84  | m1.micro      |   128 |    0 |         0 |     1 | True      |
 +-----+---------------+-------+------+-----------+-------+-----------+
 </code></pre>
-
 <h2 id="create-a-new-instance">Create a new instance</h2>
-
 <p>Now create the new instance, based on the <code>test.pinned</code> flavor:</p>
-
 <pre><code>$ openstack image list
 +--------------------------------------+---------------------------------+--------+
 | ID                                   | Name                            | Status |
@@ -137,12 +127,9 @@ $ openstack flavor list
 $ openstack server create --flavor=test.pinned \
   --image=cirros-0.3.4-x86_64-uec --wait test1
 </code></pre>
-
 <h2 id="validate-that-the-instance-is-pinned">Validate that the instance is pinned</h2>
-
 <p>Ensure the instance is actually pinned in the first place before we resize
 anything:</p>
-
 <pre><code>$ openstack server list
 +--------------------------------------+-------+--------+--------------------------------------------------------+
 | ID                                   | Name  | Status | Networks                                               |
@@ -180,12 +167,9 @@ $ sudo virsh dumpxml instance-00000001
   ...
 &lt;/domain&gt;
 </code></pre>
-
 <h2 id="resize-the-instance-to-the-unpinned-flavor">Resize the instance to the unpinned flavor</h2>
-
 <p>Seeing as pinning was in effect, we can now resize to the <code>test.unpinned</code>
 flavor:</p>
-
 <pre><code>$ openstack server resize test1 --flavor test.unpinned --wait
 complete
 
@@ -198,11 +182,8 @@ $ openstack server list
 
 $ openstack server resize test1 --confirm
 </code></pre>
-
 <h2 id="validate-that-the-instance-is-no-longer-pinned">Validate that the instance is no longer pinned</h2>
-
 <p>Once resized, check to see if the instance has been unpinned:</p>
-
 <pre><code>$ openstack server list
 +--------------------------------------+-------+--------+--------------------------------------------------------+
 | ID                                   | Name  | Status | Networks                                               |
@@ -226,11 +207,8 @@ $ sudo virsh dumpxml instance-00000001
   ...
 &lt;/domain&gt;
 </code></pre>
-
 <h2 id="resize-the-instance-back-to-the-pinned-flavor">Resize the instance back to the pinned flavor</h2>
-
 <p>Let&rsquo;s go back the other way, and resize back to the <code>test.pinned</code> flavor:</p>
-
 <pre><code>$ openstack server resize test1 --flavor test.pinned --wait
 complete
 
@@ -243,11 +221,8 @@ $ openstack server list
 
 $ openstack server resize test1 --confirm
 </code></pre>
-
 <h2 id="validate-that-the-instance-is-pinned-once-more">Validate that the instance is pinned once more</h2>
-
 <p>Finally, ensure the instance is once again pinned:</p>
-
 <pre><code>$ openstack server list
 +--------------------------------------+-------+--------+--------------------------------------------------------+
 | ID                                   | Name  | Status | Networks                                               |
@@ -285,14 +260,10 @@ $ sudo virsh dumpxml instance-00000001
   ...
 &lt;/domain&gt;
 </code></pre>
-
 <h1 id="result">Result</h1>
-
 <p>It is possible to resize from pinned to unpinned, and from unpinned to pinned.
 No issues here.</p>
-
 <h1 id="references">References</h1>
-
 <ul>
 <li><a href="http://docs.openstack.org/admin-guide/compute-flavors.html">OpenStack Administrator Guide: Compute flavors</a></li>
 <li><a href="http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html">OpenStack Administrator Guide: Enabling advanced CPU topologies in

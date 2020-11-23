@@ -92,55 +92,45 @@ policy</a> and, prior to the 21.0.0 (Ussuri) release, defaulted to the
 that could delete an instance would be an admin or the person that created the
 instance, but a quick test shows this not to be the case. Consider the
 following case, used on a standard DevStack-based installation:</p>
-
-<pre><code class="language-shell">$ source openrc admin
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ source openrc admin
 $ openstack project create --domain default test_project
 $ openstack user create --project test_project --password test testuser1
 $ openstack user create --project test_project --password test testuser2
-</code></pre>
-
-<p>This creates a new project, <code>test_project</code>, along with two new users,
+</code></pre></div><p>This creates a new project, <code>test_project</code>, along with two new users,
 <code>testuser1</code> and <code>testuser2</code>. We can then use the first of these users to create
 a new instance:</p>
-
-<pre><code class="language-shell">$ cat &lt;&lt; EOF &gt; openrc-testuser1
-export OS_PROJECT_DOMAIN_ID=default
-export OS_USER_DOMAIN_ID=default
-export OS_AUTH_TYPE=password
-export OS_USERNAME=testuser1
-export OS_PASSWORD=test
-export OS_PROJECT_NAME=test_project
-export OS_TENANT_NAME=test_project
-export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
-EOF
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat <span style="color:#e6db74">&lt;&lt; EOF &gt; openrc-testuser1
+</span><span style="color:#e6db74">export OS_PROJECT_DOMAIN_ID=default
+</span><span style="color:#e6db74">export OS_USER_DOMAIN_ID=default
+</span><span style="color:#e6db74">export OS_AUTH_TYPE=password
+</span><span style="color:#e6db74">export OS_USERNAME=testuser1
+</span><span style="color:#e6db74">export OS_PASSWORD=test
+</span><span style="color:#e6db74">export OS_PROJECT_NAME=test_project
+</span><span style="color:#e6db74">export OS_TENANT_NAME=test_project
+</span><span style="color:#e6db74">export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
+</span><span style="color:#e6db74">EOF</span>
 $ source openrc-testuser1
 $ openstack server create --flavor m1.tiny --image cirros-0.5.1-x86_64-disk test-server
-</code></pre>
-
-<p>With the instance created, let&rsquo;s now attempt to delete the server as the second
+</code></pre></div><p>With the instance created, let&rsquo;s now attempt to delete the server as the second
 user:</p>
-
-<pre><code class="language-shell">$ cat &lt;&lt; EOF &gt; openrc-testuser2
-export OS_PROJECT_DOMAIN_ID=default
-export OS_USER_DOMAIN_ID=default
-export OS_AUTH_TYPE=password
-export OS_USERNAME=testuser2
-export OS_PASSWORD=test
-export OS_PROJECT_NAME=test_project
-export OS_TENANT_NAME=test_project
-export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
-EOF
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat <span style="color:#e6db74">&lt;&lt; EOF &gt; openrc-testuser2
+</span><span style="color:#e6db74">export OS_PROJECT_DOMAIN_ID=default
+</span><span style="color:#e6db74">export OS_USER_DOMAIN_ID=default
+</span><span style="color:#e6db74">export OS_AUTH_TYPE=password
+</span><span style="color:#e6db74">export OS_USERNAME=testuser2
+</span><span style="color:#e6db74">export OS_PASSWORD=test
+</span><span style="color:#e6db74">export OS_PROJECT_NAME=test_project
+</span><span style="color:#e6db74">export OS_TENANT_NAME=test_project
+</span><span style="color:#e6db74">export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
+</span><span style="color:#e6db74">EOF</span>
 $ openstack server delete test-server
-</code></pre>
-
-<p>This succeeds, which at first glance seems wrong but is actually correct.
+</code></pre></div><p>This succeeds, which at first glance seems wrong but is actually correct.
 Remember, the default rule is <code>admin_or_owner</code> and the &ldquo;owner&rdquo; of an instance
 is not the user - it&rsquo;s the project that the server is created in.  Because both
 <code>testuser1</code> and <code>testuser2</code> are members of the project that the instance was
 created in, <code>test_project</code>, it&rsquo;s possible for <code>testuser2</code> to delete the server
 created by <code>testuser1</code>. This &ldquo;project as owner&rdquo; design is consistent across
 nova, with only a <a href="https://specs.openstack.org/openstack/nova-specs/specs/newton/implemented/user-id-based-policy-enforcement.html">few, limited exceptions</a>.</p>
-
 <p>This is confusing, and really lessens the power of policy is nova, which is why
 in the 21.0.0 (Ussuri) release, we have introduced the concept of scope types
 and roles via the <a href="https://review.opendev.org/#/c/686058/">policy defaults refresh blueprint</a>. Though not yet
@@ -149,12 +139,9 @@ user as having read-only permissions for things like servers or project-level
 admin privileges. For example, if we wanted to say that <code>testuser1</code> was an
 admin but <code>testuser2</code> was only allowed read-only permissions, we could do the
 following:</p>
-
-<pre><code class="language-shell">$ openstack role add --project test_project --user testuser1 admin
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openstack role add --project test_project --user testuser1 admin
 $ openstack role add --project test_project --user testuser2 reader
-</code></pre>
-
-<p>This is a big change with significant impacts, but should make policy
+</code></pre></div><p>This is a big change with significant impacts, but should make policy
 significantly more useful. It is explained in great detail in the nova
 <a href="https://docs.openstack.org/nova/latest/configuration/policy-concepts.html">documentation</a> and <a href="https://docs.openstack.org/releasenotes/nova/ussuri.html#relnotes-21-0-0-stable-ussuri">release notes</a>, and I recommend reading both.</p>
 

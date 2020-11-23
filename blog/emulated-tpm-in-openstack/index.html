@@ -80,175 +80,121 @@
   </div>
 
   <article>
-    
-
-<p>Work is <a href="https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)">ongoing</a> in nova to provide support for attaching virtual Trusted
+    <p>Work is <a href="https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)">ongoing</a> in nova to provide support for attaching virtual Trusted
 Platform Modules (vTPMs) to instances. The below guide demonstrates how you can
 go about testing this feature for yourself. This work was conducted on a Fedora
 31 VM (with nested virt, though that&rsquo;s not relevant) using DevStack master.</p>
-
-<aside class="admonition note">
-    
-    
-    <div class="admonition-content">
-This is all very much work-in-progress at the moment. I aim to come back and
-update this if/when things are merged.
-</div>
-</aside>
-
+<!-- raw HTML omitted -->
+<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
+</code></pre>
+<p>This is all very much work-in-progress at the moment. I aim to come back and
+update this if/when things are merged.</p>
+<!-- raw HTML omitted -->
 <h2 id="initial-steps">Initial Steps</h2>
-
 <p>We&rsquo;re going to use DevStack on Fedora 31 to test this. Fedora 31 is necessary
 since Ubuntu 18.04 (Bionic) does not provide new enough versions of
 <a href="https://packages.ubuntu.com/bionic/libvirt-daemon">libvirt</a> or <a href="https://packages.ubuntu.com/xenial/qemu-kvm">QEMU</a>, while Ubuntu 20.04 (Focal) is not supported by
 DevStack at the time of writing and was affected by a <a href="https://github.com/sqlalchemy/alembic/issues/699">bug in barbican</a>.
 With a Fedora 31 installation at the ready, let&rsquo;s update and get DevStack:</p>
-
-<pre><code class="language-console">$ sudo dnf upgrade -y
+<pre><code class="language-console" data-lang="console">$ sudo dnf upgrade -y
 $ git clone https://opendev.org/openstack/devstack
 $ cd devstack
-</code></pre>
-
-<p>The DevStack installation is pretty bog standard with the key differences being
+</code></pre><p>The DevStack installation is pretty bog standard with the key differences being
 that you need to enable the OpenStack Key Manager service, <a href="https://docs.openstack.org/barbican/latest/">barbican</a>, for
 storing secrets along with the virt preview repo to get new versions of libvirt
 and QEMU. Here&rsquo;s a sample <code>local.conf</code>, to be placed into the <code>devstack</code>
 directory:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[[</span>local|localrc<span style="color:#f92672">]]</span>
+RECLONE<span style="color:#f92672">=</span>True
 
-<pre><code class="language-shell">[[local|localrc]]
-RECLONE=True
+<span style="color:#75715e">## Passwords</span>
 
-## Passwords
+ADMIN_PASSWORD<span style="color:#f92672">=</span>password
+DATABASE_PASSWORD<span style="color:#f92672">=</span>password
+RABBIT_PASSWORD<span style="color:#f92672">=</span>password
+HORIZON_PASSWORD<span style="color:#f92672">=</span>password
+SERVICE_PASSWORD<span style="color:#f92672">=</span>password
+SERVICE_TOKEN<span style="color:#f92672">=</span>no-token-password
 
-ADMIN_PASSWORD=password
-DATABASE_PASSWORD=password
-RABBIT_PASSWORD=password
-HORIZON_PASSWORD=password
-SERVICE_PASSWORD=password
-SERVICE_TOKEN=no-token-password
-
-## Additional plugins and configuration
+<span style="color:#75715e">## Additional plugins and configuration</span>
 
 enable_plugin barbican https://opendev.org/openstack/barbican
 enable_service rabbit mysql key
 
-ENABLE_FEDORA_VIRT_PREVIEW_REPO=true
-</code></pre>
-
-<p>There&rsquo;s also a minor tweak necessary to work around pip 10 refusing to
+ENABLE_FEDORA_VIRT_PREVIEW_REPO<span style="color:#f92672">=</span>true
+</code></pre></div><p>There&rsquo;s also a minor tweak necessary to work around pip 10 refusing to
 uninstall system-provided Python packages:</p>
-
-<pre><code class="language-diff">diff --git inc/python inc/python
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-diff" data-lang="diff">diff --git inc/python inc/python
 index dd772960..63a3dc19 100644
---- inc/python
-+++ inc/python
-@@ -196,7 +196,7 @@ function pip_install {
-         no_proxy=&quot;${no_proxy:-}&quot; \
+<span style="color:#f92672">--- inc/python
+</span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ inc/python
+</span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -196,7 +196,7 @@ function pip_install {
+</span><span style="color:#75715e"></span>         no_proxy=&#34;${no_proxy:-}&#34; \
          PIP_FIND_LINKS=$PIP_FIND_LINKS \
          SETUPTOOLS_SYS_PATH_TECHNIQUE=rewrite \
--        $cmd_pip $upgrade \
-+        $cmd_pip --ignore-installed $upgrade \
-         $@
+<span style="color:#f92672">-        $cmd_pip $upgrade \
+</span><span style="color:#f92672"></span><span style="color:#a6e22e">+        $cmd_pip --ignore-installed $upgrade \
+</span><span style="color:#a6e22e"></span>         $@
      result=$?
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
 </code></pre>
-
-<aside class="admonition note">
-    
-    
-    <div class="admonition-content">
-Yes, I'm aware that there can be negative implications to this, but it's good
+<p>Yes, I&rsquo;m aware that there can be negative implications to this, but it&rsquo;s good
 enough for our purposes here. Hopefully one of us will eventually get around to
-configuring DevStack to install in virtualenvs by default.
-</div>
-</aside>
-
+configuring DevStack to install in virtualenvs by default.</p>
+<!-- raw HTML omitted -->
 <p>We also need to install the <code>swtpm</code> and <code>swtpm_setup</code> binaries. These are
 provided in the Fedora repos (yay!):</p>
-
-<pre><code class="language-console">$ sudo dnf install swtpm swtpm-tools
-</code></pre>
-
-<p>Finally, <code>crudini</code> makes working with INI files a breeze. Let&rsquo;s install that
+<pre><code class="language-console" data-lang="console">$ sudo dnf install swtpm swtpm-tools
+</code></pre><p>Finally, <code>crudini</code> makes working with INI files a breeze. Let&rsquo;s install that
 too:</p>
-
-<pre><code class="language-console">$ sudo dnf install crudini
-</code></pre>
-
-<p>With all this done, you can stack:</p>
-
-<pre><code class="language-console">./stack.sh
-</code></pre>
-
-<p>Now go make a cup of tea. ☕</p>
-
+<pre><code class="language-console" data-lang="console">$ sudo dnf install crudini
+</code></pre><p>With all this done, you can stack:</p>
+<pre><code class="language-console" data-lang="console">./stack.sh
+</code></pre><p>Now go make a cup of tea. ☕</p>
 <h2 id="configuring-nova">Configuring nova</h2>
-
 <p>With the stack (hopefully) complete, we need to configure nova appropriately.
 This is a simple, single-node &ldquo;can I boot an instance&rdquo; test so we don&rsquo;t need to
 do too much. The key steps are to check out the correct code, given that it&rsquo;s
 not yet merged, add some <code>nova.conf</code> configuration options and create a new
 flavor. First up, let&rsquo;s checkout the correct nova code. You can use the
 checkout link from the <a href="https://packages.ubuntu.com/bionic/libvirt-daemon">Gerrit review</a> for this purpose:</p>
-
-<pre><code class="language-console">$ cd /opt/stack/nova
+<pre><code class="language-console" data-lang="console">$ cd /opt/stack/nova
 # checkout using the &quot;Checkout&quot; link in the &quot;Download&quot; dropdown on the review,
 # which I'm not providing here since it won't age well
-</code></pre>
-
-<p>Now, let&rsquo;s modify the <code>nova.conf</code> file the <code>nova-compute</code> service. We&rsquo;ll use
+</code></pre><p>Now, let&rsquo;s modify the <code>nova.conf</code> file the <code>nova-compute</code> service. We&rsquo;ll use
 <code>crudini</code> for this:</p>
-
-<pre><code class="language-console">$ crudini --set /etc/nova/nova-cpu.conf libvirt swtpm_enabled True
-</code></pre>
-
-<p>Let&rsquo;s restart the various nova services to load both the correct code and the
+<pre><code class="language-console" data-lang="console">$ crudini --set /etc/nova/nova-cpu.conf libvirt swtpm_enabled True
+</code></pre><p>Let&rsquo;s restart the various nova services to load both the correct code and the
 configuration changes:</p>
-
-<pre><code class="language-console">$ sudo systemctl restart devstack@n-*
-</code></pre>
-
-<p>With everything restarted, we should be able to see the relevant
+<pre><code class="language-console" data-lang="console">$ sudo systemctl restart devstack@n-*
+</code></pre><p>With everything restarted, we should be able to see the relevant
 <code>COMPUTE_SECURITY_TPM_*</code> traits reported by our sole compute node:</p>
-
-<pre><code class="language-console">$ openstack --os-placement-api-version 1.20 resource provider trait list \
+<pre><code class="language-console" data-lang="console">$ openstack --os-placement-api-version 1.20 resource provider trait list \
     --format value $RP_UUID | grep TPM
-</code></pre>
-
-<p>(where <code>$RP_UUID</code> is the UUID of the resource provider of the compute node,
+</code></pre><p>(where <code>$RP_UUID</code> is the UUID of the resource provider of the compute node,
 which can be found via <code>openstack resource provider list</code>)</p>
-
 <p>This should return the following:</p>
-
 <pre><code>COMPUTE_SECURITY_TPM_1_2
 COMPUTE_SECURITY_TPM_2_0
-</code></pre>
-
-<p>With that done, let&rsquo;s create a suitable flavor. The key feature here is the
+</code></pre><p>With that done, let&rsquo;s create a suitable flavor. The key feature here is the
 configuration of the <code>hw:tpm_version</code> and <code>hw:tpm_model</code> extra specs.
 <code>hw:tpm_model</code> is optional but <code>hw:tpm_version</code> is required to enable the
 feature:</p>
-
-<pre><code class="language-console">$ openstack flavor create test.vtpm \
+<pre><code class="language-console" data-lang="console">$ openstack flavor create test.vtpm \
     --ram 512 --disk 1 --vcpus 1 --wait \
     --property hw:tpm_version=1.2 \
     --property hw:tpm_model=tpm-tis
-</code></pre>
-
-<h2 id="create-an-instance-with-vtpm">Create an instance with vTPM</h2>
-
+</code></pre><h2 id="create-an-instance-with-vtpm">Create an instance with vTPM</h2>
 <p>With configuration complete, we can finally proceed to creating an instance.
 Nothing to funky here: simply create an instance using the flavor we created
 previously.</p>
-
-<pre><code class="language-console">$ openstack --os-compute-api-version 2.latest server create test.server \
+<pre><code class="language-console" data-lang="console">$ openstack --os-compute-api-version 2.latest server create test.server \
     --image cirros-0.5.1-x86_64-disk --flavor test.vtpm \
     --nic none --wait test.server
-</code></pre>
-
-<p>Once booted, let&rsquo;s check if the generated XML includes the <a href="https://libvirt.org/formatdomain.html#elementsTpm"><code>&lt;tpm&gt;</code></a> device
+</code></pre><p>Once booted, let&rsquo;s check if the generated XML includes the <a href="https://libvirt.org/formatdomain.html#elementsTpm"><code>&lt;tpm&gt;</code></a> device
 as expected:</p>
-
-<pre><code class="language-console">$ sudo virsh list
+<pre><code class="language-console" data-lang="console">$ sudo virsh list
  Id   Name                State
 -----------------------------------
  10   instance-0000000d   running
@@ -260,11 +206,8 @@ $ sudo virsh dumpxml instance-0000000d | xmllint --xpath '/domain/devices/tpm' -
       &lt;/backend&gt;
       &lt;alias name=&quot;tpm0&quot;/&gt;
     &lt;/tpm&gt;
-</code></pre>
-
-<p>We can also query barbican to see if nova correctly stored keys as expected:</p>
-
-<pre><code class="language-console">$ openstack secret list --format yaml
+</code></pre><p>We can also query barbican to see if nova correctly stored keys as expected:</p>
+<pre><code class="language-console" data-lang="console">$ openstack secret list --format yaml
 - Algorithm: null
   Bit length: null
   Content types:
@@ -276,33 +219,20 @@ $ sudo virsh dumpxml instance-0000000d | xmllint --xpath '/domain/devices/tpm' -
   Secret href: http://172.20.4.203/key-manager/v1/secrets/8cc4e70c-d805-4d48-9302-e3c970d1217b
   Secret type: passphrase
   Status: ACTIVE
-</code></pre>
-
-<p>We can also validate that the rebuild operation works as expected:</p>
-
-<pre><code class="language-console">$ openstack server rebuild --wait test.server
-</code></pre>
-
-<p>Finally, we can ensure that things are properly cleaned up once we&rsquo;re finished:</p>
-
-<pre><code class="language-console">$ openstack server delete test.server
+</code></pre><p>We can also validate that the rebuild operation works as expected:</p>
+<pre><code class="language-console" data-lang="console">$ openstack server rebuild --wait test.server
+</code></pre><p>Finally, we can ensure that things are properly cleaned up once we&rsquo;re finished:</p>
+<pre><code class="language-console" data-lang="console">$ openstack server delete test.server
 $ openstack secret list --format yaml
 []
-</code></pre>
-
-<p>QED. 🎉</p>
-
+</code></pre><p>QED. 🎉</p>
 <h2 id="further-reading">Further reading</h2>
-
 <p>The <a href="https://review.opendev.org/#/c/728505/">spec</a> and <a href="https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)">WIP code</a> are well worth a read and contain background
 information on most of the topics discussed here.</p>
-
 <h2 id="package-versions">Package versions</h2>
-
 <p>The following software versions were used. In summary, these correspond to the
 master versions of various OpenStack projects and latest Fedora package
 versions on the day of test:</p>
-
 <ul>
 <li>Distro: Fedora 31 (with virt preview repo via DevStack)</li>
 <li>Kernel: <code>5.3.7-301.fc31.x86_64</code></li>

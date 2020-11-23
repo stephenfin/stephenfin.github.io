@@ -80,32 +80,24 @@
   </div>
 
   <article>
-    
-
-<p>Turns out Fedora 25 didn&rsquo;t like my Samsung Series 9 (NP900X4C) much. Among
+    <p>Turns out Fedora 25 didn&rsquo;t like my Samsung Series 9 (NP900X4C) much. Among
 other things, the WiFi was intermittent (weird, as it&rsquo;s an Intel NIC), suspend
 didn&rsquo;t work (the laptop is always dead when I come to it), and the keyboard
 backlight turned off immediately after turning it on. I figured installing
 Windows again might be a good move (I also miss Office), but that turned out a
 little more difficult that anticipated. Below is the steps I ended up taking,
 should anyone else encounter the same issue.</p>
-
 <h1 id="get-an-iso">Get an ISO</h1>
-
 <p>First up: finding a valid Windows 7 Home Premium x64 ISO. Given that I still
 had my OEM key, this should not have been as difficult as it was. I finally
 found a workaround, thanks to <a href="https://www.raymond.cc/blog/links-for-windows-7-sp1-iso-from-microsofts-official-distributer/">this excellent guide on Raymond.cc</a> (follow
-the &ldquo;Download Windows <sup>7</sup>&frasl;<sub>8</sub>.1 From The Windows 10 Download Page&rdquo; section). With
+the &ldquo;Download Windows 7/8.1 From The Windows 10 Download Page&rdquo; section). With
 that &ldquo;hack&rdquo;, you should be able to pull in an ISO for the required version
 (<code>Win7_HomePrem_SP1_English_x64.iso</code> in my case).</p>
-
 <h1 id="connect-usb-drive">Connect USB Drive</h1>
-
 <p>We&rsquo;re going to install to a USB drive, so ensure it&rsquo;s plugged in now. Record
 the device name - <code>/dev/sdb</code> in my case - for use later.</p>
-
 <h1 id="prepare-your-usb">Prepare Your USB</h1>
-
 <p>This was another exercise in frustration. I followed many, many guides, all of
 which invariably ended in a failure. I suspect this is because the guides all
 recommended formatting my drive with NTFS when UEFI, as found on this laptop,
@@ -113,73 +105,59 @@ requires FAT32. Thankfully, I stumbled upon <a href="https://onetransistor.blogs
 much. This guide used GParted but unfortunately there&rsquo;s a known <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1397103">issue with
 <code>gparted</code> on Wayland</a>. A workaround for this issue is to allow &ldquo;non-network
 local connections&rdquo; by running the following command:</p>
-
 <pre><code>$ xhost +local:
 non-network local connections being added to access control list
 </code></pre>
-
 <p>Then we can start GParted:</p>
-
 <pre><code>$ sudo gparted
 </code></pre>
-
 <p>Execute the following operations:</p>
-
 <ul>
-<li><p>Unmount the drive</p></li>
-
-<li><p>Delete any existing partitions</p></li>
-
-<li><p>Create a <em>New</em> primary partition</p></li>
-
-<li><p>Format this partition as FAT32</p></li>
-
-<li><p>Set a label, e.g. <code>WIN7_HP_X64</code></p></li>
-
-<li><p>Set the <code>boot</code> flag to make the drive bootable</p></li>
+<li>
+<p>Unmount the drive</p>
+</li>
+<li>
+<p>Delete any existing partitions</p>
+</li>
+<li>
+<p>Create a <em>New</em> primary partition</p>
+</li>
+<li>
+<p>Format this partition as FAT32</p>
+</li>
+<li>
+<p>Set a label, e.g. <code>WIN7_HP_X64</code></p>
+</li>
+<li>
+<p>Set the <code>boot</code> flag to make the drive bootable</p>
+</li>
 </ul>
-
 <p>Once completed, <em>Apply all operations</em>, exit GParted, and disallow non-network
 local connections:</p>
-
 <pre><code>$ xhost -local:
 </code></pre>
-
 <h1 id="copy-files">Copy Files</h1>
-
 <p>You can now proceed to mount both the USB drive and the ISO:</p>
-
 <pre><code>$ sudo mkdir /mnt/usb
 $ sudo mkdir /mnt/iso
 $ sudo mount /dev/sdb1 /mnt/usb/
 $ sudo mount -o loop ~/Downloads/Win7_HomePrem_SP1_English_x64.iso /mnt/iso/
 </code></pre>
-
 <p>updating paths where necessary.</p>
-
 <p>Copy the contents of the ISO to the USB drive:</p>
-
 <pre><code>$ sudo cp -av /mnt/iso/* /mnt/usb/
 </code></pre>
-
 <h1 id="install-bootloader">Install Bootloader</h1>
-
 <p>We&rsquo;re going to use grub2 as the bootloader. Run the following to install the
 bootloader on the USB drive:</p>
-
 <pre><code>$ sudo grub2-install --boot-directory=/mnt/usb/boot /dev/sdb
 </code></pre>
-
 <p>once again, updating paths where necessary.</p>
-
 <p>Once completed, you should see the following message:</p>
-
 <pre><code>Installing for i386-pc platform.
 Installation finished. No error reported.
 </code></pre>
-
 <p>If so, save the following to <code>boot/grub2/grub.cfg</code> on the USB drive:</p>
-
 <pre><code>default=1
 timeout=15
 color_normal=light-cyan/dark-gray
@@ -204,14 +182,10 @@ menuentry &quot;Boot from the first hard drive&quot; {
     boot
 }
 </code></pre>
-
 <p>replacing <code>&lt;USB_drive_label&gt;</code> with the label you used earlier - <code>WIN7_HP_X64</code>
 for me.</p>
-
 <h1 id="profit">Profit</h1>
-
 <p>Unmount the drive, insert it into the laptop and install Windows 7.</p>
-
 <pre><code>$ sync  # to ensure all file transfers are complete.
 $ sudo umount
 </code></pre>

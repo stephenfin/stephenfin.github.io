@@ -80,71 +80,51 @@
   </div>
 
   <article>
-    
-
-<p>I had an old <a href="https://www.tp-link.com/uk/home-networking/wifi-router/tl-wr1043nd/">TP-Link TL-WR1043ND</a> that was running DD-WRT firmware from
+    <p>I had an old <a href="https://www.tp-link.com/uk/home-networking/wifi-router/tl-wr1043nd/">TP-Link TL-WR1043ND</a> that was running DD-WRT firmware from
 2013. Needless to say, this was pretty ancient and probably should be remedied
 but, unfortunately, I&rsquo;d been unable to figure out how to do this via the web
 UI. It turns this can&rsquo;t actually be done and instead you need to use a
 terminal. The below are my notes from doing just this.</p>
-
 <p>First, you need to download the original firmware and strip the bootloader from
 it. You can source these firmwares from the TP-Link site but unfortunately,
 things aren&rsquo;t as simple as that:</p>
-
 <blockquote>
 <p>If you want to revert back to stock TP-link firmware from custom firmware,
 most of the time you can not flash the TP-Link firmware directly from the
 official TP-Link website.</p>
-
 <p>The reason for this is that most of the downloadable firmware from the
 TP-Link website contains a so called bootloader section in front of the
 actual firmware.</p>
 </blockquote>
-
 <p>Thankfully, a kind individual on the internet has done this work for us and you
 can download the firmware with the bootloader stripped from
 <a href="https://www.friedzombie.com/tplink-stripped-firmware/">here</a>.</p>
-
 <p>Once downloaded, you need to flash this firmware. To do that, you need SSH
 access. Login in to the router and go to the &ldquo;Services&rdquo; tab. Once there, scroll
 down and enable SSH access. After that, go to the &ldquo;Administration&rdquo; and toggle
 the radio button for &ldquo;SSH Managment&rdquo;. Reboot the router.</p>
-
 <p>After reboot, extract and transfer the stripped firmware to the router:</p>
-
 <pre><code>$ unzip TL-WR1043ND-V1-stripped.zip
 $ cd TL-WR1043ND-V1-stripped
 $ scp TL-WR1043ND-V1-FW0.0.3-stripped.bin root@192.168.1.1:/tmp
 </code></pre>
-
 <p>(use your admin password to authenticate).</p>
-
 <p>Once this has been uploaded, SSH into the device to perform the restore:</p>
-
 <pre><code>$ ssh root@192.168.1.1
 $ cd /tmp
 $ mtd -r write TL-WR1043ND-V1-FW0.0.3-stripped.bin linux
 </code></pre>
-
 <p>After the restore is complete, you can download the new firmware for the device
 from <a href="http://downloads.openwrt.org/releases/18.06.2/targets/ar71xx/generic/">openwrt.org</a>:</p>
-
 <pre><code>$ wget http://downloads.openwrt.org/releases/18.06.2/targets/ar71xx/generic/openwrt-ar71xx-generic-tl-wr1043nd-v1-squashfs-factory.bin
 </code></pre>
-
 <p>Upload this through the web UI.</p>
-
 <h2 id="bonus-restoring-to-stock-from-openwrt">Bonus: Restoring to stock from OpenWRT</h2>
-
 <p>This is pretty simple too. Follow the above but instead of flashing to <code>linux</code>,
 flash to <code>firmware</code>:</p>
-
 <pre><code>$ mtd -r write TL-WR1043ND-V1-FW0.0.3-stripped.bin firmware
 </code></pre>
-
 <h2 id="resources">Resources</h2>
-
 <ul>
 <li><a href="http://ediy.com.my/index.php/blog/item/9-tp-link-tl-wr1043nd-resotre-from-dd-wrt-to-original-firmware">http://ediy.com.my/index.php/blog/item/9-tp-link-tl-wr1043nd-resotre-from-dd-wrt-to-original-firmware</a></li>
 <li><a href="https://www.friedzombie.com/tplink-stripped-firmware/">https://www.friedzombie.com/tplink-stripped-firmware/</a></li>

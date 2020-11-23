@@ -80,58 +80,45 @@
   </div>
 
   <article>
-    
-
-<p>Recent versions of OpenStack nova have added support for real-time instances,
+    <p>Recent versions of OpenStack nova have added support for real-time instances,
 that is, instances that provide the determinism and performance guarantees
 required by real-time applications. While this work was finally marked complete
 in the OpenStack Ocata release, it built upon lots of features added in
 previously releases.</p>
-
 <p>The below is a guide that covers a basic, single-node deployment of OpenStack
 suitable for evaluating basic real-time instance functionality. We use CentOS
 7, but the same instructions can be modified for RHEL 7 or Fedora, and any
 CentOS-specific aspects are called out. Also note that we&rsquo;re using DevStack:
 you obviously shouldn&rsquo;t be using this in production (I hear <a href="https://www.redhat.com/en/technologies/linux-platforms/openstack-platform">Red Hat OpenStack
 Platform</a> is pretty swell!).</p>
-
 <h2 id="host-bios-configuration">Host BIOS configuration</h2>
-
 <p>Configure your BIOS as recommended in the <a href="https://rt.wiki.kernel.org/index.php/HOWTO:_Build_an_RT-application">rt-wiki</a> page. The most important
 steps are:</p>
-
 <ul>
 <li>Disable power management, including CPU sleep states</li>
 <li>Disable hyper-threading or any option related to logical processors</li>
 </ul>
-
 <p>These are standard steps used in benchmarking as both sets of features can
 result in non-deterministic behavior.</p>
-
 <h2 id="host-os-configuration">Host OS configuration</h2>
-
-<aside class="admonition important">
-    
-    
-    <div class="admonition-content">
-Most of the commands below must be run with root privileges
-</div>
-</aside>
-
+<!-- raw HTML omitted -->
+<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
+</code></pre>
+<p>Most of the commands below must be run with root privileges</p>
+<!-- raw HTML omitted -->
 <ol>
-<li><p>Download and install CentOS 7.</p></li>
-
-<li><p>Log in as <code>root</code>.</p>
-
+<li>
+<p>Download and install CentOS 7.</p>
+</li>
+<li>
+<p>Log in as <code>root</code>.</p>
 <p>Most of the following steps require root privileges. While you can do this
 with <code>sudo</code>, it&rsquo;s generally easier to log in as the <code>root</code> user. Do this
 now.</p>
-
 <pre><code>$ su -
 </code></pre></li>
-
-<li><p>Enable the <code>rt</code> repo.</p>
-
+<li>
+<p>Enable the <code>rt</code> repo.</p>
 <pre><code>$ cat &lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
 # CentOS-RT.repo
 #
@@ -147,101 +134,72 @@ enabled=1
 EOF
 
 $ sudo yum update -y
-</code></pre>
-
-<p>Most online guides will point you to a CERN repo for these packages. I
+</code></pre><p>Most online guides will point you to a CERN repo for these packages. I
 had no success with this as some packages were missing. However, the
 steps to do this are below, just in case they&rsquo;re helpful.</p>
-
 <pre><code>$ wget http://linuxsoft.cern.ch/cern/centos/7/rt/CentOS-RT.repo /etc/yum.repos.d/CentOS-RT.repo
 $ wget http://linuxsoft.cern.ch/cern/centos/7/os/x86_64/RPM-GPG-KEY-cern /etc/pki/rpm-gpg/RPM-GPG-KEY-cern
 $ sudo yum groupinstall RT
 </code></pre></li>
-
-<li><p>Install dependencies.</p>
-
+<li>
+<p>Install dependencies.</p>
 <p>The most critical of these are <code>kernel-rt</code> and <code>kernel-rt-kvm</code>, but
 these have dependencies of their own. When I was installing this, there was
 a conflict between the version installed by default (<code>@anaconda</code>) and the
 one provided by the <code>rt</code> repo. To resolve this, I simply removed the
 conflicting version and installed the one provided by the <code>rt</code> repo.</p>
-
 <pre><code>$ yum remove tuned
 $ yum install -y tuned-2.7.1-5.el7
-</code></pre>
-
-<p>After this, install the aforementioned dependencies along with some required
+</code></pre><p>After this, install the aforementioned dependencies along with some required
 by CentOS specifically.</p>
-
 <pre><code>$ yum install -y centos-release-qemu-ev
 $ yum install -y tuned-profiles-realtime tuned-profiles-nfv
 $ yum install -y kernel-rt.x86_64 kernel-rt-kvm.x86_64
 </code></pre></li>
-
-<li><p>Configure the realtime profile.</p>
-
+<li>
+<p>Configure the realtime profile.</p>
 <p>We want to isolate some cores from the kernel and will use the <code>tuned</code>
 application with the profiles installed above to do this.</p>
-
 <p>First, dump info about your NUMA topology.</p>
-
 <pre><code>$ lscpu | grep ^NUMA
 NUMA node(s):          2
 NUMA node0 CPU(s):     0,2,4,6,8,10
 NUMA node1 CPU(s):     1,3,5,7,9,11
-</code></pre>
-
-<p>This processor, an <a href="https://ark.intel.com/products/81897/Intel-Xeon-Processor-E5-2609-v3-15M-Cache-1_90-GHz">Intel Xeon E5-2609-v3</a>, has six cores and we&rsquo;ve got
+</code></pre><p>This processor, an <a href="https://ark.intel.com/products/81897/Intel-Xeon-Processor-E5-2609-v3-15M-Cache-1_90-GHz">Intel Xeon E5-2609-v3</a>, has six cores and we&rsquo;ve got
 two of them. We want to isolate some of these cores. CPU0 should be excluded
 from the possible cores as it handles console interrupts while a second core
 should be kept free for other host overhead processes. Let&rsquo;s take a highly
 scientific approach and isolate four of the six cores from each socket
 because why not?</p>
-
 <pre><code>$ echo &quot;isolated_cores=4-11&quot; &gt;&gt; /etc/tuned/realtime-virtual-host-variables.conf
 </code></pre></li>
-
-<li><p>Load the realtime profile.</p>
-
+<li>
+<p>Load the realtime profile.</p>
 <pre><code>$ systemctl enable tuned
 $ systemctl start tuned
 $ tuned-adm profile realtime-virtual-host
-</code></pre>
-
-<p>You should confirm that the profile has been applied.</p>
-
+</code></pre><p>You should confirm that the profile has been applied.</p>
 <pre><code>$ grep tuned_params= /boot/grub2/grub.cfg
 set tuned_params=&quot;isolcpus=4-11 nohz=on nohz_full=4-11 intel_pstate=disable nosoftlockup&quot;
 </code></pre></li>
-
-<li><p>Configure huge pages.</p>
-
+<li>
+<p>Configure huge pages.</p>
 <p>First, add the following to <code>GRUB_CMDLINE_LINUX</code> in <code>/etc/default/grub</code>.</p>
-
 <pre><code>default_hugepagesz=1G
-</code></pre>
-
-<p>Save this configuration.</p>
-
+</code></pre><p>Save this configuration.</p>
 <pre><code>$ grub2-mkconfig -o /boot/grub2/grub.cfg
 Generating grub configuration file ...
 Found linux image: /boot/vmlinuz-3.10.0-327.13.1.el7.x86_64
 done
-</code></pre>
-
-<p>Because we&rsquo;re using a number of CPUs from each NUMA node, we want to assign
+</code></pre><p>Because we&rsquo;re using a number of CPUs from each NUMA node, we want to assign
 a number hugepages to each node. We&rsquo;re going to assign four per node.</p>
-
 <pre><code>$ echo 4 &gt; /sys/devices/system/node/node0/hugepages/hugepages-1048576kB/nr_hugepages
 $ echo 4 &gt; /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
-</code></pre>
-
-<p>We want to make this persistent. While you can configure persistent
+</code></pre><p>We want to make this persistent. While you can configure persistent
 hugepages via the <code>GRUB_CMDLINE_LINUX</code> option, you cannot do this on a
 per-NUMA node basis. We&rsquo;re going to use our own <code>systemd</code> unit files to
 solve this problem until such a time as <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1232350">bug #1232350</a> is resolved. This
 solution is taken from that bug.</p>
-
 <pre><code>$ cat &lt;&lt; EOF &gt; /usr/lib/systemd/system/hugetlb-gigantic-pages.service
 [Unit]
 Description=HugeTLB Gigantic Pages Reservation
@@ -280,16 +238,15 @@ EOF
 $ chmod +x /usr/lib/systemd/hugetlb-reserve-pages
 $ systemctl enable hugetlb-gigantic-pages
 </code></pre></li>
-
-<li><p>Reboot the host to apply changes.</p></li>
-
-<li><p>Verify that changes have been applied.</p>
-
+<li>
+<p>Reboot the host to apply changes.</p>
+</li>
+<li>
+<p>Verify that changes have been applied.</p>
 <p>You want to ensure the <code>tuned</code> profile is loaded and the changes it has made
 have taken effect, such as adding <code>isolcpus</code> and related parameters to the
 boot command. In addition, you want to make sure your own hugepage
 configuration has been applied.</p>
-
 <pre><code>$ tuned-adm active
 Current active profile: realtime-virtual-host
 
@@ -304,12 +261,10 @@ $ cat /sys/devices/system/node/node0/hugepages/hugepages-1048576kB/nr_hugepages
 $ cat /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
 4
 </code></pre></li>
-
-<li><p>Verify that system interrupts are disabled.</p>
-
+<li>
+<p>Verify that system interrupts are disabled.</p>
 <p>You should install the <code>rt-tests</code> package, then run the <code>hwlatdetect</code>
 utility it provides to validate correct behavior.</p>
-
 <pre><code>$ yum install -y rt-tests
 
 $ hwlatdetect
@@ -326,38 +281,31 @@ test finished
 Max Latency: 0us
 Samples recorded: 0
 Samples exceeding threshold: 0
-</code></pre>
-
-<p>If this shows any samples exceeding threshold, something is wrong and you
-should retrace your steps.</p></li>
-
-<li><p>Verify &ldquo;real-time readiness&rdquo;.</p>
-
+</code></pre><p>If this shows any samples exceeding threshold, something is wrong and you
+should retrace your steps.</p>
+</li>
+<li>
+<p>Verify &ldquo;real-time readiness&rdquo;.</p>
 <p>The <code>rteval</code> utility can be used to evaluate system suitability for RT
 Linux. It must be run for a long duration, so you should put this running
 and come back to it later.</p>
-
 <pre><code>$ yum install rteval
 
 $ rteval --onlyload --duration=4h --verbose
 </code></pre></li>
 </ol>
-
 <h2 id="guest-image-configuration">Guest image configuration</h2>
-
 <p>We&rsquo;re going to need a real-time image for the guest too. I did this manually on
 another machine using <code>virt-install</code>. Much of the configuration is duplicated
 from the host.</p>
-
 <ol>
-<li><p>Boot the guest and configure it using a <code>root</code> user.</p>
-
+<li>
+<p>Boot the guest and configure it using a <code>root</code> user.</p>
 <p>We don&rsquo;t actually care about most of the configuration here wrt to RAM and
 CPU count since we&rsquo;ll be changing this later. The only things to note are
 that we&rsquo;re using the same OS as the host (CentOS) for ease-of-use and we
 have both network connectivity (so we can install packages) and a serial
 connection (so we can interact with the guest).</p>
-
 <pre><code>$ sudo virt-install \
     --name centos7 \
     --ram 4096 \
@@ -373,9 +321,8 @@ connection (so we can interact with the guest).</p>
 
 # ... follow prompts
 </code></pre></li>
-
-<li><p>Enable the <code>rt</code> repo.</p>
-
+<li>
+<p>Enable the <code>rt</code> repo.</p>
 <pre><code>$ echo &lt;&lt; EOF &gt; /etc/yum.repos.d/CentOS-RT.repo
 # CentOS-RT.repo
 #
@@ -392,82 +339,61 @@ EOF
 
 $ sudo yum update -y
 </code></pre></li>
-
-<li><p>Install dependencies.</p>
-
+<li>
+<p>Install dependencies.</p>
 <p>We naturally don&rsquo;t need the <code>kernel-rt-kvm</code> module, but we do need the
 <code>kernel-rt</code> package and some other dependencies. Seeing as we&rsquo;re using
 CentOS for the guest too, we have to deal with the same <code>tuned</code> dependency
 conflict.</p>
-
 <pre><code>$ yum remove tuned
 $ yum install -y tuned-2.7.1-5.el7
-</code></pre>
-
-<p>After this, install the aforementioned dependencies along with some required
+</code></pre><p>After this, install the aforementioned dependencies along with some required
 by CentOS specifically.</p>
-
 <pre><code>$ yum install -y centos-release-qemu-ev
 $ yum install -y tuned-profiles-realtime tuned-profiles-nfv
 $ yum install -y kernel-rt.x86_64
 </code></pre></li>
-
-<li><p>Configure the realtime profile.</p>
-
+<li>
+<p>Configure the realtime profile.</p>
 <p>Configure the <code>tuned</code> profile toisolate the two CPUs we reserved for
 real-time in the flavour (i.e. <code>^0-1</code>, so <code>2</code> and <code>3</code>)</p>
-
 <pre><code>$ echo &quot;isolated_cores=2,3&quot; &gt;&gt; /etc/tuned/realtime-virtual-guest-variables.conf
 </code></pre></li>
-
-<li><p>Load the realtime profile.</p>
-
+<li>
+<p>Load the realtime profile.</p>
 <pre><code>$ systemctl enable tuned
 $ systemctl start tuned
 $ tuned-adm profile realtime-virtual-guest
-</code></pre>
-
-<p>Note that we&rsquo;re using the <em>guest</em> profile here - not the <em>host</em> one.</p>
-
+</code></pre><p>Note that we&rsquo;re using the <em>guest</em> profile here - not the <em>host</em> one.</p>
 <p>You should confirm that the profile has been applied.</p>
-
 <pre><code>$ grep tuned_params= /boot/grub2/grub.cfg
 set tuned_params=&quot;isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup&quot;
 </code></pre></li>
-
-<li><p>Configure hugepages.</p>
-
+<li>
+<p>Configure hugepages.</p>
 <p>First, add the following to <code>GRUB_CMDLINE_LINUX</code> in <code>/etc/default/grub</code>.</p>
-
 <pre><code>default_hugepagesz=1G
-</code></pre>
-
-<p>Save this configuration.</p>
-
+</code></pre><p>Save this configuration.</p>
 <pre><code>$ grub2-mkconfig -o /boot/grub2/grub.cfg
 Generating grub configuration file ...
 Found linux image: /boot/vmlinuz-3.10.0-327.13.1.el7.x86_64
 done
-</code></pre>
-
-<p>We don&rsquo;t need to enable these as this will be done from the OpenStack side.</p></li>
-
-<li><p>Install testing dependencies.</p>
-
+</code></pre><p>We don&rsquo;t need to enable these as this will be done from the OpenStack side.</p>
+</li>
+<li>
+<p>Install testing dependencies.</p>
 <p>We&rsquo;re going to be doing some testing later. Best to install these
 dependencies now.</p>
-
 <pre><code>$ yum install -y epel-release
 $ yum install -y rt-tests stress
 </code></pre></li>
-
-<li><p>Reboot the guest to apply changes.</p></li>
-
-<li><p>Verify the changes have been applied.</p>
-
+<li>
+<p>Reboot the guest to apply changes.</p>
+</li>
+<li>
+<p>Verify the changes have been applied.</p>
 <p>Once again, you want to ensure the <code>tuned</code> profile is loaded and applied,
 and that the hugepages have been configured.</p>
-
 <pre><code>$ tuned-adm active
 Current active profile: realtime-virtual-guest
 
@@ -477,58 +403,44 @@ Linux guest.localdomain 3.10.0-693.2.2.rt56.623.el7.x86_64 #1 SMP PREEMPT RT Sun
 $ cat /proc/cmdline
 BOOT_IMAGE=/vmlinuz-3.10.0-693.2.2.rt56.623.el7.x86_64 root=/dev/mapper/centos-root ro rd.lvm.lv=centos/root rd.lvm.lv=centos/swap console=ttyS0,115200n8 default_hugepagesz=1G isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup
 </code></pre></li>
-
-<li><p>Install OpenStack-specific dependencies.</p>
-
+<li>
+<p>Install OpenStack-specific dependencies.</p>
 <p>We want to use <code>cloud-init</code> to configure stuff in OpenStack, so let&rsquo;s
 install the various dependencies required. This is taken from <a href="https://docs.openstack.org/image-guide/centos-image.html">the OpenStack
 docs</a>.</p>
-
 <pre><code>$ yum install -y acpid
 $ systemctl enable acpid
 $ yum install -y cloud-init cloud-utils-growpart
 $ echo &quot;NOZEROCONF=yes&quot; &gt;&gt; /etc/sysconfig/network
-</code></pre>
-
-<p>We don&rsquo;t need to configure a console interface as <code>virt-install</code> has already
+</code></pre><p>We don&rsquo;t need to configure a console interface as <code>virt-install</code> has already
 done this for us.</p>
-
 <p>Once this is done, you can shutdown the guest.</p>
-
 <pre><code>$ poweroff
 </code></pre></li>
-
-<li><p>Clean up the image.</p>
-
+<li>
+<p>Clean up the image.</p>
 <p>We want to strip stuff like MAC addresses from the guest. This should be
 done wherever you ran <code>virt-install</code>.</p>
-
 <pre><code>$ sudo virt-sysprep -d centos7
-</code></pre>
-
-<p>If this is successful, you can undefine and shrink the image. It&rsquo;s now ready
+</code></pre><p>If this is successful, you can undefine and shrink the image. It&rsquo;s now ready
 for use later.</p>
-
 <pre><code>$ sudo virsh undefine centos7
 $ sudo qemu-img convert -O qcow2 -c centos7.qcow2 centos7-small.qcow2
 </code></pre></li>
 </ol>
-
 <h2 id="nova-configuration">Nova configuration</h2>
-
 <ol>
-<li><p>Log back into your standard user.</p>
-
+<li>
+<p>Log back into your standard user.</p>
 <p>We no longer need to run as root and DevStack, which I&rsquo;m using here, will
-refuse to run this way.</p></li>
-
-<li><p>Install and configure OpenStack.</p>
-
+refuse to run this way.</p>
+</li>
+<li>
+<p>Install and configure OpenStack.</p>
 <p>I used DevStack for this, though you can use anything you want. This feature
 relies on features first included in the Pike release so you should deploy a
 suitable version. Given that I&rsquo;m using DevStack, I&rsquo;m simply going to use the
 <code>stable/pike</code> variant of DevStack and all dependencies.</p>
-
 <pre><code>$ git clone https://github.com/openstack-dev/devstack/
 $ cd devstack
 $ git checkout stable/pike
@@ -562,76 +474,59 @@ EOF
 $ ./stack.sh  # wait for successful deployment
 
 $ . openrc admin
-</code></pre>
-
-<p>You can use a mostly stock configuration with the exception of one
+</code></pre><p>You can use a mostly stock configuration with the exception of one
 configuration option: <code>[DEFAULT] vcpu_pin_set</code>. This should be configured
 for the <code>nova-compute</code> service and should be set to the mask configured by
-<code>tuned</code> earlier.</p></li>
-
-<li><p>Validate deployment.</p>
-
+<code>tuned</code> earlier.</p>
+</li>
+<li>
+<p>Validate deployment.</p>
 <p>Once this has deployed, you can check the logs of the <code>nova-compute</code> service
 to make sure the <code>vcpu_pin_set</code> configuration has been successful.  If
 deploying using <code>stable/pike</code> DevStack, you can do this using <code>journalctl</code>.</p>
-
 <pre><code>$ sudo journalctl -u devstack@n-cpu.service | grep 'vcpu_pin_set' | tail -1
 vcpu_pin_set = 4-11
 $ sudo journalctl -u devstack@n-cpu.service | grep 'Total usable vcpus' | tail -1
 Total usable vcpus: 8, total allocated vcpus: 0
-</code></pre>
-
-<p>This is as expected, given that we we were using a <code>4-11</code> mask and have not
+</code></pre><p>This is as expected, given that we we were using a <code>4-11</code> mask and have not
 yet deployed any instances.</p>
-
-<p>I&rsquo;m sure there&rsquo;s a better way to do this filtering with <code>journalctl</code>.</p></li>
-
-<li><p>Configure flavor.</p>
-
+<p>I&rsquo;m sure there&rsquo;s a better way to do this filtering with <code>journalctl</code>.</p>
+</li>
+<li>
+<p>Configure flavor.</p>
 <p>Once you&rsquo;ve verified everything, you can create your custom real-time
 flavor. To do this, first configure your environment variables.</p>
-
 <pre><code>$ openstack flavor create --vcpus 4 --ram 4096 --disk 20 rt1.small
 $ openstack flavor set rt1.small \
     --property 'hw:cpu_policy=dedicated' \
     --property 'hw:cpu_realtime=yes' \
     --property 'hw:cpu_realtime_mask=^0-1' \
     --property 'hw:mem_page_size=1GB'
-</code></pre>
-
-<p>By way of an explanation, these various properties correspond to the
+</code></pre><p>By way of an explanation, these various properties correspond to the
 following.</p>
-
 <p><code>hw:cpu_policy=dedicated</code>: This indicates that instances must have
 exclusive pCPUs assigned to them.</p>
-
 <p><code>hw:cpu_realtime=yes</code>: This indicates that instances will have a real-time
 policy.</p>
-
 <p><code>hw:cpu_realtime_mask=&quot;^0-1&quot;</code>: This indicates that all instance vCPUs
 <em>except</em> vCPUs 0 and 1 will have a real-time policy.</p>
-
 <p><code>hw:mem_page_size=1GB</code>: This indicates that instances will have a sole 1
 GB huge page assigned to them.</p>
-
-<p>For more information, refer to <a href="https://docs.openstack.org/nova/latest/user/flavors">the nova docs</a>.</p></li>
-
-<li><p>Configure image.</p>
-
+<p>For more information, refer to <a href="https://docs.openstack.org/nova/latest/user/flavors">the nova docs</a>.</p>
+</li>
+<li>
+<p>Configure image.</p>
 <p>We&rsquo;re going to use the <code>centos7-small.qcow2</code> created previously. Upload this
 to <code>glance</code>.</p>
-
 <pre><code>$ openstack image create --disk-format qcow2 --container-format bare \
     --public --file ./centos-small.qcow2 centos-rt
 </code></pre></li>
-
-<li><p>(Optional) Configure security groups and keypairs.</p>
-
+<li>
+<p>(Optional) Configure security groups and keypairs.</p>
 <p>We want to ensure we can both ping the instance and SSH into it. This
 requires ICMP and TCP port 22 rules in the security group for the project.
 This is necessary because I installed using DevStack but may not be
 necessary using other deployment tools.</p>
-
 <pre><code>$ echo OS_PROJECT_NAME
 demo
 $ openstack project list | grep -w demo
@@ -643,45 +538,31 @@ $ openstack security group rule create --proto icmp \
     466ffc5e-114d-43a4-8854-db490c6b4571
 $ openstack security group rule create --proto tcp --dst-port 22 \
     466ffc5e-114d-43a4-8854-db490c6b4571
-</code></pre>
-
-<p>In addition, we want to create a keypair so we can ssh into the instance.</p>
-
+</code></pre><p>In addition, we want to create a keypair so we can ssh into the instance.</p>
 <pre><code>$ openstack keypair create --public-key .ssh/id_rsa.pub default-key
 </code></pre></li>
 </ol>
-
 <h2 id="testing">Testing</h2>
-
 <p>Now we have everything configured, we&rsquo;re going to create an instance and run
 our tests.</p>
-
 <ol>
-<li><p>Boot instance</p>
-
+<li>
+<p>Boot instance</p>
 <pre><code>$ openstack server create --flavor rt1.small --image centos-rt \
     --key-name default-key rt-server
-</code></pre>
-
-<p>This initially failed for me with the following error message:</p>
-
+</code></pre><p>This initially failed for me with the following error message:</p>
 <pre><code>Could not access KVM kernel module: Permission denied
 failed to initialize KVM: Permission denied
-</code></pre>
-
-<p>I was able to resolve this with the following commands, taken from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=950436">a
+</code></pre><p>I was able to resolve this with the following commands, taken from <a href="https://bugzilla.redhat.com/show_bug.cgi?id=950436">a
 related bugzilla</a>.</p>
-
 <pre><code>$ sudo rmmod kvm_intel
 $ sudo rmmod kvm
 $ sudo modprobe kvm
 $ sudo modprobe kvm_intel
 </code></pre></li>
-
-<li><p>Connect floating IP.</p>
-
+<li>
+<p>Connect floating IP.</p>
 <p>This is necessary so we can SSH into the instance.</p>
-
 <pre><code>$ openstack floating ip create public
 +---------------------+--------------------------------------+
 | Field               | Value                                |
@@ -703,34 +584,25 @@ $ sudo modprobe kvm_intel
 
 $ openstack server add floating ip rt-server 172.24.4.9
 </code></pre></li>
-
-<li><p>SSH to guest.</p>
-
+<li>
+<p>SSH to guest.</p>
 <pre><code>$ openstack server ssh rt-server --login centos
 </code></pre></li>
-
-<li><p>Run <code>cyclictest</code> to confirm expected latencies.</p>
-
+<li>
+<p>Run <code>cyclictest</code> to confirm expected latencies.</p>
 <p>We&rsquo;re going to run a intensive process, <code>stress</code>, and then use <code>cyclictest</code>
 to confirm that guest latencies are within expected limits.</p>
-
 <pre><code>$ taskset -c 2 stress --cpu 4
-</code></pre>
-
-<p>This will result in four processes running on vCPU 2. Once this is running,
+</code></pre><p>This will result in four processes running on vCPU 2. Once this is running,
 start <code>cyclictest</code> in another tab.</p>
-
 <pre><code>$ taskset -c 2 cyclictest -m -n -q -p95 -D 24h -h100 -i 200 &gt; cyclictest.out
-</code></pre>
-
-<p>This will run for 24 hours (<code>-D 24h</code>). Once done, you can check the output
+</code></pre><p>This will run for 24 hours (<code>-D 24h</code>). Once done, you can check the output
 (in <code>cyclictest.out</code>) to see if it&rsquo;s within expected tolerances. The RT Wiki
 <a href="https://rt.wiki.kernel.org/index.php/CONFIG_PREEMPT_RT_Patch#Platforms_Tested_and_in_Use_with_CONFIG_PREEMPT_RT">lists some example latencies so you can get an idea of what you can
-expect</a>.</p></li>
+expect</a>.</p>
+</li>
 </ol>
-
 <h2 id="resources">Resources</h2>
-
 <ul>
 <li><a href="http://events.linuxfoundation.org/sites/events/files/slides/cyclictest.pdf">http://events.linuxfoundation.org/sites/events/files/slides/cyclictest.pdf</a></li>
 <li><a href="https://events.static.linuxfound.org/images/stories/slides/elc2013_rostedt.pdf">https://events.static.linuxfound.org/images/stories/slides/elc2013_rostedt.pdf</a></li>

@@ -74,27 +74,22 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2016-07-15T00:00:00Z'>Jul 15, 2016</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>4 min read</span>
       </div>
     </div>
   </div>
 
   <article>
-    
-
-<p><a href="https://www.gnu.org/software/autoconf/manual/autoconf-2.67/html_node/Using-Autotest.html#Using-Autotest">GNU Autotest</a> is a test framework that, together with supporting
+    <p><a href="https://www.gnu.org/software/autoconf/manual/autoconf-2.67/html_node/Using-Autotest.html#Using-Autotest">GNU Autotest</a> is a test framework that, together with supporting
 scripts and unit test files, can unit test an application. Autotest is part of
 the <a href="http://www.gnu.org/savannah-checkouts/gnu/automake/manual/html_node/Autotools-Introduction.html">Autotools</a> library, a.k.a. the <a href="http://en.wikipedia.org/wiki/GNU_build_system">GNU Build System</a>.</p>
-
 <p>The Autotest scripts execute unit tests by making shell-like calls to
 utilities, Python scripts and C unit test applications, and comparing their
 return values (exit code, stdout and stderr) to predefined values. To do this,
 Autotest defines a number of <a href="http://en.wikipedia.org/wiki/M4_(computer_language)http://en.wikipedia.org/wiki/M4_(computer_language)">M4</a>  macros, such as <code>AT_INIT</code> and
 <code>AT_CLEANUP</code>.</p>
-
 <p>An example of a test is given below. This test is from the <a href="http://wiki.ir.intel.com/sw/index.php/OVS">Open vSwitch</a>
 project, and tests the resubmit action in the datapath.</p>
-
 <pre><code>AT_SETUP([ofproto-dpif - resubmit])
 OVS_VSWITCHD_START
 AT_DATA([flows.txt], [dnl
@@ -118,85 +113,49 @@ AT_CHECK([tail -1 stdout], [0],
 OVS_VSWITCHD_STOP
 AT_CLEANUP
 </code></pre>
-
 <h2 id="macros">Macros</h2>
-
 <h3 id="m4-macros">m4 macros</h3>
-
-<dl>
-  <dt><code>m4_define([name], [substitution])</code></dt>
-  <dd>Substitutes the word(s) given by name with the text given in substitution</dd>
-  <dt><code>m4_if([name], [value], [execution])</code></dt>
-  <dd>If the value of the name variable equals that of the value variable, then
-  execute execution</dd>
-</dl>
-
+<!-- raw HTML omitted -->
 <h3 id="autotest-macros">Autotest macros</h3>
-
 <p>Autotest macros are just predefined M4 macros. There are a number of them,
 including:</p>
-
-<dl>
-  <dt><code>AT_SETUP(title)</code></dt>
-  <dd>Begin a test group named title. This title is really the identifier of
-  the test group, used in quiet and verbose outputs. It should be short, but
-  descriptive.</dd>
-  <dt><code>AT_CHECK(commands, [status = 0], [stdout], [stderr])</code></dt>
-  <dd>Execute a test by performing given shell commands. These commands should
-  normally exit with status, while producing expected stdout and stderr
-  contents.</dd>
-  <dt><code>AT_CLEANUP()</code></dt>
-  <dd>End a test group.</dd>
-</dl>
-
+<!-- raw HTML omitted -->
 <h3 id="additional-macros">Additional macros</h3>
-
 <p>There are many additional macros available to use. For a list of these, it&rsquo;s
 probably best to check out the official <a href="http://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Writing-Testsuites.html#Writing-Testsuites">GNU Autotest Manual</a>.</p>
-
 <h2 id="writing-a-sample-test">Writing a sample test</h2>
-
 <blockquote>
-<p>&rdquo;&hellip;to learn and not to do is really not to learn. To know and not to do is
-really not to know.&ldquo;, Stephen R. Covey</p>
+<p>&ldquo;&hellip;to learn and not to do is really not to learn. To know and not to do is
+really not to know.&rdquo;, Stephen R. Covey</p>
 </blockquote>
-
 <p>The best way to learn this stuff is to <em>do it</em>. As such, we&rsquo;re going to write a
 sample test script that will explain the basic functionality of the Autotest
 framework.</p>
-
 <h3 id="what-we-want-to-achieve">What we want to achieve</h3>
-
 <p>We want to test the <code>cat</code> application. As with most shell applications, this
 application provides an awful lot of functionality. We&rsquo;re going to test only a
 small subset of it&rsquo;s functionality, and ignore all the other options and the
 flags available to us. As such, we want to check that the following features
 work as expected:</p>
-
 <ol>
 <li><code>cat</code> prints an error message for a non-existing file</li>
 <li><code>cat</code> prints nothing for an empty, existing file</li>
 <li><code>cat</code> prints some output for a non-empty, existing file</li>
 </ol>
-
 <h3 id="initial-setup">Initial setup</h3>
-
 <p>The first thing we should do is declare our own macro to place tests in. This
 will act as a <em>function</em> of sorts and allow us to call the tests at once or
 from another file (plus it acts as a container to illustrate the difference in
 different files). To do this, add the following code in a file called
 <code>mytest.at</code>:</p>
-
 <pre><code>m4_define([MYTEST_CHECK_CAT], [])
 
 MYTEST_CHECK_CAT
 </code></pre>
-
 <p>This works pretty straight-forwardly. When typed, the keyword
 <code>MYTEST_CHECK_CAT</code> on the bottom line will be replaced with the lines in the
 second parameter of the macro (currently none). Obviously, in order to make
 this useful, we need something in the second parameter like so:</p>
-
 <pre><code>m4_define([MYTEST_CHECK_CAT], [
   AT_BANNER([])
   AT_SETUP([])
@@ -206,23 +165,17 @@ this useful, we need something in the second parameter like so:</p>
 
 MYTEST_CHECK_CAT
 </code></pre>
-
 <p>Replace the text in <code>mytest.at</code> with the above code. You&rsquo;ll notice we&rsquo;ve placed
 four new lines in the previous empty second parameter. As described above,
 these lines are what will be used in place of the keyword defined by the second
 parameter. The actual lines in question are merely empty Autotest Macros, as
 seen above. These must be used with values, as seen in the next section.</p>
-
 <h3 id="the-test">The test</h3>
-
 <p>The only test we&rsquo;re writing here is for the following assertion:</p>
-
 <blockquote>
 <p>cat prints an error message for a non-existing file</p>
 </blockquote>
-
 <p>This test should just about do it:</p>
-
 <pre><code>m4_define([MYTEST_CHECK_CAT], [
   AT_BANNER([cat simple unit tests])
   AT_SETUP([execute cat with non-existing file])
@@ -232,25 +185,18 @@ seen above. These must be used with values, as seen in the next section.</p>
 
 MYTEST_CHECK_CAT
 </code></pre>
-
 <p>Each of the lines work as follow:</p>
-
 <pre><code>AT_BANNER([cat simple unit tests])
 </code></pre>
-
 <p>This merely describes some test that should be printed before the tests are
 executed. This is useful for providing a title to a group of tests and hence
 enforcing separation between them.</p>
-
 <pre><code>AT_SETUP([execute cat with non-existing file])
 </code></pre>
-
 <p>This describes the name of test in question. Most likely this is a brief
 description of the test.</p>
-
 <pre><code>AT_CHECK([cat /dev/nulls], [ignore], [], [&quot;cat: /dev/nulls: No such file or directory&quot;])
 </code></pre>
-
 <p>This is the real juicy part. The first parameter describes what operation to
 run. In this case, we&rsquo;re running cat on a non-existent file (note the <code>s</code> in
 <code>/dev/nulls</code>). The second parameter describes the expected status. I&rsquo;m not
@@ -259,9 +205,7 @@ describes the stdout. This application should output to stderr rather than
 stdout in the case of an error, so leave it empty. Finally the last parameter
 describes the stderr. This is what the application should output on calling
 this command and we ensure this is so.</p>
-
 <h2 id="wrap-up">Wrap up</h2>
-
 <p>It isn&rsquo;t possible to run this test as-is, because we&rsquo;re missing a lot of
 configuration stuff (like the <code>AT_INIT</code>). However, if you&rsquo;re writing your own
 tests, you&rsquo;re most likely plugging into an existing test framework. The

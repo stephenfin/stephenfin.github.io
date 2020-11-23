@@ -80,24 +80,17 @@
   </div>
 
   <article>
-    
-
-<p><code>git-review</code> is a Python wrapper for many of the common Git commands used in
+    <p><code>git-review</code> is a Python wrapper for many of the common Git commands used in
 conjunction with Gerrit. It encapsulates many of the most common commands used,
 in order to speed things up.</p>
-
 <p>It&rsquo;s possible to use Gerrit without using the <code>git-review</code> tool. All the
 commands we use below have their plain <code>git</code> equivalents. However, the question
 remains: why would you want to? The <code>git-review</code> tool speeds things up, and is
 used by a number of teams outside Intel (including MediaWiki and OpenStack).</p>
-
 <p>This guide is borrows heavily from the original Openstack guide, found here:</p>
-
 <pre><code>https://wiki.openstack.org/wiki/Gerrit_Workflow
 </code></pre>
-
 <h2 id="a-word-on-workflows">A word on workflows</h2>
-
 <p>Gerrit, like Git, is extremely flexible. There is no one true way to work with
 it. However, Git has two predominant &ldquo;workflows&rdquo;: the merge workflow, and the
 rebase workflow. Each of these have their pros and cons, but both work equally
@@ -105,115 +98,78 @@ well with standard Git. This is not the case with Gerrit. While the former
 workflow is possible, it&rsquo;s very awkward (Gerrit doesn&rsquo;t handle merge commits
 very well). Hence, despite the issues that can occur from &ldquo;rewriting history&rdquo;
 in the rebase workflow, it&rsquo;s the best option.</p>
-
 <h2 id="initial-steps">Initial steps</h2>
-
 <p>First, install the tool. On Fedora 16 and up:</p>
-
 <pre><code>$ dnf install git-review
 </code></pre>
-
 <p>Navigate to the project you wish to use, and ensure you can connect to the
 Gerrit server:</p>
-
 <pre><code>$ cd &lt;repo&gt;
 $ git review -s
 </code></pre>
-
 <p>You may get a warning like so:</p>
-
 <pre><code>No '.gitreview' file found in this repository.
 We don't know where your gerrit is. Please manually create
 a remote named gerrit and try again.
 </code></pre>
-
 <p>If so, you likely have your Gerrit review server&rsquo;s &ldquo;remote&rdquo; called <code>origin</code> or
 something similar. You can check this like so:</p>
-
 <pre><code>$ git remote -v
 </code></pre>
-
 <p>You&rsquo;ll likely get something like so, where the url points to a Gerrit project:</p>
-
 <pre><code>origin  &lt;url&gt; (fetch)
 origin  &lt;url&gt; (push)
 </code></pre>
-
 <p>Assuming this is the case, just rename the remote:</p>
-
 <pre><code>$ git remote rename origin gerrit
 </code></pre>
-
 <p>If this isn&rsquo;t (i.e. you have more than one remote), you may want to rename
 the relevant remote or add a new one for Gerrit:</p>
-
 <pre><code>$ git remote add gerrit [url]
 </code></pre>
-
 <h2 id="making-and-uploading-changesets">Making and uploading changesets</h2>
-
 <p>Checkout a feature branch using your teams naming conventions:</p>
-
 <pre><code>$ git checkout -b &lt;topic_branch&gt;
 </code></pre>
-
 <p><strong>NOTE:</strong> You should always work on feature branches when working with Gerrit.
 If you work on <code>master</code> or <code>development</code>, you&rsquo;re going to get merge conflicts
 when you pull in the latest changes from Gerrit/upstream.</p>
-
 <p>Now make some changes: add some new files, delete old ones, do what you have to
 do. Following this, save the changes:</p>
-
 <pre><code>$ git commit -as  # this is the same as `git add -u` and `git commit -as`
 </code></pre>
-
 <p>This should create a new commit. You can upload this changeset like so:</p>
-
 <pre><code>$ git remote update  # to get latest changes
 $ git review &lt;upstream_branch&gt;
 </code></pre>
-
 <p><strong>NOTE:</strong> This will automatically rebase the change against the upstream master.</p>
-
 <p>If you now go to Gerrit, you&rsquo;ll see a new changeset there. Its &ldquo;Branch&rdquo; will
 correspond with the value of <code>&lt;upstream_branch&gt;</code>, while the &ldquo;Topic&rdquo; will
 correspond with the value of <code>&lt;topic_branch&gt;</code> (i.e. your local branch).</p>
-
 <p><strong>NOTE:</strong> In Gerrit, the &ldquo;Branch&rdquo; means the Git branch that the commit is meant
 for. However, the &ldquo;Topic&rdquo; has no bearing on the actual underlying repo. Instead
 it is merely used to gather similar changes together.</p>
-
 <h2 id="reworking-a-changeset">Reworking a changeset</h2>
-
 <p>No one&rsquo;s perfect, and neither is your code. When you need to rework some, you
 do so using the <code>rebase</code> and <code>commit --amend</code> tools. For example:</p>
-
 <pre><code>[make changes...]
 $ git commit -a --amend
 $ git review &lt;upstream_branch&gt;
 </code></pre>
-
 <p>Alternatively</p>
-
 <pre><code>$ git rebase -i &lt;ancestor&gt;
 [make changes...]
 $ git review &lt;upstream_branch&gt;
 </code></pre>
-
 <p><strong>NOTE:</strong> If you delete a commit using rebase, you <em>will</em> need to manually
 abandon it. Unfortunately there doesn&rsquo;t seem to be any way to avoid this.</p>
-
 <h2 id="collaboration">Collaboration</h2>
-
 <p>If you want to review/rework someone else&rsquo;s changes, it&rsquo;s very easy to do. This
 is great for collaboration/pair-programming.</p>
-
 <p>To check out someone else&rsquo;s code, you&rsquo;ll want the &ldquo;change id&rdquo;. When you have
 this, just use the following change:</p>
-
 <pre><code>$ git review -d &lt;change_id&gt;
 </code></pre>
-
 <p>This will checkout the change, and all changes that it depends on (i.e. the
 branch).</p>
 

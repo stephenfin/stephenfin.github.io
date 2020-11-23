@@ -83,19 +83,15 @@
     <p>I started Evolution this morning and noticed half of my calendar events were
 missing. Attempts to refresh said calendar resulted in the following errors
 message:</p>
-
 <blockquote>
 <p>The calendar backend servicing &ldquo;XXX&rdquo; encountered an error.</p>
-
 <p>The reported error was “SQLite error code &lsquo;11&rsquo;: database disk image is
 malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.</p>
 </blockquote>
-
 <p>Just the start I wanted to my Friday morning. Unfortunately the Evolution
 documentation didn&rsquo;t provided any guidelines on fixing a corrupted database and
 the best advice I found, aside from deleting and recreating the account in
 Evolution, was to run an integrity check on the offending database <a href="https://ubuntuforums.org/showthread.php?t=2215232#post12978225">[1]</a>.</p>
-
 <p>I knew from this guide that my main Evolution configuration was stored in
 <code>.local/share/evolution</code>, but a look through the <code>calendar</code> subdirectory yielded
 nothing. Googling <code>ECacheObjects</code> curiously didn&rsquo;t bring anything up, but a
@@ -103,11 +99,9 @@ search on GitHub did identify the offending service, <code>evolution-data-server
 <a href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/src/libebackend/e-cache.h">[2]</a>. Unfortunately while I was able to find something that look like
 directory containing &ldquo;private data&rdquo; <a href="https://github.com/GNOME/evolution-data-server/blob/3abbcce2ea/CMakeLists.txt#L178">[3]</a>, I didn&rsquo;t know what build
 configuration had been used and couldn&rsquo;t find the folder locally.</p>
-
 <p>Now Linux provides a very helpful feature where it show all files currently
 marked as open by a given process. To use this, I first needed to find the
 process responsible for maintaining the calendar.</p>
-
 <pre><code>$ ps aux | grep evolution
 sfinucan  2552  0.0  0.3 1717928 59912 ?       SLsl Dec07   0:02 /usr/libexec/evolution-source-registry
 sfinucan  2616  0.0  0.2 1242008 50640 ?       Ssl  Dec07   0:00 /usr/libexec/evolution-calendar-factory
@@ -120,12 +114,9 @@ sfinucan  2925  0.0  0.2 1536780 54080 tty2    Sl+  Dec07   0:00 /usr/libexec/ev
 sfinucan  9496  0.0  0.2 1443748 59028 ?       SLl  10:27   0:00 /usr/libexec/evolution-addressbook-factory-subprocess --factory google [...]
 sfinucan  9503  2.0  1.6 4220880 332836 tty2   SLl+ 10:27   0:32 evolution
 sfinucan 10611  0.0  0.0 119728   972 pts/1    S+   10:55   0:00 grep --color=auto evolution
-</code></pre>
-
-<p>This looked promising and I took the <code>evolution-calendar-factory-subprocess</code>
+</code></pre><p>This looked promising and I took the <code>evolution-calendar-factory-subprocess</code>
 process with the <code>caldav</code> <em>factory</em> to be the most likely candidate. Let&rsquo;s
 see what this has open.</p>
-
 <pre><code>$ ls -l /proc/2696/fd | grep *.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  7 21:39 12 -&gt; /home/sfinucan/.cache/evolution/calendar/fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 13 -&gt; /home/sfinucan/.cache/evolution/calendar/853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
@@ -136,16 +127,11 @@ lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 17 -&gt; /home/sfinucan/.cache/e
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 18 -&gt; /home/sfinucan/.cache/evolution/calendar/6d11aa1cdaf7e1a1c7ff83b464f319b8bf0b8b08/cache.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 22 -&gt; /home/sfinucan/.cache/evolution/calendar/f90f25baabe8d65bb2d1d8197dac7a450bcb46e7/cache.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 23 -&gt; /home/sfinucan/.cache/evolution/calendar/fd8b197130da0ca054ab698175e0b3dd16e1b52d/cache.db
-</code></pre>
-
-<p>That looks promising. Time to kill the various <code>evolution</code> processes and go
+</code></pre><p>That looks promising. Time to kill the various <code>evolution</code> processes and go
 fix those databases.</p>
-
 <pre><code>$ sudo pkill evolution
 $ sudo pkill -9 evolution-*
-</code></pre>
-
-<pre><code>$ $ for i in $(find . -path &quot;./trash&quot; -prune -o -name &quot;cache.db&quot; -print); do
+</code></pre><pre><code>$ $ for i in $(find . -path &quot;./trash&quot; -prune -o -name &quot;cache.db&quot; -print); do
 → echo &quot;$i&quot;;
 → sqlite3 &quot;$i&quot; &quot;pragma integrity_check;&quot;;
 → done
@@ -197,16 +183,11 @@ Error: database disk image is malformed
 ok
 ./6e9502d1c38772667d06ed809e1012bb0178a62d/cache.db
 ok
-</code></pre>
-
-<p>We have our offending database. Now, we could simply remove this and be done
+</code></pre><p>We have our offending database. Now, we could simply remove this and be done
 but, to be honest, I don&rsquo;t really trust the rest of them now. Seeing as
 everything is already stored in the cloud, I can simply delete these caches.</p>
-
 <pre><code>$ rm -f .
-</code></pre>
-
-<p>Problem solved.</p>
+</code></pre><p>Problem solved.</p>
 
   </article>
 

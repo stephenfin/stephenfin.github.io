@@ -80,9 +80,7 @@
   </div>
 
   <article>
-    
-
-<p>The libvirt driver in the OpenStack Compute service (nova) has supported
+    <p>The libvirt driver in the OpenStack Compute service (nova) has supported
 instance NUMA topologies for a number of releases. A NUMA topology can be added
 to an instance either explicitly, using the <code>hw:numa_nodes=N</code> flavor extra
 spec, or implicitly, by requesting a specific mempage size
@@ -91,54 +89,41 @@ historical reasons, it is not possible to request memory pages or CPU pinning
 without getting a NUMA topology meaning every pinned instance or instance with
 hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
 topology associated with it.</p>
-
-<aside class="admonition note">
-    
-    
-    <div class="admonition-content">
-For most of the extra specs mentioned here and below, there exists an
-equivalent image metadata property. These are omitted here for brevity.
-</div>
-</aside>
-
+<!-- raw HTML omitted -->
+<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
+</code></pre>
+<p>For most of the extra specs mentioned here and below, there exists an
+equivalent image metadata property. These are omitted here for brevity.</p>
+<!-- raw HTML omitted -->
 <p>For yet more historical reasons, nova has gained a number of configuration
 options that only apply to these instances with NUMA topologies or those
 without. This article aims to discuss the implications of one of these,
 <code>vcpu_pin_set</code>, through a number of relevant examples.</p>
-
-<h2 id="overview-of-vcpu-pin-set">Overview of <code>vcpu_pin_set</code></h2>
-
+<h2 id="overview-of-vcpu_pin_set">Overview of <code>vcpu_pin_set</code></h2>
 <p>The <code>vcpu_pin_set</code> option has existed in nova for quite some time and describes
 itself as:</p>
-
 <blockquote>
 <p>Defines which physical CPUs (pCPUs) can be used by instance
 virtual CPUs (vCPUs).</p>
-
 <p>Possible values:</p>
-
 <ul>
-<li><p>A comma-separated list of physical CPU numbers that virtual CPUs can be
+<li>
+<p>A comma-separated list of physical CPU numbers that virtual CPUs can be
 allocated to by default. Each element should be either a single CPU number,
 a range of CPU numbers, or a caret followed by a CPU number to be
 excluded from a previous range. For example:</p>
-
-<pre><code>vcpu_pin_set = &quot;4-12,^8,15&quot;
-</code></pre></li>
+<pre><code>  vcpu_pin_set = &quot;4-12,^8,15&quot;
+</code></pre>
+</li>
 </ul>
 </blockquote>
-
 <p>This config option has two purposes. Firstly, the placement service uses it to
 generate the amount of <code>VCPU</code> resources available on a given host using the
 following formula:</p>
-
 <pre><code>(SUM(CONF.vcpu_pin_set) * CONF.cpu_allocation_ratio) - CONF.reserved_host_cpus
 </code></pre>
-
 <p>(where <code>SUM</code> is the sum of CPUs expressed by the CPU mask).</p>
-
-<p>How we do this can be seen at <a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754"><a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754">1</a></a>, <a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661"><a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661">2</a></a>, <a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935"><a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935">3</a></a>.</p>
-
+<p>How we do this can be seen at [<a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754">1</a>]<a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754">1</a>, [<a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661">2</a>]<a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661">2</a>, [<a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935">3</a>]<a href="https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935">3</a>.</p>
 <p>The number of <code>VCPU</code> resources impacts instances regardless of whether they
 have a NUMA topology or not since potential NUMA/non-NUMA&rsquo;ness is not
 considered at this early stage of scheduling. However, once allocation
@@ -154,19 +139,13 @@ which of these host cores can be used and allows you to do things like exclude
 every core from a host NUMA node. However, since instances without a NUMA
 topology are entirely floating and are not limited to any host NUMA node, this
 option is totally ignored.</p>
-
 <h2 id="examples">Examples</h2>
-
 <p>Let&rsquo;s look at some examples of how this would be reflected in the real world.
 For all these examples, consider a host with two sockets and two CPUs with four
 cores and no hyperthreading (so eight CPUs).</p>
-
-<p><img src="https://that.guru/media/cpu-resources_host-topology.png" alt="Non-NUMA instances without `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_host-topology.png" alt="Non-NUMA instances without vcpu_pin_set"></p>
 <p><em>The host NUMA topology with two sockets and four cores per socket</em></p>
-
 <p>We can see the resources that this reports like so:</p>
-
 <pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
     6a969900-bbf7-4725-959b-2db3092933b0 VCPU
 +------------------+-------+
@@ -180,25 +159,17 @@ cores and no hyperthreading (so eight CPUs).</p>
 | total            | 8     |
 +------------------+-------+
 </code></pre>
-
 <h3 id="non-numa">Non-NUMA</h3>
-
 <p>First, consider an instance without a NUMA topology:</p>
-
 <pre><code>$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
 $ openstack server create --flavor test-flavor ... test-server
 </code></pre>
-
 <p>As this instance does not have a NUMA topology, the instance will float across
 all host cores with no regard for NUMA affinity.</p>
-
-<p><img src="https://that.guru/media/cpu-resources_non-numa.png" alt="Non-NUMA instances without `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_non-numa.png" alt="Non-NUMA instances without vcpu_pin_set"></p>
 <p><em>The host NUMA topology is ignored for instances without a NUMA topology.</em></p>
-
 <p>If we look at what placement is reporting, we can see that our inventory has
 changed accordingly:</p>
-
 <pre><code>$ openstack --os-placement-api-version 1.18 resource provider usage show \
     6a969900-bbf7-4725-959b-2db3092933b0
 +----------------+-------+
@@ -209,17 +180,13 @@ changed accordingly:</p>
 | DISK_GB        |     0 |
 +----------------+-------+
 </code></pre>
-
 <p>Now let&rsquo;s use <code>vcpu_pin_set</code> to exclude the cores from host NUMA node <code>0</code> as
 seen in the sample <code>nova.conf</code> below, then restart the service:</p>
-
 <pre><code>[DEFAULT]
 vcpu_pin_set = 4-7
 </code></pre>
-
 <p>If we examine the number of resources available in placement, we can see that
 it has changed:</p>
-
 <pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
     6a969900-bbf7-4725-959b-2db3092933b0 VCPU
 +------------------+-------+
@@ -233,42 +200,29 @@ it has changed:</p>
 | total            | 4     |
 +------------------+-------+
 </code></pre>
-
 <p>Unfortunately though, because the instance does not have a NUMA topology, this
 option is completely ignored when actually booting the instance. As above, the
 instance continues to run across the entire range of host cores.</p>
-
-<p><img src="https://that.guru/media/cpu-resources_non-numa.png" alt="Non-NUMA instances with `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_non-numa.png" alt="Non-NUMA instances with vcpu_pin_set"></p>
 <p><em>The <code>vcpu_pin_set</code> option is also ignored for instances without a NUMA
 topology.</em></p>
-
 <h3 id="numa-no-pinning">NUMA, no pinning</h3>
-
 <p>Next, consider an instance with a NUMA topology. We can create such an instance
 like so:</p>
-
 <pre><code>$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
 $ openstack flavor set --property hw:numa_nodes=1 test-flavor
 $ openstack server create --flavor test-flavor ... test-server
 </code></pre>
-
 <p>Because this instance has a NUMA topology, the instance will be confined to
 cores from a single host NUMA node.</p>
-
-<p><img src="https://that.guru/media/cpu-resources_numa_wo_vcpu_pin_set.png" alt="NUMA instances without `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_numa_wo_vcpu_pin_set.png" alt="NUMA instances without vcpu_pin_set"></p>
 <p><em>The host NUMA topology is considered for instances with a NUMA topology.</em></p>
-
 <p>Now, once again we&rsquo;ll use <code>vcpu_pin_set</code> to exclude the cores from host NUMA
 node <code>0</code> via <code>nova.conf</code>:</p>
-
 <pre><code>[DEFAULT]
 vcpu_pin_set = 4-7
 </code></pre>
-
 <p>And again we&rsquo;ll see this change in what&rsquo;s reported to placement:</p>
-
 <pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
     6a969900-bbf7-4725-959b-2db3092933b0 VCPU
 +------------------+-------+
@@ -282,41 +236,29 @@ vcpu_pin_set = 4-7
 | total            | 4     |
 +------------------+-------+
 </code></pre>
-
 <p>This time <code>vcpu_pin_set</code> will actually be respected and we&rsquo;ll see it reflected
 in the host cores used by the instance.</p>
-
-<p><img src="https://that.guru/media/cpu-resources_numa_w_vcpu_pin_set.png" alt="NUMA instances with `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_numa_w_vcpu_pin_set.png" alt="NUMA instances with vcpu_pin_set"></p>
 <p><em>The <code>vcpu_pin_set</code> option is respected for instances with a NUMA topology, so
 cores <code>0-3</code> are excluded.</em></p>
-
 <h3 id="numa-with-pinning">NUMA, with pinning</h3>
-
 <p>Finally, let&rsquo;s consider pinned instances. We can create such an instance like
 so:</p>
-
 <pre><code>$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
 $ openstack flavor set --property hw:cpu_policy=dedicated test-flavor
 $ openstack server create --flavor test-flavor ... test-server
 </code></pre>
-
 <p>As noted previously, these have an implicit NUMA topology but whereas every
 core of an unpinned instance is mapped to the same range of host cores, the
 cores of pinned instances are mapped to their own individual host cores.</p>
-
-<p><img src="https://that.guru/media/cpu-resources_pinning_wo_vcpu_pin_set.png" alt="Pinned instances without `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_pinning_wo_vcpu_pin_set.png" alt="Pinned instances without vcpu_pin_set"></p>
 <p>Because they have a NUMA topology, pinned instances also respect
 <code>vcpu_pin_set</code>. As always, we can use <code>vcpu_pin_set</code> to exclude the cores from
 host NUMA node <code>0</code> via <code>nova.conf</code>:</p>
-
 <pre><code>[DEFAULT]
 vcpu_pin_set = 4-7
 </code></pre>
-
 <p>As always, we&rsquo;ll see this reflected in placement:</p>
-
 <pre><code>$ openstack --os-placement-api-version 1.18 resource provider inventory show \
     6a969900-bbf7-4725-959b-2db3092933b0 VCPU
 +------------------+-------+
@@ -330,22 +272,16 @@ vcpu_pin_set = 4-7
 | total            | 4     |
 +------------------+-------+
 </code></pre>
-
 <p>And because pinned instances also have a NUMA topology, we&rsquo;ll also see this
 reflected in the host cores used by the instance.</p>
-
-<p><img src="https://that.guru/media/cpu-resources_pinning_w_vcpu_pin_set.png" alt="Pinned instances with `vcpu_pin_set`" /></p>
-
+<p><img src="https://that.guru/media/cpu-resources_pinning_w_vcpu_pin_set.png" alt="Pinned instances with vcpu_pin_set"></p>
 <p><em>The <code>vcpu_pin_set</code> option is also respected for instances with CPU pinning.</em></p>
-
 <p>However, it&rsquo;s worth noting here that pinned instances cannot be overcommited.
 Despite the fact that we have an <code>allocation_ratio</code> of 16.0, we can only
 schedule <code>total</code> instances cores. These cores also can&rsquo;t be spread across host
 NUMA nodes unless you&rsquo;ve specifically said otherwise (via the
 <code>hw:numa_nodes=N</code> flavor extra spec).</p>
-
 <h2 id="summary">Summary</h2>
-
 <p>The <code>vcpu_pin_set</code> option is used to generate the amount of <code>VCPU</code> resources
 available in placement but it otherwise has no effect on instances without a
 NUMA topology. For instances with a NUMA topology, it also controls the host

@@ -80,29 +80,21 @@
   </div>
 
   <article>
-    
-
-<p>OpenStack Nova allows the specification of <a href="http://docs.openstack.org/image-guide/image-metadata.html">image metadata</a> to
+    <p>OpenStack Nova allows the specification of <a href="http://docs.openstack.org/image-guide/image-metadata.html">image metadata</a> to
 provide per-instance metadata. This is similar to the <a href="http://docs.openstack.org/admin-guide/compute-flavors.html">flavor</a> <a href="http://docs.openstack.org/admin-guide/compute-flavors.html#extra-specs">extra
 specs</a>. The CPU pinning feature makes use of this to allow for
 configuration of CPU policies and CPU thread policies via such metdata.</p>
-
 <p>Someone suggested to me that CPU policies many not be being applied correctly
 when stored as image metadata rather than flavor properties. I decided to
 investigate this claim.</p>
-
 <p>Commit <a href="https://github.com/openstack/nova/tree/8bafc9"><code>8bafc9</code></a> of Nova was used for this testing. Much of
 this feature has been <a href="http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html">documented upstreamed</a> since conducting
 this testing.</p>
-
 <h1 id="steps">Steps</h1>
-
 <h2 id="create-a-custom-image-with-metadata">Create a custom image with metadata</h2>
-
 <p>The first step is to create a new image and save metadata against this image.
 To do this, we&rsquo;ll duplicate an existing image and modify this duplicate. Begin
 by duplicating the image:</p>
-
 <pre><code>$ openstack image list
 +--------------------------------------+---------------------------------+--------+
 | ID                                   | Name                            | Status |
@@ -138,10 +130,8 @@ $ openstack image create --file cirros.img cirros-0.3.4-x86_64-pinned
 | visibility       | private                                              |
 +------------------+------------------------------------------------------+
 </code></pre>
-
 <p>Next up, add the metadata to the image. We&rsquo;ll only worry about CPU pinning, by
 way of CPU policies, ignoring CPU thread pinning for now.</p>
-
 <pre><code>$ openstack image set cirros-0.3.4-x86_64-pinned --property hw_cpu_policy=dedicated
 
 $ openstack image list
@@ -179,12 +169,9 @@ $ openstack image show cirros-0.3.4-x86_64-pinned
 | visibility       | private                                              |
 +------------------+------------------------------------------------------+
 </code></pre>
-
 <h2 id="create-a-new-instance">Create a new instance</h2>
-
 <p>Now create the flavor. There&rsquo;s no need to specify any metadata on the flavors:
 it&rsquo;s already specified in the image:</p>
-
 <pre><code>$ openstack flavor list
 +----+-----------+-------+------+-----------+-------+-----------+
 | ID | Name      |   RAM | Disk | Ephemeral | VCPUs | Is Public |
@@ -200,12 +187,9 @@ it&rsquo;s already specified in the image:</p>
 
 $ openstack server create --flavor=m1.small --image=cirros-0.3.4-x86_64-pinned --wait test1
 </code></pre>
-
 <h2 id="validate-that-the-instance-has-been-created">Validate that the instance has been created</h2>
-
 <p>Finally, ensure that things behave as expected. Instances should define an NUMA
 topology and CPU pinning in the libvirt XML file:</p>
-
 <pre><code>$ openstack server list
 +--------------------------------------+-------+--------+--------------------------------------------------------+
 | ID                                   | Name  | Status | Networks                                               |
@@ -235,13 +219,9 @@ $ sudo virsh dumpxml 4
   ...
 &lt;/domain&gt;
 </code></pre>
-
 <h1 id="result">Result</h1>
-
 <p>The image metadata is being loaded as expected. No issues here.</p>
-
 <h1 id="references">References</h1>
-
 <ul>
 <li><a href="http://docs.openstack.org/admin-guide/compute-flavors.html">OpenStack Administrator Guide: Compute flavors</a></li>
 <li><a href="http://docs.openstack.org/admin-guide/compute-numa-cpu-pinning.html">OpenStack Administrator Guide: Enabling advanced CPU topologies in

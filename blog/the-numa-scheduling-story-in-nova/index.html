@@ -80,40 +80,34 @@
   </div>
 
   <article>
-    
-
-<p>If I had a euro for every time someone had asked me or someone else working on
+    <p>If I had a euro for every time someone had asked me or someone else working on
 nova for the ability to schedule an instance to a specific host NUMA node, I
 might never have to leave the pub (back in halcyon days pre-COVID-19 when pubs
 were still a thing, that is).</p>
-
 <p>Below is an edited version of a response one of my friends and colleagues,
 <a href="https://github.com/SeanMooney">Sean Mooney</a>, provided to a Red Hat partner asking just this question
 recently. This information is accurate as of the OpenStack 21.0.0 (Ussuri)
 release but is subject to change in future releases.</p>
-
-<h2 id="what-s-wrong-with-choosing-a-host-numa-node">What&rsquo;s wrong with choosing a host NUMA node?</h2>
-
+<h2 id="whats-wrong-with-choosing-a-host-numa-node">What&rsquo;s wrong with choosing a host NUMA node?</h2>
 <p>In almost all cases when we discuss the motivation for this request with
 people, we discover that selecting host CPUs or NUMA nodes via the flavor is
 not actually what they wanted to do. Rather, it is seen as a means to an end
 recommended by people familiar with virtualisation technologies but not with
 cloud platforms. There are a number of reasons this is not considered an
 acceptable solution in a cloud context. To summarize:</p>
-
 <ul>
-<li><p>It is seen as a potential security concern for public clouds.</p>
-
+<li>
+<p>It is seen as a potential security concern for public clouds.</p>
 <p>To correctly understand which flavor to use when flavors can map to host
 resources like CPUs or NUMA nodes would require knowledge of the underlying
 hardware. This information can be used by a malicious user as a DDOS vector
 as they could intentionally place their instance on the same NUMA node
 (opening the opportunity to exhaust memory bandwidth of a NUMA node) and
 host as their victim. It also exposes information about what hardware a
-cloud is running indirectly that many clouds would prefer not to share.</p></li>
-
-<li><p>It is a violation of the cloud abstraction.</p>
-
+cloud is running indirectly that many clouds would prefer not to share.</p>
+</li>
+<li>
+<p>It is a violation of the cloud abstraction.</p>
 <p>OpenStack is a cloud platform intended to provide a consistent API across
 multiple backend implementations of services. In fact, cloud abstraction is
 a key element of the <a href="https://docs.openstack.org/nova/latest/contributor/project-scope.html#driver-parity">nova project scope</a>. Virtual NUMA topologies are
@@ -123,10 +117,10 @@ virt drivers in many aspects, nova does strive to keep the differences to a
 minimum. If we were to encode the semantics of how virtual resources map to
 physical resources, we would exclude the possibility of achieving
 interoperability between different drivers or different clouds as well as
-create barriers to adopting features across multiple drivers.</p></li>
-
-<li><p>It makes our clouds much smaller and less useful.</p>
-
+create barriers to adopting features across multiple drivers.</p>
+</li>
+<li>
+<p>It makes our clouds much smaller and less useful.</p>
 <p>Encoding host specific resource assignment information severely limits the
 available hosts that can be used to create an instance. It complicates move
 operations and makes the maintainability and extensibility of the scheduler
@@ -135,15 +129,13 @@ flavors for a VM that runs on node 5 vs node 6 and the additional cognitive
 load that this puts on the end user is a failure in API design. Instead of
 expressing an abstract policy, the end user and operator needs to
 understand the intricate mechanics of how the workload compute context is
-created.</p></li>
+created.</p>
+</li>
 </ul>
-
 <p>There are additional reasons to those listed above, but these alone should
 serve to illustrate that this is not oversight in how nova currently functions
 but rather a very deliberate design choice that we do not want to remove.</p>
-
-<h2 id="but-we-really-need-this-so-why-can-t-you-special-case-it-for-us">But we really need this, so why can&rsquo;t you special case it for us?</h2>
-
+<h2 id="but-we-really-need-this-so-why-cant-you-special-case-it-for-us">But we really need this, so why can&rsquo;t you special case it for us?</h2>
 <p>If you were willing to ignore all of the above, and the many other reasons for
 not doing this, you might tempted to think that you could maybe hack this in
 anyway. After all, extra specs have long been one of the untamed corners of
@@ -151,7 +143,6 @@ nova (at least, they were until <a href="https://specs.openstack.org/openstack/n
 unlikely that this will even be an option for reasons to do with how we&rsquo;ve
 handled scheduling in nova in the past and how we&rsquo;re planning to evolve it in
 the future.</p>
-
 <p>As you may or may not be aware, there has been a multi-year effort to evolve
 the tracking of resources in OpenStack. This effort predates the creation of
 the placement service but was the primary reason for its existence. Nova has a
@@ -159,7 +150,6 @@ multi-layer scheduling approach, the first step of which is delegated to the
 placement service, followed by filtering and then weighing. Following
 scheduling (that is, the act of selecting a host) there is then a resource
 assignment phase that is performed by the virt driver.</p>
-
 <p>While the scheduling and resource assignment steps are heavily linked, they are
 <strong>independent</strong> operations. To put this in concrete terms, while the NUMA
 topology filter has input into selecting a host, by determining whether a given
@@ -167,22 +157,24 @@ NUMA topology can be created on a given host, it has no input into selecting
 which NUMA nodes on the host will be used for the VM. That decision is made
 entirely by the virt driver during the assignment phase. The three phases of
 nova scheduling today are summarised as follows:</p>
-
 <ol>
-<li><p>The placement service is queried for a set of allocation candidates
+<li>
+<p>The placement service is queried for a set of allocation candidates
 (potential hosts your instance can be scheduled to) that represent resource
 allocation on hosts that can fulfil the quantitative and qualitative
-requirement of the resources requested for an instance.</p></li>
-
-<li><p>The hosts represented by those allocation candidates are filtered based
+requirement of the resources requested for an instance.</p>
+</li>
+<li>
+<p>The hosts represented by those allocation candidates are filtered based
 primarily on non-resource related attributes such as server group affinity
 or anti-affinity constraints and resources and topologies that are not yet
 modeled in placement, such as PCI devices and hugepages and various NUMA
-affinity metrics.</p></li>
-
-<li><p>The filtered hosts are weighed to select an optimal host.</p></li>
+affinity metrics.</p>
+</li>
+<li>
+<p>The filtered hosts are weighed to select an optimal host.</p>
+</li>
 </ol>
-
 <p>Up until now, placement, which has a global hierarchical view of resources from
 multiple services, has largely operated on the basis of tracking a simple tally
 count of resources on a given host. When it was originally created, placement
@@ -195,7 +187,6 @@ it can know how much of each resource is still available. It can then use this
 capacity information in addition to some qualitative traits (e.g. this host
 has SSD storage while this host does not) to produce a set of potential
 allocation candidates.</p>
-
 <p>As we have evolved from this simple view, we have extended the placement API to
 support nested resource providers, allowing us to convert a flat view of a
 host&rsquo;s resources into a tree data structure. There were many reasons for this
@@ -206,7 +197,6 @@ inventory in placement as well as consider NUMA affinity for things like vGPUs
 effort will likely not begin until the NUMA-in-placement effort is complete).
 There are two implications of this work that would prevent a &ldquo;boot on NUMA node
 N&rdquo; feature in the future.</p>
-
 <p>Firstly, doing this work will allow us to remove the NUMA topology filter in
 the future, increasing scheduler performance among other things but you do not
 get this performance for free. In the case of placement, the trade-off is in
@@ -223,7 +213,6 @@ virt driver is constrained to only looking at a subset of hardware that
 correlates with the placement allocation and it will no longer be possible to,
 for example, ensure that a given instance is pinned to CPUs from a specific
 NUMA node.</p>
-
 <p>Secondly, it&rsquo;s important to realize that the resource topology reported to
 placement will be determined by the virt driver that reports them.  For
 example, ironic hosts are represented using a single custom resource class
@@ -240,7 +229,6 @@ cloud, they may offer PowerVM hosts. Since each of these compute contexts may
 support assigning host resources to instances in different ways we cannot make
 it an API requirement to pin the instance to NUMA node N based on a flavor
 extra spec.</p>
-
 <p>Taken together, the continued effort to move tracking of all resource to
 placement means any effort to map a given instance to a specific host NUMA node
 is dead on arrival. We can achieve what&rsquo;s necessary, but it can and should be

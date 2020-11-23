@@ -80,50 +80,40 @@
   </div>
 
   <article>
-    
-
-<p>I&rsquo;ve only ever really worked with HTML and man page builds for the documentation
+    <p>I&rsquo;ve only ever really worked with HTML and man page builds for the documentation
 various of <a href="https://docs.openstack.org/">various OpenStack projects</a>. However, OpenStack uses Sphinx
 across the board and Sphinx, being the awesome tool that it is, supports many
 other output formats. In this instance, I was interested in <em>PDF</em>.</p>
-
 <p>Sphinx doesn&rsquo;t actually provide a native PDF builder (<a href="http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.latex.LaTeXBuilder">although other packages
 do</a>). Instead, you have to generate LaTeX sources and then generate a PDF for
 this. This means you need to have a pretty well fleshed out TeX installation.
 As such, the first step is to install the dependencies.</p>
-
 <h2 id="install-dependencies">Install dependencies</h2>
-
 <p>We need a number of packages to build the LaTeX sources and convert them into a
 PDF. I&rsquo;m using Fedora 27 which means package names may need to be adjusted
 accordingly. Do note, however, that these names should work equally well on RHEL
 and RHEL derivatives like CentOS).</p>
-
 <ul>
-<li><p><code>texlive</code> (TeX Live)</p>
-
+<li>
+<p><code>texlive</code> (TeX Live)</p>
 <p>Per the description of this package in the Fedora repos.</p>
-
 <blockquote>
 <p>The TeX Live software distribution offers a complete TeX system for a
 variety of Unix, Macintosh, Windows and other platforms. It encompasses
 programs for editing, typesetting, previewing and printing of TeX
 documents in many different languages, and a large collection of TeX
 macros and font libraries.</p>
-
 <p>The distribution includes extensive general documentation about TeX, as
 well as the documentation for the included software packages.</p>
 </blockquote>
-
 <p>This is the basic thing we need to actually build LaTeX documents and
 convert them to PDF. The package itself includes multiple other
 dependencies, either because they are necessary for a minimal install or
-they form a standard library of sorts. I&rsquo;m not sure which.</p></li>
-
-<li><p><code>latexmk</code></p>
-
+they form a standard library of sorts. I&rsquo;m not sure which.</p>
+</li>
+<li>
+<p><code>latexmk</code></p>
 <p>Per the description of this package in the Fedora repos.</p>
-
 <blockquote>
 <p>latexmk is a perl script for running LaTeX the correct number of times to
 resolve cross references, etc.; it also runs auxiliary programs (bibtex,
@@ -134,14 +124,12 @@ that the previewer gives an up-to-date view of the document.  The script
 runs on both UNIX and MS-WINDOWS (95, ME, XP, etc).  This script is a
 corrected and improved version of the original version of latexmk.</p>
 </blockquote>
-
 <p>This is a tool that Sphinx uses, via some makefiles it includes with the
-built sources to ease converting the built LaTeX sources into PDFs.</p></li>
+built sources to ease converting the built LaTeX sources into PDFs.</p>
+</li>
 </ul>
-
 <p>You also need a variety of other packages which aren&rsquo;t included as part of the
 <code>texlive</code> installation. The base Sphinx template has the following requirements.</p>
-
 <ul>
 <li><code>texlive-fncychap</code></li>
 <li><code>texlive-titlesec</code></li>
@@ -152,81 +140,59 @@ built sources to ease converting the built LaTeX sources into PDFs.</p></li>
 <li><code>texlive-capt-of</code></li>
 <li><code>texlive-needspace</code></li>
 </ul>
-
 <p>In addition, <code>openstackdocstheme</code>, the theme used for all official OpenStack
 projects, provides a LaTeX template with the following dependencies.</p>
-
 <ul>
 <li><code>texlive-polyglossia</code></li>
 </ul>
-
-<aside class="admonition note">
-    
-    
-    <div class="admonition-content">
-I built this list manually by running `make` and then installing whatever
-dependency `latexmk` complained about. There's probably easier ways to do this,
-such as installing a larger package but I'm not aware of it at this time.
-</div>
-</aside>
-
+<!-- raw HTML omitted -->
+<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
+</code></pre>
+<p>I built this list manually by running <code>make</code> and then installing whatever
+dependency <code>latexmk</code> complained about. There&rsquo;s probably easier ways to do this,
+such as installing a larger package but I&rsquo;m not aware of it at this time.</p>
+<!-- raw HTML omitted -->
 <p>Installation of all the above.</p>
-
 <pre><code>$ sudo dnf install texlive latexmk texlive-fncychap texlive-titlesec \
     texlive-tabulary texlive-framed texlive-wrapfig texlive-upquote \
     texlive-capt-of texlive-needspace texlive-polyglossia
 </code></pre>
-
 <h2 id="get-some-documentation">Get some documentation</h2>
-
 <p>I didn&rsquo;t have specific project in mind, so I&rsquo;ve decided to build the project
 documentation for the <code>openstackdocstheme</code> project. As mentioned previously,
 this project provides <a href="https://github.com/openstack/openstackdocstheme">the theme used for all Official OpenStack projects</a>.
-Given that this is the base for most projects&rsquo; documentation, it figures that
+Given that this is the base for most projects' documentation, it figures that
 it contains all the necessary configuration to build PDFs. If, however, you are
 planning to build docs for some other project, you should ensure that this is
 project is <a href="https://docs.openstack.org/openstackdocstheme/latest/">configured correctly for PDF builds</a>.</p>
-
 <p>To begin, clone the repo locally.</p>
-
 <pre><code>$ git clone https://github.com/openstack/openstackdocstheme
 </code></pre>
-
 <p>Once cloned, create a virtual environment and install the dependencies.</p>
-
 <pre><code>$ virtualenv .venv
 $ source .venv
 $ pip install -e .
 </code></pre>
-
 <p>In the case of <code>openstackdocstheme</code>, Sphinx isn&rsquo;t installed by default.
 Let&rsquo;s install that too.</p>
-
 <pre><code>$ pip install Sphinx
 </code></pre>
-
 <h2 id="build-the-docs">Build the docs</h2>
-
 <p>Now that we have both our dependencies and source documentation in place, it&rsquo;s
 time to actually build some PDFs. Sphinx actually provides a number of helpful
 targets in the Makefile generated by <code>sphinx-quickstart</code>. However, OpenStack
 projects don&rsquo;t tend to use these so we&rsquo;re going to take the (still exceedingly
 simple) two-step process. Firstly, build the LaTeX sources. Seeing as this is a
 Python project, we&rsquo;re going to use the <a href="http://www.sphinx-doc.org/en/stable/setuptools.html">setuptools integration</a>.</p>
-
 <pre><code>$ python setup.py build_sphinx -b latex
 </code></pre>
-
 <p>All OpenStack projects place their documentation source and builds in
 <code>doc/source</code> and <code>doc/build</code> respectively. The above command should generate a
 number of files in <code>doc/build/latex</code> including a very helpful makefile. We&rsquo;re
 going to use that now to complete the process of generating a PDF.</p>
-
 <pre><code>$ make -C doc/build/latex
 </code></pre>
-
 <p>This should emit a <strong>lot</strong> of text, followed by something that looks like this.</p>
-
 <pre><code>Output written on os-doc-demo.pdf (23 pages).
 Transcript written on os-doc-demo.log.
 === TeX engine is 'XeTeX'
@@ -234,7 +200,6 @@ Latexmk: Index file 'os-doc-demo.idx' was written
 Latexmk: Log file says output to 'os-doc-demo.pdf'
 Latexmk: All targets (os-doc-demo.pdf) are up-to-date
 </code></pre>
-
 <p>Once complete, you can find your compiled PDF in the same build directory (in
 this case, <code>doc/build/latex/os-doc-demo.pdf</code>)</p>
 
