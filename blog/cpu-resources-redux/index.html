@@ -229,12 +229,13 @@ $ openstack --os-placement-api-version 1.18 resource provider inventory show \
 | total            | 6     |
 +------------------+-------+
 </code></pre>
-<!-- raw HTML omitted -->
-<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
-</code></pre>
-<p><code>PCPU</code> inventory will always have an <code>allocation_ratio</code> or <code>1.0</code>. This is
-because pinned CPUs cannot be oversubscribed.</p>
-<!-- raw HTML omitted -->
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><code>PCPU</code> inventory will always have an <code>allocation_ratio</code> or <code>1.0</code>. This is
+because pinned CPUs cannot be oversubscribed.</div>
+</aside>
+
 <h2 id="hosts-with-mixed-pinned-and-unpinned-workloads">Hosts with mixed pinned and unpinned workloads</h2>
 <p>Finally, let&rsquo;s consider a host with both pinned and unpinned workloads. As
 discussed earlier, this was not previously possible. To do this, we must simple

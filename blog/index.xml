@@ -146,15 +146,16 @@ $ python manage.py upgrade --database &lt;span style=&#34;color:#e6db74&#34;&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, unlike SQLite, we have a specific tool available to dump the DB
 schemas - &lt;code&gt;mysqldump&lt;/code&gt;. Use that to dump the &lt;em&gt;before&lt;/em&gt; schema:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &amp;gt; nova_before.sql
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Fedora previously provided a &lt;code&gt;mysql-utilities&lt;/code&gt; package that provided a
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Fedora previously provided a &lt;code&gt;mysql-utilities&lt;/code&gt; package that provided a
 &lt;code&gt;mysqldiff&lt;/code&gt; utility for doing this exact thing. However, it was retired in
 Fedora 31 as it was no longer maintained.
-See &lt;!-- raw HTML omitted --&gt;Bugzilla&lt;!-- raw HTML omitted --&gt;
-for more details.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+See &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1691185&#34;&gt;Bugzilla&lt;/a&gt; for more
+details.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;Once we have a database instance using the &lt;em&gt;before&lt;/em&gt; schema, we can apply the
 code change and repeat the steps above, this time creating a &lt;code&gt;nova_after&lt;/code&gt;
 database. For example:&lt;/p&gt;
@@ -253,12 +254,13 @@ significantly more useful. It is explained in great detail in the nova
 Platform Modules (vTPMs) to instances. The below guide demonstrates how you can
 go about testing this feature for yourself. This work was conducted on a Fedora
 31 VM (with nested virt, though that&amp;rsquo;s not relevant) using DevStack master.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This is all very much work-in-progress at the moment. I aim to come back and
-update this if/when things are merged.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is all very much work-in-progress at the moment. I aim to come back and
+update this if/when things are merged.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;h2 id=&#34;initial-steps&#34;&gt;Initial Steps&lt;/h2&gt;
 &lt;p&gt;We&amp;rsquo;re going to use DevStack on Fedora 31 to test this. Fedora 31 is necessary
 since Ubuntu 18.04 (Bionic) does not provide new enough versions of
@@ -305,13 +307,14 @@ index dd772960..63a3dc19 100644
 &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+        $cmd_pip --ignore-installed $upgrade \
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;         $@
      result=$?
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Yes, I&amp;rsquo;m aware that there can be negative implications to this, but it&amp;rsquo;s good
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Yes, I&amp;rsquo;m aware that there can be negative implications to this, but it&amp;rsquo;s good
 enough for our purposes here. Hopefully one of us will eventually get around to
-configuring DevStack to install in virtualenvs by default.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+configuring DevStack to install in virtualenvs by default.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;We also need to install the &lt;code&gt;swtpm&lt;/code&gt; and &lt;code&gt;swtpm_setup&lt;/code&gt; binaries. These are
 provided in the Fedora repos (yay!):&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ sudo dnf install swtpm swtpm-tools
@@ -775,12 +778,13 @@ $ openstack --os-placement-api-version 1.18 resource provider inventory show \
 | total            | 6     |
 +------------------+-------+
 &lt;/code&gt;&lt;/pre&gt;
-&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;code&gt;PCPU&lt;/code&gt; inventory will always have an &lt;code&gt;allocation_ratio&lt;/code&gt; or &lt;code&gt;1.0&lt;/code&gt;. This is
-because pinned CPUs cannot be oversubscribed.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;PCPU&lt;/code&gt; inventory will always have an &lt;code&gt;allocation_ratio&lt;/code&gt; or &lt;code&gt;1.0&lt;/code&gt;. This is
+because pinned CPUs cannot be oversubscribed.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;h2 id=&#34;hosts-with-mixed-pinned-and-unpinned-workloads&#34;&gt;Hosts with mixed pinned and unpinned workloads&lt;/h2&gt;
 &lt;p&gt;Finally, let&amp;rsquo;s consider a host with both pinned and unpinned workloads. As
 discussed earlier, this was not previously possible. To do this, we must simple
@@ -901,12 +905,13 @@ historical reasons, it is not possible to request memory pages or CPU pinning
 without getting a NUMA topology meaning every pinned instance or instance with
 hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
 topology associated with it.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;For most of the extra specs mentioned here and below, there exists an
-equivalent image metadata property. These are omitted here for brevity.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;For most of the extra specs mentioned here and below, there exists an
+equivalent image metadata property. These are omitted here for brevity.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;For yet more historical reasons, nova has gained a number of configuration
 options that only apply to these instances with NUMA topologies or those
 without. This article aims to discuss the implications of one of these,
@@ -1692,13 +1697,14 @@ screen*)
   ;;
 esac
 &lt;/code&gt;&lt;/pre&gt;
-&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This is actually a little more complicated that necessary but it with ensure
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is actually a little more complicated that necessary but it with ensure
 we get the format requested both when we&amp;rsquo;re using &lt;em&gt;tmux&lt;/em&gt; (the latter case)
-and when we are not (the former).&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+and when we are not (the former).&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;You also need to configure the following in your &lt;code&gt;.tmux.conf&lt;/code&gt; in order to
 work around the breaking change mentioned above:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;set -g allow-rename on
@@ -1895,13 +1901,14 @@ projects, provides a LaTeX template with the following dependencies.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;texlive-polyglossia&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;I built this list manually by running &lt;code&gt;make&lt;/code&gt; and then installing whatever
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;I built this list manually by running &lt;code&gt;make&lt;/code&gt; and then installing whatever
 dependency &lt;code&gt;latexmk&lt;/code&gt; complained about. There&amp;rsquo;s probably easier ways to do this,
-such as installing a larger package but I&amp;rsquo;m not aware of it at this time.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+such as installing a larger package but I&amp;rsquo;m not aware of it at this time.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;Installation of all the above.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ sudo dnf install texlive latexmk texlive-fncychap texlive-titlesec \
     texlive-tabulary texlive-framed texlive-wrapfig texlive-upquote \
@@ -1982,11 +1989,14 @@ steps are:&lt;/p&gt;
 &lt;p&gt;These are standard steps used in benchmarking as both sets of features can
 result in non-deterministic behavior.&lt;/p&gt;
 &lt;h2 id=&#34;host-os-configuration&#34;&gt;Host OS configuration&lt;/h2&gt;
-&lt;!-- raw HTML omitted --&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;div class=&amp;quot;admonition-content&amp;quot;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Most of the commands below must be run with root privileges&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+&lt;aside class=&#34;admonition important&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;
+Most of the commands below must be run with root privileges
+&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;Download and install CentOS 7.&lt;/p&gt;

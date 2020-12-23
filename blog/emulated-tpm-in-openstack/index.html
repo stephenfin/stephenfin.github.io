@@ -84,12 +84,13 @@
 Platform Modules (vTPMs) to instances. The below guide demonstrates how you can
 go about testing this feature for yourself. This work was conducted on a Fedora
 31 VM (with nested virt, though that&rsquo;s not relevant) using DevStack master.</p>
-<!-- raw HTML omitted -->
-<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
-</code></pre>
-<p>This is all very much work-in-progress at the moment. I aim to come back and
-update this if/when things are merged.</p>
-<!-- raw HTML omitted -->
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">This is all very much work-in-progress at the moment. I aim to come back and
+update this if/when things are merged.</div>
+</aside>
+
 <h2 id="initial-steps">Initial Steps</h2>
 <p>We&rsquo;re going to use DevStack on Fedora 31 to test this. Fedora 31 is necessary
 since Ubuntu 18.04 (Bionic) does not provide new enough versions of
@@ -136,13 +137,14 @@ index dd772960..63a3dc19 100644
 </span><span style="color:#f92672"></span><span style="color:#a6e22e">+        $cmd_pip --ignore-installed $upgrade \
 </span><span style="color:#a6e22e"></span>         $@
      result=$?
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
-</code></pre>
-<p>Yes, I&rsquo;m aware that there can be negative implications to this, but it&rsquo;s good
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">Yes, I&rsquo;m aware that there can be negative implications to this, but it&rsquo;s good
 enough for our purposes here. Hopefully one of us will eventually get around to
-configuring DevStack to install in virtualenvs by default.</p>
-<!-- raw HTML omitted -->
+configuring DevStack to install in virtualenvs by default.</div>
+</aside>
+
 <p>We also need to install the <code>swtpm</code> and <code>swtpm_setup</code> binaries. These are
 provided in the Fedora repos (yay!):</p>
 <pre><code class="language-console" data-lang="console">$ sudo dnf install swtpm swtpm-tools

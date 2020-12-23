@@ -89,12 +89,13 @@ historical reasons, it is not possible to request memory pages or CPU pinning
 without getting a NUMA topology meaning every pinned instance or instance with
 hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
 topology associated with it.</p>
-<!-- raw HTML omitted -->
-<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
-</code></pre>
-<p>For most of the extra specs mentioned here and below, there exists an
-equivalent image metadata property. These are omitted here for brevity.</p>
-<!-- raw HTML omitted -->
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">For most of the extra specs mentioned here and below, there exists an
+equivalent image metadata property. These are omitted here for brevity.</div>
+</aside>
+
 <p>For yet more historical reasons, nova has gained a number of configuration
 options that only apply to these instances with NUMA topologies or those
 without. This article aims to discuss the implications of one of these,

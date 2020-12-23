@@ -168,15 +168,16 @@ $ python manage.py upgrade --database <span style="color:#e6db74">&#39;mysql+pym
 </code></pre></div><p>However, unlike SQLite, we have a specific tool available to dump the DB
 schemas - <code>mysqldump</code>. Use that to dump the <em>before</em> schema:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &gt; nova_before.sql
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code>&lt;div class=&quot;admonition-content&quot;&gt;
-</code></pre>
-<p>Fedora previously provided a <code>mysql-utilities</code> package that provided a
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">Fedora previously provided a <code>mysql-utilities</code> package that provided a
 <code>mysqldiff</code> utility for doing this exact thing. However, it was retired in
 Fedora 31 as it was no longer maintained.
-See <!-- raw HTML omitted -->Bugzilla<!-- raw HTML omitted -->
-for more details.</p>
-<!-- raw HTML omitted -->
+See <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1691185">Bugzilla</a> for more
+details.</div>
+</aside>
+
 <p>Once we have a database instance using the <em>before</em> schema, we can apply the
 code change and repeat the steps above, this time creating a <code>nova_after</code>
 database. For example:</p>
