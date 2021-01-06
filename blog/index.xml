@@ -141,8 +141,12 @@ MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span st
 MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; quit;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With this created, the steps are similar to those for SQLite. Once again, we
 will use the &lt;code&gt;version_control&lt;/code&gt; and &lt;code&gt;upgrade&lt;/code&gt; management commands:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ python manage.py version_control --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-$ python manage.py upgrade --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ python manage.py version_control &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
+$ python manage.py upgrade &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, unlike SQLite, we have a specific tool available to dump the DB
 schemas - &lt;code&gt;mysqldump&lt;/code&gt;. Use that to dump the &lt;em&gt;before&lt;/em&gt; schema:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &amp;gt; nova_before.sql
@@ -168,7 +172,56 @@ $ python manage.py upgrade --database &lt;span style=&#34;color:#e6db74&#34;&gt;
 $ mysqldump --no-data --skip-comments -u nova -ppassword nova_after &amp;gt; nova_after.sql
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, diff the two schemas to identify any differences:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ diff nova_before.sql nova_after.sql
-&lt;/code&gt;&lt;/pre&gt;</description>
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;postgresql&#34;&gt;PostgreSQL&lt;/h2&gt;
+&lt;p&gt;PostgreSQL exists in a funny space in nova, where it&amp;rsquo;s technically supported
+but not many people use it. Nonetheless, there are PostgreSQL-specific
+migrations in-tree so we must test them.&lt;/p&gt;
+&lt;p&gt;Once again, this is quite similar to the above, though Postgres&#39; user model
+makes things a little more complicated. You need to create a user to run the
+operations as, but you can&amp;rsquo;t simply create this as Postgres defaults to the
+&lt;code&gt;ident&lt;/code&gt; auth (local UNIX user) scheme rather than &lt;code&gt;password&lt;/code&gt; (or, more
+specifically, &lt;code&gt;md5&lt;/code&gt;). You need to &lt;a href=&#34;https://ubuntu.com/server/docs/databases-postgresql&#34;&gt;configure &lt;code&gt;pg_hba.conf&lt;/code&gt; to enable DB-specific
+users&lt;/a&gt; and create e.g. a &lt;code&gt;nova&lt;/code&gt; user with a &lt;code&gt;password&lt;/code&gt; password.&lt;/p&gt;
+&lt;p&gt;Once the user is created, you can create the DB using the &lt;code&gt;postgres&lt;/code&gt; tool:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo -u postgres dropdb --if-exists nova_before
+$ sudo -u postgres createdb --owner&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;nova nova_before
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the DB created, the steps to generate the schema dump are once again
+quite similar to SQLite and MySQL. Using &lt;code&gt;version_control&lt;/code&gt; and &lt;code&gt;upgrade&lt;/code&gt;
+management commands once more:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ python manage.py version_control &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
+$ python manage.py upgrade &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As with MySQL, Postgres comes with a specific tool for dumping the DB schemas -
+&lt;code&gt;pg_dump&lt;/code&gt;. Use that to dump the &lt;em&gt;before&lt;/em&gt; schema:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ pg_dump postgresql://nova:password@localhost/nova_before &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --schema-only &amp;gt; nova_before.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once we have a database instance using the &lt;em&gt;before&lt;/em&gt; schema, we can apply the
+code change and repeat the steps above, this time creating a &lt;code&gt;nova_after&lt;/code&gt;
+database. For example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo -u postgres dropdb --if-exists nova_after
+$ sudo -u postgres createdb --owner&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;nova nova_after
+$ python manage.py version_control &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_after&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
+$ python manage.py upgrade &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_after&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
+$ pg_dump postgresql://nova:password@localhost/nova_after &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --schema-only &amp;gt; nova_after.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, diff the two schemas to identify any differences:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ diff nova_before.sql nova_after.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;example&#34;&gt;Example&lt;/h2&gt;
+&lt;p&gt;The below script can be used to diff the database. It should be placed in the
+root directory of the nova repo and executed from there. It relies on the
+&lt;code&gt;py36&lt;/code&gt; tox virtualenv, which you probably have on your local system already (if
+not, &lt;code&gt;tox -e py36&lt;/code&gt; will create it). It also uses a single database for each
+backend, rather than the separate &lt;code&gt;nova_before&lt;/code&gt; and &lt;code&gt;nova_after&lt;/code&gt; databases.&lt;/p&gt;
+&lt;script type=&#34;application/javascript&#34; src=&#34;https://gist.github.com/stephenfin/adc84a21f5f5ae3793f6a8ffa0b3f40f.js&#34;&gt;&lt;/script&gt;
+
+</description>
     </item>
     
     <item>
