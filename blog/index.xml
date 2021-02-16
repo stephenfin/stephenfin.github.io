@@ -73,8 +73,8 @@ host, that is provided by Fedora&amp;rsquo;s &lt;code&gt;edk2-ovmf&lt;/code&gt; 
 domain capabilities output, accessible via &lt;code&gt;virsh domcapabilities&lt;/code&gt; and
 equivalent APIs. For example, I can see what firmwares are available to me when
 using the &lt;code&gt;q35&lt;/code&gt; machine type like so:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/domainCapabilities/os&amp;#39;&lt;/span&gt; -
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This will yield:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath &#39;/domainCapabilities/os&#39; -
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This will yield:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;supported=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;yes&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;firmware&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;efi&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
@@ -133,15 +133,15 @@ You can download the Fedora 33 Workstation image from the &lt;a href=&#34;https:
 but before we do that, let&amp;rsquo;s start by ensuring that we have all required
 packages installed.  This should be as simple as installing libvirt, at least
 on a Fedora 33-based host:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo dnf install libvirt
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It should also be noted that this guide was only tested on an x86_64 host with
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ sudo dnf install libvirt
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It should also be noted that this guide was only tested on an x86_64 host with
 UEFI enabled itself, so results may vary on other platforms or on tradition
 non-UEFI installs.&lt;/p&gt;
 &lt;p&gt;Next up, let&amp;rsquo;s grab the image. As discussed above, we&amp;rsquo;re going to use the
 &lt;em&gt;Fedora 33 Workstation&lt;/em&gt; image here since it&amp;rsquo;s easy to use for testing purposes:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ cd /tmp
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ cd /tmp
 $ wget https://download.fedoraproject.org/pub/fedora/linux/releases/33/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-33-1.2.iso
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the dependencies installed and the image downloaded, we can now create our
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With the dependencies installed and the image downloaded, we can now create our
 guest or &amp;ldquo;domain&amp;rdquo;. Dump the following to e.g. &lt;code&gt;/tmp/fedora-q35-uefi.xml&lt;/code&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;domain&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kvm&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fedora-q35-uefi-experiment&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
@@ -201,8 +201,8 @@ guest or &amp;ldquo;domain&amp;rdquo;. Dump the following to e.g. &lt;code&gt;/t
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/devices&amp;gt;&lt;/span&gt;
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, create the instance:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh create fedora-q35-uefi.xml
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Since we&amp;rsquo;re using the workstation image, you&amp;rsquo;re going to need a graphical
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh create fedora-q35-uefi.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Since we&amp;rsquo;re using the workstation image, you&amp;rsquo;re going to need a graphical
 console. As a result, you&amp;rsquo;ll note that we&amp;rsquo;ve attached a VNC graphics device to
 the instance and you can use VNC to connect to the guest. The easiest way to do
 this is via &lt;code&gt;virt-manager&lt;/code&gt; (use the &lt;strong&gt;QEMU/KVM User Session&lt;/strong&gt; connection),
@@ -211,23 +211,21 @@ after creating the guest to view the final XML and get the port that libvirt
 assigned to the VNC interface, and then use this to connect to the instance
 from your favourite VNC viewer.&lt;/p&gt;
 &lt;p&gt;Once you&amp;rsquo;re done, destroy the guest:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh destroy fedora-q35-uefi-experiment
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;secure-boot-woes&#34;&gt;Secure boot woes&lt;/h1&gt;
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh destroy fedora-q35-uefi-experiment
+&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;secure-boot-woes&#34;&gt;Secure boot woes&lt;/h1&gt;
 &lt;p&gt;I&amp;rsquo;d be remiss if I didn&amp;rsquo;t highlight one issue with this approach, at least
 using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
 the time of writing. My initial attempts at this didn&amp;rsquo;t use Fedora but rather
-&lt;em&gt;Alpine Linux&lt;/em&gt;, a distro many will be familiar from from Docker containers. In
-theory this should be a good candidate for playing around with VMs since it&amp;rsquo;s
-small and well suited to use in guests with limited CPU and memory. However,
-the Alpine Linux images are not signed and this prevents booting of the guest.
-To demonstrate the issue and explain why it occurs, it&amp;rsquo;s probably best to go
-with another example.&lt;/p&gt;
+&lt;em&gt;Alpine Linux&lt;/em&gt;, a distro many will be familiar with from Docker containers. In
+theory this should be a good candidate for playing around with since it&amp;rsquo;s small
+and well suited to use in guests with limited CPU and memory. However, the
+Alpine Linux images are not signed and this prevents booting of the guest. To
+demonstrate the issue and explain why it occurs, it&amp;rsquo;s probably best to go with
+another example.&lt;/p&gt;
 &lt;p&gt;To work through this, let&amp;rsquo;s first grab the &lt;em&gt;Alpine Linux Virtual&lt;/em&gt; image,
-available from the &lt;a href=&#34;https://alpinelinux.org/downloads/&#34;&gt;Alpine Linux website&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Let&amp;rsquo;s download
-that image first:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The domain XML we&amp;rsquo;ll use for booting this image is virtually identical to the
+available from the &lt;a href=&#34;https://alpinelinux.org/downloads/&#34;&gt;Alpine Linux website&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The domain XML we&amp;rsquo;ll use for booting this image is virtually identical to the
 one used for Fedora previously. We could of course use the same specs as the
 Fedora 33-based guest and it would work just fine, but we&amp;rsquo;ve chosen to remove
 the VNC graphics device and display adapter, which are unnecessary for a distro
@@ -285,11 +283,11 @@ like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/devices&amp;gt;&lt;/span&gt;
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the image downloaded and domain XML file created, we can create the guest:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh create alpine-q35-uefi.xml
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Since this isn&amp;rsquo;t using a graphical device, you can instead connect via the
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh create alpine-q35-uefi.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Since this isn&amp;rsquo;t using a graphical device, you can instead connect via the
 serial console:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh console alpinelinux-q35-uefi-experiment
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, upon connecting you&amp;rsquo;ll note that you eventually end up at the
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh console alpinelinux-q35-uefi-experiment
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, upon connecting you&amp;rsquo;ll note that you eventually end up at the
 bootloader rather than a login prompt and if you connect early enough, you&amp;rsquo;ll
 probably see something like the following:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;BdsDxe: loading Boot0001 &amp;quot;UEFI QEMU DVD-ROM QM00001 &amp;quot; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0)
@@ -297,10 +295,9 @@ BdsDxe: failed to load Boot0001 &amp;quot;UEFI QEMU DVD-ROM QM00001 &amp;quot; f
 BdsDxe: No bootable option or device was found.
 BdsDxe: Press any key to enter the Boot Manager Menu.
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;(You can use &lt;code&gt;Ctrl + ]&lt;/code&gt; to quit the console).&lt;/p&gt;
-&lt;p&gt;The root cause for this appears to be the following, seen for the XML that
-libvirt generated based on our domain spec:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//os&amp;#39;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&amp;gt;&lt;/span&gt;
+&lt;p&gt;The apparent root cause for this can be seen by investigating the domain XML:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath &#39;//os&#39;
+&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;x86_64&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pc-q35-5.1&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;readonly=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;yes&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secure=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;no&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pflash&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/loader&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;nvram&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;template=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/home/stephenfin/.config/libvirt/qemu/nvram/alpinelinux-q35-uefi-experiment_VARS.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/nvram&amp;gt;&lt;/span&gt;
@@ -310,7 +307,7 @@ libvirt generated based on our domain spec:&lt;/p&gt;
 the final XML, however, UEFI firmware with secure boot support,
 &lt;code&gt;OVMF_CODE.secboot.fd&lt;/code&gt;, has been used, rather than &lt;code&gt;OVMF_CODE.fd&lt;/code&gt;. In theory,
 this firmware should work for non-secure boot instances also but that&amp;rsquo;s not
-happening.  The solution for now is to specify the path to the non-secure boot
+happening. The solution for now is to specify the path to the non-secure boot
 UEFI firmware when creating the instance, replacing the &lt;code&gt;&amp;lt;os&amp;gt;&lt;/code&gt; element included
 in the XML above with the following:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&amp;gt;&lt;/span&gt;
@@ -319,7 +316,9 @@ in the XML above with the following:&lt;/p&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;cdrom&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Obviously this is less than ideal. The issue has been &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1929357&#34;&gt;reported&lt;/a&gt; and will
-hopefully be resolved sooner rather than later.&lt;/p&gt;
+hopefully be resolved sooner rather than later but until then, beware that
+secure boot with &lt;strong&gt;always&lt;/strong&gt; be enabled when using this auto-configuration of
+firmware.&lt;/p&gt;
 </description>
     </item>
     

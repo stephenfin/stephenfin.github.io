@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://that.guru/css/default.css"/>
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/qtRFE7MYnHo/1920x1080);
+      background-image: url(https://source.unsplash.com/0W4XLGITrHg/1920x1080);
     }
   </style>
 </head>
@@ -140,8 +140,8 @@ host, that is provided by Fedora&rsquo;s <code>edk2-ovmf</code> package:</p>
 domain capabilities output, accessible via <code>virsh domcapabilities</code> and
 equivalent APIs. For example, I can see what firmwares are available to me when
 using the <code>q35</code> machine type like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath <span style="color:#e6db74">&#39;/domainCapabilities/os&#39;</span> -
-</code></pre></div><p>This will yield:</p>
+<pre><code class="language-console" data-lang="console">$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath '/domainCapabilities/os' -
+</code></pre><p>This will yield:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
   <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;firmware&#34;</span><span style="color:#f92672">&gt;</span>
     <span style="color:#f92672">&lt;value&gt;</span>efi<span style="color:#f92672">&lt;/value&gt;</span>
@@ -200,15 +200,15 @@ You can download the Fedora 33 Workstation image from the <a href="https://getfe
 but before we do that, let&rsquo;s start by ensuring that we have all required
 packages installed.  This should be as simple as installing libvirt, at least
 on a Fedora 33-based host:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo dnf install libvirt
-</code></pre></div><p>It should also be noted that this guide was only tested on an x86_64 host with
+<pre><code class="language-console" data-lang="console">$ sudo dnf install libvirt
+</code></pre><p>It should also be noted that this guide was only tested on an x86_64 host with
 UEFI enabled itself, so results may vary on other platforms or on tradition
 non-UEFI installs.</p>
 <p>Next up, let&rsquo;s grab the image. As discussed above, we&rsquo;re going to use the
 <em>Fedora 33 Workstation</em> image here since it&rsquo;s easy to use for testing purposes:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd /tmp
+<pre><code class="language-console" data-lang="console">$ cd /tmp
 $ wget https://download.fedoraproject.org/pub/fedora/linux/releases/33/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-33-1.2.iso
-</code></pre></div><p>With the dependencies installed and the image downloaded, we can now create our
+</code></pre><p>With the dependencies installed and the image downloaded, we can now create our
 guest or &ldquo;domain&rdquo;. Dump the following to e.g. <code>/tmp/fedora-q35-uefi.xml</code>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
   <span style="color:#f92672">&lt;name&gt;</span>fedora-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
@@ -268,8 +268,8 @@ guest or &ldquo;domain&rdquo;. Dump the following to e.g. <code>/tmp/fedora-q35-
   <span style="color:#f92672">&lt;/devices&gt;</span>
 <span style="color:#f92672">&lt;/domain&gt;</span>
 </code></pre></div><p>Finally, create the instance:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh create fedora-q35-uefi.xml
-</code></pre></div><p>Since we&rsquo;re using the workstation image, you&rsquo;re going to need a graphical
+<pre><code class="language-console" data-lang="console">$ virsh create fedora-q35-uefi.xml
+</code></pre><p>Since we&rsquo;re using the workstation image, you&rsquo;re going to need a graphical
 console. As a result, you&rsquo;ll note that we&rsquo;ve attached a VNC graphics device to
 the instance and you can use VNC to connect to the guest. The easiest way to do
 this is via <code>virt-manager</code> (use the <strong>QEMU/KVM User Session</strong> connection),
@@ -278,23 +278,21 @@ after creating the guest to view the final XML and get the port that libvirt
 assigned to the VNC interface, and then use this to connect to the instance
 from your favourite VNC viewer.</p>
 <p>Once you&rsquo;re done, destroy the guest:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh destroy fedora-q35-uefi-experiment
-</code></pre></div><h1 id="secure-boot-woes">Secure boot woes</h1>
+<pre><code class="language-console" data-lang="console">$ virsh destroy fedora-q35-uefi-experiment
+</code></pre><h1 id="secure-boot-woes">Secure boot woes</h1>
 <p>I&rsquo;d be remiss if I didn&rsquo;t highlight one issue with this approach, at least
 using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
 the time of writing. My initial attempts at this didn&rsquo;t use Fedora but rather
-<em>Alpine Linux</em>, a distro many will be familiar from from Docker containers. In
-theory this should be a good candidate for playing around with VMs since it&rsquo;s
-small and well suited to use in guests with limited CPU and memory. However,
-the Alpine Linux images are not signed and this prevents booting of the guest.
-To demonstrate the issue and explain why it occurs, it&rsquo;s probably best to go
-with another example.</p>
+<em>Alpine Linux</em>, a distro many will be familiar with from Docker containers. In
+theory this should be a good candidate for playing around with since it&rsquo;s small
+and well suited to use in guests with limited CPU and memory. However, the
+Alpine Linux images are not signed and this prevents booting of the guest. To
+demonstrate the issue and explain why it occurs, it&rsquo;s probably best to go with
+another example.</p>
 <p>To work through this, let&rsquo;s first grab the <em>Alpine Linux Virtual</em> image,
-available from the <a href="https://alpinelinux.org/downloads/">Alpine Linux website</a>.</p>
-<p>Let&rsquo;s download
-that image first:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
-</code></pre></div><p>The domain XML we&rsquo;ll use for booting this image is virtually identical to the
+available from the <a href="https://alpinelinux.org/downloads/">Alpine Linux website</a>:</p>
+<pre><code class="language-console" data-lang="console">$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
+</code></pre><p>The domain XML we&rsquo;ll use for booting this image is virtually identical to the
 one used for Fedora previously. We could of course use the same specs as the
 Fedora 33-based guest and it would work just fine, but we&rsquo;ve chosen to remove
 the VNC graphics device and display adapter, which are unnecessary for a distro
@@ -352,11 +350,11 @@ like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
   <span style="color:#f92672">&lt;/devices&gt;</span>
 <span style="color:#f92672">&lt;/domain&gt;</span>
 </code></pre></div><p>With the image downloaded and domain XML file created, we can create the guest:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh create alpine-q35-uefi.xml
-</code></pre></div><p>Since this isn&rsquo;t using a graphical device, you can instead connect via the
+<pre><code class="language-console" data-lang="console">$ virsh create alpine-q35-uefi.xml
+</code></pre><p>Since this isn&rsquo;t using a graphical device, you can instead connect via the
 serial console:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh console alpinelinux-q35-uefi-experiment
-</code></pre></div><p>However, upon connecting you&rsquo;ll note that you eventually end up at the
+<pre><code class="language-console" data-lang="console">$ virsh console alpinelinux-q35-uefi-experiment
+</code></pre><p>However, upon connecting you&rsquo;ll note that you eventually end up at the
 bootloader rather than a login prompt and if you connect early enough, you&rsquo;ll
 probably see something like the following:</p>
 <pre><code>BdsDxe: loading Boot0001 &quot;UEFI QEMU DVD-ROM QM00001 &quot; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0)
@@ -364,10 +362,9 @@ BdsDxe: failed to load Boot0001 &quot;UEFI QEMU DVD-ROM QM00001 &quot; from PciR
 BdsDxe: No bootable option or device was found.
 BdsDxe: Press any key to enter the Boot Manager Menu.
 </code></pre><p>(You can use <code>Ctrl + ]</code> to quit the console).</p>
-<p>The root cause for this appears to be the following, seen for the XML that
-libvirt generated based on our domain spec:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath <span style="color:#e6db74">&#39;//os&#39;</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os&gt;</span>
+<p>The apparent root cause for this can be seen by investigating the domain XML:</p>
+<pre><code class="language-console" data-lang="console">$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath '//os'
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os&gt;</span>
   <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
   <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#39;no&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/loader&gt;</span>
   <span style="color:#f92672">&lt;nvram</span> <span style="color:#a6e22e">template=</span><span style="color:#e6db74">&#39;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#39;</span><span style="color:#f92672">&gt;</span>/home/stephenfin/.config/libvirt/qemu/nvram/alpinelinux-q35-uefi-experiment_VARS.fd<span style="color:#f92672">&lt;/nvram&gt;</span>
@@ -377,7 +374,7 @@ libvirt generated based on our domain spec:</p>
 the final XML, however, UEFI firmware with secure boot support,
 <code>OVMF_CODE.secboot.fd</code>, has been used, rather than <code>OVMF_CODE.fd</code>. In theory,
 this firmware should work for non-secure boot instances also but that&rsquo;s not
-happening.  The solution for now is to specify the path to the non-secure boot
+happening. The solution for now is to specify the path to the non-secure boot
 UEFI firmware when creating the instance, replacing the <code>&lt;os&gt;</code> element included
 in the XML above with the following:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os&gt;</span>
@@ -386,7 +383,9 @@ in the XML above with the following:</p>
   <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>
 <span style="color:#f92672">&lt;/os&gt;</span>
 </code></pre></div><p>Obviously this is less than ideal. The issue has been <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1929357">reported</a> and will
-hopefully be resolved sooner rather than later.</p>
+hopefully be resolved sooner rather than later but until then, beware that
+secure boot with <strong>always</strong> be enabled when using this auto-configuration of
+firmware.</p>
 
   </article>
 
