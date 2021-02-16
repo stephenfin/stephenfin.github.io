@@ -6,7 +6,323 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Mon, 23 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 16 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>UEFI Support in Libvirt</title>
+      <link>https://that.guru/blog/uefi-secure-boot-in-libvirt/</link>
+      <pubDate>Tue, 16 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/uefi-secure-boot-in-libvirt/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Support for UEFI Secure Boot is &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/wallaby/approved/allow-secure-boot-for-qemu-kvm-guests.html&#34;&gt;one of the features planned&lt;/a&gt; for the
+Wallaby release of the OpenStack Compute project, Nova.  Nova has supported
+UEFI for instances via the libvirt virt driver since the &lt;a href=&#34;https://github.com/openstack/nova/commit/9e2dfb61ed1c8f8c891c34ca4da2b46b69abd661&#34;&gt;Mitaka release (nova
+13.0.0)&lt;/a&gt; and it is in fact required to boot &lt;a href=&#34;https://github.com/openstack/nova/commit/6f54f5c1e37a42b395ca793f869b73aa902602ed&#34;&gt;AArch64 (ARM64) guests&lt;/a&gt;,
+however, how this has been implemented leaves a lot to be desired. The
+introduction of Secure Boot functionality has given us the opportunity to clean
+up some of the tech debt around this feature.&lt;/p&gt;
+&lt;h1 id=&#34;uefi-support-in-qemu-and-libvirt&#34;&gt;UEFI support in QEMU and libvirt&lt;/h1&gt;
+&lt;p&gt;Naturally, for nova&amp;rsquo;s libvirt virt driver to support UEFI, both libvirt and
+QEMU need to support it. This has been the case for many years, but recent
+versions of libvirt and QEMU have made working with UEFI significantly easier
+than previously. As noted in the [Secure Boot spec][0], &lt;a href=&#34;https://www.libvirt.org/news.html#v5-3-0-2019-05-04&#34;&gt;libvirt 5.3&lt;/a&gt;
+introduced support for the firmware auto-selection functionality provided by
+QEMU since QEMU 2.9. This QEMU feature relies on firmware JSON files that
+describe what each firmware file is for and how it can be described, as
+described in the &lt;a href=&#34;https://gitlab.com/qemu-project/qemu/-/blob/v5.2.0/docs/interop/firmware.json&#34;&gt;QEMU spec&lt;/a&gt;. These files are typically provided by your
+distro and on a Fedora 33 host can be found at &lt;code&gt;/usr/share/qemu/firmware&lt;/code&gt;.
+Here&amp;rsquo;s one such file, &lt;code&gt;40-edk2-ovmf-x64-sb-enrolled.json&lt;/code&gt;, taken from my
+host, that is provided by Fedora&amp;rsquo;s &lt;code&gt;edk2-ovmf&lt;/code&gt; package:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;{
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;description&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;OVMF for x86_64, with SB+SMM, SB enabled, MS certs enrolled&amp;#34;&lt;/span&gt;,
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;interface-types&amp;#34;&lt;/span&gt;: [
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;uefi&amp;#34;&lt;/span&gt;
+    ],
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;mapping&amp;#34;&lt;/span&gt;: {
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;device&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;flash&amp;#34;&lt;/span&gt;,
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;executable&amp;#34;&lt;/span&gt;: {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;filename&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;format&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;raw&amp;#34;&lt;/span&gt;
+        },
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;nvram-template&amp;#34;&lt;/span&gt;: {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;filename&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;format&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;raw&amp;#34;&lt;/span&gt;
+        }
+    },
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;targets&amp;#34;&lt;/span&gt;: [
+        {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;architecture&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86_64&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;machines&amp;#34;&lt;/span&gt;: [
+                &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pc-q35-*&amp;#34;&lt;/span&gt;
+            ]
+        }
+    ],
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;features&amp;#34;&lt;/span&gt;: [
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;acpi-s3&amp;#34;&lt;/span&gt;,
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;amd-sev&amp;#34;&lt;/span&gt;,
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;enrolled-keys&amp;#34;&lt;/span&gt;,
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;requires-smm&amp;#34;&lt;/span&gt;,
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;secure-boot&amp;#34;&lt;/span&gt;,
+        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;verbose-dynamic&amp;#34;&lt;/span&gt;
+    ],
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;tags&amp;#34;&lt;/span&gt;: [
+
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Since libvirt 5.3, libvirt has parsed these files and included them in the
+domain capabilities output, accessible via &lt;code&gt;virsh domcapabilities&lt;/code&gt; and
+equivalent APIs. For example, I can see what firmwares are available to me when
+using the &lt;code&gt;q35&lt;/code&gt; machine type like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/domainCapabilities/os&amp;#39;&lt;/span&gt; -
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This will yield:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;supported=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;yes&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;firmware&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;efi&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/enum&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;supported=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;yes&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;/usr/share/edk2/ovmf/OVMF_CODE.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;rom&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;pflash&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/enum&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;readonly&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;yes&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;no&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/enum&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;secure&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;yes&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;value&amp;gt;&lt;/span&gt;no&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/enum&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/loader&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, this isn&amp;rsquo;t all this can do. Libvirt can also negotiate the firmware
+for you when creating a new guest. Previously, to create a UEFI-based guest,
+one would need to specify something like the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;domain&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kvm&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86_64&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pc-q35-5.1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;readonly=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;yes&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secure=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pflash&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/loader&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;nvram&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;template=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/home/stephenfin/.config/libvirt/qemu/nvram/q35-uefi-experiment_VARS.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/nvram&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hda&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I won&amp;rsquo;t go into the specifics of what each file means - libvirt has some &lt;a href=&#34;https://libvirt.org/formatdomain.html#bios-bootloader&#34;&gt;good
+documentation on the matter&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This is no longer necessary, and libvirt will now do this for us. We can
+instead specify e.g.:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;domain&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kvm&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;firmware=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;efi&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86_64&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pc-q35-5.1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secure=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hda&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;How helpful! Using this, it&amp;rsquo;s now easier than ever to create guests using UEFI.&lt;/p&gt;
+&lt;h1 id=&#34;example&#34;&gt;Example&lt;/h1&gt;
+&lt;p&gt;The above is all well and good, but a worked example is even better. Let&amp;rsquo;s
+create a &lt;em&gt;Fedora 33 Workstation&lt;/em&gt; guest with UEFI enabled to demonstrate this.
+This should work with any OS (&lt;strong&gt;note:&lt;/strong&gt; though maybe not right now, as
+discussed later) but using the Fedora 33 Workstation live image, without any
+other drives attached, let&amp;rsquo;s us minimise the amount of irrelevant XML present.
+You can download the Fedora 33 Workstation image from the &lt;a href=&#34;https://getfedora.org/en/workstation/download/&#34;&gt;Fedora website&lt;/a&gt;,
+but before we do that, let&amp;rsquo;s start by ensuring that we have all required
+packages installed.  This should be as simple as installing libvirt, at least
+on a Fedora 33-based host:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo dnf install libvirt
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It should also be noted that this guide was only tested on an x86_64 host with
+UEFI enabled itself, so results may vary on other platforms or on tradition
+non-UEFI installs.&lt;/p&gt;
+&lt;p&gt;Next up, let&amp;rsquo;s grab the image. As discussed above, we&amp;rsquo;re going to use the
+&lt;em&gt;Fedora 33 Workstation&lt;/em&gt; image here since it&amp;rsquo;s easy to use for testing purposes:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ cd /tmp
+$ wget https://download.fedoraproject.org/pub/fedora/linux/releases/33/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-33-1.2.iso
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the dependencies installed and the image downloaded, we can now create our
+guest or &amp;ldquo;domain&amp;rdquo;. Dump the following to e.g. &lt;code&gt;/tmp/fedora-q35-uefi.xml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;domain&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kvm&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;fedora-q35-uefi-experiment&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;metadata&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;libosinfo:libosinfo&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;xmlns:libosinfo=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;libosinfo:os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://fedoraproject.org/fedora/33&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/libosinfo:libosinfo&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/metadata&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;memory&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;unit=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;KiB&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;4194304&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/memory&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;currentMemory&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;unit=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;KiB&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;4194304&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/currentMemory&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;vcpu&amp;gt;&lt;/span&gt;2&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/vcpu&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;firmware=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;efi&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86_64&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pc-q35-5.1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secure=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cdrom&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;features&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;acpi/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;apic/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;vmport&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;state=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;off&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/features&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;cpu&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mode=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;host-model&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;check=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;partial&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;clock&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;offset=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;utc&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;timer&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rtc&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tickpolicy=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;catchup&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;timer&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pit&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tickpolicy=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;delay&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;timer&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hpet&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;present=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/clock&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;on_poweroff&amp;gt;&lt;/span&gt;destroy&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/on_poweroff&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;on_reboot&amp;gt;&lt;/span&gt;restart&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/on_reboot&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;on_crash&amp;gt;&lt;/span&gt;destroy&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/on_crash&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;pm&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;suspend-to-mem&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;enabled=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;suspend-to-disk&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;enabled=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/pm&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;devices&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;emulator&amp;gt;&lt;/span&gt;/usr/bin/qemu-system-x86_64&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/emulator&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;disk&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;device=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cdrom&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;driver&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;qemu&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;raw&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;source&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;file=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/tmp/Fedora-Workstation-Live-x86_64-33-1.2.iso&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;sda&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bus=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;sata&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;readonly/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/disk&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;serial&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pty&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;isa-serial&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;port=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;model&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;isa-serial&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/target&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/serial&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;console&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pty&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;serial&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;port=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/console&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;graphics&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;vnc&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;port=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-1&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tlsPort=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-1&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;autoport=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;yes&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;image&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;compression=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;off&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/graphics&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;video&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;model&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;virtio&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/video&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/devices&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, create the instance:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh create fedora-q35-uefi.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Since we&amp;rsquo;re using the workstation image, you&amp;rsquo;re going to need a graphical
+console. As a result, you&amp;rsquo;ll note that we&amp;rsquo;ve attached a VNC graphics device to
+the instance and you can use VNC to connect to the guest. The easiest way to do
+this is via &lt;code&gt;virt-manager&lt;/code&gt; (use the &lt;strong&gt;QEMU/KVM User Session&lt;/strong&gt; connection),
+but of course you could also use &lt;code&gt;virsh dumpxml fedora-q35-uefi-experiment&lt;/code&gt;
+after creating the guest to view the final XML and get the port that libvirt
+assigned to the VNC interface, and then use this to connect to the instance
+from your favourite VNC viewer.&lt;/p&gt;
+&lt;p&gt;Once you&amp;rsquo;re done, destroy the guest:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh destroy fedora-q35-uefi-experiment
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;secure-boot-woes&#34;&gt;Secure boot woes&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;d be remiss if I didn&amp;rsquo;t highlight one issue with this approach, at least
+using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
+the time of writing. My initial attempts at this didn&amp;rsquo;t use Fedora but rather
+&lt;em&gt;Alpine Linux&lt;/em&gt;, a distro many will be familiar from from Docker containers. In
+theory this should be a good candidate for playing around with VMs since it&amp;rsquo;s
+small and well suited to use in guests with limited CPU and memory. However,
+the Alpine Linux images are not signed and this prevents booting of the guest.
+To demonstrate the issue and explain why it occurs, it&amp;rsquo;s probably best to go
+with another example.&lt;/p&gt;
+&lt;p&gt;To work through this, let&amp;rsquo;s first grab the &lt;em&gt;Alpine Linux Virtual&lt;/em&gt; image,
+available from the &lt;a href=&#34;https://alpinelinux.org/downloads/&#34;&gt;Alpine Linux website&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s download
+that image first:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The domain XML we&amp;rsquo;ll use for booting this image is virtually identical to the
+one used for Fedora previously. We could of course use the same specs as the
+Fedora 33-based guest and it would work just fine, but we&amp;rsquo;ve chosen to remove
+the VNC graphics device and display adapter, which are unnecessary for a distro
+like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
+&lt;code&gt;/tmp/alpine-q35-uefi.xml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;domain&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kvm&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;name&amp;gt;&lt;/span&gt;alpinelinux-q35-uefi-experiment&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;metadata&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;libosinfo:libosinfo&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;xmlns:libosinfo=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;libosinfo:os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://alpinelinux.org/alpinelinux/3.13&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/libosinfo:libosinfo&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/metadata&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;memory&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;unit=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;KiB&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;1048576&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/memory&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;currentMemory&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;unit=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;KiB&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;1048576&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/currentMemory&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;vcpu&amp;gt;&lt;/span&gt;1&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/vcpu&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;firmware=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;efi&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86_64&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pc-q35-5.1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secure=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cdrom&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;features&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;acpi/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;apic/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;vmport&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;state=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;off&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/features&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;cpu&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mode=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;host-model&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;check=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;partial&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;clock&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;offset=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;utc&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;timer&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rtc&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tickpolicy=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;catchup&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;timer&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pit&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tickpolicy=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;delay&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;timer&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;hpet&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;present=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/clock&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;on_poweroff&amp;gt;&lt;/span&gt;destroy&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/on_poweroff&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;on_reboot&amp;gt;&lt;/span&gt;restart&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/on_reboot&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;on_crash&amp;gt;&lt;/span&gt;destroy&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/on_crash&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;pm&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;suspend-to-mem&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;enabled=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;suspend-to-disk&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;enabled=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;no&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/pm&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;devices&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;emulator&amp;gt;&lt;/span&gt;/usr/bin/qemu-system-x86_64&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/emulator&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;disk&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;device=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cdrom&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;driver&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;qemu&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;raw&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;source&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;file=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/tmp/alpine-virt-3.13.1-x86_64.iso&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;sda&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bus=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;sata&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;readonly/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/disk&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;serial&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pty&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;isa-serial&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;port=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;model&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;isa-serial&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/target&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/serial&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;console&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pty&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;serial&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;port=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/console&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/devices&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the image downloaded and domain XML file created, we can create the guest:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh create alpine-q35-uefi.xml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Since this isn&amp;rsquo;t using a graphical device, you can instead connect via the
+serial console:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh console alpinelinux-q35-uefi-experiment
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, upon connecting you&amp;rsquo;ll note that you eventually end up at the
+bootloader rather than a login prompt and if you connect early enough, you&amp;rsquo;ll
+probably see something like the following:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;BdsDxe: loading Boot0001 &amp;quot;UEFI QEMU DVD-ROM QM00001 &amp;quot; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0)
+BdsDxe: failed to load Boot0001 &amp;quot;UEFI QEMU DVD-ROM QM00001 &amp;quot; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0): Access Denied
+BdsDxe: No bootable option or device was found.
+BdsDxe: Press any key to enter the Boot Manager Menu.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;(You can use &lt;code&gt;Ctrl + ]&lt;/code&gt; to quit the console).&lt;/p&gt;
+&lt;p&gt;The root cause for this appears to be the following, seen for the XML that
+libvirt generated based on our domain spec:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//os&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;x86_64&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pc-q35-5.1&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;readonly=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;yes&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secure=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;no&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pflash&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/loader&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;nvram&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;template=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/home/stephenfin/.config/libvirt/qemu/nvram/alpinelinux-q35-uefi-experiment_VARS.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/nvram&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;cdrom&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You&amp;rsquo;ll note that we requested &lt;code&gt;secure=&#39;no&#39;&lt;/code&gt; and libvirt has included this in
+the final XML, however, UEFI firmware with secure boot support,
+&lt;code&gt;OVMF_CODE.secboot.fd&lt;/code&gt;, has been used, rather than &lt;code&gt;OVMF_CODE.fd&lt;/code&gt;. In theory,
+this firmware should work for non-secure boot instances also but that&amp;rsquo;s not
+happening.  The solution for now is to specify the path to the non-secure boot
+UEFI firmware when creating the instance, replacing the &lt;code&gt;&amp;lt;os&amp;gt;&lt;/code&gt; element included
+in the XML above with the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;os&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;type&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;arch=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;x86_64&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;machine=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pc-q35-5.1&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;hvm&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/type&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;loader&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;readonly=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;yes&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pflash&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;/usr/share/edk2/ovmf/OVMF_CODE.fd&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/loader&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;cdrom&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Obviously this is less than ideal. The issue has been &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1929357&#34;&gt;reported&lt;/a&gt; and will
+hopefully be resolved sooner rather than later.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Plain Text Email in Evolution 3.38</title>
       <link>https://that.guru/blog/plain-text-in-evolution-3-38/</link>
@@ -3046,124 +3362,6 @@ path that we can use to open the file, so I automated it.&lt;/p&gt;
 &lt;p&gt;Download and copy this to somewhere on your path, then run it like so:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ cd $openstack_nova_dir
 $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Creating a Windows 7 USB on Fedora 25</title>
-      <link>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</link>
-      <pubDate>Tue, 31 Jan 2017 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</guid>
-      <description>&lt;p&gt;Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among
-other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend
-didn&amp;rsquo;t work (the laptop is always dead when I come to it), and the keyboard
-backlight turned off immediately after turning it on. I figured installing
-Windows again might be a good move (I also miss Office), but that turned out a
-little more difficult that anticipated. Below is the steps I ended up taking,
-should anyone else encounter the same issue.&lt;/p&gt;
-&lt;h1 id=&#34;get-an-iso&#34;&gt;Get an ISO&lt;/h1&gt;
-&lt;p&gt;First up: finding a valid Windows 7 Home Premium x64 ISO. Given that I still
-had my OEM key, this should not have been as difficult as it was. I finally
-found a workaround, thanks to &lt;a href=&#34;https://www.raymond.cc/blog/links-for-windows-7-sp1-iso-from-microsofts-official-distributer/&#34;&gt;this excellent guide on Raymond.cc&lt;/a&gt; (follow
-the &amp;ldquo;Download Windows 7/8.1 From The Windows 10 Download Page&amp;rdquo; section). With
-that &amp;ldquo;hack&amp;rdquo;, you should be able to pull in an ISO for the required version
-(&lt;code&gt;Win7_HomePrem_SP1_English_x64.iso&lt;/code&gt; in my case).&lt;/p&gt;
-&lt;h1 id=&#34;connect-usb-drive&#34;&gt;Connect USB Drive&lt;/h1&gt;
-&lt;p&gt;We&amp;rsquo;re going to install to a USB drive, so ensure it&amp;rsquo;s plugged in now. Record
-the device name - &lt;code&gt;/dev/sdb&lt;/code&gt; in my case - for use later.&lt;/p&gt;
-&lt;h1 id=&#34;prepare-your-usb&#34;&gt;Prepare Your USB&lt;/h1&gt;
-&lt;p&gt;This was another exercise in frustration. I followed many, many guides, all of
-which invariably ended in a failure. I suspect this is because the guides all
-recommended formatting my drive with NTFS when UEFI, as found on this laptop,
-requires FAT32. Thankfully, I stumbled upon &lt;a href=&#34;https://onetransistor.blogspot.ie/2014/09/make-bootable-windows-usb-from-ubuntu.html&#34;&gt;a guide&lt;/a&gt; that suggested as
-much. This guide used GParted but unfortunately there&amp;rsquo;s a known &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1397103&#34;&gt;issue with
-&lt;code&gt;gparted&lt;/code&gt; on Wayland&lt;/a&gt;. A workaround for this issue is to allow &amp;ldquo;non-network
-local connections&amp;rdquo; by running the following command:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ xhost +local:
-non-network local connections being added to access control list
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Then we can start GParted:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo gparted
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Execute the following operations:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Unmount the drive&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Delete any existing partitions&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Create a &lt;em&gt;New&lt;/em&gt; primary partition&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Format this partition as FAT32&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Set a label, e.g. &lt;code&gt;WIN7_HP_X64&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Set the &lt;code&gt;boot&lt;/code&gt; flag to make the drive bootable&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Once completed, &lt;em&gt;Apply all operations&lt;/em&gt;, exit GParted, and disallow non-network
-local connections:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ xhost -local:
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h1 id=&#34;copy-files&#34;&gt;Copy Files&lt;/h1&gt;
-&lt;p&gt;You can now proceed to mount both the USB drive and the ISO:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo mkdir /mnt/usb
-$ sudo mkdir /mnt/iso
-$ sudo mount /dev/sdb1 /mnt/usb/
-$ sudo mount -o loop ~/Downloads/Win7_HomePrem_SP1_English_x64.iso /mnt/iso/
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;updating paths where necessary.&lt;/p&gt;
-&lt;p&gt;Copy the contents of the ISO to the USB drive:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo cp -av /mnt/iso/* /mnt/usb/
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h1 id=&#34;install-bootloader&#34;&gt;Install Bootloader&lt;/h1&gt;
-&lt;p&gt;We&amp;rsquo;re going to use grub2 as the bootloader. Run the following to install the
-bootloader on the USB drive:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo grub2-install --boot-directory=/mnt/usb/boot /dev/sdb
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;once again, updating paths where necessary.&lt;/p&gt;
-&lt;p&gt;Once completed, you should see the following message:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Installing for i386-pc platform.
-Installation finished. No error reported.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If so, save the following to &lt;code&gt;boot/grub2/grub.cfg&lt;/code&gt; on the USB drive:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;default=1
-timeout=15
-color_normal=light-cyan/dark-gray
-menu_color_normal=black/light-cyan
-menu_color_highlight=white/black
-
-menuentry &amp;quot;Start Windows Installation&amp;quot; {
-    insmod ntfs
-    insmod search_label
-    search --no-floppy --set=root --label &amp;lt;USB_drive_label&amp;gt; --hint hd0,msdos1
-    ntldr /bootmgr
-    boot
-}
-
-menuentry &amp;quot;Boot from the first hard drive&amp;quot; {
-    insmod ntfs
-    insmod chain
-    insmod part_msdos
-    insmod part_gpt
-    set root=(hd1)
-    chainloader +1
-    boot
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;replacing &lt;code&gt;&amp;lt;USB_drive_label&amp;gt;&lt;/code&gt; with the label you used earlier - &lt;code&gt;WIN7_HP_X64&lt;/code&gt;
-for me.&lt;/p&gt;
-&lt;h1 id=&#34;profit&#34;&gt;Profit&lt;/h1&gt;
-&lt;p&gt;Unmount the drive, insert it into the laptop and install Windows 7.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sync  # to ensure all file transfers are complete.
-$ sudo umount
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
