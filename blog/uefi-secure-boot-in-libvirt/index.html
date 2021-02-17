@@ -80,15 +80,14 @@
   </div>
 
   <article>
-    <h2 id="introduction">Introduction</h2>
-<p>Support for UEFI Secure Boot is <a href="https://specs.openstack.org/openstack/nova-specs/specs/wallaby/approved/allow-secure-boot-for-qemu-kvm-guests.html">one of the features planned</a> for the
+    <p>Support for UEFI Secure Boot is <a href="https://specs.openstack.org/openstack/nova-specs/specs/wallaby/approved/allow-secure-boot-for-qemu-kvm-guests.html">one of the features planned</a> for the
 Wallaby release of the OpenStack Compute project, Nova.  Nova has supported
 UEFI for instances via the libvirt virt driver since the <a href="https://github.com/openstack/nova/commit/9e2dfb61ed1c8f8c891c34ca4da2b46b69abd661">Mitaka release (nova
 13.0.0)</a> and it is in fact required to boot <a href="https://github.com/openstack/nova/commit/6f54f5c1e37a42b395ca793f869b73aa902602ed">AArch64 (ARM64) guests</a>,
 however, how this has been implemented leaves a lot to be desired. The
 introduction of Secure Boot functionality has given us the opportunity to clean
 up some of the tech debt around this feature.</p>
-<h1 id="uefi-support-in-qemu-and-libvirt">UEFI support in QEMU and libvirt</h1>
+<h2 id="uefi-support-in-qemu-and-libvirt">UEFI support in QEMU and libvirt</h2>
 <p>Naturally, for nova&rsquo;s libvirt virt driver to support UEFI, both libvirt and
 QEMU need to support it. This has been the case for many years, but recent
 versions of libvirt and QEMU have made working with UEFI significantly easier
@@ -99,7 +98,7 @@ describe what each firmware file is for and how it can be described, as
 described in the <a href="https://gitlab.com/qemu-project/qemu/-/blob/v5.2.0/docs/interop/firmware.json">QEMU spec</a>. These files are typically provided by your
 distro and on a Fedora 33 host can be found at <code>/usr/share/qemu/firmware</code>.
 Here&rsquo;s one such file, <code>40-edk2-ovmf-x64-sb-enrolled.json</code>, taken from my
-host, that is provided by Fedora&rsquo;s <code>edk2-ovmf</code> package:</p>
+host and provided by Fedora&rsquo;s <code>edk2-ovmf</code> package:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;OVMF for x86_64, with SB+SMM, SB enabled, MS certs enrolled&#34;</span>,
     <span style="color:#f92672">&#34;interface-types&#34;</span>: [
@@ -190,7 +189,7 @@ instead specify e.g.:</p>
   <span style="color:#75715e">&lt;!-- ... --&gt;</span>
 <span style="color:#f92672">&lt;/domain&gt;</span>
 </code></pre></div><p>How helpful! Using this, it&rsquo;s now easier than ever to create guests using UEFI.</p>
-<h1 id="example">Example</h1>
+<h2 id="example">Example</h2>
 <p>The above is all well and good, but a worked example is even better. Let&rsquo;s
 create a <em>Fedora 33 Workstation</em> guest with UEFI enabled to demonstrate this.
 This should work with any OS (<strong>note:</strong> though maybe not right now, as
@@ -201,9 +200,8 @@ but before we do that, let&rsquo;s start by ensuring that we have all required
 packages installed.  This should be as simple as installing libvirt, at least
 on a Fedora 33-based host:</p>
 <pre><code class="language-console" data-lang="console">$ sudo dnf install libvirt
-</code></pre><p>It should also be noted that this guide was only tested on an x86_64 host with
-UEFI enabled itself, so results may vary on other platforms or on tradition
-non-UEFI installs.</p>
+</code></pre><p>It should also be noted that this guide was only tested on an x86_64 host and
+results may vary on other platforms.</p>
 <p>Next up, let&rsquo;s grab the image. As discussed above, we&rsquo;re going to use the
 <em>Fedora 33 Workstation</em> image here since it&rsquo;s easy to use for testing purposes:</p>
 <pre><code class="language-console" data-lang="console">$ cd /tmp
@@ -279,16 +277,16 @@ assigned to the VNC interface, and then use this to connect to the instance
 from your favourite VNC viewer.</p>
 <p>Once you&rsquo;re done, destroy the guest:</p>
 <pre><code class="language-console" data-lang="console">$ virsh destroy fedora-q35-uefi-experiment
-</code></pre><h1 id="secure-boot-woes">Secure boot woes</h1>
+</code></pre><h2 id="secure-boot-woes">Secure boot woes</h2>
 <p>I&rsquo;d be remiss if I didn&rsquo;t highlight one issue with this approach, at least
 using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
 the time of writing. My initial attempts at this didn&rsquo;t use Fedora but rather
 <em>Alpine Linux</em>, a distro many will be familiar with from Docker containers. In
 theory this should be a good candidate for playing around with since it&rsquo;s small
 and well suited to use in guests with limited CPU and memory. However, the
-Alpine Linux images are not signed and this prevents booting of the guest. To
-demonstrate the issue and explain why it occurs, it&rsquo;s probably best to go with
-another example.</p>
+<a href="https://wiki.alpinelinux.org/wiki/Alpine_and_UEFI#What.27s_this_infamous_.22Secure_Boot.22.3F">Alpine Linux images are not signed</a> and this prevents booting of the guest.
+To demonstrate the issue and explain why it occurs, it&rsquo;s probably best to go
+with another example.</p>
 <p>To work through this, let&rsquo;s first grab the <em>Alpine Linux Virtual</em> image,
 available from the <a href="https://alpinelinux.org/downloads/">Alpine Linux website</a>:</p>
 <pre><code class="language-console" data-lang="console">$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
@@ -383,7 +381,7 @@ in the XML above with the following:</p>
   <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>
 <span style="color:#f92672">&lt;/os&gt;</span>
 </code></pre></div><p>Obviously this is less than ideal. The issue has been <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1929357">reported</a> and will
-hopefully be resolved sooner rather than later but until then, beware that
+hopefully be resolved sooner rather than later but until then, be aware that
 secure boot with <strong>always</strong> be enabled when using this auto-configuration of
 firmware.</p>
 

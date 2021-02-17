@@ -13,15 +13,14 @@
       <pubDate>Tue, 16 Feb 2021 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/uefi-secure-boot-in-libvirt/</guid>
-      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;Support for UEFI Secure Boot is &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/wallaby/approved/allow-secure-boot-for-qemu-kvm-guests.html&#34;&gt;one of the features planned&lt;/a&gt; for the
+      <description>&lt;p&gt;Support for UEFI Secure Boot is &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/wallaby/approved/allow-secure-boot-for-qemu-kvm-guests.html&#34;&gt;one of the features planned&lt;/a&gt; for the
 Wallaby release of the OpenStack Compute project, Nova.  Nova has supported
 UEFI for instances via the libvirt virt driver since the &lt;a href=&#34;https://github.com/openstack/nova/commit/9e2dfb61ed1c8f8c891c34ca4da2b46b69abd661&#34;&gt;Mitaka release (nova
 13.0.0)&lt;/a&gt; and it is in fact required to boot &lt;a href=&#34;https://github.com/openstack/nova/commit/6f54f5c1e37a42b395ca793f869b73aa902602ed&#34;&gt;AArch64 (ARM64) guests&lt;/a&gt;,
 however, how this has been implemented leaves a lot to be desired. The
 introduction of Secure Boot functionality has given us the opportunity to clean
 up some of the tech debt around this feature.&lt;/p&gt;
-&lt;h1 id=&#34;uefi-support-in-qemu-and-libvirt&#34;&gt;UEFI support in QEMU and libvirt&lt;/h1&gt;
+&lt;h2 id=&#34;uefi-support-in-qemu-and-libvirt&#34;&gt;UEFI support in QEMU and libvirt&lt;/h2&gt;
 &lt;p&gt;Naturally, for nova&amp;rsquo;s libvirt virt driver to support UEFI, both libvirt and
 QEMU need to support it. This has been the case for many years, but recent
 versions of libvirt and QEMU have made working with UEFI significantly easier
@@ -32,7 +31,7 @@ describe what each firmware file is for and how it can be described, as
 described in the &lt;a href=&#34;https://gitlab.com/qemu-project/qemu/-/blob/v5.2.0/docs/interop/firmware.json&#34;&gt;QEMU spec&lt;/a&gt;. These files are typically provided by your
 distro and on a Fedora 33 host can be found at &lt;code&gt;/usr/share/qemu/firmware&lt;/code&gt;.
 Here&amp;rsquo;s one such file, &lt;code&gt;40-edk2-ovmf-x64-sb-enrolled.json&lt;/code&gt;, taken from my
-host, that is provided by Fedora&amp;rsquo;s &lt;code&gt;edk2-ovmf&lt;/code&gt; package:&lt;/p&gt;
+host and provided by Fedora&amp;rsquo;s &lt;code&gt;edk2-ovmf&lt;/code&gt; package:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;{
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;description&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;OVMF for x86_64, with SB+SMM, SB enabled, MS certs enrolled&amp;#34;&lt;/span&gt;,
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;interface-types&amp;#34;&lt;/span&gt;: [
@@ -123,7 +122,7 @@ instead specify e.g.:&lt;/p&gt;
   &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!-- ... --&amp;gt;&lt;/span&gt;
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/domain&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;How helpful! Using this, it&amp;rsquo;s now easier than ever to create guests using UEFI.&lt;/p&gt;
-&lt;h1 id=&#34;example&#34;&gt;Example&lt;/h1&gt;
+&lt;h2 id=&#34;example&#34;&gt;Example&lt;/h2&gt;
 &lt;p&gt;The above is all well and good, but a worked example is even better. Let&amp;rsquo;s
 create a &lt;em&gt;Fedora 33 Workstation&lt;/em&gt; guest with UEFI enabled to demonstrate this.
 This should work with any OS (&lt;strong&gt;note:&lt;/strong&gt; though maybe not right now, as
@@ -134,9 +133,8 @@ but before we do that, let&amp;rsquo;s start by ensuring that we have all requir
 packages installed.  This should be as simple as installing libvirt, at least
 on a Fedora 33-based host:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ sudo dnf install libvirt
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It should also be noted that this guide was only tested on an x86_64 host with
-UEFI enabled itself, so results may vary on other platforms or on tradition
-non-UEFI installs.&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It should also be noted that this guide was only tested on an x86_64 host and
+results may vary on other platforms.&lt;/p&gt;
 &lt;p&gt;Next up, let&amp;rsquo;s grab the image. As discussed above, we&amp;rsquo;re going to use the
 &lt;em&gt;Fedora 33 Workstation&lt;/em&gt; image here since it&amp;rsquo;s easy to use for testing purposes:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ cd /tmp
@@ -212,16 +210,16 @@ assigned to the VNC interface, and then use this to connect to the instance
 from your favourite VNC viewer.&lt;/p&gt;
 &lt;p&gt;Once you&amp;rsquo;re done, destroy the guest:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ virsh destroy fedora-q35-uefi-experiment
-&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;secure-boot-woes&#34;&gt;Secure boot woes&lt;/h1&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;secure-boot-woes&#34;&gt;Secure boot woes&lt;/h2&gt;
 &lt;p&gt;I&amp;rsquo;d be remiss if I didn&amp;rsquo;t highlight one issue with this approach, at least
 using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
 the time of writing. My initial attempts at this didn&amp;rsquo;t use Fedora but rather
 &lt;em&gt;Alpine Linux&lt;/em&gt;, a distro many will be familiar with from Docker containers. In
 theory this should be a good candidate for playing around with since it&amp;rsquo;s small
 and well suited to use in guests with limited CPU and memory. However, the
-Alpine Linux images are not signed and this prevents booting of the guest. To
-demonstrate the issue and explain why it occurs, it&amp;rsquo;s probably best to go with
-another example.&lt;/p&gt;
+&lt;a href=&#34;https://wiki.alpinelinux.org/wiki/Alpine_and_UEFI#What.27s_this_infamous_.22Secure_Boot.22.3F&#34;&gt;Alpine Linux images are not signed&lt;/a&gt; and this prevents booting of the guest.
+To demonstrate the issue and explain why it occurs, it&amp;rsquo;s probably best to go
+with another example.&lt;/p&gt;
 &lt;p&gt;To work through this, let&amp;rsquo;s first grab the &lt;em&gt;Alpine Linux Virtual&lt;/em&gt; image,
 available from the &lt;a href=&#34;https://alpinelinux.org/downloads/&#34;&gt;Alpine Linux website&lt;/a&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
@@ -316,7 +314,7 @@ in the XML above with the following:&lt;/p&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;boot&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;cdrom&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/os&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Obviously this is less than ideal. The issue has been &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1929357&#34;&gt;reported&lt;/a&gt; and will
-hopefully be resolved sooner rather than later but until then, beware that
+hopefully be resolved sooner rather than later but until then, be aware that
 secure boot with &lt;strong&gt;always&lt;/strong&gt; be enabled when using this auto-configuration of
 firmware.&lt;/p&gt;
 </description>
