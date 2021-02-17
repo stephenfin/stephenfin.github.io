@@ -234,13 +234,6 @@ guest or &ldquo;domain&rdquo;. Dump the following to e.g. <code>/tmp/fedora-q35-
     <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;pit&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;delay&#34;</span><span style="color:#f92672">/&gt;</span>
     <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;hpet&#34;</span> <span style="color:#a6e22e">present=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
   <span style="color:#f92672">&lt;/clock&gt;</span>
-  <span style="color:#f92672">&lt;on_poweroff&gt;</span>destroy<span style="color:#f92672">&lt;/on_poweroff&gt;</span>
-  <span style="color:#f92672">&lt;on_reboot&gt;</span>restart<span style="color:#f92672">&lt;/on_reboot&gt;</span>
-  <span style="color:#f92672">&lt;on_crash&gt;</span>destroy<span style="color:#f92672">&lt;/on_crash&gt;</span>
-  <span style="color:#f92672">&lt;pm&gt;</span>
-    <span style="color:#f92672">&lt;suspend-to-mem</span> <span style="color:#a6e22e">enabled=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;suspend-to-disk</span> <span style="color:#a6e22e">enabled=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/pm&gt;</span>
   <span style="color:#f92672">&lt;devices&gt;</span>
     <span style="color:#f92672">&lt;emulator&gt;</span>/usr/bin/qemu-system-x86_64<span style="color:#f92672">&lt;/emulator&gt;</span>
     <span style="color:#f92672">&lt;disk</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">device=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">&gt;</span>
@@ -322,13 +315,6 @@ like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
     <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;pit&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;delay&#34;</span><span style="color:#f92672">/&gt;</span>
     <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;hpet&#34;</span> <span style="color:#a6e22e">present=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
   <span style="color:#f92672">&lt;/clock&gt;</span>
-  <span style="color:#f92672">&lt;on_poweroff&gt;</span>destroy<span style="color:#f92672">&lt;/on_poweroff&gt;</span>
-  <span style="color:#f92672">&lt;on_reboot&gt;</span>restart<span style="color:#f92672">&lt;/on_reboot&gt;</span>
-  <span style="color:#f92672">&lt;on_crash&gt;</span>destroy<span style="color:#f92672">&lt;/on_crash&gt;</span>
-  <span style="color:#f92672">&lt;pm&gt;</span>
-    <span style="color:#f92672">&lt;suspend-to-mem</span> <span style="color:#a6e22e">enabled=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;suspend-to-disk</span> <span style="color:#a6e22e">enabled=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/pm&gt;</span>
   <span style="color:#f92672">&lt;devices&gt;</span>
     <span style="color:#f92672">&lt;emulator&gt;</span>/usr/bin/qemu-system-x86_64<span style="color:#f92672">&lt;/emulator&gt;</span>
     <span style="color:#f92672">&lt;disk</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">device=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">&gt;</span>
