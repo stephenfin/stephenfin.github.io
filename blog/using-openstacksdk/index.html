@@ -130,14 +130,14 @@ likely look something like this:</p>
 complete (look at <code>openstack/compute/v2/server.py</code> in the openstacksdk project
 if you want the real deal), but there are a couple of crucial components here.
 Firstly, we&rsquo;re giving the path to the API:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># API path</span>
-base_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/servers&#39;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">    <span style="color:#75715e"># API path</span>
+    base_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/servers&#39;</span>
 </code></pre></div><p>This is the <em>base</em> path, which is extended with additional path components
 depending on the operation.</p>
 <p>Next up, we&rsquo;re stating the keys used for the envelope:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># envelope parameters</span>
-resource_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;server&#39;</span>
-resources_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;servers&#39;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">    <span style="color:#75715e"># envelope parameters</span>
+    resource_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;server&#39;</span>
+    resources_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;servers&#39;</span>
 </code></pre></div><p>Pretty much all OpenStack APIs use <a href="https://stackoverflow.com/a/25930584/613428">envelopes</a>, by which we mean all
 responses are returned with a JSON object on the outside. The above
 configuration means the responses for operations that work with multiple
@@ -180,17 +180,17 @@ this is indeed the case. For example, consider a typical response for
 }
 </code></pre></div><p>Finally, you have the allowed operations and the fields or attributes of the
 server resource:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># capabilities</span>
-allow_create <span style="color:#f92672">=</span> True
-allow_fetch <span style="color:#f92672">=</span> True
-allow_commit <span style="color:#f92672">=</span> True
-allow_delete <span style="color:#f92672">=</span> True
-allow_list <span style="color:#f92672">=</span> True
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">    <span style="color:#75715e"># capabilities</span>
+    allow_create <span style="color:#f92672">=</span> True
+    allow_fetch <span style="color:#f92672">=</span> True
+    allow_commit <span style="color:#f92672">=</span> True
+    allow_delete <span style="color:#f92672">=</span> True
+    allow_list <span style="color:#f92672">=</span> True
 
-<span style="color:#75715e"># attributes</span>
-access_ipv4 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv4&#39;</span>)
-access_ipv6 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv6&#39;</span>)
-<span style="color:#75715e"># ...</span>
+    <span style="color:#75715e"># attributes</span>
+    access_ipv4 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv4&#39;</span>)
+    access_ipv6 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv6&#39;</span>)
+    <span style="color:#75715e"># ...</span>
 </code></pre></div><p>The attributes are a fairly simple mapping from the resource to some attribute
 of the API requests and responses and in essence allow us to map e.g. the
 <code>accessIPv4</code> field in API requests and responses to the <code>access_ipv4</code> attribute

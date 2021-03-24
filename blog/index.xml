@@ -63,14 +63,14 @@ likely look something like this:&lt;/p&gt;
 complete (look at &lt;code&gt;openstack/compute/v2/server.py&lt;/code&gt; in the openstacksdk project
 if you want the real deal), but there are a couple of crucial components here.
 Firstly, we&amp;rsquo;re giving the path to the API:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# API path&lt;/span&gt;
-base_path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/servers&amp;#39;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# API path&lt;/span&gt;
+    base_path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/servers&amp;#39;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is the &lt;em&gt;base&lt;/em&gt; path, which is extended with additional path components
 depending on the operation.&lt;/p&gt;
 &lt;p&gt;Next up, we&amp;rsquo;re stating the keys used for the envelope:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# envelope parameters&lt;/span&gt;
-resource_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;server&amp;#39;&lt;/span&gt;
-resources_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;servers&amp;#39;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# envelope parameters&lt;/span&gt;
+    resource_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;server&amp;#39;&lt;/span&gt;
+    resources_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;servers&amp;#39;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pretty much all OpenStack APIs use &lt;a href=&#34;https://stackoverflow.com/a/25930584/613428&#34;&gt;envelopes&lt;/a&gt;, by which we mean all
 responses are returned with a JSON object on the outside. The above
 configuration means the responses for operations that work with multiple
@@ -113,17 +113,17 @@ this is indeed the case. For example, consider a typical response for
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you have the allowed operations and the fields or attributes of the
 server resource:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# capabilities&lt;/span&gt;
-allow_create &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
-allow_fetch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
-allow_commit &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
-allow_delete &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
-allow_list &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# capabilities&lt;/span&gt;
+    allow_create &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
+    allow_fetch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
+    allow_commit &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
+    allow_delete &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
+    allow_list &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
 
-&lt;span style=&#34;color:#75715e&#34;&gt;# attributes&lt;/span&gt;
-access_ipv4 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv4&amp;#39;&lt;/span&gt;)
-access_ipv6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv6&amp;#39;&lt;/span&gt;)
-&lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;# attributes&lt;/span&gt;
+    access_ipv4 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv4&amp;#39;&lt;/span&gt;)
+    access_ipv6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv6&amp;#39;&lt;/span&gt;)
+    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The attributes are a fairly simple mapping from the resource to some attribute
 of the API requests and responses and in essence allow us to map e.g. the
 &lt;code&gt;accessIPv4&lt;/code&gt; field in API requests and responses to the &lt;code&gt;access_ipv4&lt;/code&gt; attribute
