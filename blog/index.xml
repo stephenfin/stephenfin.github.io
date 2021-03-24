@@ -29,11 +29,14 @@ API supports a number of CRUD-style operations:&lt;/p&gt;
 &lt;li&gt;&lt;code&gt;PUT /servers/{id}&lt;/code&gt; (update server)&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;DELETE /servers/{id}&lt;/code&gt; (delete server)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;{% note %}
-This API is rather complex and also provides separate &amp;ldquo;detail&amp;rdquo; endpoints, e.g.
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This API is rather complex and also provides separate &amp;ldquo;detail&amp;rdquo; endpoints, e.g.
 &lt;code&gt;GET /servers/detail&lt;/code&gt;, plus a load of actions and nested resources. We&amp;rsquo;re going
-to ignore all of those for now and focus on these basic CRUD-style APIs.
-{% /note %}&lt;/p&gt;
+to ignore all of those for now and focus on these basic CRUD-style APIs.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;If you were to define a simple &lt;code&gt;Resource&lt;/code&gt; definition for this API, it would
 likely look something like this:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Server&lt;/span&gt;(resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Resource):
@@ -201,10 +204,13 @@ list(session, paginated&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;T
     :param session: The session to use &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; making this request&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;
     :type session: :class:&lt;span style=&#34;color:#e6db74&#34;&gt;`~keystoneauth1.adapter.Adapter`&lt;/span&gt;
     &lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;{% note %}
-Yes, it&amp;rsquo;s called &lt;code&gt;session&lt;/code&gt; but it&amp;rsquo;s actually an Adapter. Someone should probably
-fix that.
-{% /note %}&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Yes, it&amp;rsquo;s called &lt;code&gt;session&lt;/code&gt; but it&amp;rsquo;s actually an Adapter. Someone should probably
+fix that.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;There are a couple of ways to generate a suitable parameter. Let&amp;rsquo;s start with
 most verbose first. We can manually create a keystoneauth &lt;code&gt;Session&lt;/code&gt; object,
 wrap this in openstacksdk&amp;rsquo;s &lt;code&gt;Proxy&lt;/code&gt; object (which is itself a wrapper around

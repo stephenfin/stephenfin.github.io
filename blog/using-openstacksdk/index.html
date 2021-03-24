@@ -96,11 +96,14 @@ API supports a number of CRUD-style operations:</p>
 <li><code>PUT /servers/{id}</code> (update server)</li>
 <li><code>DELETE /servers/{id}</code> (delete server)</li>
 </ul>
-<p>{% note %}
-This API is rather complex and also provides separate &ldquo;detail&rdquo; endpoints, e.g.
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">This API is rather complex and also provides separate &ldquo;detail&rdquo; endpoints, e.g.
 <code>GET /servers/detail</code>, plus a load of actions and nested resources. We&rsquo;re going
-to ignore all of those for now and focus on these basic CRUD-style APIs.
-{% /note %}</p>
+to ignore all of those for now and focus on these basic CRUD-style APIs.</div>
+</aside>
+
 <p>If you were to define a simple <code>Resource</code> definition for this API, it would
 likely look something like this:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Server</span>(resource<span style="color:#f92672">.</span>Resource):
@@ -268,10 +271,13 @@ list(session, paginated<span style="color:#f92672">=</span>True, base_path<span 
     :param session: The session to use <span style="color:#66d9ef">for</span> making this request<span style="color:#f92672">.</span>
     :type session: :class:<span style="color:#e6db74">`~keystoneauth1.adapter.Adapter`</span>
     <span style="color:#f92672">...</span>
-</code></pre></div><p>{% note %}
-Yes, it&rsquo;s called <code>session</code> but it&rsquo;s actually an Adapter. Someone should probably
-fix that.
-{% /note %}</p>
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">Yes, it&rsquo;s called <code>session</code> but it&rsquo;s actually an Adapter. Someone should probably
+fix that.</div>
+</aside>
+
 <p>There are a couple of ways to generate a suitable parameter. Let&rsquo;s start with
 most verbose first. We can manually create a keystoneauth <code>Session</code> object,
 wrap this in openstacksdk&rsquo;s <code>Proxy</code> object (which is itself a wrapper around
