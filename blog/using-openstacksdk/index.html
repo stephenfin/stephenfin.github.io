@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Using the OpenStack SDK | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/0eoHDfSqfik/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Using the OpenStack SDK</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2021-03-23T00:00:00Z'>Mar 23, 2021</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>8 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>The <a href="https://docs.openstack.org/openstacksdk/latest/"><em>OpenStack SDK</em> library</a> provides a unified API to interact with
+OpenStack clouds. I&rsquo;ve been doing a lot of work on it lately and am only now
+starting to gain an understanding of just what&rsquo;s going on (there are fewer
+layers in an onion 😊). These are my notes on how to use the <code>Resource</code>-based
+objects found in e.g. <code>openstack/compute/v2/server.py</code>.</p>
+<h2 id="intro-to-the-resource-object">Intro to the <code>Resource</code> object</h2>
+<p>As the name would suggest, the <code>Resource</code> object wraps a type of API resource
+or collection of API resources. For example, take nova&rsquo;s <code>/servers</code> API. This
+API supports a number of CRUD-style operations:</p>
+<ul>
+<li><code>GET /servers</code> (list servers)</li>
+<li><code>POST /servers</code> (create server)</li>
+<li><code>GET /servers/{id}</code> (fetch server)</li>
+<li><code>PUT /servers/{id}</code> (update server)</li>
+<li><code>DELETE /servers/{id}</code> (delete server)</li>
+</ul>
+<p>{% note %}
+This API is rather complex and also provides separate &ldquo;detail&rdquo; endpoints, e.g.
+<code>GET /servers/detail</code>, plus a load of actions and nested resources. We&rsquo;re going
+to ignore all of those for now and focus on these basic CRUD-style APIs.
+{% /note %}</p>
+<p>If you were to define a simple <code>Resource</code> definition for this API, it would
+likely look something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Server</span>(resource<span style="color:#f92672">.</span>Resource):
+
+    <span style="color:#75715e"># API path</span>
+    base_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/servers&#39;</span>
+
+    <span style="color:#75715e"># envelope parameters</span>
+    resource_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;server&#39;</span>
+    resources_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;servers&#39;</span>
+
+    <span style="color:#75715e"># capabilities</span>
+    allow_create <span style="color:#f92672">=</span> True
+    allow_fetch <span style="color:#f92672">=</span> True
+    allow_commit <span style="color:#f92672">=</span> True
+    allow_delete <span style="color:#f92672">=</span> True
+    allow_list <span style="color:#f92672">=</span> True
+
+    <span style="color:#75715e"># attributes</span>
+    access_ipv4 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv4&#39;</span>)
+    access_ipv6 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv6&#39;</span>)
+    <span style="color:#75715e"># ...</span>
+</code></pre></div><p>There&rsquo;s a lot of abstraction going on here, and it&rsquo;s obviously far from
+complete (look at <code>openstack/compute/v2/server.py</code> in the openstacksdk project
+if you want the real deal), but there are a couple of crucial components here.
+Firstly, we&rsquo;re giving the path to the API:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># API path</span>
+base_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/servers&#39;</span>
+</code></pre></div><p>This is the <em>base</em> path, which is extended with additional path components
+depending on the operation.</p>
+<p>Next up, we&rsquo;re stating the keys used for the envelope:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># envelope parameters</span>
+resource_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;server&#39;</span>
+resources_key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;servers&#39;</span>
+</code></pre></div><p>Pretty much all OpenStack APIs use <a href="https://stackoverflow.com/a/25930584/613428">envelopes</a>, by which we mean all
+responses are returned with a JSON object on the outside. The above
+configuration means the responses for operations that work with multiple
+resources (so just <code>GET /servers</code> in this case) will be accessible via the
+<code>servers</code> key, while those that work with individual resources will be
+accessible via the <code>server</code> key. If we look at the <a href="https://docs.openstack.org/api-ref/compute/?expanded=list-servers-detail#list-servers">nova api-ref</a> we can see
+this is indeed the case. For example, consider a typical response for
+<code>GET /servers</code> (list servers):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;servers&#34;</span>: [
+    {
+      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;22c91117-08de-4894-9aa9-6ef382400985&#34;</span>,
+      <span style="color:#f92672">&#34;links&#34;</span>: [
+        {
+          <span style="color:#f92672">&#34;href&#34;</span>: <span style="color:#e6db74">&#34;http://openstack.example.com/v2/6f70656e737461636b20342065766572/servers/22c91117-08de-4894-9aa9-6ef382400985&#34;</span>,
+          <span style="color:#f92672">&#34;rel&#34;</span>: <span style="color:#e6db74">&#34;self&#34;</span>
+        },
+        {
+          <span style="color:#f92672">&#34;href&#34;</span>: <span style="color:#e6db74">&#34;http://openstack.example.com/6f70656e737461636b20342065766572/servers/22c91117-08de-4894-9aa9-6ef382400985&#34;</span>,
+          <span style="color:#f92672">&#34;rel&#34;</span>: <span style="color:#e6db74">&#34;bookmark&#34;</span>
+        }
+      ],
+      <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;new-server-test&#34;</span>
+    }
+  ],
+  <span style="color:#f92672">&#34;servers_links&#34;</span>: [
+    {
+      <span style="color:#f92672">&#34;href&#34;</span>: <span style="color:#e6db74">&#34;http://openstack.example.com/v2.1/6f70656e737461636b20342065766572/servers?limit=1&amp;marker=22c91117-08de-4894-9aa9-6ef382400985&#34;</span>,
+      <span style="color:#f92672">&#34;rel&#34;</span>: <span style="color:#e6db74">&#34;next&#34;</span>
+    }
+  ]
+}
+</code></pre></div><p>And an equivalent response for <code>GET /servers/{id}</code> (fetch server):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;server&#34;</span>: {
+    <span style="color:#f92672">&#34;OS-DCF:diskConfig&#34;</span>: <span style="color:#e6db74">&#34;AUTO&#34;</span>,
+    <span style="color:#f92672">&#34;OS-EXT-AZ:availability_zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>,
+    <span style="color:#960050;background-color:#1e0010">...</span>
+  }
+}
+</code></pre></div><p>Finally, you have the allowed operations and the fields or attributes of the
+server resource:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># capabilities</span>
+allow_create <span style="color:#f92672">=</span> True
+allow_fetch <span style="color:#f92672">=</span> True
+allow_commit <span style="color:#f92672">=</span> True
+allow_delete <span style="color:#f92672">=</span> True
+allow_list <span style="color:#f92672">=</span> True
+
+<span style="color:#75715e"># attributes</span>
+access_ipv4 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv4&#39;</span>)
+access_ipv6 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv6&#39;</span>)
+<span style="color:#75715e"># ...</span>
+</code></pre></div><p>The attributes are a fairly simple mapping from the resource to some attribute
+of the API requests and responses and in essence allow us to map e.g. the
+<code>accessIPv4</code> field in API requests and responses to the <code>access_ipv4</code> attribute
+of the <code>Server</code> object. More interestingly though, for the purposes of this
+post, are the capabilities. The value of these capabilities defines whether the
+following aptly named methods from the <code>Resource</code> class are usable or not:</p>
+<ul>
+<li><code>create</code></li>
+<li><code>fetch</code></li>
+<li><code>commit</code></li>
+<li><code>delete</code></li>
+<li><code>list</code></li>
+</ul>
+<p>We&rsquo;ll go into details on how to use these shortly - that is, after all, the
+main point of this post - but suffice to say you can make a call like
+<code>Server.list(...)</code> and it will return a list of <code>Server</code> objects. In any case,
+the servers API supports all of the CRUD-style operations and we&rsquo;re stating as
+much here through this configuration. This means a user can use any of these
+CRUD methods (with correct input and configuration, of course) and expect them
+to work. This isn&rsquo;t always the case. If, for example, this API did not support
+a user updating an existing server then we could configure <code>allow_commit = False</code> (or simply not define this attribute resulting in the default value of
+<code>False</code> being used).</p>
+<p>With this small introduction to the <code>Resource</code> object complete, let&rsquo;s look at
+how you&rsquo;d actually use this.</p>
+<h2 id="using-resource-objects">Using <code>Resource</code> objects</h2>
+<p>Let&rsquo;s begin by saying most users won&rsquo;t actually need to use <code>Resource</code> objects
+directly. openstacksdk consists of multiple layers, and most users will get
+away with using what&rsquo;s known as the <em>proxy</em> layer. This is a utility layer that
+provides a number of easy API helpers such as <code>create_server</code> (to create a new
+server) or <code>flavors</code> (to list servers) that a user can use to interact with
+their cloud. An example from the <a href="https://opendev.org/openstack/openstacksdk/src/branch/master/README.rst">README</a>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> openstack
+
+<span style="color:#75715e"># Initialize and turn on debug logging</span>
+openstack<span style="color:#f92672">.</span>enable_logging(debug<span style="color:#f92672">=</span>True)
+
+<span style="color:#75715e"># Initialize connection</span>
+conn <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>connect(cloud<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;mordred&#39;</span>)
+
+<span style="color:#66d9ef">for</span> server <span style="color:#f92672">in</span> conn<span style="color:#f92672">.</span>compute<span style="color:#f92672">.</span>servers():
+    <span style="color:#66d9ef">print</span>(server<span style="color:#f92672">.</span>to_dict())
+</code></pre></div><p>It also provides an even higher-level layer, known as the <em>cloud</em> layer, which
+is used by things like Ansible&rsquo;s OpenStack modules and can be used to wrap
+multiple complicated operations. Another example from the README:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> openstack
+
+<span style="color:#75715e"># Initialize and turn on debug logging</span>
+openstack<span style="color:#f92672">.</span>enable_logging(debug<span style="color:#f92672">=</span>True)
+
+<span style="color:#75715e"># Initialize connection</span>
+conn <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>connect(cloud<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;mordred&#39;</span>)
+
+<span style="color:#66d9ef">for</span> server <span style="color:#f92672">in</span> conn<span style="color:#f92672">.</span>list_servers():
+    <span style="color:#66d9ef">print</span>(server<span style="color:#f92672">.</span>to_dict())
+</code></pre></div><p>Sometimes it can be useful to understand how these things work under the hood
+though, so let&rsquo;s have a look at the ways to use <code>Resource</code> objects directly,
+from most complicated (and therefore most informative) to most abstract.</p>
+<p>We said above that the definition of the capabilities attributes on the
+resource - <code>allow_create</code>, <code>allow_fetch</code> etc. - meant that users could use
+equivalent methods on the resource such as <code>create</code>. Let&rsquo;s begin by attempting
+to use one of these on the <code>Server</code> resource actually provided by openstacksdk:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> openstack.compute.v2 <span style="color:#f92672">import</span> server
+<span style="color:#f92672">&gt;&gt;&gt;</span> server<span style="color:#f92672">.</span>Server<span style="color:#f92672">.</span>list()
+Traceback (most recent call last):
+  File <span style="color:#e6db74">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#ae81ff">1</span>, <span style="color:#f92672">in</span> <span style="color:#f92672">&lt;</span>module<span style="color:#f92672">&gt;</span>
+<span style="color:#a6e22e">TypeError</span>: list() missing <span style="color:#ae81ff">1</span> required positional argument: <span style="color:#e6db74">&#39;session&#39;</span>
+</code></pre></div><p>Seems pretty legit. We need a &ldquo;session&rdquo; parameter. We can look at the docstring
+for this method to figure out what that should be:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> help(server<span style="color:#f92672">.</span>Server<span style="color:#f92672">.</span>list)
+Help on method list <span style="color:#f92672">in</span> module openstack<span style="color:#f92672">.</span>resource:
+
+list(session, paginated<span style="color:#f92672">=</span>True, base_path<span style="color:#f92672">=</span>None, allow_unknown_params<span style="color:#f92672">=</span>False, <span style="color:#f92672">**</span>params) method of builtins<span style="color:#f92672">.</span>type instance
+    This method <span style="color:#f92672">is</span> a generator which yields resource objects<span style="color:#f92672">.</span>
+    
+    This resource object list generator handles pagination <span style="color:#f92672">and</span> takes query
+    params <span style="color:#66d9ef">for</span> response filtering<span style="color:#f92672">.</span>
+    
+    :param session: The session to use <span style="color:#66d9ef">for</span> making this request<span style="color:#f92672">.</span>
+    :type session: :class:<span style="color:#e6db74">`~keystoneauth1.adapter.Adapter`</span>
+    <span style="color:#f92672">...</span>
+</code></pre></div><p>{% note %}
+Yes, it&rsquo;s called <code>session</code> but it&rsquo;s actually an Adapter. Someone should probably
+fix that.
+{% /note %}</p>
+<p>There are a couple of ways to generate a suitable parameter. Let&rsquo;s start with
+most verbose first. We can manually create a keystoneauth <code>Session</code> object,
+wrap this in openstacksdk&rsquo;s <code>Proxy</code> object (which is itself a wrapper around
+keystoneauth&rsquo;s <code>Adapter</code> object) and then use this on the relevant <code>Resource</code>
+object. An example of this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> keystoneauth1.identity <span style="color:#f92672">import</span> v3
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> keystoneauth1.session
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> keystoneclient.v3 <span style="color:#f92672">import</span> client
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> openstack.compute.v2 <span style="color:#f92672">import</span> server
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> openstack.proxy
+<span style="color:#f92672">&gt;&gt;&gt;</span> auth <span style="color:#f92672">=</span> v3<span style="color:#f92672">.</span>Password(
+<span style="color:#f92672">...</span>     auth_url<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;http://172.20.4.155/identity&#39;</span>,
+<span style="color:#f92672">...</span>     username<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;admin&#39;</span>,
+<span style="color:#f92672">...</span>     password<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;password&#39;</span>,
+<span style="color:#f92672">...</span>     project_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;demo&#39;</span>,
+<span style="color:#f92672">...</span>     user_domain_id<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;default&#39;</span>,
+<span style="color:#f92672">...</span>     project_domain_id<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;default&#39;</span>)
+<span style="color:#f92672">&gt;&gt;&gt;</span> session <span style="color:#f92672">=</span> keystoneauth1<span style="color:#f92672">.</span>session<span style="color:#f92672">.</span>Session(auth<span style="color:#f92672">=</span>auth)
+<span style="color:#f92672">&gt;&gt;&gt;</span> proxy <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>proxy<span style="color:#f92672">.</span>Proxy(
+<span style="color:#f92672">...</span>     session<span style="color:#f92672">=</span>session,
+<span style="color:#f92672">...</span>     service_type<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;compute&#39;</span>,
+<span style="color:#f92672">...</span>     interface<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;public&#39;</span>,
+<span style="color:#f92672">...</span>     version<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2.1&#39;</span>)
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span>([x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> server<span style="color:#f92672">.</span>Server<span style="color:#f92672">.</span>list(session<span style="color:#f92672">=</span>proxy)])
+[<span style="color:#e6db74">&#39;test-server&#39;</span>]
+</code></pre></div><p>This aligns with what I&rsquo;m seeing if I run <code>openstack server list</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ openstack server list -f value -c Name
+test-server
+</code></pre></div><p>Hurrah! However, not only is this super verbose but it&rsquo;s using hard-coded cloud
+details such as keystone details and the version that I extracted from the
+<code>openrc</code> file laid down by DevStack. This seems unnecessary: you don&rsquo;t need to
+manually specify any of these when using the clients so why do we need to use
+that here. In fact, it <em>is</em> unnecessary. Not only can openstacksdk parse the
+environment variables configured via the <code>openrc</code> file but it also supports (an
+in fact prefers) a <code>clouds.yaml</code> file, which on a DevStack deployment can be
+found at <code>/etc/openstack/clouds.yaml</code>. An abbreviated example from my DevStack
+deployment:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat /etc/openstack/clouds.yaml
+clouds:
+  devstack:
+    auth:
+      auth_url: http://172.20.4.155/identity
+      password: password
+      project_domain_id: default
+      project_name: demo
+      user_domain_id: default
+      username: demo
+    identity_api_version: <span style="color:#e6db74">&#39;3&#39;</span>
+    region_name: RegionOne
+    volume_api_version: <span style="color:#e6db74">&#39;3&#39;</span>
+  devstack-admin:
+    ...
+  devstack-alt:
+    ...
+  devstack-system-admin:
+    ...
+functional:
+  image_name: cirros-0.5.2-x86_64-disk
+</code></pre></div><p>openstacksdk provides a helpful little tool to show the configuration it&rsquo;s able
+to identify automatically, the <code>openstack.config.loader</code> module:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python -m openstack.config.loader
+devstack None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
+devstack-admin None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
+devstack-alt None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
+devstack-system-admin None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
+envvars None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
+</code></pre></div><p>You&rsquo;ll note that most of these correspond to entries in the <code>clouds.yaml</code> file
+but there&rsquo;s also an additional entry - <code>envvars</code> - which corresponds to the
+cloud configuration sourced from environment variables which were configured
+via the <code>openrc</code> file. Very cool.</p>
+<p>Knowing that we have the above, we can use the above example once again but
+this time use openstacksdk to generate the <code>Proxy</code> object for us:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> openstack.config.loader
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> openstack.compute.v2 <span style="color:#f92672">import</span> server
+<span style="color:#f92672">&gt;&gt;&gt;</span> config <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>loader<span style="color:#f92672">.</span>OpenStackConfig()<span style="color:#f92672">.</span>get_one(<span style="color:#e6db74">&#39;devstack&#39;</span>)
+<span style="color:#f92672">&gt;&gt;&gt;</span> session <span style="color:#f92672">=</span> config<span style="color:#f92672">.</span>get_session_client(<span style="color:#e6db74">&#39;compute&#39;</span>)
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span>([x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> server<span style="color:#f92672">.</span>Server<span style="color:#f92672">.</span>list(session<span style="color:#f92672">=</span>proxy)])
+[<span style="color:#e6db74">&#39;test-server&#39;</span>]
+</code></pre></div><p>This is far less verbose that the previous example and doesn&rsquo;t require
+hardcoding any configuration into our scripts, or reinventing the wheel with
+regard to parsing environment variables or <code>clouds.yaml</code> files. Instead, we&rsquo;re
+saying we should use the configuration for the <code>devstack</code> cloud from
+<code>clouds.yaml</code>. If we wanted to, we could also use the <code>envvars</code> &ldquo;cloud&rdquo; or any
+of the other <code>devstack-*</code> clouds. Ultimately though, it saves us a lot of code.
+We&rsquo;re not done though. We can make this even easier by using the <code>Connection</code>
+object from the <code>openstack.connection</code> module. You likely missed it, but we
+already created one of these objects in our brief example on using the <em>proxy</em>
+and <em>cloud</em> layers above:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> openstack
+<span style="color:#75715e"># ...</span>
+conn <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>connect(cloud<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;mordred&#39;</span>)
+<span style="color:#75715e"># ...</span>
+</code></pre></div><p>That does an awful lot for us including generating suitable <code>Proxy</code> objects. We
+can use it in place of the <code>OpenStackConfig.get_one</code> and <code>get_session_client</code>
+calls above:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> openstack
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> openstack.compute.v2 <span style="color:#f92672">import</span> server
+<span style="color:#f92672">&gt;&gt;&gt;</span> conn <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>connect(cloud<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;devstack&#39;</span>)
+<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span>([x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> server<span style="color:#f92672">.</span>Server<span style="color:#f92672">.</span>list(session<span style="color:#f92672">=</span>proxy)])
+[<span style="color:#e6db74">&#39;test-server&#39;</span>]
+</code></pre></div><p>Wonderfully concise.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2021 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.26.0/moment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
