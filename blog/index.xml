@@ -60,9 +60,9 @@ likely look something like this:&lt;/p&gt;
     access_ipv6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv6&amp;#39;&lt;/span&gt;)
     &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There&amp;rsquo;s a lot of abstraction going on here, and it&amp;rsquo;s obviously far from
-complete (look at &lt;code&gt;openstack/compute/v2/server.py&lt;/code&gt; in the openstacksdk project
-if you want the real deal), but there are a couple of crucial components here.
-Firstly, we&amp;rsquo;re giving the path to the API:&lt;/p&gt;
+complete (look at &lt;code&gt;openstack/compute/v2/server.py&lt;/code&gt; in the &lt;em&gt;openstacksdk&lt;/em&gt;
+project if you want the real deal), but there are a couple of crucial
+components here. Firstly, we&amp;rsquo;re giving the path to the API:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# API path&lt;/span&gt;
     base_path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/servers&amp;#39;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is the &lt;em&gt;base&lt;/em&gt; path, which is extended with additional path components
@@ -111,7 +111,17 @@ this is indeed the case. For example, consider a typical response for
     &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;...&lt;/span&gt;
   }
 }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you have the allowed operations and the fields or attributes of the
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;In case you&amp;rsquo;re interested, the reason most services are so consistent in using
+envelopes for their API responses is because they&amp;rsquo;ve been advised to. Despite
+the fact that each OpenStack service is developed by its own mostly unique team
+with their own preferences, we have (thankfully) managed to establish some
+guidelines for things for like [how API responses should be structured][5].&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Finally, you have the allowed operations and the fields or attributes of the
 server resource:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# capabilities&lt;/span&gt;
     allow_create &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; True
@@ -150,7 +160,7 @@ a user updating an existing server then we could configure &lt;code&gt;allow_com
 how you&amp;rsquo;d actually use this.&lt;/p&gt;
 &lt;h2 id=&#34;using-resource-objects&#34;&gt;Using Resource objects&lt;/h2&gt;
 &lt;p&gt;Let&amp;rsquo;s begin by saying most users won&amp;rsquo;t actually need to use &lt;code&gt;Resource&lt;/code&gt; objects
-directly. openstacksdk consists of multiple layers, and most users will get
+directly. &lt;em&gt;openstacksdk&lt;/em&gt; consists of multiple layers, and most users will get
 away with using what&amp;rsquo;s known as the &lt;em&gt;proxy&lt;/em&gt; layer. This is a utility layer that
 provides a number of easy API helpers such as &lt;code&gt;create_server&lt;/code&gt; (to create a new
 server) or &lt;code&gt;flavors&lt;/code&gt; (to list servers) that a user can use to interact with
@@ -184,7 +194,8 @@ from most complicated (and therefore most informative) to most abstract.&lt;/p&g
 &lt;p&gt;We said above that the definition of the capabilities attributes on the
 resource - &lt;code&gt;allow_create&lt;/code&gt;, &lt;code&gt;allow_fetch&lt;/code&gt; etc. - meant that users could use
 equivalent methods on the resource such as &lt;code&gt;create&lt;/code&gt;. Let&amp;rsquo;s begin by attempting
-to use one of these on the &lt;code&gt;Server&lt;/code&gt; resource actually provided by openstacksdk:&lt;/p&gt;
+to use one of these on the &lt;code&gt;Server&lt;/code&gt; resource actually provided by
+&lt;em&gt;openstacksdk&lt;/em&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; openstack.compute.v2 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; server
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list()
 Traceback (most recent call last):
@@ -211,11 +222,19 @@ list(session, paginated&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;T
 fix that.&lt;/div&gt;
 &lt;/aside&gt;
 
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;The docs say you can use an &lt;code&gt;keystoneauth1.adapter.Adapter&lt;/code&gt; object but this is
+a lie. If you try, it&amp;rsquo;ll complain about not having methods that are only
+accessible from the &lt;code&gt;openstack.proxy.Proxy&lt;/code&gt; object.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;p&gt;There are a couple of ways to generate a suitable parameter. Let&amp;rsquo;s start with
-most verbose first. We can manually create a keystoneauth &lt;code&gt;Session&lt;/code&gt; object,
-wrap this in openstacksdk&amp;rsquo;s &lt;code&gt;Proxy&lt;/code&gt; object (which is itself a wrapper around
-keystoneauth&amp;rsquo;s &lt;code&gt;Adapter&lt;/code&gt; object) and then use this on the relevant &lt;code&gt;Resource&lt;/code&gt;
-object. An example of this:&lt;/p&gt;
+most verbose first. We can manually create a &lt;code&gt;keystoneauth1.session.Session&lt;/code&gt;
+object, wrap this in &lt;em&gt;openstacksdk&lt;/em&gt;&amp;rsquo;s &lt;code&gt;openstack.proxy.Proxy&lt;/code&gt; object (which is
+itself a wrapper around keystoneauth&amp;rsquo;s &lt;code&gt;keystoneauth1.adapter.Adapter&lt;/code&gt; object)
+and then use this on the relevant &lt;code&gt;Resource&lt;/code&gt; object. An example:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; keystoneauth1.identity &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; v3
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; keystoneauth1.session
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; keystoneclient.v3 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; client
@@ -243,7 +262,7 @@ test-server
 details such as keystone details and the version that I extracted from the
 &lt;code&gt;openrc&lt;/code&gt; file laid down by DevStack. This seems unnecessary: you don&amp;rsquo;t need to
 manually specify any of these when using the clients so why do we need to use
-that here. In fact, it &lt;em&gt;is&lt;/em&gt; unnecessary. Not only can openstacksdk parse the
+that here. In fact, it &lt;em&gt;is&lt;/em&gt; unnecessary. Not only can &lt;em&gt;openstacksdk&lt;/em&gt; parse the
 environment variables configured via the &lt;code&gt;openrc&lt;/code&gt; file but it also supports (an
 in fact prefers) a &lt;code&gt;clouds.yaml&lt;/code&gt; file, which on a DevStack deployment can be
 found at &lt;code&gt;/etc/openstack/clouds.yaml&lt;/code&gt;. An abbreviated example from my DevStack
@@ -269,8 +288,8 @@ clouds:
     ...
 functional:
   image_name: cirros-0.5.2-x86_64-disk
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;openstacksdk provides a helpful little tool to show the configuration it&amp;rsquo;s able
-to identify automatically, the &lt;code&gt;openstack.config.loader&lt;/code&gt; module:&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;em&gt;openstacksdk&lt;/em&gt; provides a helpful little tool to show the configuration it&amp;rsquo;s
+able to identify automatically, the &lt;code&gt;openstack.config.loader&lt;/code&gt; module:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ python -m openstack.config.loader
 devstack None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
 devstack-admin None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
@@ -282,7 +301,7 @@ but there&amp;rsquo;s also an additional entry - &lt;code&gt;envvars&lt;/code&gt
 cloud configuration sourced from environment variables which were configured
 via the &lt;code&gt;openrc&lt;/code&gt; file. Very cool.&lt;/p&gt;
 &lt;p&gt;Knowing that we have the above, we can use the above example once again but
-this time use openstacksdk to generate the &lt;code&gt;Proxy&lt;/code&gt; object for us:&lt;/p&gt;
+this time use &lt;em&gt;openstacksdk&lt;/em&gt; to generate the &lt;code&gt;Proxy&lt;/code&gt; object for us:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack.config.loader
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; openstack.compute.v2 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; server
 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; config &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;config&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;loader&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;OpenStackConfig()&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get_one(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;devstack&amp;#39;&lt;/span&gt;)

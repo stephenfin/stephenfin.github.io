@@ -74,7 +74,7 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2021-03-23T00:00:00Z'>Mar 23, 2021</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>8 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>9 min read</span>
       </div>
     </div>
   </div>
@@ -127,9 +127,9 @@ likely look something like this:</p>
     access_ipv6 <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;accessIPv6&#39;</span>)
     <span style="color:#75715e"># ...</span>
 </code></pre></div><p>There&rsquo;s a lot of abstraction going on here, and it&rsquo;s obviously far from
-complete (look at <code>openstack/compute/v2/server.py</code> in the openstacksdk project
-if you want the real deal), but there are a couple of crucial components here.
-Firstly, we&rsquo;re giving the path to the API:</p>
+complete (look at <code>openstack/compute/v2/server.py</code> in the <em>openstacksdk</em>
+project if you want the real deal), but there are a couple of crucial
+components here. Firstly, we&rsquo;re giving the path to the API:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">    <span style="color:#75715e"># API path</span>
     base_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;/servers&#39;</span>
 </code></pre></div><p>This is the <em>base</em> path, which is extended with additional path components
@@ -178,7 +178,17 @@ this is indeed the case. For example, consider a typical response for
     <span style="color:#960050;background-color:#1e0010">...</span>
   }
 }
-</code></pre></div><p>Finally, you have the allowed operations and the fields or attributes of the
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">In case you&rsquo;re interested, the reason most services are so consistent in using
+envelopes for their API responses is because they&rsquo;ve been advised to. Despite
+the fact that each OpenStack service is developed by its own mostly unique team
+with their own preferences, we have (thankfully) managed to establish some
+guidelines for things for like [how API responses should be structured][5].</div>
+</aside>
+
+<p>Finally, you have the allowed operations and the fields or attributes of the
 server resource:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">    <span style="color:#75715e"># capabilities</span>
     allow_create <span style="color:#f92672">=</span> True
@@ -217,7 +227,7 @@ a user updating an existing server then we could configure <code>allow_commit = 
 how you&rsquo;d actually use this.</p>
 <h2 id="using-resource-objects">Using Resource objects</h2>
 <p>Let&rsquo;s begin by saying most users won&rsquo;t actually need to use <code>Resource</code> objects
-directly. openstacksdk consists of multiple layers, and most users will get
+directly. <em>openstacksdk</em> consists of multiple layers, and most users will get
 away with using what&rsquo;s known as the <em>proxy</em> layer. This is a utility layer that
 provides a number of easy API helpers such as <code>create_server</code> (to create a new
 server) or <code>flavors</code> (to list servers) that a user can use to interact with
@@ -251,7 +261,8 @@ from most complicated (and therefore most informative) to most abstract.</p>
 <p>We said above that the definition of the capabilities attributes on the
 resource - <code>allow_create</code>, <code>allow_fetch</code> etc. - meant that users could use
 equivalent methods on the resource such as <code>create</code>. Let&rsquo;s begin by attempting
-to use one of these on the <code>Server</code> resource actually provided by openstacksdk:</p>
+to use one of these on the <code>Server</code> resource actually provided by
+<em>openstacksdk</em>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> openstack.compute.v2 <span style="color:#f92672">import</span> server
 <span style="color:#f92672">&gt;&gt;&gt;</span> server<span style="color:#f92672">.</span>Server<span style="color:#f92672">.</span>list()
 Traceback (most recent call last):
@@ -278,11 +289,19 @@ list(session, paginated<span style="color:#f92672">=</span>True, base_path<span 
 fix that.</div>
 </aside>
 
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">The docs say you can use an <code>keystoneauth1.adapter.Adapter</code> object but this is
+a lie. If you try, it&rsquo;ll complain about not having methods that are only
+accessible from the <code>openstack.proxy.Proxy</code> object.</div>
+</aside>
+
 <p>There are a couple of ways to generate a suitable parameter. Let&rsquo;s start with
-most verbose first. We can manually create a keystoneauth <code>Session</code> object,
-wrap this in openstacksdk&rsquo;s <code>Proxy</code> object (which is itself a wrapper around
-keystoneauth&rsquo;s <code>Adapter</code> object) and then use this on the relevant <code>Resource</code>
-object. An example of this:</p>
+most verbose first. We can manually create a <code>keystoneauth1.session.Session</code>
+object, wrap this in <em>openstacksdk</em>&rsquo;s <code>openstack.proxy.Proxy</code> object (which is
+itself a wrapper around keystoneauth&rsquo;s <code>keystoneauth1.adapter.Adapter</code> object)
+and then use this on the relevant <code>Resource</code> object. An example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> keystoneauth1.identity <span style="color:#f92672">import</span> v3
 <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> keystoneauth1.session
 <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> keystoneclient.v3 <span style="color:#f92672">import</span> client
@@ -310,7 +329,7 @@ test-server
 details such as keystone details and the version that I extracted from the
 <code>openrc</code> file laid down by DevStack. This seems unnecessary: you don&rsquo;t need to
 manually specify any of these when using the clients so why do we need to use
-that here. In fact, it <em>is</em> unnecessary. Not only can openstacksdk parse the
+that here. In fact, it <em>is</em> unnecessary. Not only can <em>openstacksdk</em> parse the
 environment variables configured via the <code>openrc</code> file but it also supports (an
 in fact prefers) a <code>clouds.yaml</code> file, which on a DevStack deployment can be
 found at <code>/etc/openstack/clouds.yaml</code>. An abbreviated example from my DevStack
@@ -336,8 +355,8 @@ clouds:
     ...
 functional:
   image_name: cirros-0.5.2-x86_64-disk
-</code></pre></div><p>openstacksdk provides a helpful little tool to show the configuration it&rsquo;s able
-to identify automatically, the <code>openstack.config.loader</code> module:</p>
+</code></pre></div><p><em>openstacksdk</em> provides a helpful little tool to show the configuration it&rsquo;s
+able to identify automatically, the <code>openstack.config.loader</code> module:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python -m openstack.config.loader
 devstack None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
 devstack-admin None <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;api_timeout&#39;</span>: None, ..., <span style="color:#e6db74">&#39;networks&#39;</span>: <span style="color:#f92672">[]}</span>
@@ -349,7 +368,7 @@ but there&rsquo;s also an additional entry - <code>envvars</code> - which corres
 cloud configuration sourced from environment variables which were configured
 via the <code>openrc</code> file. Very cool.</p>
 <p>Knowing that we have the above, we can use the above example once again but
-this time use openstacksdk to generate the <code>Proxy</code> object for us:</p>
+this time use <em>openstacksdk</em> to generate the <code>Proxy</code> object for us:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> openstack.config.loader
 <span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> openstack.compute.v2 <span style="color:#f92672">import</span> server
 <span style="color:#f92672">&gt;&gt;&gt;</span> config <span style="color:#f92672">=</span> openstack<span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>loader<span style="color:#f92672">.</span>OpenStackConfig()<span style="color:#f92672">.</span>get_one(<span style="color:#e6db74">&#39;devstack&#39;</span>)
