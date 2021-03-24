@@ -85,7 +85,7 @@ OpenStack clouds. I&rsquo;ve been doing a lot of work on it lately and am only n
 starting to gain an understanding of just what&rsquo;s going on (there are fewer
 layers in an onion 😊). These are my notes on how to use the <code>Resource</code>-based
 objects found in e.g. <code>openstack/compute/v2/server.py</code>.</p>
-<h2 id="intro-to-the-resource-object">Intro to the <code>Resource</code> object</h2>
+<h2 id="intro-to-the-resource-object">Intro to the Resource object</h2>
 <p>As the name would suggest, the <code>Resource</code> object wraps a type of API resource
 or collection of API resources. For example, take nova&rsquo;s <code>/servers</code> API. This
 API supports a number of CRUD-style operations:</p>
@@ -212,7 +212,7 @@ a user updating an existing server then we could configure <code>allow_commit = 
 <code>False</code> being used).</p>
 <p>With this small introduction to the <code>Resource</code> object complete, let&rsquo;s look at
 how you&rsquo;d actually use this.</p>
-<h2 id="using-resource-objects">Using <code>Resource</code> objects</h2>
+<h2 id="using-resource-objects">Using Resource objects</h2>
 <p>Let&rsquo;s begin by saying most users won&rsquo;t actually need to use <code>Resource</code> objects
 directly. openstacksdk consists of multiple layers, and most users will get
 away with using what&rsquo;s known as the <em>proxy</em> layer. This is a utility layer that

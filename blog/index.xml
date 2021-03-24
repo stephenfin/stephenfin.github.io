@@ -18,7 +18,7 @@ OpenStack clouds. I&amp;rsquo;ve been doing a lot of work on it lately and am on
 starting to gain an understanding of just what&amp;rsquo;s going on (there are fewer
 layers in an onion 😊). These are my notes on how to use the &lt;code&gt;Resource&lt;/code&gt;-based
 objects found in e.g. &lt;code&gt;openstack/compute/v2/server.py&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;intro-to-the-resource-object&#34;&gt;Intro to the &lt;code&gt;Resource&lt;/code&gt; object&lt;/h2&gt;
+&lt;h2 id=&#34;intro-to-the-resource-object&#34;&gt;Intro to the Resource object&lt;/h2&gt;
 &lt;p&gt;As the name would suggest, the &lt;code&gt;Resource&lt;/code&gt; object wraps a type of API resource
 or collection of API resources. For example, take nova&amp;rsquo;s &lt;code&gt;/servers&lt;/code&gt; API. This
 API supports a number of CRUD-style operations:&lt;/p&gt;
@@ -145,7 +145,7 @@ a user updating an existing server then we could configure &lt;code&gt;allow_com
 &lt;code&gt;False&lt;/code&gt; being used).&lt;/p&gt;
 &lt;p&gt;With this small introduction to the &lt;code&gt;Resource&lt;/code&gt; object complete, let&amp;rsquo;s look at
 how you&amp;rsquo;d actually use this.&lt;/p&gt;
-&lt;h2 id=&#34;using-resource-objects&#34;&gt;Using &lt;code&gt;Resource&lt;/code&gt; objects&lt;/h2&gt;
+&lt;h2 id=&#34;using-resource-objects&#34;&gt;Using Resource objects&lt;/h2&gt;
 &lt;p&gt;Let&amp;rsquo;s begin by saying most users won&amp;rsquo;t actually need to use &lt;code&gt;Resource&lt;/code&gt; objects
 directly. openstacksdk consists of multiple layers, and most users will get
 away with using what&amp;rsquo;s known as the &lt;em&gt;proxy&lt;/em&gt; layer. This is a utility layer that
