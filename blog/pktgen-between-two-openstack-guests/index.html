@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Use Pktgen-DPDK to send traffic between two Openstack VMs | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto Condensed|Roboto Slab">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/dR3Fb6dBEc0/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Use Pktgen-DPDK to send traffic between two Openstack VMs</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2021-11-18T00:00:00Z'>Nov 18, 2021</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>10 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>As part of my new OpenShift-flavoured responsibilities, I&rsquo;ve been trying to get
+DPDK-based applications running successfully on OpenShift-on-OpenStack. A
+pre-requisite step to this was getting DPDK configured on the host. With this
+done, I figured I&rsquo;d investigate using an actual DPDK application in the guests.
+I&rsquo;d done this before, though it&rsquo;s been a while, and I did eventually get there.
+There were a few wrong turns along the way though, so I&rsquo;ve documented the steps
+I finally settled on here in case they&rsquo;re helpful to anyone else.</p>
+<h2 id="cloud-configuration">Cloud configuration</h2>
+<p>We&rsquo;re going to be using OpenStack to provision our guests, so we obviously need
+an OpenStack cloud to point to. Given that we&rsquo;re using DPDK in the guests, we
+also need to ensure that OVS-DPDK is used on the host(s). You can use a
+pre-existing cloud if you&rsquo;re sure it provides the latter, but I decided to use
+<a href="https://github.com/shiftstack/dev-install"><code>dev-install</code></a> along with a modified version of the sample <a href="https://github.com/shiftstack/dev-install/blob/main/example-overrides/local-overrides-osp16-2-with-dpdk.yaml">OVS-DPDK
+configuration file</a> to install a small, TripleO Standalone-based OpenStack
+deployment on a borrowed server.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>You can verify the OVS on the host is using DPDK using the following commands:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ ovs-vsctl --no-wait get Open_vSwitch . dpdk_initialized
+true
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ sudo ovs-vsctl --no-wait get Open_vSwitch . dpdk_version
+<span style="color:#e6db74">&#34;DPDK 20.11.1&#34;</span>
+</code></pre></div><p>This is discussed further in the OVS documentation.</p>
+</div>
+</aside>
+
+<p>Once you have you cloud selected, you need to ensure you have appropriate
+networks and an appropriate image and flavor. <code>dev-install</code> provides most of
+these for you, but can create them manually using the below commands.</p>
+<p>First, the image. We&rsquo;re going to use CentOS 8 Stream:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ wget https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack image create <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --disk-format qcow2 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --public <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --file CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    centos8-stream
+</code></pre></div><p>Next, the flavor. This is a pretty standard flavor except that we need to use
+pinned CPUs and enable hugepages:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack flavor create <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --vcpu <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --ram <span style="color:#ae81ff">8192</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --property hw:cpu_policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;dedicated&#39;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --property hw:mem_page_size<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;large&#39;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    m1.large.nfv
+</code></pre></div><p>You might also need to create a suitable network. <code>dev-install</code> configures a
+<code>hostonly</code> provider network. If using another method, you need to create your
+own provider network. Adding this is an exercise left to the reader. Once done,
+we need to create a tenant network that we&rsquo;ll use to configure additional
+ports. Create this, along with a router:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack network create internal_net
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack subnet create <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --subnet-range 192.168.200.0/24 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    internal_subnet
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router create router_a
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router set --external-gateway hostonly router_a
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router add subnet router_a internal_subnet
+</code></pre></div><p>Finally, you need some way to access the guest. Create and upload a keypair:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ ssh-keygen
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack keypair create --public ~/.ssh/id_rsa.pub my-key
+</code></pre></div><h2 id="initial-server-setup">Initial server setup</h2>
+<p>We&rsquo;re going to create two servers: <code>guest-tx</code> and <code>guest-rx</code>. These are
+effectively identical save for the configuration we&rsquo;ll eventually pass to
+Pktgen-DPDK. Create the servers:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server create <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --image centos8-stream <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --flavor m1.large.nfv <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --key-name my-key <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --wait <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    guest-tx
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server create <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --image centos8-stream <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --flavor m1.large.nfv <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --key-name my-key <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --wait <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    guest-rx
+</code></pre></div><p>Create two floating IPs and attach them to the server so we can SSH into the machine:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_fip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack floating ip create hostonly-dpdk -f value -c name | tr -d <span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#66d9ef">)</span>
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_fip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack floating ip create hostonly-dpdk -f value -c name | tr -d <span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#66d9ef">)</span>
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add floating ip guest-tx $tx_fip
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add floating ip guest-rx $rx_fip
+</code></pre></div><p>You&rsquo;ll also need to add security groups to enable SSH and potentially ICMP
+(for ping) access. If you deployed with <code>dev-install</code> like I did, then these
+will already be present. If you use another mechanism then you can create
+these security groups like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group create --description allow_ssh allow_ssh
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group rule create --protocol tcp --dst-port <span style="color:#ae81ff">22</span> allow_ssh
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group create --description allow_ping allow_ping
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group rule create --protocol icmp allow_ping
+</code></pre></div><p>You can then add these security groups to the servers:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-tx allow_ssh
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-tx allow_ping
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-rx allow_ssh
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-rx allow_ping
+</code></pre></div><p>You should now be able to SSH into the instances:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server ssh --login centos guest-tx
+</code></pre></div><h2 id="attach-dpdk-interfaces">Attach DPDK interfaces</h2>
+<p>With the initial server configuration out of the way, we can move onto
+configuring the interfaces we will use for our DPDK application. It&rsquo;s necessary
+to use secondary interfaces since we&rsquo;re going to be binding these interfaces
+to the <code>vfio-pci</code> driver. The second we do this, the devices will no longer
+be usable by the kernel network stack which means, among other things, we
+cannot use SSH on this interface. With that said, there&rsquo;s not going to be
+anything special about these interfaces: every interface attached to the
+instance will be <code>vhostuser</code> interface. We can confirm this by inspecting
+the single interface currently attached to the instance:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ sudo podman exec -it nova_libvirt virsh dumpxml <span style="color:#ae81ff">14</span> | xmllint --xpath <span style="color:#e6db74">&#39;/domain/devices/interface&#39;</span> -
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">We&rsquo;re executing this in the <code>nova_libvirt</code> container because this is how
+TripleO Standalone, and thus <code>dev-intall</code>, deploys libvirt.</div>
+</aside>
+
+<p>This will yield something like the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;interface</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;vhostuser&#34;</span><span style="color:#f92672">&gt;</span>
+  <span style="color:#f92672">&lt;mac</span> <span style="color:#a6e22e">address=</span><span style="color:#e6db74">&#34;fa:16:3e:97:3d:11&#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;unix&#34;</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;/var/lib/vhost_sockets/vhub20e827c-4a&#34;</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;server&#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;vhub20e827c-4a &#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;virtio&#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">rx_queue_size=</span><span style="color:#e6db74">&#34;1024&#34;</span> <span style="color:#a6e22e">tx_queue_size=</span><span style="color:#e6db74">&#34;1024&#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;alias</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;net0&#34;</span><span style="color:#f92672">/&gt;</span>
+  <span style="color:#f92672">&lt;address</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pci&#34;</span> <span style="color:#a6e22e">domain=</span><span style="color:#e6db74">&#34;0x0000&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;0x00&#34;</span> <span style="color:#a6e22e">slot=</span><span style="color:#e6db74">&#34;0x03&#34;</span> <span style="color:#a6e22e">function=</span><span style="color:#e6db74">&#34;0x0&#34;</span><span style="color:#f92672">/&gt;</span>
+<span style="color:#f92672">&lt;/interface&gt;</span>
+</code></pre></div><p>With that bit out of the way, we can now add our additional network interface
+to each instance:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack port create --network internal_net dpdk-port-tx
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack port create --network internal_net dpdk-port-rx
+</code></pre></div><p>We&rsquo;ll save the IP and MAC addresses for these interfaces: these will be useful
+later:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_dpdk_ip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-tx | jq -r <span style="color:#e6db74">&#39;.fixed_ips[0].ip_address&#39;</span><span style="color:#66d9ef">)</span>
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_dpdk_ip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-rx | jq -r <span style="color:#e6db74">&#39;.fixed_ips[0].ip_address&#39;</span><span style="color:#66d9ef">)</span>
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_dpdk_mac<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-tx | jq -r <span style="color:#e6db74">&#39;.mac_address&#39;</span><span style="color:#66d9ef">)</span>
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_dpdk_mac<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-rx | jq -r <span style="color:#e6db74">&#39;.mac_address&#39;</span><span style="color:#66d9ef">)</span>
+</code></pre></div><p>Now add them to the servers:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add port guest-tx dpdk-port-tx
+<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add port guest-rx dpdk-port-rx
+</code></pre></div><p>You can verify that these interfaces are of type <code>vhostuser</code> again, if you like.</p>
+<h2 id="compile-pktgen-dpdk">Compile Pktgen-DPDK</h2>
+<p>We now have our servers effectively configured from an &ldquo;infrastructure&rdquo;
+perspective. Going forward, everything will be done inside the guests. The
+first of these steps is to compile Pktgen-DPDK. This is necessary because
+while DPDK itself is packaged for CentOS, Pktgen-DPDK is not. We&rsquo;re going
+to demonstrate the steps to run for one intance. You should then repeat these
+on the second instance.</p>
+<p>First, let&rsquo;s SSH into the machine:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server ssh guest-tx --login centos
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$
+</code></pre></div><p>Install the dependencies. These are numerous:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf config-manager --set-enabled powertools
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf groupinstall -y <span style="color:#e6db74">&#39;Development Tools&#39;</span>
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf install -y numactl-devel libpcap-devel meson driverctl
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ python3 -m pip install --user pyelftools  <span style="color:#75715e"># avoid requiring EPEL</span>
+</code></pre></div><p>Now, let&rsquo;s clone and build DPDK. We could use the <code>dpdk</code> and <code>dpdk-devel</code>
+packages provided by CentOS but these are pretty old. If you decide to go
+this route, don&rsquo;t forget to checkout a tag in the Pktgen-DPDK repo
+corresponding to the correct DPDK release in the environment.</p>
+<p>You can build DPDK like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git clone https://github.com/dpdk/dpdk
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ cd dpdk
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git checkout v21.11rc3  <span style="color:#75715e"># use v21.11 if it&#39;s been released</span>
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ meson build
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ ninja -C build
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo ninja -C build install
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">You&rsquo;ll note that I&rsquo;m using a fixed version of DPDK. As this post ages, you
+may wish to use a newer version of DPDK. If you do, you should also update the
+tag checked out for Pktgen-DPDK below.</div>
+</aside>
+
+<p>With DPDK build, let&rsquo;s do the same for Pktgen-DPDK:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git clone https://github.com/pktgen/Pktgen-DPDK
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ cd Pktgen-DPDK
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git checkout pktgen-21.11.0
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ PKG_CONFIG_PATH<span style="color:#f92672">=</span>/usr/local/lib64/pkgconfig meson build
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ ninja -C build
+<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo ninja -C build install
+</code></pre></div><p>Finally, restart the instance to propogate all these changes:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo reboot
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">Don&rsquo;t forget to run the above on both instances, as noted previously.</div>
+</aside>
+
+<h2 id="configure-environment">Configure environment</h2>
+<p>Now that our applications are ready to go, we need to configure our
+environment. There are a two parts to this: enabling hugepages and configuring
+our annointed interfaces to use the <code>vfio-pci</code> driver. Once again, these steps
+should be done on both instances.</p>
+<p>We&rsquo;re going to use root for most of these commands since it&rsquo;s easier than
+working with pipes and sudo. Become root and configure the hugepages:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo su
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 1024 &gt; /proc/sys/vm/nr_hugepages</span>
+</code></pre></div><p>Now the trickier job of rebinding our interfaces to use the <code>vfio-pci</code> driver.
+We&rsquo;ve got two interfaces in both instances: the primary interface that we&rsquo;re
+SSHing through, and the second interface that we&rsquo;re going to use for our DPDK
+application. We can verify this using a combination of <code>ip</code> and <code>lspci</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># ip link</span>
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci | grep Ethernet</span>
+</code></pre></div><p>This should return something akin to the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># ip link</span>
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1442</span> qdisc fq_codel state UP mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
+    link/ether fa:16:3e:97:3d:11 brd ff:ff:ff:ff:ff:ff
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1442</span> qdisc fq_codel state UP mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
+    link/ether fa:16:3e:5b:af:eb brd ff:ff:ff:ff:ff:ff
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci | grep Ethernet</span>
+00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device
+00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
+</code></pre></div><p>In this instance, our device has been assigned the address <code>00:07.0</code>. We can
+inspect the driver currently in use using <code>lspci</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci -s 00:07.0 -v</span>
+00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
+        Subsystem: Red Hat, Inc. Device <span style="color:#ae81ff">0001</span>
+        Physical Slot: <span style="color:#ae81ff">7</span>
+        Flags: bus master, fast devsel, latency 0, IRQ <span style="color:#ae81ff">10</span>
+        I/O ports at <span style="color:#ae81ff">1000</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>32<span style="color:#f92672">]</span>
+        Memory at c0040000 <span style="color:#f92672">(</span>32-bit, non-prefetchable<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>4K<span style="color:#f92672">]</span>
+        Memory at <span style="color:#ae81ff">240000000</span> <span style="color:#f92672">(</span>64-bit, prefetchable<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>16K<span style="color:#f92672">]</span>
+        Expansion ROM at c0000000 <span style="color:#f92672">[</span>virtual<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>disabled<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>256K<span style="color:#f92672">]</span>
+        Capabilities: <span style="color:#f92672">[</span>98<span style="color:#f92672">]</span> MSI-X: Enable+ Count<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> Masked-
+        Capabilities: <span style="color:#f92672">[</span>84<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: &lt;unknown&gt;
+        Capabilities: <span style="color:#f92672">[</span>70<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: Notify
+        Capabilities: <span style="color:#f92672">[</span>60<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: DeviceCfg
+        Capabilities: <span style="color:#f92672">[</span>50<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: ISR
+        Capabilities: <span style="color:#f92672">[</span>40<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: CommonCfg
+        Kernel driver in use: virtio-pci
+</code></pre></div><p>We&rsquo;re using <code>virtio-pci</code>, but we need to be using <code>vfio-pci</code>. Let&rsquo;s
+load that driver and then rebind the interface to the driver using the
+<code>driverctl</code> utility we used earlier:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># modprobe vfio enable_unsafe_noiommu_mode=1</span>
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># cat /sys/module/vfio/parameters/enable_unsafe_noiommu_mode</span>
+Y
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># modprobe vfio-pci</span>
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># driverctl -v set-override 0000:00:07.0 vfio-pci</span>
+</code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>You could also do the binding manually using sysfs. First you need to get the PCI
+vendor and product ID:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci -s 00:07.0 -n</span>
+00:07.0 0200: 1af4:1000
+</code></pre></div><p>In this instance, it&rsquo;s <code>1af4:1000</code>. We&rsquo;ll use this now:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 0000:00:07.0 &gt; /sys/bus/pci/devices/0000:00:07.0/driver/unbind</span>
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 0000:00:08.0 &gt; /sys/bus/pci/devices/0000:00:08.0/driver/unbind</span>
+<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 1af4 1000 &gt; /sys/bus/pci/drivers/vfio-pci/new_id</span>
+</code></pre></div></div>
+</aside>
+
+<p>If you inspect the device again, you should see that it&rsquo;s now bound to the
+<code>vfio-pci</code> driver.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">Don&rsquo;t forget to run the above on both instances, as noted previously.</div>
+</aside>
+
+<h2 id="run-applications">Run applications</h2>
+<p>The final step: running the applications we built and installed earlier.
+The <code>pktgen</code> application requires a small bit of configuration. Forunately
+everything we already have everything we need. Back on the host, run the
+following, which will create a configuration file using the MAC and IP
+address information we stored earlier:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat <span style="color:#e6db74">&lt;&lt; EOF &gt; pktgen.pkt
+</span><span style="color:#e6db74">stop 0
+</span><span style="color:#e6db74">set 0 rate 0.1
+</span><span style="color:#e6db74">set 0 ttl 10
+</span><span style="color:#e6db74">set 0 proto udp
+</span><span style="color:#e6db74">set 0 dport 8000
+</span><span style="color:#e6db74">set 0 src mac ${tx_dpdk_mac}
+</span><span style="color:#e6db74">set 0 dst mac ${rx_dpdk_mac}
+</span><span style="color:#e6db74">set 0 src ip ${tx_dpdk_ip}/32
+</span><span style="color:#e6db74">set 0 dst ip ${rx_dpdk_ip}
+</span><span style="color:#e6db74">set 0 size 64
+</span><span style="color:#e6db74">EOF</span>
+</code></pre></div><p>You can now copy this to the <code>guest-tx</code> instance:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ scp pktgen.pkt centos@<span style="color:#e6db74">${</span>tx_fip<span style="color:#e6db74">}</span>:/home/centos
+</code></pre></div><p>On the <code>guest-rx</code> instance, simply run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">LD_LIBRARY_PATH<span style="color:#f92672">=</span>/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n <span style="color:#ae81ff">2</span> -- -P -m <span style="color:#e6db74">&#39;2.0&#39;</span> -T
+</code></pre></div><p>Then on the <code>guest-tx</code> instance, run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">LD_LIBRARY_PATH<span style="color:#f92672">=</span>/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n <span style="color:#ae81ff">2</span> -- -P -m <span style="color:#e6db74">&#39;2.0&#39;</span> -T -f pktgen.pkt
+</code></pre></div><p>In the interactive prompt that appears, type <code>start</code>. You should see packets
+start flowing and being received by the <code>pktgen</code> instance running on
+<code>guest-rx</code>. You can stop this process by typing <code>stop</code> or simply <code>quit</code>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://www.redhat.com/en/blog/hands-vhost-user-warm-welcome-dpdk">https://www.redhat.com/en/blog/hands-vhost-user-warm-welcome-dpdk</a></li>
+<li><a href="https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/vhost-user-net-testing.md">https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/vhost-user-net-testing.md</a></li>
+<li><a href="https://blog.scottlowe.org/2017/02/16/correlating-ovs-guest-domain-interfaces/">https://blog.scottlowe.org/2017/02/16/correlating-ovs-guest-domain-interfaces/</a></li>
+<li><a href="https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html">https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html</a></li>
+<li><a href="https://access.redhat.com/solutions/3243661">https://access.redhat.com/solutions/3243661</a></li>
+</ul>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/openvswitch">#openvswitch</a>
+    
+    <a class="category" href="https://that.guru/categories/dpdk">#dpdk</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2021 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/vendor/modernizr-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://that.guru/js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.26.0/moment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://that.guru/js/plugins.js"></script>
+<script src="https://that.guru/js/main.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
