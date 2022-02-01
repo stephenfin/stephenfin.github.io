@@ -464,13 +464,13 @@ h2 {
 }
 
 .admonition.note::before {
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   font-weight: 900;
   content: "\f129";
 }
 
 .admonition.important::before {
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   font-weight: 900;
   content: "\f071";
 }

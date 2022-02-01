@@ -12,10 +12,14 @@
 
   <link rel="stylesheet" href="https://that.guru/css/normalize.css">
   <link rel="stylesheet" href="https://that.guru/css/main.css">
-  <link rel="stylesheet" href="https://that.guru/css/default.css"/>
-  <link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/>
-  <link rel="stylesheet" href="https://that.guru/css/solid.css"/>
-  <link rel="stylesheet" href="https://that.guru/css/brands.css"/>
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="stylesheet" href="https://that.guru/css/syntax.css"/>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
   <style type="text/css">
     .header-wrapper {
       background-image: url(https://source.unsplash.com/C9dTdBM3joM/1920x1080);
