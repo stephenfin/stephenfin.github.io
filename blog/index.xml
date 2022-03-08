@@ -6,7 +6,57 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 18 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 08 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Add Another Network to ZNC</title>
+      <link>https://that.guru/blog/add-another-network-to-znc/</link>
+      <pubDate>Tue, 08 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/add-another-network-to-znc/</guid>
+      <description>&lt;p&gt;ZNC allows you to connect to multiple networks (in fact, it&amp;rsquo;s one of the
+benefits it touts on &lt;a href=&#34;https://wiki.znc.in/ZNC#Main_Features&#34;&gt;the wiki&lt;/a&gt;). It distinguishes between networks and
+servers (a network can have multiple servers), so this can be slightly
+confusing the first time you have to do it. The below is a quick summary of the
+steps that are necessary to add a new network to your ZNC instance, in this
+instance, &lt;a href=&#34;https://libera.chat/&#34;&gt;Libera&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s say you&amp;rsquo;re already connected to a network, and let&amp;rsquo;s say that network is
+&lt;a href=&#34;https://www.oftc.net/&#34;&gt;OFTC&lt;/a&gt;. You can verify this using following commands:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/znc ListNetworks
+/znc ListServers
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;ListNetworks&lt;/code&gt; command will list this networks available to you.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/znc ListNetworks
++--------------+--------+----------------------+-----------------------------------+----------+
+| Network      | On IRC | IRC Server           | IRC User                          | Channels |
++--------------+--------+----------------------+-----------------------------------+----------+
+| oftc         | Yes    | weber.oftc.net       | stephenfin!~stephenfi@example.com | 9        |
++--------------+--------+----------------------+-----------------------------------+----------+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;ListServers&lt;/code&gt; command will list the servers configured for this network.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/znc ListServers
++---------------+------+-----+----------+
+| Host          | Port | SSL | Password |
++---------------+------+-----+----------+
+| irc.oftc.net* | 6697 | SSL |          |
++---------------+------+-----+----------+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now if you want to connect to another network, you can do so by adding a new
+network followed by adding a new server on this network. As noted previously,
+we&amp;rsquo;re going to configure a connection to Libera. First, we&amp;rsquo;d create the new
+network.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/znc AddNetwork libera
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we&amp;rsquo;d switch to this network:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/znc JumpNetwork libera
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can add the server:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/znc AddServer irc.libera.chat +6697
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we can connect to the channels as usual:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/join #libera
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To switch between networks, you&amp;rsquo;ll need to use the &lt;code&gt;JumpNetwork&lt;/code&gt; command we
+used above. Alternatively, you can connect to ZNC multiple times by adding the
+&lt;code&gt;/{network}&lt;/code&gt; suffix to your username. For example, if you were previously
+connecting using the username &lt;code&gt;foo&lt;/code&gt;, you&amp;rsquo;d add another network that would
+connect using e.g. &lt;code&gt;foo/libera&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;More information the ZNC command can be found &lt;a href=&#34;https://wiki.znc.in/Using_commands&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Use Pktgen-DPDK to send traffic between two Openstack VMs</title>
       <link>https://that.guru/blog/pktgen-between-two-openstack-guests/</link>
@@ -2946,547 +2996,6 @@ Latexmk: All targets (os-doc-demo.pdf) are up-to-date
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Once complete, you can find your compiled PDF in the same build directory (in
 this case, &lt;code&gt;doc/build/latex/os-doc-demo.pdf&lt;/code&gt;)&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Deploying Real Time Openstack</title>
-      <link>https://that.guru/blog/deploying-real-time-openstack/</link>
-      <pubDate>Tue, 31 Oct 2017 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/deploying-real-time-openstack/</guid>
-      <description>&lt;p&gt;Recent versions of OpenStack nova have added support for real-time instances,
-that is, instances that provide the determinism and performance guarantees
-required by real-time applications. While this work was finally marked complete
-in the OpenStack Ocata release, it built upon lots of features added in
-previously releases.&lt;/p&gt;
-&lt;p&gt;The below is a guide that covers a basic, single-node deployment of OpenStack
-suitable for evaluating basic real-time instance functionality. We use CentOS
-7, but the same instructions can be modified for RHEL 7 or Fedora, and any
-CentOS-specific aspects are called out. Also note that we&amp;rsquo;re using DevStack:
-you obviously shouldn&amp;rsquo;t be using this in production (I hear &lt;a href=&#34;https://www.redhat.com/en/technologies/linux-platforms/openstack-platform&#34;&gt;Red Hat OpenStack
-Platform&lt;/a&gt; is pretty swell!).&lt;/p&gt;
-&lt;h2 id=&#34;host-bios-configuration&#34;&gt;Host BIOS configuration&lt;/h2&gt;
-&lt;p&gt;Configure your BIOS as recommended in the &lt;a href=&#34;https://rt.wiki.kernel.org/index.php/HOWTO:_Build_an_RT-application&#34;&gt;rt-wiki&lt;/a&gt; page. The most important
-steps are:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Disable power management, including CPU sleep states&lt;/li&gt;
-&lt;li&gt;Disable hyper-threading or any option related to logical processors&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;These are standard steps used in benchmarking as both sets of features can
-result in non-deterministic behavior.&lt;/p&gt;
-&lt;h2 id=&#34;host-os-configuration&#34;&gt;Host OS configuration&lt;/h2&gt;
-&lt;aside class=&#34;admonition important&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;
-Most of the commands below must be run with root privileges
-&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;Download and install CentOS 7.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Log in as &lt;code&gt;root&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Most of the following steps require root privileges. While you can do this
-with &lt;code&gt;sudo&lt;/code&gt;, it&amp;rsquo;s generally easier to log in as the &lt;code&gt;root&lt;/code&gt; user. Do this
-now.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ su -
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Enable the &lt;code&gt;rt&lt;/code&gt; repo.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ cat &amp;lt;&amp;lt; EOF &amp;gt; /etc/yum.repos.d/CentOS-RT.repo
-# CentOS-RT.repo
-#
-# The Real Time (RT) repository.
-#
-
-[rt]
-name=CentOS-$releasever - rt
-baseurl=http://mirror.centos.org/centos/$releasever/rt/$basearch/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-enabled=1
-EOF
-
-$ sudo yum update -y
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Most online guides will point you to a CERN repo for these packages. I
-had no success with this as some packages were missing. However, the
-steps to do this are below, just in case they&amp;rsquo;re helpful.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ wget http://linuxsoft.cern.ch/cern/centos/7/rt/CentOS-RT.repo /etc/yum.repos.d/CentOS-RT.repo
-$ wget http://linuxsoft.cern.ch/cern/centos/7/os/x86_64/RPM-GPG-KEY-cern /etc/pki/rpm-gpg/RPM-GPG-KEY-cern
-$ sudo yum groupinstall RT
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Install dependencies.&lt;/p&gt;
-&lt;p&gt;The most critical of these are &lt;code&gt;kernel-rt&lt;/code&gt; and &lt;code&gt;kernel-rt-kvm&lt;/code&gt;, but
-these have dependencies of their own. When I was installing this, there was
-a conflict between the version installed by default (&lt;code&gt;@anaconda&lt;/code&gt;) and the
-one provided by the &lt;code&gt;rt&lt;/code&gt; repo. To resolve this, I simply removed the
-conflicting version and installed the one provided by the &lt;code&gt;rt&lt;/code&gt; repo.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum remove tuned
-$ yum install -y tuned-2.7.1-5.el7
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After this, install the aforementioned dependencies along with some required
-by CentOS specifically.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum install -y centos-release-qemu-ev
-$ yum install -y tuned-profiles-realtime tuned-profiles-nfv
-$ yum install -y kernel-rt.x86_64 kernel-rt-kvm.x86_64
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Configure the realtime profile.&lt;/p&gt;
-&lt;p&gt;We want to isolate some cores from the kernel and will use the &lt;code&gt;tuned&lt;/code&gt;
-application with the profiles installed above to do this.&lt;/p&gt;
-&lt;p&gt;First, dump info about your NUMA topology.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ lscpu | grep ^NUMA
-NUMA node(s):          2
-NUMA node0 CPU(s):     0,2,4,6,8,10
-NUMA node1 CPU(s):     1,3,5,7,9,11
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This processor, an &lt;a href=&#34;https://ark.intel.com/products/81897/Intel-Xeon-Processor-E5-2609-v3-15M-Cache-1_90-GHz&#34;&gt;Intel Xeon E5-2609-v3&lt;/a&gt;, has six cores and we&amp;rsquo;ve got
-two of them. We want to isolate some of these cores. CPU0 should be excluded
-from the possible cores as it handles console interrupts while a second core
-should be kept free for other host overhead processes. Let&amp;rsquo;s take a highly
-scientific approach and isolate four of the six cores from each socket
-because why not?&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ echo &amp;quot;isolated_cores=4-11&amp;quot; &amp;gt;&amp;gt; /etc/tuned/realtime-virtual-host-variables.conf
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Load the realtime profile.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ systemctl enable tuned
-$ systemctl start tuned
-$ tuned-adm profile realtime-virtual-host
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You should confirm that the profile has been applied.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ grep tuned_params= /boot/grub2/grub.cfg
-set tuned_params=&amp;quot;isolcpus=4-11 nohz=on nohz_full=4-11 intel_pstate=disable nosoftlockup&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Configure huge pages.&lt;/p&gt;
-&lt;p&gt;First, add the following to &lt;code&gt;GRUB_CMDLINE_LINUX&lt;/code&gt; in &lt;code&gt;/etc/default/grub&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;default_hugepagesz=1G
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Save this configuration.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ grub2-mkconfig -o /boot/grub2/grub.cfg
-Generating grub configuration file ...
-Found linux image: /boot/vmlinuz-3.10.0-327.13.1.el7.x86_64
-done
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Because we&amp;rsquo;re using a number of CPUs from each NUMA node, we want to assign
-a number hugepages to each node. We&amp;rsquo;re going to assign four per node.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ echo 4 &amp;gt; /sys/devices/system/node/node0/hugepages/hugepages-1048576kB/nr_hugepages
-$ echo 4 &amp;gt; /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We want to make this persistent. While you can configure persistent
-hugepages via the &lt;code&gt;GRUB_CMDLINE_LINUX&lt;/code&gt; option, you cannot do this on a
-per-NUMA node basis. We&amp;rsquo;re going to use our own &lt;code&gt;systemd&lt;/code&gt; unit files to
-solve this problem until such a time as &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1232350&#34;&gt;bug #1232350&lt;/a&gt; is resolved. This
-solution is taken from that bug.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ cat &amp;lt;&amp;lt; EOF &amp;gt; /usr/lib/systemd/system/hugetlb-gigantic-pages.service
-[Unit]
-Description=HugeTLB Gigantic Pages Reservation
-DefaultDependencies=no
-Before=dev-hugepages.mount
-ConditionPathExists=/sys/devices/system/node
-ConditionKernelCommandLine=hugepagesz=1G
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/lib/systemd/hugetlb-reserve-pages
-
-[Install]
-WantedBy=sysinit.target
-EOF
-
-$ cat &amp;lt;&amp;lt; EOF &amp;gt; /usr/lib/systemd/hugetlb-reserve-pages
-#!/bin/bash
-
-nodes_path=/sys/devices/system/node/
-if [ ! -d $nodes_path ]; then
-  echo &amp;quot;ERROR: $nodes_path does not exist&amp;quot;
-  exit 1
-fi
-
-reserve_pages()
-{
-  echo $1 &amp;gt; $nodes_path/$2/hugepages/hugepages-1048576kB/nr_hugepages
-}
-
-reserve_pages 4 node0
-reserve_pages 4 node1
-EOF
-
-$ chmod +x /usr/lib/systemd/hugetlb-reserve-pages
-$ systemctl enable hugetlb-gigantic-pages
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Reboot the host to apply changes.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Verify that changes have been applied.&lt;/p&gt;
-&lt;p&gt;You want to ensure the &lt;code&gt;tuned&lt;/code&gt; profile is loaded and the changes it has made
-have taken effect, such as adding &lt;code&gt;isolcpus&lt;/code&gt; and related parameters to the
-boot command. In addition, you want to make sure your own hugepage
-configuration has been applied.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ tuned-adm active
-Current active profile: realtime-virtual-host
-
-$ cat /proc/cmdline
-BOOT_IMAGE=/vmlinuz-3.10.0-327.18.2.rt56.223.el7_2.x86_64 root=/dev/mapper/rhel_virtlab502-root ro crashkernel=auto rd.lvm.lv=rhel_virtlab502/root rd.lvm.lv=rhel_virtlab502/swap console=ttyS1,115200 default_hugepagesz=1G isolcpus=3,5,7 nohz=on nohz_full=3,5,7 intel_pstate=disable nosoftlockup
-
-$ cat /sys/module/kvm/parameters/lapic_timer_advance_ns
-1000  # this should be a non-0 value
-
-$ cat /sys/devices/system/node/node0/hugepages/hugepages-1048576kB/nr_hugepages
-4
-$ cat /sys/devices/system/node/node1/hugepages/hugepages-1048576kB/nr_hugepages
-4
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Verify that system interrupts are disabled.&lt;/p&gt;
-&lt;p&gt;You should install the &lt;code&gt;rt-tests&lt;/code&gt; package, then run the &lt;code&gt;hwlatdetect&lt;/code&gt;
-utility it provides to validate correct behavior.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum install -y rt-tests
-
-$ hwlatdetect
-      hwlatdetect:  test duration 120 seconds
-   parameters:
-        Latency threshold: 10us
-        Sample window:     1000000us
-        Sample width:      500000us
-     Non-sampling period:  500000us
-        Output File:       None
-
-Starting test
-test finished
-Max Latency: 0us
-Samples recorded: 0
-Samples exceeding threshold: 0
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If this shows any samples exceeding threshold, something is wrong and you
-should retrace your steps.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Verify &amp;ldquo;real-time readiness&amp;rdquo;.&lt;/p&gt;
-&lt;p&gt;The &lt;code&gt;rteval&lt;/code&gt; utility can be used to evaluate system suitability for RT
-Linux. It must be run for a long duration, so you should put this running
-and come back to it later.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum install rteval
-
-$ rteval --onlyload --duration=4h --verbose
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;guest-image-configuration&#34;&gt;Guest image configuration&lt;/h2&gt;
-&lt;p&gt;We&amp;rsquo;re going to need a real-time image for the guest too. I did this manually on
-another machine using &lt;code&gt;virt-install&lt;/code&gt;. Much of the configuration is duplicated
-from the host.&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;Boot the guest and configure it using a &lt;code&gt;root&lt;/code&gt; user.&lt;/p&gt;
-&lt;p&gt;We don&amp;rsquo;t actually care about most of the configuration here wrt to RAM and
-CPU count since we&amp;rsquo;ll be changing this later. The only things to note are
-that we&amp;rsquo;re using the same OS as the host (CentOS) for ease-of-use and we
-have both network connectivity (so we can install packages) and a serial
-connection (so we can interact with the guest).&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo virt-install \
-    --name centos7 \
-    --ram 4096 \
-    --disk path=./centos7.qcow2,size=8 \
-    --vcpus 4 \
-    --os-type linux \
-    --os-variant centos7.0 \
-    --network bridge=virbr0 \
-    --graphics none \
-    --console pty,target_type=serial \
-    --location &#39;http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso&#39; \
-    --extra-args &#39;console=ttyS0,115200n8 serial&#39;
-
-# ... follow prompts
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Enable the &lt;code&gt;rt&lt;/code&gt; repo.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ echo &amp;lt;&amp;lt; EOF &amp;gt; /etc/yum.repos.d/CentOS-RT.repo
-# CentOS-RT.repo
-#
-# The Real Time (RT) repository.
-#
-
-[rt]
-name=CentOS-$releasever - rt
-baseurl=http://mirror.centos.org/centos/$releasever/rt/$basearch/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-enabled=1
-EOF
-
-$ sudo yum update -y
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Install dependencies.&lt;/p&gt;
-&lt;p&gt;We naturally don&amp;rsquo;t need the &lt;code&gt;kernel-rt-kvm&lt;/code&gt; module, but we do need the
-&lt;code&gt;kernel-rt&lt;/code&gt; package and some other dependencies. Seeing as we&amp;rsquo;re using
-CentOS for the guest too, we have to deal with the same &lt;code&gt;tuned&lt;/code&gt; dependency
-conflict.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum remove tuned
-$ yum install -y tuned-2.7.1-5.el7
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After this, install the aforementioned dependencies along with some required
-by CentOS specifically.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum install -y centos-release-qemu-ev
-$ yum install -y tuned-profiles-realtime tuned-profiles-nfv
-$ yum install -y kernel-rt.x86_64
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Configure the realtime profile.&lt;/p&gt;
-&lt;p&gt;Configure the &lt;code&gt;tuned&lt;/code&gt; profile toisolate the two CPUs we reserved for
-real-time in the flavour (i.e. &lt;code&gt;^0-1&lt;/code&gt;, so &lt;code&gt;2&lt;/code&gt; and &lt;code&gt;3&lt;/code&gt;)&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ echo &amp;quot;isolated_cores=2,3&amp;quot; &amp;gt;&amp;gt; /etc/tuned/realtime-virtual-guest-variables.conf
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Load the realtime profile.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ systemctl enable tuned
-$ systemctl start tuned
-$ tuned-adm profile realtime-virtual-guest
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Note that we&amp;rsquo;re using the &lt;em&gt;guest&lt;/em&gt; profile here - not the &lt;em&gt;host&lt;/em&gt; one.&lt;/p&gt;
-&lt;p&gt;You should confirm that the profile has been applied.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ grep tuned_params= /boot/grub2/grub.cfg
-set tuned_params=&amp;quot;isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Configure hugepages.&lt;/p&gt;
-&lt;p&gt;First, add the following to &lt;code&gt;GRUB_CMDLINE_LINUX&lt;/code&gt; in &lt;code&gt;/etc/default/grub&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;default_hugepagesz=1G
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Save this configuration.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ grub2-mkconfig -o /boot/grub2/grub.cfg
-Generating grub configuration file ...
-Found linux image: /boot/vmlinuz-3.10.0-327.13.1.el7.x86_64
-done
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We don&amp;rsquo;t need to enable these as this will be done from the OpenStack side.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Install testing dependencies.&lt;/p&gt;
-&lt;p&gt;We&amp;rsquo;re going to be doing some testing later. Best to install these
-dependencies now.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum install -y epel-release
-$ yum install -y rt-tests stress
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Reboot the guest to apply changes.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Verify the changes have been applied.&lt;/p&gt;
-&lt;p&gt;Once again, you want to ensure the &lt;code&gt;tuned&lt;/code&gt; profile is loaded and applied,
-and that the hugepages have been configured.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ tuned-adm active
-Current active profile: realtime-virtual-guest
-
-$ uname -a
-Linux guest.localdomain 3.10.0-693.2.2.rt56.623.el7.x86_64 #1 SMP PREEMPT RT Sun Jan 01 00:00:00 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
-
-$ cat /proc/cmdline
-BOOT_IMAGE=/vmlinuz-3.10.0-693.2.2.rt56.623.el7.x86_64 root=/dev/mapper/centos-root ro rd.lvm.lv=centos/root rd.lvm.lv=centos/swap console=ttyS0,115200n8 default_hugepagesz=1G isolcpus=2,3 nohz=on nohz_full=2,3 rcu_nocbs=2,3 intel_pstate=disable nosoftlockup
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Install OpenStack-specific dependencies.&lt;/p&gt;
-&lt;p&gt;We want to use &lt;code&gt;cloud-init&lt;/code&gt; to configure stuff in OpenStack, so let&amp;rsquo;s
-install the various dependencies required. This is taken from &lt;a href=&#34;https://docs.openstack.org/image-guide/centos-image.html&#34;&gt;the OpenStack
-docs&lt;/a&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ yum install -y acpid
-$ systemctl enable acpid
-$ yum install -y cloud-init cloud-utils-growpart
-$ echo &amp;quot;NOZEROCONF=yes&amp;quot; &amp;gt;&amp;gt; /etc/sysconfig/network
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We don&amp;rsquo;t need to configure a console interface as &lt;code&gt;virt-install&lt;/code&gt; has already
-done this for us.&lt;/p&gt;
-&lt;p&gt;Once this is done, you can shutdown the guest.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ poweroff
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Clean up the image.&lt;/p&gt;
-&lt;p&gt;We want to strip stuff like MAC addresses from the guest. This should be
-done wherever you ran &lt;code&gt;virt-install&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo virt-sysprep -d centos7
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If this is successful, you can undefine and shrink the image. It&amp;rsquo;s now ready
-for use later.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo virsh undefine centos7
-$ sudo qemu-img convert -O qcow2 -c centos7.qcow2 centos7-small.qcow2
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;nova-configuration&#34;&gt;Nova configuration&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;Log back into your standard user.&lt;/p&gt;
-&lt;p&gt;We no longer need to run as root and DevStack, which I&amp;rsquo;m using here, will
-refuse to run this way.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Install and configure OpenStack.&lt;/p&gt;
-&lt;p&gt;I used DevStack for this, though you can use anything you want. This feature
-relies on features first included in the Pike release so you should deploy a
-suitable version. Given that I&amp;rsquo;m using DevStack, I&amp;rsquo;m simply going to use the
-&lt;code&gt;stable/pike&lt;/code&gt; variant of DevStack and all dependencies.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/openstack-dev/devstack/
-$ cd devstack
-$ git checkout stable/pike
-
-$ echo &amp;lt;&amp;lt; EOF &amp;gt; local.conf
-[[local|localrc]]
-GLANCE_V1_ENABLED=False
-
-CINDER_BRANCH=stable/pike
-GLANCE_BRANCH=stable/pike
-HORIZON_BRANCH=stable/pike
-KEYSTONE_BRANCH=stable/pike
-NEUTRON_BRANCH=stable/pike
-NEUTRON_FWAAS_BRANCH=stable/pike
-NOVA_BRANCH=stable/pike
-SWIFT_BRANCH=stable/pike
-
-ADMIN_PASSWORD=password
-DATABASE_PASSWORD=$ADMIN_PASSWORD
-RABBIT_PASSWORD=$ADMIN_PASSWORD
-HORIZON_PASSWORD=$ADMIN_PASSWORD
-SERVICE_PASSWORD=$ADMIN_PASSWORD
-
-[[post-config|$NOVA_CONF]]
-[DEFAULT]
-firewall_driver=nova.virt.firewall.NoopFirewallDriver
-scheduler_default_filters=RamFilter,ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,PciPassthroughFilter,NUMATopologyFilter
-vcpu_pin_set=4-11
-EOF
-
-$ ./stack.sh  # wait for successful deployment
-
-$ . openrc admin
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can use a mostly stock configuration with the exception of one
-configuration option: &lt;code&gt;[DEFAULT] vcpu_pin_set&lt;/code&gt;. This should be configured
-for the &lt;code&gt;nova-compute&lt;/code&gt; service and should be set to the mask configured by
-&lt;code&gt;tuned&lt;/code&gt; earlier.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Validate deployment.&lt;/p&gt;
-&lt;p&gt;Once this has deployed, you can check the logs of the &lt;code&gt;nova-compute&lt;/code&gt; service
-to make sure the &lt;code&gt;vcpu_pin_set&lt;/code&gt; configuration has been successful.  If
-deploying using &lt;code&gt;stable/pike&lt;/code&gt; DevStack, you can do this using &lt;code&gt;journalctl&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo journalctl -u devstack@n-cpu.service | grep &#39;vcpu_pin_set&#39; | tail -1
-vcpu_pin_set = 4-11
-$ sudo journalctl -u devstack@n-cpu.service | grep &#39;Total usable vcpus&#39; | tail -1
-Total usable vcpus: 8, total allocated vcpus: 0
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is as expected, given that we we were using a &lt;code&gt;4-11&lt;/code&gt; mask and have not
-yet deployed any instances.&lt;/p&gt;
-&lt;p&gt;I&amp;rsquo;m sure there&amp;rsquo;s a better way to do this filtering with &lt;code&gt;journalctl&lt;/code&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Configure flavor.&lt;/p&gt;
-&lt;p&gt;Once you&amp;rsquo;ve verified everything, you can create your custom real-time
-flavor. To do this, first configure your environment variables.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack flavor create --vcpus 4 --ram 4096 --disk 20 rt1.small
-$ openstack flavor set rt1.small \
-    --property &#39;hw:cpu_policy=dedicated&#39; \
-    --property &#39;hw:cpu_realtime=yes&#39; \
-    --property &#39;hw:cpu_realtime_mask=^0-1&#39; \
-    --property &#39;hw:mem_page_size=1GB&#39;
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By way of an explanation, these various properties correspond to the
-following.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;hw:cpu_policy=dedicated&lt;/code&gt;: This indicates that instances must have
-exclusive pCPUs assigned to them.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;hw:cpu_realtime=yes&lt;/code&gt;: This indicates that instances will have a real-time
-policy.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;hw:cpu_realtime_mask=&amp;quot;^0-1&amp;quot;&lt;/code&gt;: This indicates that all instance vCPUs
-&lt;em&gt;except&lt;/em&gt; vCPUs 0 and 1 will have a real-time policy.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;hw:mem_page_size=1GB&lt;/code&gt;: This indicates that instances will have a sole 1
-GB huge page assigned to them.&lt;/p&gt;
-&lt;p&gt;For more information, refer to &lt;a href=&#34;https://docs.openstack.org/nova/latest/user/flavors&#34;&gt;the nova docs&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Configure image.&lt;/p&gt;
-&lt;p&gt;We&amp;rsquo;re going to use the &lt;code&gt;centos7-small.qcow2&lt;/code&gt; created previously. Upload this
-to &lt;code&gt;glance&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack image create --disk-format qcow2 --container-format bare \
-    --public --file ./centos-small.qcow2 centos-rt
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;(Optional) Configure security groups and keypairs.&lt;/p&gt;
-&lt;p&gt;We want to ensure we can both ping the instance and SSH into it. This
-requires ICMP and TCP port 22 rules in the security group for the project.
-This is necessary because I installed using DevStack but may not be
-necessary using other deployment tools.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ echo OS_PROJECT_NAME
-demo
-$ openstack project list | grep -w demo
-| f5a2496e6edf4ef4b5ffe62b01a8bf4b | demo               |
-$ openstack security group list | grep -w f5a2496e6edf4ef4b5ffe62b01a8bf4b
-| 466ffc5e-114d-43a4-8854-db490c6b4571 | default | Default security group | f5a2496e6edf4ef4b5ffe62b01a8bf4b |
-
-$ openstack security group rule create --proto icmp \
-    466ffc5e-114d-43a4-8854-db490c6b4571
-$ openstack security group rule create --proto tcp --dst-port 22 \
-    466ffc5e-114d-43a4-8854-db490c6b4571
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;In addition, we want to create a keypair so we can ssh into the instance.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack keypair create --public-key .ssh/id_rsa.pub default-key
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;testing&#34;&gt;Testing&lt;/h2&gt;
-&lt;p&gt;Now we have everything configured, we&amp;rsquo;re going to create an instance and run
-our tests.&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;Boot instance&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack server create --flavor rt1.small --image centos-rt \
-    --key-name default-key rt-server
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This initially failed for me with the following error message:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Could not access KVM kernel module: Permission denied
-failed to initialize KVM: Permission denied
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I was able to resolve this with the following commands, taken from &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=950436&#34;&gt;a
-related bugzilla&lt;/a&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo rmmod kvm_intel
-$ sudo rmmod kvm
-$ sudo modprobe kvm
-$ sudo modprobe kvm_intel
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Connect floating IP.&lt;/p&gt;
-&lt;p&gt;This is necessary so we can SSH into the instance.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack floating ip create public
-+---------------------+--------------------------------------+
-| Field               | Value                                |
-+---------------------+--------------------------------------+
-| created_at          | 2017-01-01T00:00:00Z                 |
-| description         |                                      |
-| fixed_ip_address    | None                                 |
-| floating_ip_address | 172.24.4.9                           |
-| floating_network_id | 5e123439-bbe8-479b-ab32-cc66d1a34ae2 |
-| id                  | cb62400c-983f-4468-949c-a64fb6b47827 |
-| name                | 172.24.4.9                           |
-| port_id             | None                                 |
-| project_id          | f5a2496e6edf4ef4b5ffe62b01a8bf4b     |
-| revision_number     | 0                                    |
-| router_id           | None                                 |
-| status              | DOWN                                 |
-| updated_at          | 2017-01-01T00:00:00Z                 |
-+---------------------+--------------------------------------+
-
-$ openstack server add floating ip rt-server 172.24.4.9
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;SSH to guest.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack server ssh rt-server --login centos
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Run &lt;code&gt;cyclictest&lt;/code&gt; to confirm expected latencies.&lt;/p&gt;
-&lt;p&gt;We&amp;rsquo;re going to run a intensive process, &lt;code&gt;stress&lt;/code&gt;, and then use &lt;code&gt;cyclictest&lt;/code&gt;
-to confirm that guest latencies are within expected limits.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ taskset -c 2 stress --cpu 4
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This will result in four processes running on vCPU 2. Once this is running,
-start &lt;code&gt;cyclictest&lt;/code&gt; in another tab.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ taskset -c 2 cyclictest -m -n -q -p95 -D 24h -h100 -i 200 &amp;gt; cyclictest.out
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This will run for 24 hours (&lt;code&gt;-D 24h&lt;/code&gt;). Once done, you can check the output
-(in &lt;code&gt;cyclictest.out&lt;/code&gt;) to see if it&amp;rsquo;s within expected tolerances. The RT Wiki
-&lt;a href=&#34;https://rt.wiki.kernel.org/index.php/CONFIG_PREEMPT_RT_Patch#Platforms_Tested_and_in_Use_with_CONFIG_PREEMPT_RT&#34;&gt;lists some example latencies so you can get an idea of what you can
-expect&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;resources&#34;&gt;Resources&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://events.linuxfoundation.org/sites/events/files/slides/cyclictest.pdf&#34;&gt;http://events.linuxfoundation.org/sites/events/files/slides/cyclictest.pdf&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://events.static.linuxfound.org/images/stories/slides/elc2013_rostedt.pdf&#34;&gt;https://events.static.linuxfound.org/images/stories/slides/elc2013_rostedt.pdf&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://linuxgizmos.com/adding-real-time-to-linux-with-preempt-rt/&#34;&gt;http://linuxgizmos.com/adding-real-time-to-linux-with-preempt-rt/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://stackoverflow.com/q/26311757/&#34;&gt;https://stackoverflow.com/q/26311757/&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     

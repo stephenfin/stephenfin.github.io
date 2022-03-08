@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Configuring ZNC with HexChat | that.guru</title>
+  <title>Add Another Network to ZNC | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -22,7 +22,7 @@
   <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/mZNRsYE9Qi4/1920x1080);
+      background-image: url(https://source.unsplash.com/qtRFE7MYnHo/1920x1080);
     }
   </style>
 </head>
@@ -34,7 +34,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Configuring ZNC with HexChat</h1>
+    <h1 class="title">Add Another Network to ZNC</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -78,83 +78,54 @@
         <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
       </div>
       <div class="byline-meta-content">
-        <time datetime='2016-06-26T00:00:00Z'>Jun 26, 2016</time>
+        <time datetime='2022-03-08T00:00:00Z'>Mar 8, 2022</time>
         <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
       </div>
     </div>
   </div>
 
   <article>
-    <h1 id="configuring-znc-with-hexchat">Configuring ZNC with HexChat</h1>
-<p>I recently set up ZNC instance to capture whatever I may miss when not
-connected to any of the many <a href="https://wiki.openstack.org/wiki/IRC">OpenStack IRC</a> channels. One
-tricky part of this configuration was my use of multiple authentication layers.
-I have ZNC configured to use a server password, but I also have my nick
-<a href="https://freenode.net/kb/answer/registration">registered on freenode</a> and I would like to use
-<a href="https://freenode.net/kb/answer/sasl">SASL</a> to authenticate this. It turns out that this is
-relatively easy to do.</p>
-<h2 id="configure-server-password-pass-authentication">Configure server password (/PASS) authentication</h2>
-<p>You should first configure the connection to your ZNC server. Create a new
-server profile (<em>HexChat</em> &gt; <em>Network List</em>, or <code>&lt;Ctrl&gt;</code> + <code>S</code>) and
-configure it like so:</p>
-
-<figure >
-    
-        <img src="https://that.guru/media/znc-sasl-server-pass-1.png"  />
-    
-    
-    <figcaption>
-        <h4>Configuring server password authentication</h4>
-        
-    </figcaption>
-    
-</figure>
-
-
-<p>Most of this configuration doesn&rsquo;t differ from the many guides available on
-configuring HexChat with ZNC. I&rsquo;m using SSL, so I enable that (and accept my
-&ldquo;invalid&rdquo;, self-signed key), and I select this as the server to automatically
-connect to when I open HexChat. The interesting bit is the <code>Server Password &lt;/PASS password</code> section. In here, I have my username and server password
-stored in format <code>[username]:[password]</code>, e.g. <code>admin:password</code>.</p>
-<p>Once done, I also need to configure a channels you want to connect to on the
-<em>Autojoin channels</em> tab:</p>
-
-<figure >
-    
-        <img src="https://that.guru/media/znc-sasl-server-pass-2.png"  />
-    
-    
-    <figcaption>
-        <h4>Configuring autojoin channels</h4>
-        
-    </figcaption>
-    
-</figure>
-
-
-<p>I&rsquo;m mostly concerned with <code>#openstack-xxx</code> channels, but your configuration
-will differ.</p>
-<h2 id="configure-sasl-authentication">Configure SASL authentication</h2>
-<p>Now we should be able to connect to the ZNC server without gettings an <code>Invalid password</code> errors. However, looking at the logs for the <em>freenode</em> server
-connection, we can see that we&rsquo;re being asked to authenticate our registered
-nick:</p>
-<p><strong>TODO</strong></p>
-<p>Time for SASL. Many of these steps are documented on the <a href="http://wiki.znc.in/Sasl">ZNC wiki</a>,
-but they&rsquo;re documented here for posterity.</p>
-<p>First, [load the module] <a href="http://wiki.znc.in/Modules#Managing_Modules">znc-mods</a> on ZNC:</p>
-<pre><code>/msg *status loadmodule sasl
-</code></pre>
-<p>Then, set the mechanism. We use <code>PLAIN</code> (plaintext), which is a-OK as we&rsquo;re
-using SSL:</p>
-<pre><code>/msg *sasl mechanism PLAIN
-</code></pre>
-<p>Finally, supply your username and password:</p>
-<pre><code>/msg *sasl set &lt;username&gt; &lt;password&gt;
-</code></pre>
-<p>That should be the end the need to run pesky <code>nickserv</code> commands.</p>
-<h2 id="wrap-up">Wrap up</h2>
-<p>We now have authentication against the server, using a server password, and
-authentication against the nickserv, using SASL. Pretty much hassle free.</p>
+    <p>ZNC allows you to connect to multiple networks (in fact, it&rsquo;s one of the
+benefits it touts on <a href="https://wiki.znc.in/ZNC#Main_Features">the wiki</a>). It distinguishes between networks and
+servers (a network can have multiple servers), so this can be slightly
+confusing the first time you have to do it. The below is a quick summary of the
+steps that are necessary to add a new network to your ZNC instance, in this
+instance, <a href="https://libera.chat/">Libera</a>.</p>
+<p>Let&rsquo;s say you&rsquo;re already connected to a network, and let&rsquo;s say that network is
+<a href="https://www.oftc.net/">OFTC</a>. You can verify this using following commands:</p>
+<pre><code>/znc ListNetworks
+/znc ListServers
+</code></pre><p>The <code>ListNetworks</code> command will list this networks available to you.</p>
+<pre><code>/znc ListNetworks
++--------------+--------+----------------------+-----------------------------------+----------+
+| Network      | On IRC | IRC Server           | IRC User                          | Channels |
++--------------+--------+----------------------+-----------------------------------+----------+
+| oftc         | Yes    | weber.oftc.net       | stephenfin!~stephenfi@example.com | 9        |
++--------------+--------+----------------------+-----------------------------------+----------+
+</code></pre><p>The <code>ListServers</code> command will list the servers configured for this network.</p>
+<pre><code>/znc ListServers
++---------------+------+-----+----------+
+| Host          | Port | SSL | Password |
++---------------+------+-----+----------+
+| irc.oftc.net* | 6697 | SSL |          |
++---------------+------+-----+----------+
+</code></pre><p>Now if you want to connect to another network, you can do so by adding a new
+network followed by adding a new server on this network. As noted previously,
+we&rsquo;re going to configure a connection to Libera. First, we&rsquo;d create the new
+network.</p>
+<pre><code>/znc AddNetwork libera
+</code></pre><p>Next, we&rsquo;d switch to this network:</p>
+<pre><code>/znc JumpNetwork libera
+</code></pre><p>Now we can add the server:</p>
+<pre><code>/znc AddServer irc.libera.chat +6697
+</code></pre><p>And finally, we can connect to the channels as usual:</p>
+<pre><code>/join #libera
+</code></pre><p>To switch between networks, you&rsquo;ll need to use the <code>JumpNetwork</code> command we
+used above. Alternatively, you can connect to ZNC multiple times by adding the
+<code>/{network}</code> suffix to your username. For example, if you were previously
+connecting using the username <code>foo</code>, you&rsquo;d add another network that would
+connect using e.g. <code>foo/libera</code>.</p>
+<p>More information the ZNC command can be found <a href="https://wiki.znc.in/Using_commands">here</a>.</p>
 
   </article>
 
