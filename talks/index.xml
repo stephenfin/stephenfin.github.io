@@ -18,7 +18,10 @@ internship and served as a brief, high-level overview of the OpenStack Compute
 (nova) project. On the day, it was bookended by an intro to OpenStack itself
 and an intro to the OpenStack Networking (neutron) project. There isn&amp;rsquo;t really
 a bio of note to share 🤷&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;2760b3b3098343ef84e49cd35b11a8ec&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -48,7 +51,10 @@ things, which we&amp;rsquo;re going to cover in this talk.&lt;/p&gt;
 something like that.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Meetup&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;3011a7535ab04961b652b60d18d3a180&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -78,7 +84,10 @@ communities like OpenStack. Some prior Python experience will be necessary,
 but no Sphinx or docutils experience is assumed.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a494e97bf79a480ba7d4ea9e728d734a&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -103,7 +112,10 @@ that wishes to maintain stable interfaces and/or document changes in their
 product.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://fosdem.org/2020/schedule/event/python2020_manage_change/&#34;&gt;FOSDEM 2020&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;d1fb37e9f76548b3a404e632653b818e&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -118,7 +130,10 @@ gave an overview of the state of the art for HPC and NFV in the OpenStack
 Compute. The talk focused on three of the most important and complex NFV/HPC
 features in nova - CPU pinning, NUMA awareness and real-time - and detailed
 what they were, why they existed, and how we were trying to make them better.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;5dd03237e78c4d73aaa68e216941b177&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -143,7 +158,10 @@ guides, using Sphinx to automatically generate docs or simply fixing a typo.
 Viva la documentation!&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;OpenStack Summit&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;49008e093b0a465d95b1b36297a89f5c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -171,7 +189,10 @@ that wishes to maintain stable interfaces and/or document changes in their
 product.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/&#34;&gt;PyCon Limerick&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;278610b590f0450dbe0919e09733431b&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -210,7 +231,10 @@ of Sphinx, so one can understand the intermediate documentation model it
 provides.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;Full information is available on the &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7922a6d0b2c4e6a81cf63d6bba906ae&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -247,7 +271,10 @@ areas&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments&#34;&gt;OpenStack Summit Berlin&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;bafb785670034d3097959099f4549c42&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -297,7 +324,10 @@ about it (*)&lt;/li&gt;
 &lt;p&gt;(*) If we haven&amp;rsquo;t already &lt;em&gt;done&lt;/em&gt; something about it by now&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/vancouver-2018/summit-schedule/events/20831/the-wonders-of-numa-or-why-your-high-performance-application-doesnt-perform&#34;&gt;OpenStack Summit Vancouver&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a1fb06c606014e3ca67b79ec9b99b3f0&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -348,7 +378,10 @@ Sphinx extensions and themes. We also demonstrate how you can share your
 extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;07094f5da49e4430b308685cc82080ff&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -377,7 +410,10 @@ and how you can use this feature and others like it in your own applications.&lt
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/vai_keeping_it_realtime/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
 &lt;p&gt;(note: I can&amp;rsquo;t find the original cover photo, sadly. If anyone locates the
 source, please let me know)&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c4cccd2ad97646629b6395d6bf585ea9&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -417,7 +453,10 @@ be able to use their knowledge of these capabilities in their own
 applications.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/sydney-2017/summit-schedule/events/19861/keeping-it-real-time&#34;&gt;OpenStack Summit Sydney&lt;/a&gt; website.&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;22e2838c18d845419d8bc45f9dbe235d&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -461,7 +500,10 @@ them, and report the results back to both Patchwork and a separate mailing
 list. This configuration demonstrates the best of Patchwork&amp;rsquo;s new features,
 and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;ce06b0e45f1e460b9fc3d5d96e65ab31&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -488,7 +530,10 @@ Finally, we detail how users can get started exploring these changes
 themselves.&lt;/p&gt;
 &lt;p&gt;[1] &lt;a href=&#34;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&#34;&gt;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;4dd4f9d543c840b9b4c9b6c81d0774ef&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
@@ -548,7 +593,10 @@ maintain personal TODO lists, or just browse submissions via a web UI/XML-RPC
 API. However, the new features provide these users with functionality that
 can help automate even more of the tedious yet necessary overhead tasks.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;!-- raw HTML omitted --&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;83af5ed2a4c646cba0ccba30955807f3&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
 </description>
     </item>
     
