@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>What API microversion does OpenStackClient use? | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/Wpnoqo2plFA/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">What API microversion does OpenStackClient use?</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2022-03-29T00:00:00Z'>Mar 29, 2022</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>I was recently asked the following question:</p>
+<blockquote>
+<p>What Nova API microversion does OpenStackClient use when making requests to
+nova?</p>
+</blockquote>
+<p>The answer to this question doesn&rsquo;t seem to appear anywhere in the
+OpenStackClient (OSC) documentation or man pages currently, so I&rsquo;m going to
+note it here for posterity. The unfortunate answer is &ldquo;it depends&rdquo;. More
+specifically, it depends which library OSC is using internally: either
+<code>python-novaclient</code> or <code>openstacksdk</code>.</p>
+<ul>
+<li>
+<p><code>python-novaclient</code> doesn&rsquo;t support auto-negotiation and will use 2.1 by
+default. The user can override this using an explicit microversion or the
+<code>2.latest</code> magic value you referred to below. The <code>2.latest</code> magic value
+isn&rsquo;t really that magic though: it basically means &ldquo;the latest version that
+novaclient knows about&rdquo;. If you use a novaclient release from the same
+release series as the nova server you&rsquo;re talking to, then things will
+&ldquo;magically&rdquo; align. However, if you use a newer version of novaclient then
+things are liable to crash and burn with a &ldquo;microversion not supported&rdquo; error
+message.</p>
+</li>
+<li>
+<p><code>openstacksdk</code> <em>does</em> support auto-negotiation, so any commands implemented
+using this library will attempt to use either the maximum explicit version
+supported by the <code>openstacksdk</code> API implementation (each API, represented as
+a <code>Resource</code> object, specifies its own max microversion value) or the highest
+version supported by the server, whichever is lower. This isn&rsquo;t perfect - we
+don&rsquo;t currently encode a corresponding &ldquo;minimum microversion&rdquo; so it won&rsquo;t
+necessarily bail correctly if you&rsquo;re using a server that simply doesn&rsquo;t
+support the given API and we haven&rsquo;t implemented support for all
+microversions - but you can always override the version using
+<code>--os-compute-api-version</code> etc. if needed.</p>
+</li>
+</ul>
+<p>This generally applies for other services too, so calls to the block storage
+service that use <code>python-cinderclient</code> will not auto-negotiate while calls that
+have been migrated to <code>openstacksdk</code> will. The sole exception to this (that I&rsquo;m
+aware of) is Placement. The Placement OSC commands are implemented using the
+<code>osc-placement</code> command, which provides its own API client implementation. This
+supports neither auto-negotiation nor a <code>1.latest</code> magic value, so you&rsquo;ll
+always need to manually specify an API version (via the
+<code>--os-placement-api-version</code> command line flag, <code>OS_PLACEMENT_API_VERSION</code>
+environment variable or <code>placement_api_version</code> option in <code>clouds.yaml</code>) if you
+want to use any API microversion other than 1.0. Hopefully we&rsquo;ll eventually get
+Placement fully integrated into <code>openstacksdk</code> and auto-negotiation will be a
+thing.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2022 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

@@ -6,7 +6,63 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 08 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 29 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What API microversion does OpenStackClient use?</title>
+      <link>https://that.guru/blog/openstackclient-nova-microversions/</link>
+      <pubDate>Tue, 29 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/openstackclient-nova-microversions/</guid>
+      <description>&lt;p&gt;I was recently asked the following question:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What Nova API microversion does OpenStackClient use when making requests to
+nova?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The answer to this question doesn&amp;rsquo;t seem to appear anywhere in the
+OpenStackClient (OSC) documentation or man pages currently, so I&amp;rsquo;m going to
+note it here for posterity. The unfortunate answer is &amp;ldquo;it depends&amp;rdquo;. More
+specifically, it depends which library OSC is using internally: either
+&lt;code&gt;python-novaclient&lt;/code&gt; or &lt;code&gt;openstacksdk&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;python-novaclient&lt;/code&gt; doesn&amp;rsquo;t support auto-negotiation and will use 2.1 by
+default. The user can override this using an explicit microversion or the
+&lt;code&gt;2.latest&lt;/code&gt; magic value you referred to below. The &lt;code&gt;2.latest&lt;/code&gt; magic value
+isn&amp;rsquo;t really that magic though: it basically means &amp;ldquo;the latest version that
+novaclient knows about&amp;rdquo;. If you use a novaclient release from the same
+release series as the nova server you&amp;rsquo;re talking to, then things will
+&amp;ldquo;magically&amp;rdquo; align. However, if you use a newer version of novaclient then
+things are liable to crash and burn with a &amp;ldquo;microversion not supported&amp;rdquo; error
+message.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;openstacksdk&lt;/code&gt; &lt;em&gt;does&lt;/em&gt; support auto-negotiation, so any commands implemented
+using this library will attempt to use either the maximum explicit version
+supported by the &lt;code&gt;openstacksdk&lt;/code&gt; API implementation (each API, represented as
+a &lt;code&gt;Resource&lt;/code&gt; object, specifies its own max microversion value) or the highest
+version supported by the server, whichever is lower. This isn&amp;rsquo;t perfect - we
+don&amp;rsquo;t currently encode a corresponding &amp;ldquo;minimum microversion&amp;rdquo; so it won&amp;rsquo;t
+necessarily bail correctly if you&amp;rsquo;re using a server that simply doesn&amp;rsquo;t
+support the given API and we haven&amp;rsquo;t implemented support for all
+microversions - but you can always override the version using
+&lt;code&gt;--os-compute-api-version&lt;/code&gt; etc. if needed.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This generally applies for other services too, so calls to the block storage
+service that use &lt;code&gt;python-cinderclient&lt;/code&gt; will not auto-negotiate while calls that
+have been migrated to &lt;code&gt;openstacksdk&lt;/code&gt; will. The sole exception to this (that I&amp;rsquo;m
+aware of) is Placement. The Placement OSC commands are implemented using the
+&lt;code&gt;osc-placement&lt;/code&gt; command, which provides its own API client implementation. This
+supports neither auto-negotiation nor a &lt;code&gt;1.latest&lt;/code&gt; magic value, so you&amp;rsquo;ll
+always need to manually specify an API version (via the
+&lt;code&gt;--os-placement-api-version&lt;/code&gt; command line flag, &lt;code&gt;OS_PLACEMENT_API_VERSION&lt;/code&gt;
+environment variable or &lt;code&gt;placement_api_version&lt;/code&gt; option in &lt;code&gt;clouds.yaml&lt;/code&gt;) if you
+want to use any API microversion other than 1.0. Hopefully we&amp;rsquo;ll eventually get
+Placement fully integrated into &lt;code&gt;openstacksdk&lt;/code&gt; and auto-negotiation will be a
+thing.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Add Another Network to ZNC</title>
       <link>https://that.guru/blog/add-another-network-to-znc/</link>
@@ -2864,138 +2920,6 @@ but, to be honest, I don&amp;rsquo;t really trust the rest of them now. Seeing a
 everything is already stored in the cloud, I can simply delete these caches.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ rm -f .
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Problem solved.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Building PDFs for OpenStack documentation</title>
-      <link>https://that.guru/blog/create-pdfs-for-openstack/</link>
-      <pubDate>Wed, 06 Dec 2017 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
-      <description>&lt;p&gt;I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation
-various of &lt;a href=&#34;https://docs.openstack.org/&#34;&gt;various OpenStack projects&lt;/a&gt;. However, OpenStack uses Sphinx
-across the board and Sphinx, being the awesome tool that it is, supports many
-other output formats. In this instance, I was interested in &lt;em&gt;PDF&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (&lt;a href=&#34;http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.latex.LaTeXBuilder&#34;&gt;although other packages
-do&lt;/a&gt;). Instead, you have to generate LaTeX sources and then generate a PDF for
-this. This means you need to have a pretty well fleshed out TeX installation.
-As such, the first step is to install the dependencies.&lt;/p&gt;
-&lt;h2 id=&#34;install-dependencies&#34;&gt;Install dependencies&lt;/h2&gt;
-&lt;p&gt;We need a number of packages to build the LaTeX sources and convert them into a
-PDF. I&amp;rsquo;m using Fedora 27 which means package names may need to be adjusted
-accordingly. Do note, however, that these names should work equally well on RHEL
-and RHEL derivatives like CentOS).&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;code&gt;texlive&lt;/code&gt; (TeX Live)&lt;/p&gt;
-&lt;p&gt;Per the description of this package in the Fedora repos.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;The TeX Live software distribution offers a complete TeX system for a
-variety of Unix, Macintosh, Windows and other platforms. It encompasses
-programs for editing, typesetting, previewing and printing of TeX
-documents in many different languages, and a large collection of TeX
-macros and font libraries.&lt;/p&gt;
-&lt;p&gt;The distribution includes extensive general documentation about TeX, as
-well as the documentation for the included software packages.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;This is the basic thing we need to actually build LaTeX documents and
-convert them to PDF. The package itself includes multiple other
-dependencies, either because they are necessary for a minimal install or
-they form a standard library of sorts. I&amp;rsquo;m not sure which.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;code&gt;latexmk&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;Per the description of this package in the Fedora repos.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;latexmk is a perl script for running LaTeX the correct number of times to
-resolve cross references, etc.; it also runs auxiliary programs (bibtex,
-makeindex if necessary, and dvips and/or a previewer as requested).  It
-has a number of other useful capabilities, for example to start a
-previewer and then run latex whenever the source files are updated, so
-that the previewer gives an up-to-date view of the document.  The script
-runs on both UNIX and MS-WINDOWS (95, ME, XP, etc).  This script is a
-corrected and improved version of the original version of latexmk.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;This is a tool that Sphinx uses, via some makefiles it includes with the
-built sources to ease converting the built LaTeX sources into PDFs.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;You also need a variety of other packages which aren&amp;rsquo;t included as part of the
-&lt;code&gt;texlive&lt;/code&gt; installation. The base Sphinx template has the following requirements.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;texlive-fncychap&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-titlesec&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-tabulary&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-framed&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-wrapfig&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-upquote&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-capt-of&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;texlive-needspace&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;In addition, &lt;code&gt;openstackdocstheme&lt;/code&gt;, the theme used for all official OpenStack
-projects, provides a LaTeX template with the following dependencies.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;texlive-polyglossia&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;I built this list manually by running &lt;code&gt;make&lt;/code&gt; and then installing whatever
-dependency &lt;code&gt;latexmk&lt;/code&gt; complained about. There&amp;rsquo;s probably easier ways to do this,
-such as installing a larger package but I&amp;rsquo;m not aware of it at this time.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;Installation of all the above.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ sudo dnf install texlive latexmk texlive-fncychap texlive-titlesec \
-    texlive-tabulary texlive-framed texlive-wrapfig texlive-upquote \
-    texlive-capt-of texlive-needspace texlive-polyglossia
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;get-some-documentation&#34;&gt;Get some documentation&lt;/h2&gt;
-&lt;p&gt;I didn&amp;rsquo;t have specific project in mind, so I&amp;rsquo;ve decided to build the project
-documentation for the &lt;code&gt;openstackdocstheme&lt;/code&gt; project. As mentioned previously,
-this project provides &lt;a href=&#34;https://github.com/openstack/openstackdocstheme&#34;&gt;the theme used for all Official OpenStack projects&lt;/a&gt;.
-Given that this is the base for most projects&#39; documentation, it figures that
-it contains all the necessary configuration to build PDFs. If, however, you are
-planning to build docs for some other project, you should ensure that this is
-project is &lt;a href=&#34;https://docs.openstack.org/openstackdocstheme/latest/&#34;&gt;configured correctly for PDF builds&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;To begin, clone the repo locally.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/openstack/openstackdocstheme
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Once cloned, create a virtual environment and install the dependencies.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ virtualenv .venv
-$ source .venv
-$ pip install -e .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In the case of &lt;code&gt;openstackdocstheme&lt;/code&gt;, Sphinx isn&amp;rsquo;t installed by default.
-Let&amp;rsquo;s install that too.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ pip install Sphinx
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;build-the-docs&#34;&gt;Build the docs&lt;/h2&gt;
-&lt;p&gt;Now that we have both our dependencies and source documentation in place, it&amp;rsquo;s
-time to actually build some PDFs. Sphinx actually provides a number of helpful
-targets in the Makefile generated by &lt;code&gt;sphinx-quickstart&lt;/code&gt;. However, OpenStack
-projects don&amp;rsquo;t tend to use these so we&amp;rsquo;re going to take the (still exceedingly
-simple) two-step process. Firstly, build the LaTeX sources. Seeing as this is a
-Python project, we&amp;rsquo;re going to use the &lt;a href=&#34;http://www.sphinx-doc.org/en/stable/setuptools.html&#34;&gt;setuptools integration&lt;/a&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ python setup.py build_sphinx -b latex
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;All OpenStack projects place their documentation source and builds in
-&lt;code&gt;doc/source&lt;/code&gt; and &lt;code&gt;doc/build&lt;/code&gt; respectively. The above command should generate a
-number of files in &lt;code&gt;doc/build/latex&lt;/code&gt; including a very helpful makefile. We&amp;rsquo;re
-going to use that now to complete the process of generating a PDF.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ make -C doc/build/latex
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This should emit a &lt;strong&gt;lot&lt;/strong&gt; of text, followed by something that looks like this.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Output written on os-doc-demo.pdf (23 pages).
-Transcript written on os-doc-demo.log.
-=== TeX engine is &#39;XeTeX&#39;
-Latexmk: Index file &#39;os-doc-demo.idx&#39; was written
-Latexmk: Log file says output to &#39;os-doc-demo.pdf&#39;
-Latexmk: All targets (os-doc-demo.pdf) are up-to-date
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Once complete, you can find your compiled PDF in the same build directory (in
-this case, &lt;code&gt;doc/build/latex/os-doc-demo.pdf&lt;/code&gt;)&lt;/p&gt;
 </description>
     </item>
     
