@@ -88,24 +88,24 @@
     <p>I was recently asked the following question:</p>
 <blockquote>
 <p>What Nova API microversion does OpenStackClient use when making requests to
-nova?</p>
+Nova?</p>
 </blockquote>
-<p>The answer to this question doesn&rsquo;t seem to appear anywhere in the
-OpenStackClient (OSC) documentation or man pages currently, so I&rsquo;m going to
-note it here for posterity. The unfortunate answer is &ldquo;it depends&rdquo;. More
-specifically, it depends which library OSC is using internally: either
-<code>python-novaclient</code> or <code>openstacksdk</code>.</p>
+<p>The answer to this question doesn&rsquo;t currently seem to appear anywhere in the
+OpenStackClient (OSC) documentation or man pages, so I&rsquo;m going to note it here
+for posterity. The unfortunate answer is &ldquo;it depends&rdquo;. More specifically, it
+depends on which library OSC is using internally for the specific command.
+Is it <code>python-novaclient</code> or is it <code>openstacksdk</code>?</p>
 <ul>
 <li>
 <p><code>python-novaclient</code> doesn&rsquo;t support auto-negotiation and will use 2.1 by
-default. The user can override this using an explicit microversion or the
-<code>2.latest</code> magic value you referred to below. The <code>2.latest</code> magic value
-isn&rsquo;t really that magic though: it basically means &ldquo;the latest version that
-novaclient knows about&rdquo;. If you use a novaclient release from the same
-release series as the nova server you&rsquo;re talking to, then things will
-&ldquo;magically&rdquo; align. However, if you use a newer version of novaclient then
-things are liable to crash and burn with a &ldquo;microversion not supported&rdquo; error
-message.</p>
+default. The user can override this using an explicit microversion or a
+<code>2.latest</code> &ldquo;magic&rdquo; value. The <code>2.latest</code> unfortunately doesn&rsquo;t mean
+auto-negotiation: <code>latest</code> refers to the latest microversion that
+<em>novaclient</em> knows about, not the Nova server you&rsquo;re talking to. If you were
+to use a novaclient release from the same release series as the Nova server
+you&rsquo;re talking to, then things things would &ldquo;magically&rdquo; align. However, if
+you use a newer version of novaclient then things are liable to crash and
+burn with a &ldquo;microversion not supported&rdquo; error message.</p>
 </li>
 <li>
 <p><code>openstacksdk</code> <em>does</em> support auto-negotiation, so any commands implemented
@@ -122,9 +122,9 @@ microversions - but you can always override the version using
 </ul>
 <p>This generally applies for other services too, so calls to the block storage
 service that use <code>python-cinderclient</code> will not auto-negotiate while calls that
-have been migrated to <code>openstacksdk</code> will. The sole exception to this (that I&rsquo;m
-aware of) is Placement. The Placement OSC commands are implemented using the
-<code>osc-placement</code> command, which provides its own API client implementation. This
+have been migrated to use <code>openstacksdk</code> will. The sole exception to this (that
+I&rsquo;m aware of) is Placement. The Placement OSC commands are provided by the
+<code>osc-placement</code> package, which provides its own API client implementation. This
 supports neither auto-negotiation nor a <code>1.latest</code> magic value, so you&rsquo;ll
 always need to manually specify an API version (via the
 <code>--os-placement-api-version</code> command line flag, <code>OS_PLACEMENT_API_VERSION</code>

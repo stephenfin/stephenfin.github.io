@@ -16,24 +16,24 @@
       <description>&lt;p&gt;I was recently asked the following question:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;What Nova API microversion does OpenStackClient use when making requests to
-nova?&lt;/p&gt;
+Nova?&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;The answer to this question doesn&amp;rsquo;t seem to appear anywhere in the
-OpenStackClient (OSC) documentation or man pages currently, so I&amp;rsquo;m going to
-note it here for posterity. The unfortunate answer is &amp;ldquo;it depends&amp;rdquo;. More
-specifically, it depends which library OSC is using internally: either
-&lt;code&gt;python-novaclient&lt;/code&gt; or &lt;code&gt;openstacksdk&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The answer to this question doesn&amp;rsquo;t currently seem to appear anywhere in the
+OpenStackClient (OSC) documentation or man pages, so I&amp;rsquo;m going to note it here
+for posterity. The unfortunate answer is &amp;ldquo;it depends&amp;rdquo;. More specifically, it
+depends on which library OSC is using internally for the specific command.
+Is it &lt;code&gt;python-novaclient&lt;/code&gt; or is it &lt;code&gt;openstacksdk&lt;/code&gt;?&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;code&gt;python-novaclient&lt;/code&gt; doesn&amp;rsquo;t support auto-negotiation and will use 2.1 by
-default. The user can override this using an explicit microversion or the
-&lt;code&gt;2.latest&lt;/code&gt; magic value you referred to below. The &lt;code&gt;2.latest&lt;/code&gt; magic value
-isn&amp;rsquo;t really that magic though: it basically means &amp;ldquo;the latest version that
-novaclient knows about&amp;rdquo;. If you use a novaclient release from the same
-release series as the nova server you&amp;rsquo;re talking to, then things will
-&amp;ldquo;magically&amp;rdquo; align. However, if you use a newer version of novaclient then
-things are liable to crash and burn with a &amp;ldquo;microversion not supported&amp;rdquo; error
-message.&lt;/p&gt;
+default. The user can override this using an explicit microversion or a
+&lt;code&gt;2.latest&lt;/code&gt; &amp;ldquo;magic&amp;rdquo; value. The &lt;code&gt;2.latest&lt;/code&gt; unfortunately doesn&amp;rsquo;t mean
+auto-negotiation: &lt;code&gt;latest&lt;/code&gt; refers to the latest microversion that
+&lt;em&gt;novaclient&lt;/em&gt; knows about, not the Nova server you&amp;rsquo;re talking to. If you were
+to use a novaclient release from the same release series as the Nova server
+you&amp;rsquo;re talking to, then things things would &amp;ldquo;magically&amp;rdquo; align. However, if
+you use a newer version of novaclient then things are liable to crash and
+burn with a &amp;ldquo;microversion not supported&amp;rdquo; error message.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;code&gt;openstacksdk&lt;/code&gt; &lt;em&gt;does&lt;/em&gt; support auto-negotiation, so any commands implemented
@@ -50,9 +50,9 @@ microversions - but you can always override the version using
 &lt;/ul&gt;
 &lt;p&gt;This generally applies for other services too, so calls to the block storage
 service that use &lt;code&gt;python-cinderclient&lt;/code&gt; will not auto-negotiate while calls that
-have been migrated to &lt;code&gt;openstacksdk&lt;/code&gt; will. The sole exception to this (that I&amp;rsquo;m
-aware of) is Placement. The Placement OSC commands are implemented using the
-&lt;code&gt;osc-placement&lt;/code&gt; command, which provides its own API client implementation. This
+have been migrated to use &lt;code&gt;openstacksdk&lt;/code&gt; will. The sole exception to this (that
+I&amp;rsquo;m aware of) is Placement. The Placement OSC commands are provided by the
+&lt;code&gt;osc-placement&lt;/code&gt; package, which provides its own API client implementation. This
 supports neither auto-negotiation nor a &lt;code&gt;1.latest&lt;/code&gt; magic value, so you&amp;rsquo;ll
 always need to manually specify an API version (via the
 &lt;code&gt;--os-placement-api-version&lt;/code&gt; command line flag, &lt;code&gt;OS_PLACEMENT_API_VERSION&lt;/code&gt;
