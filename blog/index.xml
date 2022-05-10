@@ -25,7 +25,7 @@ functionality is the cloud provider-specific code, which is now handled by the
 as &lt;em&gt;external&lt;/em&gt; cloud providers (after the argument used to inform &lt;code&gt;kublet&lt;/code&gt; to
 use CCM, &lt;code&gt;--cloud-provider=external&lt;/code&gt;) while the existing in-tree cloud
 providers may be referred to as &lt;em&gt;internal&lt;/em&gt; or &lt;em&gt;legacy&lt;/em&gt; cloud providers. We use
-these terms throughout here.&lt;/div&gt;
+these terms throughout.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;In the 4.12 release, we hope to switch OpenShift deployments running on
