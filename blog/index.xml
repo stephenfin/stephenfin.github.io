@@ -207,6 +207,14 @@ options, depending on the specific deployment configuration (i.e. is Kuryr in
 use?)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;All of this can be seen [here][https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213]&lt;/p&gt;
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+&lt;p&gt;Hopefully this helps shine a little light on how CCCMO (and to a lesser degree,
+CCM and CCO) works and operates, at least from a OpenStack perspective. For
+most users, none of the above should matter: the OpenShift documentation
+describes how configuration of the cloud provider, be it internal or external,
+should happen via the &lt;code&gt;openshift-config / cloud-provider-config&lt;/code&gt; config map and
+all of this transformation logic should be effectively invisible. However, when
+things go wrong, it can be helpful to know in which dark corners to look 😄&lt;/p&gt;
 </description>
     </item>
     

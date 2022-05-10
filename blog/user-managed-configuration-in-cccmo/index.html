@@ -79,7 +79,7 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2022-05-09T00:00:00Z'>May 9, 2022</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>6 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>7 min read</span>
       </div>
     </div>
   </div>
@@ -279,6 +279,14 @@ options, depending on the specific deployment configuration (i.e. is Kuryr in
 use?)</li>
 </ul>
 <p>All of this can be seen [here][https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213]</p>
+<h2 id="summary">Summary</h2>
+<p>Hopefully this helps shine a little light on how CCCMO (and to a lesser degree,
+CCM and CCO) works and operates, at least from a OpenStack perspective. For
+most users, none of the above should matter: the OpenShift documentation
+describes how configuration of the cloud provider, be it internal or external,
+should happen via the <code>openshift-config / cloud-provider-config</code> config map and
+all of this transformation logic should be effectively invisible. However, when
+things go wrong, it can be helpful to know in which dark corners to look 😄</p>
 
   </article>
 
