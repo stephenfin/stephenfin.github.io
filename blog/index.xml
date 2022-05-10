@@ -208,7 +208,7 @@ CSI driver)&lt;/li&gt;
 options, depending on the specific deployment configuration (i.e. is Kuryr in
 use?)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;All of this can be seen [here][https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213]&lt;/p&gt;
+&lt;p&gt;All of this can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
 &lt;p&gt;Hopefully this helps shine a little light on how CCCMO (and to a lesser degree,
 CCM and CCO) works and operates, at least from a OpenStack perspective. For
