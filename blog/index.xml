@@ -197,13 +197,13 @@ following:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Drops the &lt;code&gt;[Global] secret-name&lt;/code&gt;, &lt;code&gt;[Global] secret-namespace&lt;/code&gt;, and &lt;code&gt;[Global] kubeconfig-path&lt;/code&gt; options, since these aren&amp;rsquo;t applicable for the external
 cloud provider. This inline configuration has been replaced by configuration
-stored in a &lt;code&gt;clouds.yaml&lt;/code&gt; file. Speaking on which&amp;hellip;&lt;/li&gt;
+stored in a &lt;code&gt;clouds.yaml&lt;/code&gt; file. Speaking of which&amp;hellip;&lt;/li&gt;
 &lt;li&gt;Adds the &lt;code&gt;[Global] use-clouds&lt;/code&gt;, &lt;code&gt;[Global] clouds-file&lt;/code&gt;, and &lt;code&gt;[Global] cloud&lt;/code&gt;
-options&lt;/li&gt;
-&lt;li&gt;Drops the entire &lt;code&gt;[BlockStorage]&lt;/code&gt; section, since external cloud providers are
+options.&lt;/li&gt;
+&lt;li&gt;Drops the entire &lt;code&gt;[BlockStorage]&lt;/code&gt; section since external cloud providers are
 no longer responsible for anything storage&amp;rsquo;y (this is now handled by Cluster
 Storage Interface (CSI) drivers, including the Manila CSI driver and Cinder
-CSI driver&lt;/li&gt;
+CSI driver)&lt;/li&gt;
 &lt;li&gt;Adds or sets the &lt;code&gt;[LoadBalancer] use-octavia&lt;/code&gt; and &lt;code&gt;[LoadBalancer] enabled&lt;/code&gt;
 options, depending on the specific deployment configuration (i.e. is Kuryr in
 use?)&lt;/li&gt;

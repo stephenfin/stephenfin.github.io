@@ -269,13 +269,13 @@ following:</p>
 <ul>
 <li>Drops the <code>[Global] secret-name</code>, <code>[Global] secret-namespace</code>, and <code>[Global] kubeconfig-path</code> options, since these aren&rsquo;t applicable for the external
 cloud provider. This inline configuration has been replaced by configuration
-stored in a <code>clouds.yaml</code> file. Speaking on which&hellip;</li>
+stored in a <code>clouds.yaml</code> file. Speaking of which&hellip;</li>
 <li>Adds the <code>[Global] use-clouds</code>, <code>[Global] clouds-file</code>, and <code>[Global] cloud</code>
-options</li>
-<li>Drops the entire <code>[BlockStorage]</code> section, since external cloud providers are
+options.</li>
+<li>Drops the entire <code>[BlockStorage]</code> section since external cloud providers are
 no longer responsible for anything storage&rsquo;y (this is now handled by Cluster
 Storage Interface (CSI) drivers, including the Manila CSI driver and Cinder
-CSI driver</li>
+CSI driver)</li>
 <li>Adds or sets the <code>[LoadBalancer] use-octavia</code> and <code>[LoadBalancer] enabled</code>
 options, depending on the specific deployment configuration (i.e. is Kuryr in
 use?)</li>
