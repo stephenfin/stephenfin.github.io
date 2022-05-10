@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/BNBA1h-NgdY/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2022-05-09T00:00:00Z'>May 9, 2022</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>6 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>Recent versions of Kubernetes have begun moving functionality that previously
+existed in the core project out to separate projects. One such set of
+functionality is the cloud provider-specific code, which is now handled by the
+<a href="https://kubernetes.io/docs/concepts/architecture/cloud-controller/">Cloud Controller Manager</a> project. This is well described in the
+<a href="https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/">Kubernetes documentation</a>.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">Cloud providers implemented using Cloud Controller Manager may be referred to
+as <em>external cloud providers</em> (after the argument used to inform <code>kublet</code> to
+use CCM, <code>--cloud-provider=external</code>) while the existing in-tree cloud
+providers may be referred to as <em>legacy cloud providers</em>. We use these terms
+throughout here.</div>
+</aside>
+
+<p>In the 4.12 release, we hope to switch OpenShift deployments running on
+OpenStack clouds from the legacy OpenStack cloud provider to the external
+OpenStack cloud provider, <a href="https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/openstack-cloud-controller-manager/using-openstack-cloud-controller-manager.md">OpenStack Cloud Controller Manager (OCCM)</a>.
+There are a couple of steps needed to make this happen, one of which is taking
+user-provided configuration for the legacy cloud provider and mapping it to
+configuration for the shiny new external cloud provider. This is necessary to
+ensure any user-provided configuration is retained and the upgrade doesn&rsquo;t
+break the deployment. In the case of the OpenStack provider, this configuration
+is INI-style and thankfully quite similar for both the legacy and external
+cloud provider implementations.</p>
+<p>To handle the migration of configuration in OpenShift deployments, we are
+relying on the <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator">Cluster Cloud Controller Manager Operator (CCCMO)</a>. This
+operator is responsible for managing the lifecycle of CCM on OpenShift
+deployments. This lifecycle management including configuration of CCM, so
+naturally this operator is a good fit for this kind of task. These changes are
+well described in an <a href="https://github.com/openshift/enhancements/pull/1009">enhancement</a> (and the <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/pull/178">pull request</a> is
+likely quite informative) but I hope to explain them at a high level here since
+I think the designs used are similar to those found in other operators and are
+likely to be adopted for yet more operators as times goes on.</p>
+<h2 id="how-the-cluster-cloud-controller-manager-operator-cccmo-generates-configuration">How the Cluster Cloud Controller Manager Operator (CCCMO) generates configuration</h2>
+<p>The first step in understanding how CCCMO can be used to manage the migration
+of configuration is to examine how CCCMO sources configuration - specifically
+user-provided configuration - in the first place. Once we understand this, we
+can decide at what points to hook in and customise or translate this
+user-provided configuration. We can also use this model in other operators.
+Thankfully, in the case of CCCMO this sourcing and generation of configuration
+is pretty simple.</p>
+<p>Firstly, the operator attempt to retrieve config from the
+<code>openshift-config-managed / kube-cloud-config</code> config map:</p>
+<pre><code>$ oc get cm/kube-cloud-config -n openshift-config-managed -o yaml
+apiVersion: v1
+data:
+  cloud.conf: |
+    [Global]
+    secret-name = openstack-credentials
+    secret-namespace = kube-system
+    region = regionOne
+    [LoadBalancer]
+    use-octavia = True
+kind: ConfigMap
+metadata:
+  creationTimestamp: &quot;2022-02-25T17:01:58Z&quot;
+  name: kube-cloud-config
+  namespace: openshift-config-managed
+  resourceVersion: &quot;3853&quot;
+  uid: c23c14b7-66db-431c-a723-59439f946f80
+</code></pre>
+<p>This can be seen <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L63-L68">here</a>.
+The reason that it searched for this config map specifically is historical:
+this is the config map generated by the <a href="https://github.com/openshift/cluster-config-operator">Cluster Config Operator (CCO)</a>,
+which is used to configure the legacy cloud provider (among other things). CCO
+manipulates user-provided configuration for some cloud providers (specifically
+AWS and Azure), so I guess the idea here was to avoid re-implementing this
+transformation logic in CCCMO. Everything in the <code>openshift-config-managed</code>
+namespace is owned by CCO and is not intended to be modified by a user (and in
+fact, attempts to modify it will likely be futile and the operator will quickly
+erase those changes).</p>
+<p>If the lookup of the <code>openshift-config-managed / kube-cloud-config</code> config map
+fails, we attempt to retrieve configuration from the <code>openshift-config / cloud-provider-config</code> config map:</p>
+<pre><code>$ oc get cm/cloud-provider-config -n openshift-config -o yaml
+apiVersion: v1
+data:
+  config: |
+    [Global]
+    secret-name = openstack-credentials
+    secret-namespace = kube-system
+    region = regionOne
+    [LoadBalancer]
+    use-octavia = True
+kind: ConfigMap
+metadata:
+  creationTimestamp: &quot;2022-02-25T17:00:15Z&quot;
+  name: cloud-provider-config
+  namespace: openshift-config
+  resourceVersion: &quot;1802&quot;
+  uid: 45bda3c8-8866-4aea-92be-921502ff2055
+</code></pre>
+<p>This can be seen <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L73-L87">here</a>.
+Once again, the reason we use this config map is historical and is based on
+what CCO uses. While things in the <code>openshift-config-managed</code> namespace are
+not user editable, the <code>openshift-config</code> namespace is the namespace for
+&ldquo;user-managed&rdquo; configuration or configuration that things like operators are
+not allowed to modify.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>The <strong>name</strong> of this config map (as opposed to the namespace) is actually
+cloud/infrastructure dependent and this is simply the OpenStack name. It is
+defined as an attribute on the <code>cluster</code> infrastructure resource.</p>
+<pre><code>$ oc get infrastructure/cluster -o jsonpath=&quot;{.spec.cloudConfig.name}&quot;
+cloud-provider-config
+</code></pre>
+</div>
+</aside>
+
+<p>If the both lookup fails, we error out. However, this is unlikely since the
+installer should create it as seen
+<a href="https://github.com/openshift/installer/blob/fd00a659/pkg/asset/manifests/cloudproviderconfig.go#L78-L93">here</a>.
+Assuming one of them does exist, we sync whatever we found to the
+<code>openshift-cloud-controller-manager / cloud-conf</code> config map:</p>
+<pre><code>$ oc get cm/cloud-conf -n openshift-cloud-controller-manager -o yaml
+apiVersion: v1
+data:
+  cloud.conf: |
+    [Global]
+    secret-name = openstack-credentials
+    secret-namespace = kube-system
+    region = regionOne
+    [LoadBalancer]
+    use-octavia = True
+kind: ConfigMap
+metadata:
+  creationTimestamp: &quot;2022-02-25T17:01:08Z&quot;
+  name: cloud-conf
+  namespace: openshift-cloud-controller-manager
+  resourceVersion: &quot;2519&quot;
+  uid: cbbeedaf-41ed-41c2-9f37-4885732d3677
+</code></pre>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>You can list all config maps in a namespace like this using:</p>
+<pre><code>$ oc get cm -n openshift-cloud-controller-manager \
+    -o jsonpath='{range .items[*]}{.metadata.name}{&quot;\n&quot;}{end}'
+ccm-trusted-ca
+cloud-conf
+kube-root-ca.crt
+openshift-service-ca.crt
+</code></pre>
+</div>
+</aside>
+
+<p>This can be seen <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L96-L100">here</a>.</p>
+<p>In this instance, the namespace isn&rsquo;t actually locked in. It is possible to
+configure the <code>cluster-controller-manager-operator</code> binary with a <code>--namespace</code>
+argument and this option defaults to <code>openshift-cloud-controller-manager</code>, as
+seen <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/cmd/cluster-cloud-controller-manager-operator/main.go#L85-L89">here</a>.</p>
+<h2 id="how-cccmo-handles-upgrades">How CCCMO handles upgrades</h2>
+<p>(for OpenStack clouds on OpenShift 4.11 or later)</p>
+<p>So now that we understand how CCCMO sources user-provided configuration and
+generates the resulting configuration used by Cloud Controller Manager, it&rsquo;s
+time to examine how we&rsquo;ve decided to handle the migration of configuration for
+legacy cloud providers to configuration suitable for external cloud provides.
+As noted above, previously CCCMO took user-provided configuration from a config
+map in one namespace and copied it to a config map in another namespace. It
+should be pretty obvious that there&rsquo;s no reason this copy has to be a
+straightforward copy: we could modify the input config map before we dump it
+back out. This is of course exactly what we did.</p>
+<p>Starting with the upcoming OpenShift 4.11 release, CCCMO provides configuration
+&ldquo;transformers&rdquo;. Transformers simply load configuration provided by users, do
+some basic validation, and then transform things by dropping options that are
+no longer relevant, adding options that are now necessary, and renaming or
+modifying options that have changed between the legacy. This idea isn&rsquo;t
+particularly novel - as noted previously, CCO was already doing something very
+similar for AWS and Azure - but it works. Annoyingly these transformers must be
+cloud-specific since the CCM binary used for each cloud provider expects a
+radically different configuration files (in the case of the OpenStack cloud
+provider this is an INI-style configuration file while Azure expects a
+YAML-formatted file). As a result, we have only implemented the OpenStack
+transformer for now. However, in the future we will likely implement additional
+transformers for at least AWS and Azure since as noted previously CCO is
+already doing some transformation here.</p>
+<p>Specifically, the transformer for OpenStack clouds in CCCMO currently does the
+following:</p>
+<ul>
+<li>Drops the <code>[Global] secret-name</code>, <code>[Global] secret-namespace</code>, and <code>[Global] kubeconfig-path</code> options, since these aren&rsquo;t applicable for the external
+cloud provider. This inline configuration has been replaced by configuration
+stored in a <code>clouds.yaml</code> file. Speaking on which&hellip;</li>
+<li>Adds the <code>[Global] use-clouds</code>, <code>[Global] clouds-file</code>, and <code>[Global] cloud</code>
+options</li>
+<li>Drops the entire <code>[BlockStorage]</code> section, since external cloud providers are
+no longer responsible for anything storage&rsquo;y (this is now handled by Cluster
+Storage Interface (CSI) drivers, including the Manila CSI driver and Cinder
+CSI driver</li>
+<li>Adds or sets the <code>[LoadBalancer] use-octavia</code> and <code>[LoadBalancer] enabled</code>
+options, depending on the specific deployment configuration (i.e. is Kuryr in
+use?)</li>
+</ul>
+<p>All of this can be seen [here][https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213]</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/kubernetes">#kubernetes</a>
+    
+    <a class="category" href="https://that.guru/categories/operators">#operators</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2022 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
