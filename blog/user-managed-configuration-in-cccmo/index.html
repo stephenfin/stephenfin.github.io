@@ -112,13 +112,15 @@ is INI-style and thankfully quite similar for both the legacy and external
 cloud provider implementations.</p>
 <p>To handle the migration of configuration in OpenShift deployments, we are
 relying on the <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator">Cluster Cloud Controller Manager Operator (CCCMO)</a>. This
-operator is responsible for managing the lifecycle of CCM on OpenShift
-deployments. This lifecycle management including configuration of CCM, so
-naturally this operator is a good fit for this kind of task. These changes are
-well described in an <a href="https://github.com/openshift/enhancements/pull/1009">enhancement</a> (and the <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/pull/178">pull request</a> is
-likely quite informative) but I hope to explain them at a high level here since
-I think the designs used are similar to those found in other operators and are
-likely to be adopted for yet more operators as times goes on.</p>
+operator is already responsible for managing the lifecycle of CCM on OpenShift
+deployments, including configuration of CCM, so naturally it is a good fit for
+this kind of task. A detailed description of the changes we ultimately made,
+along with motivation for same, can be found <a href="https://github.com/openshift/enhancements/pull/1009">in this enhancement</a>
+(the <a href="https://github.com/openshift/cluster-cloud-controller-manager-operator/pull/178">pull request itself</a> is probably quite helpful also, if you read Go)
+but I hope to explain them at a high level here since the paradigms used are
+similar to those found in other operators and are being used to manage other
+complex upgrades, such as the switch from in-tree block storage drivers to
+Cluster Storage Interface (CSI) drivers.</p>
 <h2 id="how-the-cluster-cloud-controller-manager-operator-cccmo-generates-configuration">How the Cluster Cloud Controller Manager Operator (CCCMO) generates configuration</h2>
 <p>The first step in understanding how CCCMO can be used to manage the migration
 of configuration is to examine how CCCMO sources configuration - specifically

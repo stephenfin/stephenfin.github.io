@@ -40,13 +40,15 @@ is INI-style and thankfully quite similar for both the legacy and external
 cloud provider implementations.&lt;/p&gt;
 &lt;p&gt;To handle the migration of configuration in OpenShift deployments, we are
 relying on the &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator&#34;&gt;Cluster Cloud Controller Manager Operator (CCCMO)&lt;/a&gt;. This
-operator is responsible for managing the lifecycle of CCM on OpenShift
-deployments. This lifecycle management including configuration of CCM, so
-naturally this operator is a good fit for this kind of task. These changes are
-well described in an &lt;a href=&#34;https://github.com/openshift/enhancements/pull/1009&#34;&gt;enhancement&lt;/a&gt; (and the &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/pull/178&#34;&gt;pull request&lt;/a&gt; is
-likely quite informative) but I hope to explain them at a high level here since
-I think the designs used are similar to those found in other operators and are
-likely to be adopted for yet more operators as times goes on.&lt;/p&gt;
+operator is already responsible for managing the lifecycle of CCM on OpenShift
+deployments, including configuration of CCM, so naturally it is a good fit for
+this kind of task. A detailed description of the changes we ultimately made,
+along with motivation for same, can be found &lt;a href=&#34;https://github.com/openshift/enhancements/pull/1009&#34;&gt;in this enhancement&lt;/a&gt;
+(the &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/pull/178&#34;&gt;pull request itself&lt;/a&gt; is probably quite helpful also, if you read Go)
+but I hope to explain them at a high level here since the paradigms used are
+similar to those found in other operators and are being used to manage other
+complex upgrades, such as the switch from in-tree block storage drivers to
+Cluster Storage Interface (CSI) drivers.&lt;/p&gt;
 &lt;h2 id=&#34;how-the-cluster-cloud-controller-manager-operator-cccmo-generates-configuration&#34;&gt;How the Cluster Cloud Controller Manager Operator (CCCMO) generates configuration&lt;/h2&gt;
 &lt;p&gt;The first step in understanding how CCCMO can be used to manage the migration
 of configuration is to examine how CCCMO sources configuration - specifically
