@@ -49,7 +49,7 @@ but I hope to explain them at a high level here since the paradigms used are
 similar to those found in other operators and are being used to manage other
 complex upgrades, such as the switch from in-tree block storage drivers to
 Cluster Storage Interface (CSI) drivers.&lt;/p&gt;
-&lt;h2 id=&#34;how-the-cluster-cloud-controller-manager-operator-cccmo-generates-configuration&#34;&gt;How the Cluster Cloud Controller Manager Operator (CCCMO) generates configuration&lt;/h2&gt;
+&lt;h2 id=&#34;how-cccmo-generates-configuration&#34;&gt;How CCCMO generates configuration&lt;/h2&gt;
 &lt;p&gt;The first step in understanding how CCCMO can be used to manage the migration
 of configuration is to examine how CCCMO sources configuration - specifically
 user-provided configuration - and uses this to generate the configuration
@@ -162,8 +162,8 @@ openshift-service-ca.crt
 &lt;/div&gt;
 &lt;/aside&gt;
 
-&lt;p&gt;This can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L96-L100&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;In this instance, the namespace isn&amp;rsquo;t actually locked in. It is possible to
+&lt;p&gt;This can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L96-L100&#34;&gt;here&lt;/a&gt;.
+In this instance, the namespace isn&amp;rsquo;t actually locked in. It is possible to
 configure the &lt;code&gt;cluster-controller-manager-operator&lt;/code&gt; binary with a &lt;code&gt;--namespace&lt;/code&gt;
 argument and this option defaults to &lt;code&gt;openshift-cloud-controller-manager&lt;/code&gt;, as
 seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/cmd/cluster-cloud-controller-manager-operator/main.go#L85-L89&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
@@ -195,18 +195,27 @@ already doing some transformation here.&lt;/p&gt;
 &lt;p&gt;Specifically, the transformer for OpenStack clouds in CCCMO currently does the
 following:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Drops the &lt;code&gt;[Global] secret-name&lt;/code&gt;, &lt;code&gt;[Global] secret-namespace&lt;/code&gt;, and &lt;code&gt;[Global] kubeconfig-path&lt;/code&gt; options, since these aren&amp;rsquo;t applicable for the external
-cloud provider. This inline configuration has been replaced by configuration
-stored in a &lt;code&gt;clouds.yaml&lt;/code&gt; file. Speaking of which&amp;hellip;&lt;/li&gt;
-&lt;li&gt;Adds the &lt;code&gt;[Global] use-clouds&lt;/code&gt;, &lt;code&gt;[Global] clouds-file&lt;/code&gt;, and &lt;code&gt;[Global] cloud&lt;/code&gt;
-options.&lt;/li&gt;
-&lt;li&gt;Drops the entire &lt;code&gt;[BlockStorage]&lt;/code&gt; section since external cloud providers are
+&lt;li&gt;
+&lt;p&gt;Drops the &lt;code&gt;[Global] secret-name&lt;/code&gt;, &lt;code&gt;[Global] secret-namespace&lt;/code&gt;, and &lt;code&gt;[Global] kubeconfig-path&lt;/code&gt; options, since these aren&amp;rsquo;t applicable for the external
+cloud provider (the first two are OpenShift-only modifications). This inline
+configuration has been replaced by configuration stored in a &lt;code&gt;clouds.yaml&lt;/code&gt;
+file. Speaking of which&amp;hellip;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Adds the &lt;code&gt;[Global] use-clouds&lt;/code&gt;, &lt;code&gt;[Global] clouds-file&lt;/code&gt;, and &lt;code&gt;[Global] cloud&lt;/code&gt;
+options.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Drops the entire &lt;code&gt;[BlockStorage]&lt;/code&gt; section since external cloud providers are
 no longer responsible for anything storage&amp;rsquo;y (this is now handled by Cluster
 Storage Interface (CSI) drivers, including the Manila CSI driver and Cinder
-CSI driver)&lt;/li&gt;
-&lt;li&gt;Adds or sets the &lt;code&gt;[LoadBalancer] use-octavia&lt;/code&gt; and &lt;code&gt;[LoadBalancer] enabled&lt;/code&gt;
+CSI driver)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Adds or sets the &lt;code&gt;[LoadBalancer] use-octavia&lt;/code&gt; and &lt;code&gt;[LoadBalancer] enabled&lt;/code&gt;
 options, depending on the specific deployment configuration (i.e. is Kuryr in
-use?)&lt;/li&gt;
+use?)&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;All of this can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
