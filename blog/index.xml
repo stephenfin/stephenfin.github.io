@@ -6,7 +6,123 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Mon, 09 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 18 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Resolving an annoying PyQt Warning in OpenStackClient</title>
+      <link>https://that.guru/blog/openstackclient-qt-warning/</link>
+      <pubDate>Wed, 18 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/openstackclient-qt-warning/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve recently been seeing the following warning when running &lt;code&gt;openstack&lt;/code&gt;
+commands locally:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ openstack server list -n -f yaml
+QSocketNotifier: Can only be used with threads started with QThread
+...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This made no sense: OSC doesn&amp;rsquo;t use Qt so why am I seeing errors related to
+this? I also was only seeing it on one host. What gives? Well it took me a
+while but it turned out this wasn&amp;rsquo;t due to OSC or even one of its direct
+dependencies: it was an indirect dependency, &lt;code&gt;pyperclip&lt;/code&gt;. By exporting
+&lt;code&gt;PYTHONPROFILEIMPORTTIME=1&lt;/code&gt;, I was able to figure out what import caused the
+error:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ export PYTHONPROFILEIMPORTTIME=1
+$ openstack server list -n -f yaml
+import time: self [us] | cumulative | imported package
+import time:       647 |        647 |   _io
+...
+import time:       160 |        345 |   osc_lib.command.commandmanager
+import time:       280 |        280 |           _compat_pickle
+import time:       227 |        227 |           _pickle
+import time:        64 |         64 |               org
+import time:        16 |         79 |             org.python
+import time:        15 |         93 |           org.python.core
+import time:       650 |       1248 |         pickle
+import time:       523 |       1771 |       logging.handlers
+import time:       161 |        161 |               wcwidth.table_wide
+import time:       342 |        342 |               wcwidth.table_zero
+import time:       129 |        129 |               wcwidth.unicode_versions
+import time:       267 |        897 |             wcwidth.wcwidth
+import time:       199 |       1096 |           wcwidth
+import time:     12691 |      13786 |         cmd2.ansi
+import time:       113 |        113 |           cmd2.constants
+import time:      1116 |       1228 |         cmd2.argparse_custom
+import time:       183 |        183 |             cmd2.exceptions
+import time:       922 |        922 |             cmd2.utils
+import time:       235 |       1340 |           cmd2.command_definition
+import time:       955 |        955 |           cmd2.table_creator
+import time:       404 |       2698 |         cmd2.argparse_completer
+import time:       264 |        264 |           cmd
+import time:       328 |        328 |             _sysconfigdata__linux_x86_64-linux-gnu
+import time:      1251 |       1578 |           pydoc
+import time:       133 |        133 |             codeop
+import time:       181 |        314 |           code
+import time:       151 |        151 |                 attr._compat
+import time:       102 |        102 |                   attr._config
+import time:       181 |        181 |                     attr.exceptions
+import time:       107 |        287 |                   attr.setters
+import time:      2597 |       2985 |                 attr._make
+import time:       180 |       3315 |               attr.converters
+import time:       132 |        132 |               attr.filters
+import time:      3697 |       3697 |               attr.validators
+import time:       161 |        161 |               attr._cmp
+import time:       139 |        139 |               attr._funcs
+import time:       573 |        573 |               attr._version_info
+import time:       142 |        142 |               attr._next_gen
+import time:       285 |       8439 |             attr
+import time:       264 |        264 |               shlex
+import time:      3435 |       3698 |             cmd2.parsing
+import time:      1509 |      13645 |           cmd2.plugin
+import time:       364 |        364 |                 _ctypes
+import time:       186 |        186 |                 ctypes._endian
+import time:       589 |       1138 |               ctypes
+import time:       306 |       1444 |             pyperclip
+import time:        76 |         76 |             gtk
+import time:        71 |         71 |             qtpy
+import time:       220 |        220 |             PyQt5
+import time:        54 |         54 |               qtpy
+import time:        17 |         71 |             qtpy.QtWidgets
+import time:       342 |        342 |               PyQt5.sip
+import time:      6530 |       6530 |               PyQt5.QtCore
+import time:      5953 |       5953 |               PyQt5.QtGui
+import time:     14655 |      27478 |             PyQt5.QtWidgets
+QSocketNotifier: Can only be used with threads started with QThread
+...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As for why I wasn&amp;rsquo;t seeing this on other hosts: those other hosts didn&amp;rsquo;t have
+PyQT5 installed.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ sudo dnf remove PyQt5
+Dependencies resolved.
+=====================================================================================================================================================================================================================
+ Package                                                     Architecture                                 Version                                                Repository                                     Size
+=====================================================================================================================================================================================================================
+Removing:
+ python3-qt5                                                 x86_64                                       5.15.6-3.fc36                                          @fedora                                       7.0 M
+Removing dependent packages:
+ krop                                                        noarch                                       0.5.1-13.fc36                                          @fedora                                       6.5 k
+Removing unused dependencies:
+ poppler-qt5                                                 x86_64                                       22.01.0-3.fc36                                         @fedora                                       632 k
+ python-qt5-rpm-macros                                       noarch                                       5.15.6-3.fc36                                          @fedora                                       143
+ python3-PyPDF2                                              noarch                                       1.26.0-19.fc36                                         @fedora                                       520 k
+ python3-krop                                                noarch                                       0.5.1-13.fc36                                          @fedora                                       225 k
+ python3-poppler-qt5                                         x86_64                                       21.1.0-5.fc36                                          @fedora                                       562 k
+ python3-pyqt5-sip                                           x86_64                                       12.9.0-3.fc36                                          @fedora                                       154 k
+ python3-qt5-base                                            x86_64                                       5.15.6-3.fc36                                          @fedora                                        17 M
+ qt5-qtconnectivity                                          x86_64                                       5.15.3-1.fc36                                          @fedora                                       1.4 M
+
+Transaction Summary
+=====================================================================================================================================================================================================================
+Remove  10 Packages
+
+Freed space: 28 M
+Is this ok [y/N]: y
+...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&amp;rsquo;d installed &lt;code&gt;krop&lt;/code&gt; at some point and it had dragged in various Python
+dependencies as a result. The ultimate fix probably exists somewhere in
+pyperclip (or even PyQt5) but uninstalling things was enough to get rid of this
+annoying warning.&lt;/p&gt;
+&lt;p&gt;Hopefully Google finds this page in case anyone is similarly frustrated by
+this.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators</title>
       <link>https://that.guru/blog/user-managed-configuration-in-cccmo/</link>
@@ -2936,95 +3052,6 @@ in with OpenStack. Feel free to use the &lt;a href=&#34;https://gist.github.com/
 deploy this with &lt;a href=&#34;https://docs.openstack.org/devstack/rocky/&#34;&gt;DevStack&lt;/a&gt;. The &lt;a href=&#34;https://docs.openstack.org/neutron/rocky/admin/config-sriov&#34;&gt;neutron SR-IOV docs&lt;/a&gt; are probably worth a look
 too.  These are based on the Rocky release (August 2018) so they probably won&amp;rsquo;t
 age well, but they are a starting point.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Automatically Set The Name of tmux Windows</title>
-      <link>https://that.guru/blog/automatically-set-tmux-window-name/</link>
-      <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
-      <description>&lt;p&gt;I recently updated to Fedora 28 which includes a updated version of &lt;em&gt;tmux&lt;/em&gt; -
-&lt;em&gt;tmux 2.7&lt;/em&gt;. I quickly noted that my window title was no longer being set as
-before and eventually identified the issue: a breaking change in 2.7. Below is
-my guide on ensuring &lt;em&gt;tmux&lt;/em&gt; displays a useful title for each window.&lt;/p&gt;
-&lt;p&gt;What I&amp;rsquo;m looking to achieve is a prompt like the following:&lt;/p&gt;
-&lt;figure&gt;
-    &lt;img src=&#34;https://that.guru/media/automatically-set-tmux-window-name.png&#34;
-         alt=&#34;tmux prompt&#34;/&gt; 
-&lt;/figure&gt;
-
-&lt;p&gt;More specifically, I want &lt;code&gt;$(hostname): $(basename $PWD)&lt;/code&gt;. &lt;em&gt;tmux&lt;/em&gt; provides
-two ways to do this.&lt;/p&gt;
-&lt;h2 id=&#34;the-automatic-rename-options&#34;&gt;The &lt;code&gt;automatic-rename&lt;/code&gt; options&lt;/h2&gt;
-&lt;p&gt;The &lt;a href=&#34;http://man7.org/linux/man-pages/man1/tmux.1.html&#34;&gt;&lt;code&gt;tmux(1)&lt;/code&gt;&lt;/a&gt; man page describes the following options:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;dl&gt;
-&lt;dt&gt;&lt;strong&gt;automatic-rename&lt;/strong&gt; &lt;em&gt;[on | off]&lt;/em&gt;&lt;/dt&gt;
-&lt;dd&gt;Control automatic window renaming.  When this setting is enabled, tmux will
-rename the window automatically using the format specified by
-&lt;code&gt;automatic-rename-format&lt;/code&gt;. This flag is automatically disabled for an
-individual window when a name is specified at creation with &lt;code&gt;new-window&lt;/code&gt; or
-&lt;code&gt;new-session&lt;/code&gt;, or later with &lt;code&gt;rename-window&lt;/code&gt;, or with a terminal escape
-sequence.  It may be switched off globally with:
-&lt;pre&gt;&lt;code&gt;set-window-option -g automatic-rename off
-&lt;/code&gt;&lt;/pre&gt;&lt;/dd&gt;
-&lt;dt&gt;&lt;strong&gt;automatic-rename-format&lt;/strong&gt; &lt;em&gt;format&lt;/em&gt;&lt;/dt&gt;
-&lt;dd&gt;The format (see &lt;code&gt;FORMATS&lt;/code&gt;) used when the &lt;code&gt;automatic-rename&lt;/code&gt; option is
-enabled.&lt;/dd&gt;
-&lt;dt&gt;&lt;strong&gt;status-interval&lt;/strong&gt; &lt;em&gt;interval&lt;/em&gt;&lt;/dt&gt;
-&lt;dd&gt;Update the status line every interval seconds.  By default, updates will
-occur every 15 seconds.  A setting of zero disables redrawing at interval.&lt;/dd&gt;
-&lt;/dl&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;We can use a combination of these to configure the status line by adding the
-following to our &lt;code&gt;.tmux.conf&lt;/code&gt; file:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;set-option -g status-interval 1
-set-option -g automatic-rename on
-set-option -g automatic-rename-format &#39;#{b:pane_current_path}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;More detail can be found in a related &lt;a href=&#34;https://stackoverflow.com/questions/28376611&#34;&gt;StackOverflow question&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Unfortunately this is not ideal as there will still be some lag between the
-window name being set and it being reflected in the UI. This brings us to the
-alternative.&lt;/p&gt;
-&lt;h2 id=&#34;terminal-escape-sequences&#34;&gt;Terminal escape sequences&lt;/h2&gt;
-&lt;p&gt;&lt;em&gt;tmux&lt;/em&gt; can also take advantage of terminal escape sequences. By emitting these
-from our shell, we can ensure the changes to the window name happen
-automatically. To this end, &lt;a href=&#34;http://man7.org/linux/man-pages/man1/bash.1.html&#34;&gt;&lt;code&gt;bash(1)&lt;/code&gt;&lt;/a&gt; provides the &lt;code&gt;PROMPT_COMMAND&lt;/code&gt; shell
-variable:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;dl&gt;
-&lt;dt&gt;&lt;strong&gt;PROMPT_COMMAND&lt;/strong&gt;&lt;/dt&gt;
-&lt;dd&gt;If set, the value is executed as a command prior to issuing each primary
-prompt.&lt;/dd&gt;
-&lt;/dl&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;We can configure this in our &lt;code&gt;.bashrc&lt;/code&gt; file like so:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;case &amp;quot;$TERM&amp;quot; in
-linux|xterm*|rxvt*)
-  export PROMPT_COMMAND=&#39;echo -ne &amp;quot;\033]0;${HOSTNAME%%.*}: ${PWD##*/}\007&amp;quot;&#39;
-  ;;
-screen*)
-  export PROMPT_COMMAND=&#39;echo -ne &amp;quot;\033k${HOSTNAME%%.*}: ${PWD##*/}\033\\&amp;quot; &#39;
-  ;;
-*)
-  ;;
-esac
-&lt;/code&gt;&lt;/pre&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is actually a little more complicated that necessary but it with ensure
-we get the format requested both when we&amp;rsquo;re using &lt;em&gt;tmux&lt;/em&gt; (the latter case)
-and when we are not (the former).&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;You also need to configure the following in your &lt;code&gt;.tmux.conf&lt;/code&gt; in order to
-work around the breaking change mentioned above:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;set -g allow-rename on
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Once done, restart &lt;em&gt;tmux&lt;/em&gt; as you&amp;rsquo;ll see your changes propagated.&lt;/p&gt;
 </description>
     </item>
     
