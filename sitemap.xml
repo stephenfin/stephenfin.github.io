@@ -17,6 +17,12 @@
     <loc>https://that.guru/</loc>
     <lastmod>2022-06-14T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://that.guru/talks/</loc>
+    <lastmod>2022-06-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</loc>
+    <lastmod>2022-06-14T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/categories/zuul/</loc>
     <lastmod>2022-06-14T00:00:00+00:00</lastmod>
   </url><url>
@@ -76,9 +82,6 @@
   </url><url>
     <loc>https://that.guru/blog/comparing-nova-db-migrations/</loc>
     <lastmod>2020-10-19T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/talks/</loc>
-    <lastmod>2020-06-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/talks/what-is-nova/</loc>
     <lastmod>2020-06-10T00:00:00+00:00</lastmod>

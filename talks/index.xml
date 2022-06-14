@@ -6,7 +6,39 @@
     <description>Recent content in Talks on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 10 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 14 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Teaching Padawans to Chop Wood and Carry Water in Their Open Source Journey</title>
+      <link>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</link>
+      <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</guid>
+      <description>&lt;p&gt;This talk was delivered during the &lt;a href=&#34;https://www.eventbrite.com/e/openinfra-summit-berlin-2022-tickets-211374997307&#34;&gt;OpenInfra Summit 2022&lt;/a&gt; in Berlin. The
+aim was to provide some background on the mentoring activities happening in the
+OpenStack community and provide some advice for potential mentors and mentees
+on how to get involved in and run a successful mentorship.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Maintainers of most open source projects long for everlasting engagement from
+their contributors. Community-driven projects stand a better chance at this,
+provided the community itself is well-fed with new contributors and fresh
+ideas. Contributors may begin their journey with many motivations, however
+staying and taking on maintenance responsibilities is aided by the
+community&amp;rsquo;s culture and willingness to mentor. We began building engagement
+for the OpenStack Manila community years ago with one-on-one mentoring of new
+contributors. We scouted for interested folk at events, conducted hands-on
+workshops and continuously improved our on-boarding documentation. Our
+methods constantly changed with feedback from mentees. After mentoring nearly
+two dozen Outreachy, GSOC and college interns from across the world, we want
+to share our process and learnings through this presentation.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.eventbrite.com/e/openinfra-summit-berlin-2022-tickets-211374997307&#34;&gt;Eventbrite&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;57f85300bf234d328854b04addfac837&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>What Is Nova?</title>
       <link>https://that.guru/talks/what-is-nova/</link>
