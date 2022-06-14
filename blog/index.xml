@@ -16,7 +16,7 @@
       <description>&lt;p&gt;The &lt;code&gt;python-openstackclient&lt;/code&gt; project provides two types of tests: &lt;a href=&#34;https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/unit&#34;&gt;unit
 tests&lt;/a&gt; with mocked server responses and &lt;a href=&#34;https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/functional&#34;&gt;functional
 tests&lt;/a&gt; that require a real server deployed. The latter expect a
-specific, DevStack-based deployment and attempts to run these tests against a
+specific DevStack-based deployment and attempts to run these tests against a
 &amp;ldquo;standard&amp;rdquo; DevStack deployment with minimal configuration or a deployment
 created by another tool with result in a lot of test failures.&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;==============================
