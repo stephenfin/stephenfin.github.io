@@ -18,8 +18,8 @@ chance you&amp;rsquo;ll also have been provided with a range of floating IPs tha
 can use for various services or things like &lt;a href=&#34;https://www.redhat.com/en/technologies/linux-platforms/openstack-platform&#34;&gt;OSP guests&lt;/a&gt;. Normally, if you
 wanted to test these IP address(es), you&amp;rsquo;d simply assign the IP to the external
 interface and ensure you can ping the machine:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo ip addr add 10.1.241.101/32 dev eno1
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, this doesn&amp;rsquo;t work if you&amp;rsquo;re using OVS. As noted in
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo ip addr add 10.1.241.101/32 dev eno1
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, this doesn&amp;rsquo;t work if you&amp;rsquo;re using OVS. As noted in
 &lt;a href=&#34;https://docs.openvswitch.org/en/latest/faq/issues/&#34;&gt;the OVS FAQs&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;A physical Ethernet device that is part of an Open vSwitch bridge should not
@@ -28,19 +28,19 @@ functional.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;The solution, as pointed out in the FAQ, is to instead assign the IP address to
 the external bridge. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo ip addr add 10.1.241.101/32 dev br-ex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once this is done, you can attempt to ping the machine from another host on the
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo ip addr add 10.1.241.101/32 dev br-ex
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once this is done, you can attempt to ping the machine from another host on the
 same network and see the response:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ping 10.1.241.101 -c &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-PING 10.1.241.101 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;10.1.241.101&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; 56&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;84&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; bytes of data.
-&lt;span style=&#34;color:#ae81ff&#34;&gt;64&lt;/span&gt; bytes from 10.1.241.101: icmp_seq&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; ttl&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;53&lt;/span&gt; time&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;154&lt;/span&gt; ms
-
---- 10.1.241.101 ping statistics ---
-&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; packets transmitted, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 154.431/154.431/154.431/0.000 ms
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Don&amp;rsquo;t forget to remove the IP address once you&amp;rsquo;re finished!&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo ip addr del 10.1.241.101/32 dev br-ex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ ping 10.1.241.101 -c &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;PING 10.1.241.101 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;10.1.241.101&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; 56&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;84&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; bytes of data.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;64&lt;/span&gt; bytes from 10.1.241.101: icmp_seq&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; ttl&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;53&lt;/span&gt; time&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;154&lt;/span&gt; ms
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--- 10.1.241.101 ping statistics ---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; packets transmitted, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; received, 0% packet loss, time 0ms
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;rtt min/avg/max/mdev &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; 154.431/154.431/154.431/0.000 ms
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Don&amp;rsquo;t forget to remove the IP address once you&amp;rsquo;re finished!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo ip addr del 10.1.241.101/32 dev br-ex
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     
   </channel>

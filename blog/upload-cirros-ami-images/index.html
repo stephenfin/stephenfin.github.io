@@ -96,36 +96,36 @@ differing suffixes: <code>-uec</code>, <code>-uec-ramdisk</code>, and <code>-uec
 <a href="https://github.com/openstack/devstack/commit/6fc332d85279865c32f50b081efb25ba7b671a9a">changed</a>, but there&rsquo;s no reason we can&rsquo;t create these types of image still.</p>
 <p>First, let&rsquo;s get the image. We&rsquo;re going to want the Ubuntu Enterprise Cloud
 (UEC) CirrOS images:</p>
-<pre><code class="language-console" data-lang="console">$ wget https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-uec.tar.gz
-</code></pre><p>Extract this tarball, which will yield three files: a <code>vmlinuz</code> kernel image,
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ wget https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-uec.tar.gz
+</span></span></code></pre></div><p>Extract this tarball, which will yield three files: a <code>vmlinuz</code> kernel image,
 a <code>initrd</code> ramdisk image, and a empty mkfs&rsquo;d <code>blank</code> image:</p>
-<pre><code class="language-console" data-lang="console">$ tar -xvzf cirros-0.5.1-x86_64-uec.tar.gz
-</code></pre><p>With those created, we can now create the three images in glance. First, the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ tar -xvzf cirros-0.5.1-x86_64-uec.tar.gz
+</span></span></code></pre></div><p>With those created, we can now create the three images in glance. First, the
 kernel image:</p>
-<pre><code class="language-console" data-lang="console">$ openstack image create cirros-0.5.1-x86_64-uec-kernel \
-    --public --disk-format aki --container-format aki \
-    --file cirros-0.5.1-x86_64-vmlinuz
-</code></pre><p>Then the ramdisk image:</p>
-<pre><code class="language-console" data-lang="console">$ openstack image create cirros-0.5.1-x86_64-uec-ramdisk \
-    --public --disk-format ari --container-format ari \
-    --file cirros-0.5.1-x86_64-initrd
-</code></pre><p>And finally the &ldquo;machine&rdquo; image, which requires references to the kernel and
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack image create cirros-0.5.1-x86_64-uec-kernel <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --public --disk-format aki --container-format aki \
+</span></span><span style="display:flex;"><span>    --file cirros-0.5.1-x86_64-vmlinuz
+</span></span></code></pre></div><p>Then the ramdisk image:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack image create cirros-0.5.1-x86_64-uec-ramdisk <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --public --disk-format ari --container-format ari \
+</span></span><span style="display:flex;"><span>    --file cirros-0.5.1-x86_64-initrd
+</span></span></code></pre></div><p>And finally the &ldquo;machine&rdquo; image, which requires references to the kernel and
 ramdisk image by way of image metadata properties:</p>
-<pre><code class="language-console" data-lang="console">$ openstack image create cirros-0.5.1-x86_64-uec \
-    --property ramdisk_id=52ab2881-3f0e-4d0b-8824-d6c144eb872a \
-    --property kernel_id=b582cf17-1785-4915-9b89-dc31c1794757 \
-    --public --disk-format ami --container-format ami \
-    --file cirros-0.5.1-x86_64-blank.img
-</code></pre><p>Once done, you should be able to boot an instance using the machine image:</p>
-<pre><code class="language-console" data-lang="console">$ openstack server create cirros-server \
-    --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
-</code></pre>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack image create cirros-0.5.1-x86_64-uec <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --property ramdisk_id=52ab2881-3f0e-4d0b-8824-d6c144eb872a \
+</span></span><span style="display:flex;"><span>    --property kernel_id=b582cf17-1785-4915-9b89-dc31c1794757 \
+</span></span><span style="display:flex;"><span>    --public --disk-format ami --container-format ami \
+</span></span><span style="display:flex;"><span>    --file cirros-0.5.1-x86_64-blank.img
+</span></span></code></pre></div><p>Once done, you should be able to boot an instance using the machine image:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack server create cirros-server <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
+</span></span></code></pre></div>
   </article>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

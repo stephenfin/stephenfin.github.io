@@ -73,8 +73,8 @@ chance you&rsquo;ll also have been provided with a range of floating IPs that yo
 can use for various services or things like <a href="https://www.redhat.com/en/technologies/linux-platforms/openstack-platform">OSP guests</a>. Normally, if you
 wanted to test these IP address(es), you&rsquo;d simply assign the IP to the external
 interface and ensure you can ping the machine:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo ip addr add 10.1.241.101/32 dev eno1
-</code></pre></div><p>However, this doesn&rsquo;t work if you&rsquo;re using OVS. As noted in
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo ip addr add 10.1.241.101/32 dev eno1
+</span></span></code></pre></div><p>However, this doesn&rsquo;t work if you&rsquo;re using OVS. As noted in
 <a href="https://docs.openvswitch.org/en/latest/faq/issues/">the OVS FAQs</a>:</p>
 <blockquote>
 <p>A physical Ethernet device that is part of an Open vSwitch bridge should not
@@ -83,19 +83,19 @@ functional.</p>
 </blockquote>
 <p>The solution, as pointed out in the FAQ, is to instead assign the IP address to
 the external bridge. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo ip addr add 10.1.241.101/32 dev br-ex
-</code></pre></div><p>Once this is done, you can attempt to ping the machine from another host on the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo ip addr add 10.1.241.101/32 dev br-ex
+</span></span></code></pre></div><p>Once this is done, you can attempt to ping the machine from another host on the
 same network and see the response:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ping 10.1.241.101 -c <span style="color:#ae81ff">1</span>
-PING 10.1.241.101 <span style="color:#f92672">(</span>10.1.241.101<span style="color:#f92672">)</span> 56<span style="color:#f92672">(</span>84<span style="color:#f92672">)</span> bytes of data.
-<span style="color:#ae81ff">64</span> bytes from 10.1.241.101: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">53</span> time<span style="color:#f92672">=</span><span style="color:#ae81ff">154</span> ms
-
---- 10.1.241.101 ping statistics ---
-<span style="color:#ae81ff">1</span> packets transmitted, <span style="color:#ae81ff">1</span> received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev <span style="color:#f92672">=</span> 154.431/154.431/154.431/0.000 ms
-</code></pre></div><p>Don&rsquo;t forget to remove the IP address once you&rsquo;re finished!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo ip addr del 10.1.241.101/32 dev br-ex
-</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ping 10.1.241.101 -c <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>PING 10.1.241.101 <span style="color:#f92672">(</span>10.1.241.101<span style="color:#f92672">)</span> 56<span style="color:#f92672">(</span>84<span style="color:#f92672">)</span> bytes of data.
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span> bytes from 10.1.241.101: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">53</span> time<span style="color:#f92672">=</span><span style="color:#ae81ff">154</span> ms
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--- 10.1.241.101 ping statistics ---
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span> packets transmitted, <span style="color:#ae81ff">1</span> received, 0% packet loss, time 0ms
+</span></span><span style="display:flex;"><span>rtt min/avg/max/mdev <span style="color:#f92672">=</span> 154.431/154.431/154.431/0.000 ms
+</span></span></code></pre></div><p>Don&rsquo;t forget to remove the IP address once you&rsquo;re finished!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo ip addr del 10.1.241.101/32 dev br-ex
+</span></span></code></pre></div>
   </div>
 
     </main>

@@ -87,7 +87,7 @@
   <article>
     <p>I&rsquo;ve recently been seeing the following warning when running <code>openstack</code>
 commands locally:</p>
-<pre><code>$ openstack server list -n -f yaml
+<pre tabindex="0"><code>$ openstack server list -n -f yaml
 QSocketNotifier: Can only be used with threads started with QThread
 ...
 </code></pre><p>This made no sense: OSC doesn&rsquo;t use Qt so why am I seeing errors related to
@@ -96,7 +96,7 @@ while but it turned out this wasn&rsquo;t due to OSC or even one of its direct
 dependencies: it was an indirect dependency, <code>pyperclip</code>. By exporting
 <code>PYTHONPROFILEIMPORTTIME=1</code>, I was able to figure out what import caused the
 error:</p>
-<pre><code>$ export PYTHONPROFILEIMPORTTIME=1
+<pre tabindex="0"><code>$ export PYTHONPROFILEIMPORTTIME=1
 $ openstack server list -n -f yaml
 import time: self [us] | cumulative | imported package
 import time:       647 |        647 |   _io
@@ -160,7 +160,7 @@ QSocketNotifier: Can only be used with threads started with QThread
 ...
 </code></pre><p>As for why I wasn&rsquo;t seeing this on other hosts: those other hosts didn&rsquo;t have
 PyQT5 installed.</p>
-<pre><code>$ sudo dnf remove PyQt5
+<pre tabindex="0"><code>$ sudo dnf remove PyQt5
 Dependencies resolved.
 =====================================================================================================================================================================================================================
  Package                                                     Architecture                                 Version                                                Repository                                     Size
@@ -198,7 +198,7 @@ this.</p>
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

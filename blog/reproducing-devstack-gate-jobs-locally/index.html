@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Reproducing DevStack-based OSC Gate Jobs Locally | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/jHZ70nRk7Ns/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Reproducing DevStack-based OSC Gate Jobs Locally</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2022-06-14T00:00:00Z'>Jun 14, 2022</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>3 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>The <code>python-openstackclient</code> project provides two types of tests: <a href="https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/unit">unit
+tests</a> with mocked server responses and <a href="https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/functional">functional
+tests</a> that require a real server deployed. The latter expect a
+specific, DevStack-based deployment and attempts to run these tests against a
+&ldquo;standard&rdquo; DevStack deployment with minimal configuration or a deployment
+created by another tool with result in a lot of test failures.</p>
+<pre tabindex="0"><code>==============================
+Failed 48 tests - output below:
+==============================
+
+setUpClass (openstackclient.tests.functional.network.v2.test_network_meter_rule.TestMeterRule)
+----------------------------------------------------------------------------------------------
+
+Captured traceback:
+~~~~~~~~~~~~~~~~~~~
+    Traceback (most recent call last):
+
+      File &#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/network/v2/test_network_meter_rule.py&#34;, line 34, in setUpClass
+    json_output = json.loads(cls.openstack(
+
+      File &#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&#34;, line 74, in openstack
+    return execute(
+
+      File &#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&#34;, line 41, in execute
+    raise exceptions.CommandFailed(
+
+    tempest.lib.exceptions.CommandFailed: Command &#39;openstack --os-cloud=devstack-admin network meter create -f json 82c6e512857e40d78e86b9db54c66e73&#39; returned non-zero exit status 1.
+stdout:
+
+stderr:
+b&#39;ResourceNotFound: 404: Client Error for url: http://140.211.166.52:9696/v2.0/metering/metering-labels, The resource could not be found.\n&#39;
+
+
+openstackclient.tests.functional.network.v2.test_network_qos_rule.NetworkQosRuleTestsBandwidthLimit.test_qos_rule_create_delete
+-------------------------------------------------------------------------------------------------------------------------------
+
+Captured traceback:
+~~~~~~~~~~~~~~~~~~~
+    Traceback (most recent call last):
+
+      File &#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/network/v2/test_network_qos_rule.py&#34;, line 161, in setUp
+    self.openstack(
+
+      File &#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&#34;, line 74, in openstack
+    return execute(
+
+      File &#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&#34;, line 41, in execute
+    raise exceptions.CommandFailed(
+
+    tempest.lib.exceptions.CommandFailed: Command &#39;openstack --os-cloud=devstack-admin network qos policy create qos_policy_178299ca49d544bb9d5c145ee4c71d80&#39; returned non-zero exit status 1.
+stdout:
+
+stderr:
+b&#39;ResourceNotFound: 404: Client Error for url: http://140.211.166.52:9696/v2.0/qos/policies, The resource could not be found.\n&#39;
+
+
+openstackclient.tests.functional.network.v2.test_network_qos_rule.NetworkQosRuleTestsBandwidthLimit.test_qos_rule_list
+----------------------------------------------------------------------------------------------------------------------
+
+...
+</code></pre><p>But how does one actually configure their system appropriately. Docs are
+non-existent but we know that the CI works so clearly that&rsquo;s a good starting
+place. As you&rsquo;ll likely know if you&rsquo;re reading this, the OpenStack community
+uses <a href="https://zuul-ci.org/">Zuul</a> for testing. You can see the zuul job configuration for
+projects in either a <code>.zuul.yaml</code> file or in various YAML files in a <code>.zuul.d</code>
+directory, both of which can be found in the root directory of the project.
+<em>python-openstackclient</em> uses the former, which you can see
+<a href="https://github.com/openstack/python-openstackclient/blob/master/.zuul.yaml">here</a>. Looking at that, we can see the definition for the
+<a href="https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L80-L114"><code>osc-functional- devstack</code> job</a>, which inherits from
+the <a href="https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L40-L78"><code>osc-functional-devstack-base</code> job</a>, which
+in turns inherits from the <a href="https://github.com/openstack/devstack/blob/8eede1fc3/.zuul.yaml#L822-L836"><code>devstack-tox-functional</code>
+job</a> and so on&hellip;</p>
+<p>Looking at the <code>osc-functional-devstack</code> job, we can see that it enables the
+neutron DevStack plugin and sets a couple of neutron-related feature flags and
+some other misc attributes in DevStack via the <a href="https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L87-L113"><code>devstack_plugins</code>
+<code>devstack_services</code>, and <code>devstack_localrc</code> job variables,
+respectively</a>. You can see the documentation for these
+variables <a href="https://docs.openstack.org/devstack/latest/zuul_roles.html">in the DevStack docs</a> and
+you can use the codesearch.o.o service to figure out what enabling each of these
+services or specifying those extra config variables will do, like <a href="https://codesearch.opendev.org/?q=neutron-conntrack-helper&amp;i=nope&amp;literal=nope&amp;files=&amp;excludeFiles=&amp;repos=">this
+one</a>. If you want to see the definition of the Ansible role
+that these variables are being passed to, <a href="https://github.com/openstack/devstack/blob/8eede1fc3/roles/write-devstack-local-conf/library/devstack_local_conf.py">you can look at that
+too</a>.</p>
+<p>If you read through all the docs, you&rsquo;ll eventually come to the conclusion that
+to get this to work locally, you&rsquo;re going to need to add the following to your
+<code>local.conf</code> when deploying DevStack:</p>
+<pre tabindex="0"><code># Plugin configuration
+enable_plugin neutron https://opendev.org/openstack/neutron
+
+# Service configuration
+## Disable OVN services
+disable_service br-ex-tcpdump
+disable_service br-int-flows
+disable_service ovn-controller
+disable_service ovn-northd
+disable_service ovs-vswitchd
+disable_service ovsdb-server
+disable_service q-ovn-metadata-agent
+
+## Neutron services
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service neutron-network-segment-range
+enable_service neutron-segments
+enable_service q-metering
+enable_service q-qos
+enable_service neutron-tag-ports-during-bulk-creation
+enable_service neutron-conntrack-helper
+
+# Misc configuration
+Q_AGENT=openvswitch
+Q_ML2_TENANT_NETWORK_TYPE=vxlan
+Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch
+</code></pre><p>Add this to your otherwise uncomplicated <code>local.conf</code> and in theory things
+should just work (TM). There might be more to it but hopefully there&rsquo;s enough
+here for folks to figure out how to debug things if so.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/zuul">#zuul</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2022 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

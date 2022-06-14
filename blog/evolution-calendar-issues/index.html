@@ -107,7 +107,7 @@ configuration had been used and couldn&rsquo;t find the folder locally.</p>
 <p>Now Linux provides a very helpful feature where it show all files currently
 marked as open by a given process. To use this, I first needed to find the
 process responsible for maintaining the calendar.</p>
-<pre><code>$ ps aux | grep evolution
+<pre tabindex="0"><code>$ ps aux | grep evolution
 sfinucan  2552  0.0  0.3 1717928 59912 ?       SLsl Dec07   0:02 /usr/libexec/evolution-source-registry
 sfinucan  2616  0.0  0.2 1242008 50640 ?       Ssl  Dec07   0:00 /usr/libexec/evolution-calendar-factory
 sfinucan  2696  0.0  0.9 2803208 182632 ?      SLl  Dec07   0:19 /usr/libexec/evolution-calendar-factory-subprocess --factory caldav [...]
@@ -122,7 +122,7 @@ sfinucan 10611  0.0  0.0 119728   972 pts/1    S+   10:55   0:00 grep --color=au
 </code></pre><p>This looked promising and I took the <code>evolution-calendar-factory-subprocess</code>
 process with the <code>caldav</code> <em>factory</em> to be the most likely candidate. Let&rsquo;s
 see what this has open.</p>
-<pre><code>$ ls -l /proc/2696/fd | grep *.db
+<pre tabindex="0"><code>$ ls -l /proc/2696/fd | grep *.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  7 21:39 12 -&gt; /home/sfinucan/.cache/evolution/calendar/fd3d04f3a29f36ce66c87bca8ef0b4d1d0dc3577/cache.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 13 -&gt; /home/sfinucan/.cache/evolution/calendar/853c325e65384d811be1d53e0c6d21706d810a5e/cache.db
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 14 -&gt; /home/sfinucan/.cache/evolution/calendar/9ff6cfa62a76324ab004c9c4a09ecec0a96c0956/cache.db
@@ -134,11 +134,11 @@ lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 22 -&gt; /home/sfinucan/.cache/e
 lrwx------. 1 sfinucan sfinucan 64 Dec  8 10:27 23 -&gt; /home/sfinucan/.cache/evolution/calendar/fd8b197130da0ca054ab698175e0b3dd16e1b52d/cache.db
 </code></pre><p>That looks promising. Time to kill the various <code>evolution</code> processes and go
 fix those databases.</p>
-<pre><code>$ sudo pkill evolution
+<pre tabindex="0"><code>$ sudo pkill evolution
 $ sudo pkill -9 evolution-*
-</code></pre><pre><code>$ $ for i in $(find . -path &quot;./trash&quot; -prune -o -name &quot;cache.db&quot; -print); do
-→ echo &quot;$i&quot;;
-→ sqlite3 &quot;$i&quot; &quot;pragma integrity_check;&quot;;
+</code></pre><pre tabindex="0"><code>$ $ for i in $(find . -path &#34;./trash&#34; -prune -o -name &#34;cache.db&#34; -print); do
+→ echo &#34;$i&#34;;
+→ sqlite3 &#34;$i&#34; &#34;pragma integrity_check;&#34;;
 → done
 ./41464062e9943c630c2bb3171b67d4e1a2cf8a93/cache.db
 ok
@@ -191,7 +191,7 @@ ok
 </code></pre><p>We have our offending database. Now, we could simply remove this and be done
 but, to be honest, I don&rsquo;t really trust the rest of them now. Seeing as
 everything is already stored in the cloud, I can simply delete these caches.</p>
-<pre><code>$ rm -f .
+<pre tabindex="0"><code>$ rm -f .
 </code></pre><p>Problem solved.</p>
 
   </article>
@@ -199,7 +199,7 @@ everything is already stored in the cloud, I can simply delete these caches.</p>
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

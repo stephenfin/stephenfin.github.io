@@ -93,17 +93,17 @@ steps that are necessary to add a new network to your ZNC instance, in this
 instance, <a href="https://libera.chat/">Libera</a>.</p>
 <p>Let&rsquo;s say you&rsquo;re already connected to a network, and let&rsquo;s say that network is
 <a href="https://www.oftc.net/">OFTC</a>. You can verify this using following commands:</p>
-<pre><code>/znc ListNetworks
+<pre tabindex="0"><code>/znc ListNetworks
 /znc ListServers
 </code></pre><p>The <code>ListNetworks</code> command will list this networks available to you.</p>
-<pre><code>/znc ListNetworks
+<pre tabindex="0"><code>/znc ListNetworks
 +--------------+--------+----------------------+-----------------------------------+----------+
 | Network      | On IRC | IRC Server           | IRC User                          | Channels |
 +--------------+--------+----------------------+-----------------------------------+----------+
 | oftc         | Yes    | weber.oftc.net       | stephenfin!~stephenfi@example.com | 9        |
 +--------------+--------+----------------------+-----------------------------------+----------+
 </code></pre><p>The <code>ListServers</code> command will list the servers configured for this network.</p>
-<pre><code>/znc ListServers
+<pre tabindex="0"><code>/znc ListServers
 +---------------+------+-----+----------+
 | Host          | Port | SSL | Password |
 +---------------+------+-----+----------+
@@ -113,13 +113,13 @@ instance, <a href="https://libera.chat/">Libera</a>.</p>
 network followed by adding a new server on this network. As noted previously,
 we&rsquo;re going to configure a connection to Libera. First, we&rsquo;d create the new
 network.</p>
-<pre><code>/znc AddNetwork libera
+<pre tabindex="0"><code>/znc AddNetwork libera
 </code></pre><p>Next, we&rsquo;d switch to this network:</p>
-<pre><code>/znc JumpNetwork libera
+<pre tabindex="0"><code>/znc JumpNetwork libera
 </code></pre><p>Now we can add the server:</p>
-<pre><code>/znc AddServer irc.libera.chat +6697
+<pre tabindex="0"><code>/znc AddServer irc.libera.chat +6697
 </code></pre><p>And finally, we can connect to the channels as usual:</p>
-<pre><code>/join #libera
+<pre tabindex="0"><code>/join #libera
 </code></pre><p>To switch between networks, you&rsquo;ll need to use the <code>JumpNetwork</code> command we
 used above. Alternatively, you can connect to ZNC multiple times by adding the
 <code>/{network}</code> suffix to your username. For example, if you were previously
@@ -132,7 +132,7 @@ connect using e.g. <code>foo/libera</code>.</p>
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

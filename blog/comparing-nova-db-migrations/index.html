@@ -120,22 +120,22 @@ you have your system configured for nova development and can successfully run
 unit tests using <code>tox</code>. You should also have SQLite and MySQL packages
 installed. For all cases, we&rsquo;re going to use a virtualenv to ensure the
 required dependencies are installed so do that first:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd nova
-$ virtualenv .venv
-$ source .venv/bin/activate
-$ pip install <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    -c https://releases.openstack.org/constraints/upper/master <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    -r requirements.txt -r test-requirements.txt
-$ pip install -e .
-</code></pre></div><p>You should also navigate to the <em>migration repository</em> in nova, to avoid having
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cd nova
+</span></span><span style="display:flex;"><span>$ virtualenv .venv
+</span></span><span style="display:flex;"><span>$ source .venv/bin/activate
+</span></span><span style="display:flex;"><span>$ pip install <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -c https://releases.openstack.org/constraints/upper/master <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -r requirements.txt -r test-requirements.txt
+</span></span><span style="display:flex;"><span>$ pip install -e .
+</span></span></code></pre></div><p>You should also navigate to the <em>migration repository</em> in nova, to avoid having
 to manually specify this for the various <em>sqlalchemy-migrate</em> commands.</p>
-<pre><code class="language-base" data-lang="base">$ cd nova/db/sqlalchemy/migrate_repo
+<pre tabindex="0"><code class="language-base" data-lang="base">$ cd nova/db/sqlalchemy/migrate_repo
 </code></pre><h2 id="sqlite">SQLite</h2>
 <p>Since SQLite databases are stored as a single file, there is no additional
 setup necessary. SQLite also provides a handy tool to compare databases,
 <code>sqldiff</code>, which is packaged on Fedora 32 at least. Install that first:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo dnf install sqlite-tools
-</code></pre></div><p>With that installed, we can get right to generating two databases that we can
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo dnf install sqlite-tools
+</span></span></code></pre></div><p>With that installed, we can get right to generating two databases that we can
 then compare using this <code>sqldiff</code> tool. It would of course be possible to dump
 the schemas and compare those, but doing so means we&rsquo;d have to filter out
 things like simple ordering changes that SQLite seems prone to.</p>
@@ -146,38 +146,38 @@ the <code>migrate.cfg</code> configuration file found in your migration reposito
 called <code>migrate_version</code> in nova. The <code>version_control</code> command will create
 this table and initialize it for version N, which is the base migration you
 wish to test. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python manage.py version_control --database <span style="color:#e6db74">&#39;sqlite:///nova_before.db&#39;</span> --version <span style="color:#ae81ff">215</span>
-</code></pre></div><p>Once this is configured, apply all migrations up to M. You can use the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python manage.py version_control --database <span style="color:#e6db74">&#39;sqlite:///nova_before.db&#39;</span> --version <span style="color:#ae81ff">215</span>
+</span></span></code></pre></div><p>Once this is configured, apply all migrations up to M. You can use the
 <code>upgrade</code> command for this. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python manage.py upgrade --database <span style="color:#e6db74">&#39;sqlite:///nova_before.db&#39;</span> --version <span style="color:#ae81ff">216</span>
-</code></pre></div><p>Once we have a database instance using the <em>before</em> schema, we can apply the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python manage.py upgrade --database <span style="color:#e6db74">&#39;sqlite:///nova_before.db&#39;</span> --version <span style="color:#ae81ff">216</span>
+</span></span></code></pre></div><p>Once we have a database instance using the <em>before</em> schema, we can apply the
 code change and repeat the steps above, this time creating a <code>nova_after.db</code>
 database. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python manage.py version_control --database <span style="color:#e6db74">&#39;sqlite:///nova_after.db&#39;</span> --version <span style="color:#ae81ff">215</span>
-$ python manage.py upgrade --database <span style="color:#e6db74">&#39;sqlite:///nova_after.db&#39;</span> --version <span style="color:#ae81ff">216</span>
-</code></pre></div><p>Now, with these two databases to hand, we an diff them to ensure nothing has
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python manage.py version_control --database <span style="color:#e6db74">&#39;sqlite:///nova_after.db&#39;</span> --version <span style="color:#ae81ff">215</span>
+</span></span><span style="display:flex;"><span>$ python manage.py upgrade --database <span style="color:#e6db74">&#39;sqlite:///nova_after.db&#39;</span> --version <span style="color:#ae81ff">216</span>
+</span></span></code></pre></div><p>Now, with these two databases to hand, we an diff them to ensure nothing has
 changed:</p>
-<pre><code>$ sqldiff --schema nova_before.db nova_after.db
+<pre tabindex="0"><code>$ sqldiff --schema nova_before.db nova_after.db
 </code></pre><h2 id="mysql">MySQL</h2>
 <p>The steps for MySQL are quite similar to those for SQLite, but we do need to do
 some pre-work - namely, creating a suitable database and user - before we can
 get to validating schemas. Do this now. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysql
-MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; CREATE DATABASE nova_before;
-MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; GRANT ALL PRIVILEGES ON nova_before.* TO <span style="color:#e6db74">&#39;nova&#39;</span>@<span style="color:#e6db74">&#39;localhost&#39;</span> IDENTIFIED BY <span style="color:#e6db74">&#39;password&#39;</span>;
-MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; quit;
-</code></pre></div><p>With this created, the steps are similar to those for SQLite. Once again, we
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ mysql
+</span></span><span style="display:flex;"><span>MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; CREATE DATABASE nova_before;
+</span></span><span style="display:flex;"><span>MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; GRANT ALL PRIVILEGES ON nova_before.* TO <span style="color:#e6db74">&#39;nova&#39;</span>@<span style="color:#e6db74">&#39;localhost&#39;</span> IDENTIFIED BY <span style="color:#e6db74">&#39;password&#39;</span>;
+</span></span><span style="display:flex;"><span>MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; quit;
+</span></span></code></pre></div><p>With this created, the steps are similar to those for SQLite. Once again, we
 will use the <code>version_control</code> and <code>upgrade</code> management commands:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python manage.py version_control <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">215</span>
-$ python manage.py upgrade <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">216</span>
-</code></pre></div><p>However, unlike SQLite, we have a specific tool available to dump the DB
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python manage.py version_control <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">215</span>
+</span></span><span style="display:flex;"><span>$ python manage.py upgrade <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">216</span>
+</span></span></code></pre></div><p>However, unlike SQLite, we have a specific tool available to dump the DB
 schemas - <code>mysqldump</code>. Use that to dump the <em>before</em> schema:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &gt; nova_before.sql
-</code></pre></div><aside class="admonition note">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &gt; nova_before.sql
+</span></span></code></pre></div><aside class="admonition note">
 	
 	
 	<div class="admonition-content">Fedora previously provided a <code>mysql-utilities</code> package that provided a
@@ -190,56 +190,56 @@ details.</div>
 <p>Once we have a database instance using the <em>before</em> schema, we can apply the
 code change and repeat the steps above, this time creating a <code>nova_after</code>
 database. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mysql
-MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; CREATE DATABASE nova_after;
-MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; GRANT ALL PRIVILEGES ON nova_after.* TO <span style="color:#e6db74">&#39;nova&#39;</span>@<span style="color:#e6db74">&#39;localhost&#39;</span> IDENTIFIED BY <span style="color:#e6db74">&#39;password&#39;</span>;
-MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; quit;
-$ python manage.py version_control --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_after&#39;</span> --version <span style="color:#ae81ff">215</span>
-$ python manage.py upgrade --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_after&#39;</span> --version <span style="color:#ae81ff">216</span>
-$ mysqldump --no-data --skip-comments -u nova -ppassword nova_after &gt; nova_after.sql
-</code></pre></div><p>Finally, diff the two schemas to identify any differences:</p>
-<pre><code>$ diff nova_before.sql nova_after.sql
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ mysql
+</span></span><span style="display:flex;"><span>MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; CREATE DATABASE nova_after;
+</span></span><span style="display:flex;"><span>MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; GRANT ALL PRIVILEGES ON nova_after.* TO <span style="color:#e6db74">&#39;nova&#39;</span>@<span style="color:#e6db74">&#39;localhost&#39;</span> IDENTIFIED BY <span style="color:#e6db74">&#39;password&#39;</span>;
+</span></span><span style="display:flex;"><span>MariaDB <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; quit;
+</span></span><span style="display:flex;"><span>$ python manage.py version_control --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_after&#39;</span> --version <span style="color:#ae81ff">215</span>
+</span></span><span style="display:flex;"><span>$ python manage.py upgrade --database <span style="color:#e6db74">&#39;mysql+pymysql://nova:password@localhost/nova_after&#39;</span> --version <span style="color:#ae81ff">216</span>
+</span></span><span style="display:flex;"><span>$ mysqldump --no-data --skip-comments -u nova -ppassword nova_after &gt; nova_after.sql
+</span></span></code></pre></div><p>Finally, diff the two schemas to identify any differences:</p>
+<pre tabindex="0"><code>$ diff nova_before.sql nova_after.sql
 </code></pre><h2 id="postgresql">PostgreSQL</h2>
 <p>PostgreSQL exists in a funny space in nova, where it&rsquo;s technically supported
 but not many people use it. Nonetheless, there are PostgreSQL-specific
 migrations in-tree so we must test them.</p>
-<p>Once again, this is quite similar to the above, though Postgres' user model
+<p>Once again, this is quite similar to the above, though Postgres&rsquo; user model
 makes things a little more complicated. You need to create a user to run the
 operations as, but you can&rsquo;t simply create this as Postgres defaults to the
 <code>ident</code> auth (local UNIX user) scheme rather than <code>password</code> (or, more
 specifically, <code>md5</code>). You need to <a href="https://ubuntu.com/server/docs/databases-postgresql">configure <code>pg_hba.conf</code> to enable DB-specific
 users</a> and create e.g. a <code>nova</code> user with a <code>password</code> password.</p>
 <p>Once the user is created, you can create the DB using the <code>postgres</code> tool:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo -u postgres dropdb --if-exists nova_before
-$ sudo -u postgres createdb --owner<span style="color:#f92672">=</span>nova nova_before
-</code></pre></div><p>With the DB created, the steps to generate the schema dump are once again
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo -u postgres dropdb --if-exists nova_before
+</span></span><span style="display:flex;"><span>$ sudo -u postgres createdb --owner<span style="color:#f92672">=</span>nova nova_before
+</span></span></code></pre></div><p>With the DB created, the steps to generate the schema dump are once again
 quite similar to SQLite and MySQL. Using <code>version_control</code> and <code>upgrade</code>
 management commands once more:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python manage.py version_control <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">215</span>
-$ python manage.py upgrade <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">216</span>
-</code></pre></div><p>As with MySQL, Postgres comes with a specific tool for dumping the DB schemas -
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python manage.py version_control <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">215</span>
+</span></span><span style="display:flex;"><span>$ python manage.py upgrade <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_before&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">216</span>
+</span></span></code></pre></div><p>As with MySQL, Postgres comes with a specific tool for dumping the DB schemas -
 <code>pg_dump</code>. Use that to dump the <em>before</em> schema:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pg_dump postgresql://nova:password@localhost/nova_before <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --schema-only &gt; nova_before.sql
-</code></pre></div><p>Once we have a database instance using the <em>before</em> schema, we can apply the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ pg_dump postgresql://nova:password@localhost/nova_before <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --schema-only &gt; nova_before.sql
+</span></span></code></pre></div><p>Once we have a database instance using the <em>before</em> schema, we can apply the
 code change and repeat the steps above, this time creating a <code>nova_after</code>
 database. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo -u postgres dropdb --if-exists nova_after
-$ sudo -u postgres createdb --owner<span style="color:#f92672">=</span>nova nova_after
-$ python manage.py version_control <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_after&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">215</span>
-$ python manage.py upgrade <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_after&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">216</span>
-$ pg_dump postgresql://nova:password@localhost/nova_after <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --schema-only &gt; nova_after.sql
-</code></pre></div><p>Finally, diff the two schemas to identify any differences:</p>
-<pre><code>$ diff nova_before.sql nova_after.sql
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo -u postgres dropdb --if-exists nova_after
+</span></span><span style="display:flex;"><span>$ sudo -u postgres createdb --owner<span style="color:#f92672">=</span>nova nova_after
+</span></span><span style="display:flex;"><span>$ python manage.py version_control <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_after&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">215</span>
+</span></span><span style="display:flex;"><span>$ python manage.py upgrade <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --database <span style="color:#e6db74">&#39;postgresql://nova:password@localhost/nova_after&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --version <span style="color:#ae81ff">216</span>
+</span></span><span style="display:flex;"><span>$ pg_dump postgresql://nova:password@localhost/nova_after <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --schema-only &gt; nova_after.sql
+</span></span></code></pre></div><p>Finally, diff the two schemas to identify any differences:</p>
+<pre tabindex="0"><code>$ diff nova_before.sql nova_after.sql
 </code></pre><h2 id="example">Example</h2>
 <p>The below script can be used to diff the database. It should be placed in the
 root directory of the nova repo and executed from there. It relies on the
@@ -254,7 +254,7 @@ backend, rather than the separate <code>nova_before</code> and <code>nova_after<
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

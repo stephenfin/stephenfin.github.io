@@ -104,7 +104,7 @@ but no Sphinx or docutils experience is assumed.&lt;/p&gt;
 removed, things break and are then hopefully fixed. Managing this, from both
 the developer and user perspective, can be tough. In this talk we examine and
 compare some of the tools that one can use to make this process easier, such
-as &amp;lsquo;debtcollector&amp;rsquo;, &amp;lsquo;reno&amp;rsquo; and &amp;lsquo;towncrier&amp;rsquo;, and contrast these with
+as &amp;lsquo;debtcollector&amp;rsquo;, &amp;lsquo;reno&amp;rsquo; and &amp;rsquo;towncrier&amp;rsquo;, and contrast these with
 alternatives used in other projects.&lt;/p&gt;
 &lt;p&gt;This talk would mainly be of interest to developers of open source libraries,
 though the same tooling can be used for any Python library or application
@@ -181,7 +181,7 @@ OpenStack but I looked at other options to help present a more complete picture
 removed, things break and are then hopefully fixed. Managing this, from both
 the developer and user perspective, can be tough. In this talk we examine and
 compare some of the tools that one can use to make this process easier, such
-as &amp;lsquo;debtcollector&amp;rsquo;, &amp;lsquo;reno&amp;rsquo; and &amp;lsquo;towncrier&amp;rsquo;, and contrast these with
+as &amp;lsquo;debtcollector&amp;rsquo;, &amp;lsquo;reno&amp;rsquo; and &amp;rsquo;towncrier&amp;rsquo;, and contrast these with
 alternatives used in other projects.&lt;/p&gt;
 &lt;p&gt;This talk would mainly be of interest to developers of open source libraries,
 though the same tooling can be used for any Python library or application
@@ -311,7 +311,7 @@ right up to user interaction with OpenStack deployments. We aim to cover:&lt;/p&
 &lt;li&gt;What NUMA is and why it exists&lt;/li&gt;
 &lt;li&gt;How and to what extent NUMA can affect your OpenStack deployment, and the
 techniques we use under-the-hood to prevent any performance degradation&lt;/li&gt;
-&lt;li&gt;What you, as a user, can do to further optimize your instances&#39; performance&lt;/li&gt;
+&lt;li&gt;What you, as a user, can do to further optimize your instances&amp;rsquo; performance&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;In addition, work continues on these features. We also take a look forward at
 some of the work we&amp;rsquo;re doing to further improve things:&lt;/p&gt;

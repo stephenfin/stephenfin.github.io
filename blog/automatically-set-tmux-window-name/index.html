@@ -90,9 +90,8 @@
 before and eventually identified the issue: a breaking change in 2.7. Below is
 my guide on ensuring <em>tmux</em> displays a useful title for each window.</p>
 <p>What I&rsquo;m looking to achieve is a prompt like the following:</p>
-<figure>
-    <img src="https://that.guru/media/automatically-set-tmux-window-name.png"
-         alt="tmux prompt"/> 
+<figure><img src="https://that.guru/media/automatically-set-tmux-window-name.png"
+         alt="tmux prompt"/>
 </figure>
 
 <p>More specifically, I want <code>$(hostname): $(basename $PWD)</code>. <em>tmux</em> provides
@@ -108,7 +107,7 @@ rename the window automatically using the format specified by
 individual window when a name is specified at creation with <code>new-window</code> or
 <code>new-session</code>, or later with <code>rename-window</code>, or with a terminal escape
 sequence.  It may be switched off globally with:
-<pre><code>set-window-option -g automatic-rename off
+<pre tabindex="0"><code>set-window-option -g automatic-rename off
 </code></pre></dd>
 <dt><strong>automatic-rename-format</strong> <em>format</em></dt>
 <dd>The format (see <code>FORMATS</code>) used when the <code>automatic-rename</code> option is
@@ -171,7 +170,7 @@ work around the breaking change mentioned above:</p>
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

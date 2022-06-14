@@ -111,11 +111,11 @@ tool, which is installed by the aforementioned <code>mlnxofedinstall</code> tool
 However, Mellanox have an open source version of this tool, <code>mstconfig</code>,
 which fulfils the same purpose as is available as part of the
 <a href="https://github.com/Mellanox/mstflint"><code>mstflint</code></a> package. Install this:</p>
-<pre><code>$ sudo apt install mstflint
+<pre tabindex="0"><code>$ sudo apt install mstflint
 </code></pre><p>Once installed, inspect the current configuration of the device. To do this,
 you need to find the PCI address of the device, which is pretty easy when you
 only have one such device in your system:</p>
-<pre><code>$ lspci | grep Mellanox
+<pre tabindex="0"><code>$ lspci | grep Mellanox
 02:00.0 Ethernet controller: Mellanox Technologies MT27500 Family [ConnectX-3]
 $ sudo mstconfig -d 02:00.0 query
 
@@ -143,7 +143,7 @@ Configurations:                              Current
 eight VFs (<code>NUM_OF_VFS=8</code>). If this wasn&rsquo;t the case though, you&rsquo;d need to
 configure these attributes. You can do so using the <code>mstconfig</code> tool again.
 For example:</p>
-<pre><code>$ sudo mstconfig -d 02:00.0 set SRIOV_EN=1 NUM_OF_VFS=8
+<pre tabindex="0"><code>$ sudo mstconfig -d 02:00.0 set SRIOV_EN=1 NUM_OF_VFS=8
 
 Device #1:
 ----------
@@ -169,17 +169,17 @@ Configurations:                              Current         New
  Apply new Configuration? ? (y/n) [n] :
 </code></pre><p>If applying configuration, you should now reboot and then inspect the
 configuration to ensure it has persisted:</p>
-<pre><code>$ sudo mstconfig -d 02:00.0 query
+<pre tabindex="0"><code>$ sudo mstconfig -d 02:00.0 query
 </code></pre><p>Once the device&rsquo;s firmware is configured, we can move on to configuring the
 driver.</p>
 <h2 id="enable-sr-iov-in-the-driver">Enable SR-IOV in the driver</h2>
 <p>As with <code>mstconfig</code> above, Ubuntu 16.04 also provides in-tree alternatives to
-the drivers provided in the tarball o' doom. Better yet, these drivers are
+the drivers provided in the tarball o&rsquo; doom. Better yet, these drivers are
 provided and enabled by default: all we need to do is configure them.</p>
 <p>As noted in the <a href="https://community.mellanox.com/docs/DOC-2365">original guide</a>, this can be done by
 creating (or editing) the <code>/etc/modprobe.d/mlx4_core.conf</code> file. Add the
 following to that file:</p>
-<pre><code>options mlx4_core num_vfs=4,4,0 port_type_array=2,2 probe_vf=4,4,0 probe_vf=4,4,0
+<pre tabindex="0"><code>options mlx4_core num_vfs=4,4,0 port_type_array=2,2 probe_vf=4,4,0 probe_vf=4,4,0
 </code></pre><p>Reproducing (in slightly modified form) from the guide, this means:</p>
 <blockquote>
 <ul>
@@ -213,10 +213,10 @@ see the VFs listed under their parent PF with <code>ip link</code> but each VF w
 have its own netdev. Nova requires that these devices do have their own netdev
 so this is a necessity.</p>
 <p>Once this is configured, save the file and reload the driver.</p>
-<pre><code>$ sudo modprobe -r mlx4_en mlx4_ib
+<pre tabindex="0"><code>$ sudo modprobe -r mlx4_en mlx4_ib
 $ sudo modprobe mlx4_en
 </code></pre><p>You should now see the devices listed in <code>ip link</code>:</p>
-<pre><code>$ ip link
+<pre tabindex="0"><code>$ ip link
 1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: enp5s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
@@ -264,7 +264,7 @@ age well, but they are a starting point.</p>
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

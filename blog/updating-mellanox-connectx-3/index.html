@@ -89,7 +89,7 @@
 ConnectX-3 NIC. I&rsquo;ve since picked up a second one of these and was attempting
 to follow through on the same guide. However, when I attempted to &ldquo;<em>query</em>&rdquo; the
 device, I saw the following:</p>
-<pre><code>$ sudo mstconfig -d 02:00.0 query
+<pre tabindex="0"><code>$ sudo mstconfig -d 02:00.0 query
 
 Device #1:
 ----------
@@ -112,7 +112,7 @@ Infiniband, two ports vs. four). You need to figure out which one you have.
 These models are identified by their <strong>OPN</strong> and <strong>PSID</strong>. I&rsquo;ve still to figure
 out how to identify the former, but the latter is easily identified using the
 <code>mstflint</code> tool. For example:</p>
-<pre><code>$ sudo mstflint -d 02:00.0 q
+<pre tabindex="0"><code>$ sudo mstflint -d 02:00.0 q
 Image type:      FS2
 FW Version:      2.30.8000
 Rom Info:        type=PXE version=3.4.151 devid=4099 proto=ETH
@@ -128,7 +128,7 @@ seem to be anyway to download by just PSID so I had to click through the list
 of OPNs until I found the OPN with a PSID that matches. In my case, this was
 <code>MCX312A-XCBT</code> for firmware version <code>2.42.5000</code>. Download the relevant
 firmware to your host. For example:</p>
-<pre><code>$ wget http://www.mellanox.com/downloads/firmware/fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
+<pre tabindex="0"><code>$ wget http://www.mellanox.com/downloads/firmware/fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
 </code></pre><h2 id="update-firmware">Update Firmware</h2>
 <p>With our firmware update to hand, it&rsquo;s time to actually update the NIC. For
 this section, I initially followed the <a href="http://www.mellanox.com/page/firmware_NIC_FW_update">updating guide</a> provided by Mellanox.
@@ -136,10 +136,10 @@ However, as before, I didn&rsquo;t want to install anything that wasn&rsquo;t al
 provided with my distro. As such the instructions provided below are a suitable
 alternative.</p>
 <p>Firstly, extract the firmware you downloaded previously. For example:</p>
-<pre><code>$ unzip fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
+<pre tabindex="0"><code>$ unzip fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
 </code></pre><p>Once done, it&rsquo;s time to flash the firmware. To do this, we once again use the
 <code>mstflint</code> tool::</p>
-<pre><code>$ sudo mstflint -d 02:00.0 -i fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin burn
+<pre tabindex="0"><code>$ sudo mstflint -d 02:00.0 -i fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin burn
 
 Current FW version on flash:  2.30.8000
 New FW version:               2.42.5000
@@ -147,10 +147,10 @@ New FW version:               2.42.5000
 Burning FS2 FW image without signatures - OK
 Restoring signature                     - OK
 </code></pre><p>Now reboot your machine so the new firmware is loaded::</p>
-<pre><code>$ sudo reboot
+<pre tabindex="0"><code>$ sudo reboot
 </code></pre><p>And with that, we have flashed out new firmware and can query the NIC
 configuration::</p>
-<pre><code>$ sudo mstconfig -d 02:00.0 query
+<pre tabindex="0"><code>$ sudo mstconfig -d 02:00.0 query
 
 Device #1:
 ----------
@@ -179,7 +179,7 @@ Configurations:                              Current
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

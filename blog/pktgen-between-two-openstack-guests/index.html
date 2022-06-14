@@ -104,11 +104,11 @@ deployment on a borrowed server.</p>
 	
 	
 	<div class="admonition-content"><p>You can verify the OVS on the host is using DPDK using the following commands:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ ovs-vsctl --no-wait get Open_vSwitch . dpdk_initialized
-true
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ sudo ovs-vsctl --no-wait get Open_vSwitch . dpdk_version
-<span style="color:#e6db74">&#34;DPDK 20.11.1&#34;</span>
-</code></pre></div><p>This is discussed further in the OVS documentation.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ ovs-vsctl --no-wait get Open_vSwitch . dpdk_initialized
+</span></span><span style="display:flex;"><span>true
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ sudo ovs-vsctl --no-wait get Open_vSwitch . dpdk_version
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;DPDK 20.11.1&#34;</span>
+</span></span></code></pre></div><p>This is discussed further in the OVS documentation.</p>
 </div>
 </aside>
 
@@ -116,75 +116,75 @@ true
 networks and an appropriate image and flavor. <code>dev-install</code> provides most of
 these for you, but can create them manually using the below commands.</p>
 <p>First, the image. We&rsquo;re going to use CentOS 8 Stream:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ wget https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack image create <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --disk-format qcow2 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --public <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --file CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    centos8-stream
-</code></pre></div><p>Next, the flavor. This is a pretty standard flavor except that we need to use
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ wget https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack image create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --disk-format qcow2 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --public <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --file CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    centos8-stream
+</span></span></code></pre></div><p>Next, the flavor. This is a pretty standard flavor except that we need to use
 pinned CPUs and enable hugepages:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack flavor create <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --vcpu <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --ram <span style="color:#ae81ff">8192</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --property hw:cpu_policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;dedicated&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --property hw:mem_page_size<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;large&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    m1.large.nfv
-</code></pre></div><p>You might also need to create a suitable network. <code>dev-install</code> configures a
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack flavor create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --vcpu <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ram <span style="color:#ae81ff">8192</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --property hw:cpu_policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;dedicated&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --property hw:mem_page_size<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;large&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    m1.large.nfv
+</span></span></code></pre></div><p>You might also need to create a suitable network. <code>dev-install</code> configures a
 <code>hostonly</code> provider network. If using another method, you need to create your
 own provider network. Adding this is an exercise left to the reader. Once done,
 we need to create a tenant network that we&rsquo;ll use to configure additional
 ports. Create this, along with a router:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack network create internal_net
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack subnet create <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --subnet-range 192.168.200.0/24 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    internal_subnet
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router create router_a
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router set --external-gateway hostonly router_a
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router add subnet router_a internal_subnet
-</code></pre></div><p>Finally, you need some way to access the guest. Create and upload a keypair:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ ssh-keygen
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack keypair create --public ~/.ssh/id_rsa.pub my-key
-</code></pre></div><h2 id="initial-server-setup">Initial server setup</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack network create internal_net
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack subnet create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --subnet-range 192.168.200.0/24 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    internal_subnet
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router create router_a
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router set --external-gateway hostonly router_a
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack router add subnet router_a internal_subnet
+</span></span></code></pre></div><p>Finally, you need some way to access the guest. Create and upload a keypair:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ ssh-keygen
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack keypair create --public ~/.ssh/id_rsa.pub my-key
+</span></span></code></pre></div><h2 id="initial-server-setup">Initial server setup</h2>
 <p>We&rsquo;re going to create two servers: <code>guest-tx</code> and <code>guest-rx</code>. These are
 effectively identical save for the configuration we&rsquo;ll eventually pass to
 Pktgen-DPDK. Create the servers:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server create <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --image centos8-stream <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --flavor m1.large.nfv <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --key-name my-key <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --wait <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    guest-tx
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server create <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --image centos8-stream <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --flavor m1.large.nfv <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --key-name my-key <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --wait <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    guest-rx
-</code></pre></div><p>Create two floating IPs and attach them to the server so we can SSH into the machine:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_fip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack floating ip create hostonly-dpdk -f value -c name | tr -d <span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#66d9ef">)</span>
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_fip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack floating ip create hostonly-dpdk -f value -c name | tr -d <span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#66d9ef">)</span>
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add floating ip guest-tx $tx_fip
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add floating ip guest-rx $rx_fip
-</code></pre></div><p>You&rsquo;ll also need to add security groups to enable SSH and potentially ICMP
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --image centos8-stream <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.large.nfv <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --key-name my-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --wait <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    guest-tx
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --image centos8-stream <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.large.nfv <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --network internal_net <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --key-name my-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --wait <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    guest-rx
+</span></span></code></pre></div><p>Create two floating IPs and attach them to the server so we can SSH into the machine:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_fip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack floating ip create hostonly-dpdk -f value -c name | tr -d <span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_fip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack floating ip create hostonly-dpdk -f value -c name | tr -d <span style="color:#e6db74">&#39;\n&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add floating ip guest-tx $tx_fip
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add floating ip guest-rx $rx_fip
+</span></span></code></pre></div><p>You&rsquo;ll also need to add security groups to enable SSH and potentially ICMP
 (for ping) access. If you deployed with <code>dev-install</code> like I did, then these
 will already be present. If you use another mechanism then you can create
 these security groups like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group create --description allow_ssh allow_ssh
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group rule create --protocol tcp --dst-port <span style="color:#ae81ff">22</span> allow_ssh
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group create --description allow_ping allow_ping
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group rule create --protocol icmp allow_ping
-</code></pre></div><p>You can then add these security groups to the servers:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-tx allow_ssh
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-tx allow_ping
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-rx allow_ssh
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-rx allow_ping
-</code></pre></div><p>You should now be able to SSH into the instances:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server ssh --login centos guest-tx
-</code></pre></div><h2 id="attach-dpdk-interfaces">Attach DPDK interfaces</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group create --description allow_ssh allow_ssh
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group rule create --protocol tcp --dst-port <span style="color:#ae81ff">22</span> allow_ssh
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group create --description allow_ping allow_ping
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack security group rule create --protocol icmp allow_ping
+</span></span></code></pre></div><p>You can then add these security groups to the servers:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-tx allow_ssh
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-tx allow_ping
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-rx allow_ssh
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add security group guest-rx allow_ping
+</span></span></code></pre></div><p>You should now be able to SSH into the instances:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server ssh --login centos guest-tx
+</span></span></code></pre></div><h2 id="attach-dpdk-interfaces">Attach DPDK interfaces</h2>
 <p>With the initial server configuration out of the way, we can move onto
 configuring the interfaces we will use for our DPDK application. It&rsquo;s necessary
 to use secondary interfaces since we&rsquo;re going to be binding these interfaces
@@ -194,8 +194,8 @@ cannot use SSH on this interface. With that said, there&rsquo;s not going to be
 anything special about these interfaces: every interface attached to the
 instance will be <code>vhostuser</code> interface. We can confirm this by inspecting
 the single interface currently attached to the instance:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ sudo podman exec -it nova_libvirt virsh dumpxml <span style="color:#ae81ff">14</span> | xmllint --xpath <span style="color:#e6db74">&#39;/domain/devices/interface&#39;</span> -
-</code></pre></div><aside class="admonition note">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ sudo podman exec -it nova_libvirt virsh dumpxml <span style="color:#ae81ff">14</span> | xmllint --xpath <span style="color:#e6db74">&#39;/domain/devices/interface&#39;</span> -
+</span></span></code></pre></div><aside class="admonition note">
 	
 	
 	<div class="admonition-content">We&rsquo;re executing this in the <code>nova_libvirt</code> container because this is how
@@ -203,29 +203,29 @@ TripleO Standalone, and thus <code>dev-intall</code>, deploys libvirt.</div>
 </aside>
 
 <p>This will yield something like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;interface</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;vhostuser&#34;</span><span style="color:#f92672">&gt;</span>
-  <span style="color:#f92672">&lt;mac</span> <span style="color:#a6e22e">address=</span><span style="color:#e6db74">&#34;fa:16:3e:97:3d:11&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;unix&#34;</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;/var/lib/vhost_sockets/vhub20e827c-4a&#34;</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;server&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;vhub20e827c-4a &#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;virtio&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">rx_queue_size=</span><span style="color:#e6db74">&#34;1024&#34;</span> <span style="color:#a6e22e">tx_queue_size=</span><span style="color:#e6db74">&#34;1024&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;alias</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;net0&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;address</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pci&#34;</span> <span style="color:#a6e22e">domain=</span><span style="color:#e6db74">&#34;0x0000&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;0x00&#34;</span> <span style="color:#a6e22e">slot=</span><span style="color:#e6db74">&#34;0x03&#34;</span> <span style="color:#a6e22e">function=</span><span style="color:#e6db74">&#34;0x0&#34;</span><span style="color:#f92672">/&gt;</span>
-<span style="color:#f92672">&lt;/interface&gt;</span>
-</code></pre></div><p>With that bit out of the way, we can now add our additional network interface
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;interface</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;vhostuser&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;mac</span> <span style="color:#a6e22e">address=</span><span style="color:#e6db74">&#34;fa:16:3e:97:3d:11&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;unix&#34;</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;/var/lib/vhost_sockets/vhub20e827c-4a&#34;</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;server&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;vhub20e827c-4a &#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;virtio&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">rx_queue_size=</span><span style="color:#e6db74">&#34;1024&#34;</span> <span style="color:#a6e22e">tx_queue_size=</span><span style="color:#e6db74">&#34;1024&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;alias</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;net0&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;address</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pci&#34;</span> <span style="color:#a6e22e">domain=</span><span style="color:#e6db74">&#34;0x0000&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;0x00&#34;</span> <span style="color:#a6e22e">slot=</span><span style="color:#e6db74">&#34;0x03&#34;</span> <span style="color:#a6e22e">function=</span><span style="color:#e6db74">&#34;0x0&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/interface&gt;</span>
+</span></span></code></pre></div><p>With that bit out of the way, we can now add our additional network interface
 to each instance:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack port create --network internal_net dpdk-port-tx
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack port create --network internal_net dpdk-port-rx
-</code></pre></div><p>We&rsquo;ll save the IP and MAC addresses for these interfaces: these will be useful
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack port create --network internal_net dpdk-port-tx
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack port create --network internal_net dpdk-port-rx
+</span></span></code></pre></div><p>We&rsquo;ll save the IP and MAC addresses for these interfaces: these will be useful
 later:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_dpdk_ip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-tx | jq -r <span style="color:#e6db74">&#39;.fixed_ips[0].ip_address&#39;</span><span style="color:#66d9ef">)</span>
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_dpdk_ip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-rx | jq -r <span style="color:#e6db74">&#39;.fixed_ips[0].ip_address&#39;</span><span style="color:#66d9ef">)</span>
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_dpdk_mac<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-tx | jq -r <span style="color:#e6db74">&#39;.mac_address&#39;</span><span style="color:#66d9ef">)</span>
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_dpdk_mac<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-rx | jq -r <span style="color:#e6db74">&#39;.mac_address&#39;</span><span style="color:#66d9ef">)</span>
-</code></pre></div><p>Now add them to the servers:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add port guest-tx dpdk-port-tx
-<span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add port guest-rx dpdk-port-rx
-</code></pre></div><p>You can verify that these interfaces are of type <code>vhostuser</code> again, if you like.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_dpdk_ip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-tx | jq -r <span style="color:#e6db74">&#39;.fixed_ips[0].ip_address&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_dpdk_ip<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-rx | jq -r <span style="color:#e6db74">&#39;.fixed_ips[0].ip_address&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ tx_dpdk_mac<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-tx | jq -r <span style="color:#e6db74">&#39;.mac_address&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ rx_dpdk_mac<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack port show -f json dpdk-port-rx | jq -r <span style="color:#e6db74">&#39;.mac_address&#39;</span><span style="color:#66d9ef">)</span>
+</span></span></code></pre></div><p>Now add them to the servers:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add port guest-tx dpdk-port-tx
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server add port guest-rx dpdk-port-rx
+</span></span></code></pre></div><p>You can verify that these interfaces are of type <code>vhostuser</code> again, if you like.</p>
 <h2 id="compile-pktgen-dpdk">Compile Pktgen-DPDK</h2>
 <p>We now have our servers effectively configured from an &ldquo;infrastructure&rdquo;
 perspective. Going forward, everything will be done inside the guests. The
@@ -234,25 +234,25 @@ while DPDK itself is packaged for CentOS, Pktgen-DPDK is not. We&rsquo;re going
 to demonstrate the steps to run for one intance. You should then repeat these
 on the second instance.</p>
 <p>First, let&rsquo;s SSH into the machine:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server ssh guest-tx --login centos
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$
-</code></pre></div><p>Install the dependencies. These are numerous:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf config-manager --set-enabled powertools
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf groupinstall -y <span style="color:#e6db74">&#39;Development Tools&#39;</span>
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf install -y numactl-devel libpcap-devel meson driverctl
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ python3 -m pip install --user pyelftools  <span style="color:#75715e"># avoid requiring EPEL</span>
-</code></pre></div><p>Now, let&rsquo;s clone and build DPDK. We could use the <code>dpdk</code> and <code>dpdk-devel</code>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>stack@host<span style="color:#f92672">]</span>$ openstack server ssh guest-tx --login centos
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$
+</span></span></code></pre></div><p>Install the dependencies. These are numerous:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf config-manager --set-enabled powertools
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf groupinstall -y <span style="color:#e6db74">&#39;Development Tools&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo dnf install -y numactl-devel libpcap-devel meson driverctl
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ python3 -m pip install --user pyelftools  <span style="color:#75715e"># avoid requiring EPEL</span>
+</span></span></code></pre></div><p>Now, let&rsquo;s clone and build DPDK. We could use the <code>dpdk</code> and <code>dpdk-devel</code>
 packages provided by CentOS but these are pretty old. If you decide to go
 this route, don&rsquo;t forget to checkout a tag in the Pktgen-DPDK repo
 corresponding to the correct DPDK release in the environment.</p>
 <p>You can build DPDK like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git clone https://github.com/dpdk/dpdk
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ cd dpdk
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git checkout v21.11rc3  <span style="color:#75715e"># use v21.11 if it&#39;s been released</span>
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ meson build
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ ninja -C build
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo ninja -C build install
-</code></pre></div><aside class="admonition note">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git clone https://github.com/dpdk/dpdk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ cd dpdk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git checkout v21.11rc3  <span style="color:#75715e"># use v21.11 if it&#39;s been released</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ meson build
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ ninja -C build
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo ninja -C build install
+</span></span></code></pre></div><aside class="admonition note">
 	
 	
 	<div class="admonition-content">You&rsquo;ll note that I&rsquo;m using a fixed version of DPDK. As this post ages, you
@@ -261,15 +261,15 @@ tag checked out for Pktgen-DPDK below.</div>
 </aside>
 
 <p>With DPDK build, let&rsquo;s do the same for Pktgen-DPDK:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git clone https://github.com/pktgen/Pktgen-DPDK
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ cd Pktgen-DPDK
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git checkout pktgen-21.11.0
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ PKG_CONFIG_PATH<span style="color:#f92672">=</span>/usr/local/lib64/pkgconfig meson build
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ ninja -C build
-<span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo ninja -C build install
-</code></pre></div><p>Finally, restart the instance to propogate all these changes:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo reboot
-</code></pre></div><aside class="admonition note">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git clone https://github.com/pktgen/Pktgen-DPDK
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ cd Pktgen-DPDK
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ git checkout pktgen-21.11.0
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ PKG_CONFIG_PATH<span style="color:#f92672">=</span>/usr/local/lib64/pkgconfig meson build
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ ninja -C build
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo ninja -C build install
+</span></span></code></pre></div><p>Finally, restart the instance to propogate all these changes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo reboot
+</span></span></code></pre></div><aside class="admonition note">
 	
 	
 	<div class="admonition-content">Don&rsquo;t forget to run the above on both instances, as noted previously.</div>
@@ -282,63 +282,63 @@ our annointed interfaces to use the <code>vfio-pci</code> driver. Once again, th
 should be done on both instances.</p>
 <p>We&rsquo;re going to use root for most of these commands since it&rsquo;s easier than
 working with pipes and sudo. Become root and configure the hugepages:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo su
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 1024 &gt; /proc/sys/vm/nr_hugepages</span>
-</code></pre></div><p>Now the trickier job of rebinding our interfaces to use the <code>vfio-pci</code> driver.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>centos@guest-tx<span style="color:#f92672">]</span>$ sudo su
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 1024 &gt; /proc/sys/vm/nr_hugepages</span>
+</span></span></code></pre></div><p>Now the trickier job of rebinding our interfaces to use the <code>vfio-pci</code> driver.
 We&rsquo;ve got two interfaces in both instances: the primary interface that we&rsquo;re
 SSHing through, and the second interface that we&rsquo;re going to use for our DPDK
 application. We can verify this using a combination of <code>ip</code> and <code>lspci</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># ip link</span>
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci | grep Ethernet</span>
-</code></pre></div><p>This should return something akin to the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># ip link</span>
-1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1442</span> qdisc fq_codel state UP mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
-    link/ether fa:16:3e:97:3d:11 brd ff:ff:ff:ff:ff:ff
-3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1442</span> qdisc fq_codel state UP mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
-    link/ether fa:16:3e:5b:af:eb brd ff:ff:ff:ff:ff:ff
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci | grep Ethernet</span>
-00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device
-00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
-</code></pre></div><p>In this instance, our device has been assigned the address <code>00:07.0</code>. We can
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># ip link</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci | grep Ethernet</span>
+</span></span></code></pre></div><p>This should return something akin to the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># ip link</span>
+</span></span><span style="display:flex;"><span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span style="display:flex;"><span>2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1442</span> qdisc fq_codel state UP mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>    link/ether fa:16:3e:97:3d:11 brd ff:ff:ff:ff:ff:ff
+</span></span><span style="display:flex;"><span>3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1442</span> qdisc fq_codel state UP mode DEFAULT group default qlen <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>    link/ether fa:16:3e:5b:af:eb brd ff:ff:ff:ff:ff:ff
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci | grep Ethernet</span>
+</span></span><span style="display:flex;"><span>00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device
+</span></span><span style="display:flex;"><span>00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
+</span></span></code></pre></div><p>In this instance, our device has been assigned the address <code>00:07.0</code>. We can
 inspect the driver currently in use using <code>lspci</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci -s 00:07.0 -v</span>
-00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
-        Subsystem: Red Hat, Inc. Device <span style="color:#ae81ff">0001</span>
-        Physical Slot: <span style="color:#ae81ff">7</span>
-        Flags: bus master, fast devsel, latency 0, IRQ <span style="color:#ae81ff">10</span>
-        I/O ports at <span style="color:#ae81ff">1000</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>32<span style="color:#f92672">]</span>
-        Memory at c0040000 <span style="color:#f92672">(</span>32-bit, non-prefetchable<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>4K<span style="color:#f92672">]</span>
-        Memory at <span style="color:#ae81ff">240000000</span> <span style="color:#f92672">(</span>64-bit, prefetchable<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>16K<span style="color:#f92672">]</span>
-        Expansion ROM at c0000000 <span style="color:#f92672">[</span>virtual<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>disabled<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>256K<span style="color:#f92672">]</span>
-        Capabilities: <span style="color:#f92672">[</span>98<span style="color:#f92672">]</span> MSI-X: Enable+ Count<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> Masked-
-        Capabilities: <span style="color:#f92672">[</span>84<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: &lt;unknown&gt;
-        Capabilities: <span style="color:#f92672">[</span>70<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: Notify
-        Capabilities: <span style="color:#f92672">[</span>60<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: DeviceCfg
-        Capabilities: <span style="color:#f92672">[</span>50<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: ISR
-        Capabilities: <span style="color:#f92672">[</span>40<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: CommonCfg
-        Kernel driver in use: virtio-pci
-</code></pre></div><p>We&rsquo;re using <code>virtio-pci</code>, but we need to be using <code>vfio-pci</code>. Let&rsquo;s
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci -s 00:07.0 -v</span>
+</span></span><span style="display:flex;"><span>00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
+</span></span><span style="display:flex;"><span>        Subsystem: Red Hat, Inc. Device <span style="color:#ae81ff">0001</span>
+</span></span><span style="display:flex;"><span>        Physical Slot: <span style="color:#ae81ff">7</span>
+</span></span><span style="display:flex;"><span>        Flags: bus master, fast devsel, latency 0, IRQ <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>        I/O ports at <span style="color:#ae81ff">1000</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>32<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>        Memory at c0040000 <span style="color:#f92672">(</span>32-bit, non-prefetchable<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>4K<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>        Memory at <span style="color:#ae81ff">240000000</span> <span style="color:#f92672">(</span>64-bit, prefetchable<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>16K<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>        Expansion ROM at c0000000 <span style="color:#f92672">[</span>virtual<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>disabled<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>size<span style="color:#f92672">=</span>256K<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>        Capabilities: <span style="color:#f92672">[</span>98<span style="color:#f92672">]</span> MSI-X: Enable+ Count<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> Masked-
+</span></span><span style="display:flex;"><span>        Capabilities: <span style="color:#f92672">[</span>84<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: &lt;unknown&gt;
+</span></span><span style="display:flex;"><span>        Capabilities: <span style="color:#f92672">[</span>70<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: Notify
+</span></span><span style="display:flex;"><span>        Capabilities: <span style="color:#f92672">[</span>60<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: DeviceCfg
+</span></span><span style="display:flex;"><span>        Capabilities: <span style="color:#f92672">[</span>50<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: ISR
+</span></span><span style="display:flex;"><span>        Capabilities: <span style="color:#f92672">[</span>40<span style="color:#f92672">]</span> Vendor Specific Information: VirtIO: CommonCfg
+</span></span><span style="display:flex;"><span>        Kernel driver in use: virtio-pci
+</span></span></code></pre></div><p>We&rsquo;re using <code>virtio-pci</code>, but we need to be using <code>vfio-pci</code>. Let&rsquo;s
 load that driver and then rebind the interface to the driver using the
 <code>driverctl</code> utility we used earlier:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># modprobe vfio enable_unsafe_noiommu_mode=1</span>
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># cat /sys/module/vfio/parameters/enable_unsafe_noiommu_mode</span>
-Y
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># modprobe vfio-pci</span>
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># driverctl -v set-override 0000:00:07.0 vfio-pci</span>
-</code></pre></div><aside class="admonition note">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># modprobe vfio enable_unsafe_noiommu_mode=1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># cat /sys/module/vfio/parameters/enable_unsafe_noiommu_mode</span>
+</span></span><span style="display:flex;"><span>Y
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># modprobe vfio-pci</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># driverctl -v set-override 0000:00:07.0 vfio-pci</span>
+</span></span></code></pre></div><aside class="admonition note">
 	
 	
 	<div class="admonition-content"><p>You could also do the binding manually using sysfs. First you need to get the PCI
 vendor and product ID:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci -s 00:07.0 -n</span>
-00:07.0 0200: 1af4:1000
-</code></pre></div><p>In this instance, it&rsquo;s <code>1af4:1000</code>. We&rsquo;ll use this now:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 0000:00:07.0 &gt; /sys/bus/pci/devices/0000:00:07.0/driver/unbind</span>
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 0000:00:08.0 &gt; /sys/bus/pci/devices/0000:00:08.0/driver/unbind</span>
-<span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 1af4 1000 &gt; /sys/bus/pci/drivers/vfio-pci/new_id</span>
-</code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># lspci -s 00:07.0 -n</span>
+</span></span><span style="display:flex;"><span>00:07.0 0200: 1af4:1000
+</span></span></code></pre></div><p>In this instance, it&rsquo;s <code>1af4:1000</code>. We&rsquo;ll use this now:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 0000:00:07.0 &gt; /sys/bus/pci/devices/0000:00:07.0/driver/unbind</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 0000:00:08.0 &gt; /sys/bus/pci/devices/0000:00:08.0/driver/unbind</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@guest-tx<span style="color:#f92672">]</span><span style="color:#75715e"># echo 1af4 1000 &gt; /sys/bus/pci/drivers/vfio-pci/new_id</span>
+</span></span></code></pre></div></div>
 </aside>
 
 <p>If you inspect the device again, you should see that it&rsquo;s now bound to the
@@ -355,25 +355,25 @@ The <code>pktgen</code> application requires a small bit of configuration. Forun
 everything we already have everything we need. Back on the host, run the
 following, which will create a configuration file using the MAC and IP
 address information we stored earlier:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat <span style="color:#e6db74">&lt;&lt; EOF &gt; pktgen.pkt
-</span><span style="color:#e6db74">stop 0
-</span><span style="color:#e6db74">set 0 rate 0.1
-</span><span style="color:#e6db74">set 0 ttl 10
-</span><span style="color:#e6db74">set 0 proto udp
-</span><span style="color:#e6db74">set 0 dport 8000
-</span><span style="color:#e6db74">set 0 src mac ${tx_dpdk_mac}
-</span><span style="color:#e6db74">set 0 dst mac ${rx_dpdk_mac}
-</span><span style="color:#e6db74">set 0 src ip ${tx_dpdk_ip}/32
-</span><span style="color:#e6db74">set 0 dst ip ${rx_dpdk_ip}
-</span><span style="color:#e6db74">set 0 size 64
-</span><span style="color:#e6db74">EOF</span>
-</code></pre></div><p>You can now copy this to the <code>guest-tx</code> instance:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ scp pktgen.pkt centos@<span style="color:#e6db74">${</span>tx_fip<span style="color:#e6db74">}</span>:/home/centos
-</code></pre></div><p>On the <code>guest-rx</code> instance, simply run:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">LD_LIBRARY_PATH<span style="color:#f92672">=</span>/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n <span style="color:#ae81ff">2</span> -- -P -m <span style="color:#e6db74">&#39;2.0&#39;</span> -T
-</code></pre></div><p>Then on the <code>guest-tx</code> instance, run:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">LD_LIBRARY_PATH<span style="color:#f92672">=</span>/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n <span style="color:#ae81ff">2</span> -- -P -m <span style="color:#e6db74">&#39;2.0&#39;</span> -T -f pktgen.pkt
-</code></pre></div><p>In the interactive prompt that appears, type <code>start</code>. You should see packets
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cat <span style="color:#e6db74">&lt;&lt; EOF &gt; pktgen.pkt
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">stop 0
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 rate 0.1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 ttl 10
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 proto udp
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 dport 8000
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 src mac ${tx_dpdk_mac}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 dst mac ${rx_dpdk_mac}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 src ip ${tx_dpdk_ip}/32
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 dst ip ${rx_dpdk_ip}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">set 0 size 64
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><p>You can now copy this to the <code>guest-tx</code> instance:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ scp pktgen.pkt centos@<span style="color:#e6db74">${</span>tx_fip<span style="color:#e6db74">}</span>:/home/centos
+</span></span></code></pre></div><p>On the <code>guest-rx</code> instance, simply run:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>LD_LIBRARY_PATH<span style="color:#f92672">=</span>/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n <span style="color:#ae81ff">2</span> -- -P -m <span style="color:#e6db74">&#39;2.0&#39;</span> -T
+</span></span></code></pre></div><p>Then on the <code>guest-tx</code> instance, run:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>LD_LIBRARY_PATH<span style="color:#f92672">=</span>/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n <span style="color:#ae81ff">2</span> -- -P -m <span style="color:#e6db74">&#39;2.0&#39;</span> -T -f pktgen.pkt
+</span></span></code></pre></div><p>In the interactive prompt that appears, type <code>start</code>. You should see packets
 start flowing and being received by the <code>pktgen</code> instance running on
 <code>guest-rx</code>. You can stop this process by typing <code>stop</code> or simply <code>quit</code>.</p>
 <h2 id="references">References</h2>
@@ -390,7 +390,7 @@ start flowing and being received by the <code>pktgen</code> instance running on
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

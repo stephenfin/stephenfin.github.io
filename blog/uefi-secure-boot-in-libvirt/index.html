@@ -104,96 +104,96 @@ described in the <a href="https://gitlab.com/qemu-project/qemu/-/blob/v5.2.0/doc
 distro and on a Fedora 33 host can be found at <code>/usr/share/qemu/firmware</code>.
 Here&rsquo;s one such file, <code>40-edk2-ovmf-x64-sb-enrolled.json</code>, taken from my
 host and provided by Fedora&rsquo;s <code>edk2-ovmf</code> package:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-    <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;OVMF for x86_64, with SB+SMM, SB enabled, MS certs enrolled&#34;</span>,
-    <span style="color:#f92672">&#34;interface-types&#34;</span>: [
-        <span style="color:#e6db74">&#34;uefi&#34;</span>
-    ],
-    <span style="color:#f92672">&#34;mapping&#34;</span>: {
-        <span style="color:#f92672">&#34;device&#34;</span>: <span style="color:#e6db74">&#34;flash&#34;</span>,
-        <span style="color:#f92672">&#34;executable&#34;</span>: {
-            <span style="color:#f92672">&#34;filename&#34;</span>: <span style="color:#e6db74">&#34;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&#34;</span>,
-            <span style="color:#f92672">&#34;format&#34;</span>: <span style="color:#e6db74">&#34;raw&#34;</span>
-        },
-        <span style="color:#f92672">&#34;nvram-template&#34;</span>: {
-            <span style="color:#f92672">&#34;filename&#34;</span>: <span style="color:#e6db74">&#34;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#34;</span>,
-            <span style="color:#f92672">&#34;format&#34;</span>: <span style="color:#e6db74">&#34;raw&#34;</span>
-        }
-    },
-    <span style="color:#f92672">&#34;targets&#34;</span>: [
-        {
-            <span style="color:#f92672">&#34;architecture&#34;</span>: <span style="color:#e6db74">&#34;x86_64&#34;</span>,
-            <span style="color:#f92672">&#34;machines&#34;</span>: [
-                <span style="color:#e6db74">&#34;pc-q35-*&#34;</span>
-            ]
-        }
-    ],
-    <span style="color:#f92672">&#34;features&#34;</span>: [
-        <span style="color:#e6db74">&#34;acpi-s3&#34;</span>,
-        <span style="color:#e6db74">&#34;amd-sev&#34;</span>,
-        <span style="color:#e6db74">&#34;enrolled-keys&#34;</span>,
-        <span style="color:#e6db74">&#34;requires-smm&#34;</span>,
-        <span style="color:#e6db74">&#34;secure-boot&#34;</span>,
-        <span style="color:#e6db74">&#34;verbose-dynamic&#34;</span>
-    ],
-    <span style="color:#f92672">&#34;tags&#34;</span>: [
-
-    ]
-}
-</code></pre></div><p>Since libvirt 5.3, libvirt has parsed these files and included them in the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;OVMF for x86_64, with SB+SMM, SB enabled, MS certs enrolled&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;interface-types&#34;</span>: [
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;uefi&#34;</span>
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;mapping&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;device&#34;</span>: <span style="color:#e6db74">&#34;flash&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;executable&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;filename&#34;</span>: <span style="color:#e6db74">&#34;/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;format&#34;</span>: <span style="color:#e6db74">&#34;raw&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;nvram-template&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;filename&#34;</span>: <span style="color:#e6db74">&#34;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;format&#34;</span>: <span style="color:#e6db74">&#34;raw&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;targets&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;architecture&#34;</span>: <span style="color:#e6db74">&#34;x86_64&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;machines&#34;</span>: [
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;pc-q35-*&#34;</span>
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;features&#34;</span>: [
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;acpi-s3&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;amd-sev&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;enrolled-keys&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;requires-smm&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;secure-boot&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;verbose-dynamic&#34;</span>
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;tags&#34;</span>: [
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Since libvirt 5.3, libvirt has parsed these files and included them in the
 domain capabilities output, accessible via <code>virsh domcapabilities</code> and
 equivalent APIs. For example, I can see what firmwares are available to me when
 using the <code>q35</code> machine type like so:</p>
-<pre><code class="language-console" data-lang="console">$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath '/domainCapabilities/os' -
-</code></pre><p>This will yield:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
-  <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;firmware&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;value&gt;</span>efi<span style="color:#f92672">&lt;/value&gt;</span>
-  <span style="color:#f92672">&lt;/enum&gt;</span>
-  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;value&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/value&gt;</span>
-    <span style="color:#f92672">&lt;value&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.fd<span style="color:#f92672">&lt;/value&gt;</span>
-    <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;type&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;value&gt;</span>rom<span style="color:#f92672">&lt;/value&gt;</span>
-      <span style="color:#f92672">&lt;value&gt;</span>pflash<span style="color:#f92672">&lt;/value&gt;</span>
-    <span style="color:#f92672">&lt;/enum&gt;</span>
-    <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;readonly&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;value&gt;</span>yes<span style="color:#f92672">&lt;/value&gt;</span>
-      <span style="color:#f92672">&lt;value&gt;</span>no<span style="color:#f92672">&lt;/value&gt;</span>
-    <span style="color:#f92672">&lt;/enum&gt;</span>
-    <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;secure&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;value&gt;</span>yes<span style="color:#f92672">&lt;/value&gt;</span>
-      <span style="color:#f92672">&lt;value&gt;</span>no<span style="color:#f92672">&lt;/value&gt;</span>
-    <span style="color:#f92672">&lt;/enum&gt;</span>
-  <span style="color:#f92672">&lt;/loader&gt;</span>
-<span style="color:#f92672">&lt;/os&gt;</span>
-</code></pre></div><p>However, this isn&rsquo;t all this can do. Libvirt can also negotiate the firmware
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath <span style="color:#e6db74">&#39;/domainCapabilities/os&#39;</span> -
+</span></span></code></pre></div><p>This will yield:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;firmware&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;value&gt;</span>efi<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/enum&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;value&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;value&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.fd<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;type&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;value&gt;</span>rom<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;value&gt;</span>pflash<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/enum&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;readonly&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;value&gt;</span>yes<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;value&gt;</span>no<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/enum&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;secure&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;value&gt;</span>yes<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;value&gt;</span>no<span style="color:#f92672">&lt;/value&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/enum&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/loader&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/os&gt;</span>
+</span></span></code></pre></div><p>However, this isn&rsquo;t all this can do. Libvirt can also negotiate the firmware
 for you when creating a new guest. Previously, to create a UEFI-based guest,
 one would need to specify something like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
-  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
-  <span style="color:#f92672">&lt;os&gt;</span>
-    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
-    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#34;yes&#34;</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pflash&#34;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/loader&gt;</span>
-    <span style="color:#f92672">&lt;nvram</span> <span style="color:#a6e22e">template=</span><span style="color:#e6db74">&#34;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#34;</span><span style="color:#f92672">&gt;</span>/home/stephenfin/.config/libvirt/qemu/nvram/q35-uefi-experiment_VARS.fd<span style="color:#f92672">&lt;/nvram&gt;</span>
-    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;hda&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/os&gt;</span>
-  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
-<span style="color:#f92672">&lt;/domain&gt;</span>
-</code></pre></div><p>I won&rsquo;t go into the specifics of what each file means - libvirt has some <a href="https://libvirt.org/formatdomain.html#bios-bootloader">good
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;os&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#34;yes&#34;</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pflash&#34;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/loader&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;nvram</span> <span style="color:#a6e22e">template=</span><span style="color:#e6db74">&#34;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#34;</span><span style="color:#f92672">&gt;</span>/home/stephenfin/.config/libvirt/qemu/nvram/q35-uefi-experiment_VARS.fd<span style="color:#f92672">&lt;/nvram&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;hda&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/os&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/domain&gt;</span>
+</span></span></code></pre></div><p>I won&rsquo;t go into the specifics of what each file means - libvirt has some <a href="https://libvirt.org/formatdomain.html#bios-bootloader">good
 documentation on the matter</a></p>
 <p>This is no longer necessary, and libvirt will now do this for us. We can
 instead specify e.g.:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
-  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
-  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
-    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;hda&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/os&gt;</span>
-  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
-<span style="color:#f92672">&lt;/domain&gt;</span>
-</code></pre></div><p>How helpful! Using this, it&rsquo;s now easier than ever to create guests using UEFI.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;hda&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/os&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/domain&gt;</span>
+</span></span></code></pre></div><p>How helpful! Using this, it&rsquo;s now easier than ever to create guests using UEFI.</p>
 <h2 id="example">Example</h2>
 <p>The above is all well and good, but a worked example is even better. Let&rsquo;s
 create a <em>Fedora 33 Workstation</em> guest with UEFI enabled to demonstrate this.
@@ -204,68 +204,68 @@ You can download the Fedora 33 Workstation image from the <a href="https://getfe
 but before we do that, let&rsquo;s start by ensuring that we have all required
 packages installed.  This should be as simple as installing libvirt, at least
 on a Fedora 33-based host:</p>
-<pre><code class="language-console" data-lang="console">$ sudo dnf install libvirt
-</code></pre><p>It should also be noted that this guide was only tested on an x86_64 host and
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install libvirt
+</span></span></code></pre></div><p>It should also be noted that this guide was only tested on an x86_64 host and
 results may vary on other platforms.</p>
 <p>Next up, let&rsquo;s grab the image. As discussed above, we&rsquo;re going to use the
 <em>Fedora 33 Workstation</em> image here since it&rsquo;s easy to use for testing purposes:</p>
-<pre><code class="language-console" data-lang="console">$ cd /tmp
-$ wget https://download.fedoraproject.org/pub/fedora/linux/releases/33/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-33-1.2.iso
-</code></pre><p>With the dependencies installed and the image downloaded, we can now create our
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ cd /tmp
+</span></span><span style="display:flex;"><span>$ wget https://download.fedoraproject.org/pub/fedora/linux/releases/33/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-33-1.2.iso
+</span></span></code></pre></div><p>With the dependencies installed and the image downloaded, we can now create our
 guest or &ldquo;domain&rdquo;. Dump the following to e.g. <code>/tmp/fedora-q35-uefi.xml</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
-  <span style="color:#f92672">&lt;name&gt;</span>fedora-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
-  <span style="color:#f92672">&lt;metadata&gt;</span>
-    <span style="color:#f92672">&lt;libosinfo:libosinfo</span> <span style="color:#a6e22e">xmlns:libosinfo=</span><span style="color:#e6db74">&#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;libosinfo:os</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;http://fedoraproject.org/fedora/33&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/libosinfo:libosinfo&gt;</span>
-  <span style="color:#f92672">&lt;/metadata&gt;</span>
-  <span style="color:#f92672">&lt;memory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>4194304<span style="color:#f92672">&lt;/memory&gt;</span>
-  <span style="color:#f92672">&lt;currentMemory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>4194304<span style="color:#f92672">&lt;/currentMemory&gt;</span>
-  <span style="color:#f92672">&lt;vcpu&gt;</span>2<span style="color:#f92672">&lt;/vcpu&gt;</span>
-  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
-    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/os&gt;</span>
-  <span style="color:#f92672">&lt;features&gt;</span>
-    <span style="color:#f92672">&lt;acpi/&gt;</span>
-    <span style="color:#f92672">&lt;apic/&gt;</span>
-    <span style="color:#f92672">&lt;vmport</span> <span style="color:#a6e22e">state=</span><span style="color:#e6db74">&#34;off&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/features&gt;</span>
-  <span style="color:#f92672">&lt;cpu</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;host-model&#34;</span> <span style="color:#a6e22e">check=</span><span style="color:#e6db74">&#34;partial&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;clock</span> <span style="color:#a6e22e">offset=</span><span style="color:#e6db74">&#34;utc&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;rtc&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;catchup&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;pit&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;delay&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;hpet&#34;</span> <span style="color:#a6e22e">present=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/clock&gt;</span>
-  <span style="color:#f92672">&lt;devices&gt;</span>
-    <span style="color:#f92672">&lt;emulator&gt;</span>/usr/bin/qemu-system-x86_64<span style="color:#f92672">&lt;/emulator&gt;</span>
-    <span style="color:#f92672">&lt;disk</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">device=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;qemu&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;raw&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">file=</span><span style="color:#e6db74">&#34;/tmp/Fedora-Workstation-Live-x86_64-33-1.2.iso&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;sda&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;sata&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;readonly/&gt;</span>
-    <span style="color:#f92672">&lt;/disk&gt;</span>
-    <span style="color:#f92672">&lt;serial</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">&gt;</span>
-        <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;/target&gt;</span>
-    <span style="color:#f92672">&lt;/serial&gt;</span>
-    <span style="color:#f92672">&lt;console</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/console&gt;</span>
-    <span style="color:#f92672">&lt;graphics</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;vnc&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;-1&#34;</span> <span style="color:#a6e22e">tlsPort=</span><span style="color:#e6db74">&#34;-1&#34;</span> <span style="color:#a6e22e">autoport=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;image</span> <span style="color:#a6e22e">compression=</span><span style="color:#e6db74">&#34;off&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/graphics&gt;</span>
-    <span style="color:#f92672">&lt;video&gt;</span>
-      <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;virtio&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/video&gt;</span>
-  <span style="color:#f92672">&lt;/devices&gt;</span>
-<span style="color:#f92672">&lt;/domain&gt;</span>
-</code></pre></div><p>Finally, create the instance:</p>
-<pre><code class="language-console" data-lang="console">$ virsh create fedora-q35-uefi.xml
-</code></pre><p>Since we&rsquo;re using the workstation image, you&rsquo;re going to need a graphical
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;name&gt;</span>fedora-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;metadata&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;libosinfo:libosinfo</span> <span style="color:#a6e22e">xmlns:libosinfo=</span><span style="color:#e6db74">&#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;libosinfo:os</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;http://fedoraproject.org/fedora/33&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/libosinfo:libosinfo&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/metadata&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;memory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>4194304<span style="color:#f92672">&lt;/memory&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;currentMemory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>4194304<span style="color:#f92672">&lt;/currentMemory&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;vcpu&gt;</span>2<span style="color:#f92672">&lt;/vcpu&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/os&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;features&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;acpi/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;apic/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;vmport</span> <span style="color:#a6e22e">state=</span><span style="color:#e6db74">&#34;off&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/features&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;cpu</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;host-model&#34;</span> <span style="color:#a6e22e">check=</span><span style="color:#e6db74">&#34;partial&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;clock</span> <span style="color:#a6e22e">offset=</span><span style="color:#e6db74">&#34;utc&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;rtc&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;catchup&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;pit&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;delay&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;hpet&#34;</span> <span style="color:#a6e22e">present=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/clock&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;devices&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;emulator&gt;</span>/usr/bin/qemu-system-x86_64<span style="color:#f92672">&lt;/emulator&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;disk</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">device=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;qemu&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;raw&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">file=</span><span style="color:#e6db74">&#34;/tmp/Fedora-Workstation-Live-x86_64-33-1.2.iso&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;sda&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;sata&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;readonly/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/disk&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;serial</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;/target&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/serial&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;console</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/console&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;graphics</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;vnc&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;-1&#34;</span> <span style="color:#a6e22e">tlsPort=</span><span style="color:#e6db74">&#34;-1&#34;</span> <span style="color:#a6e22e">autoport=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;image</span> <span style="color:#a6e22e">compression=</span><span style="color:#e6db74">&#34;off&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/graphics&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;video&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;virtio&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/video&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/devices&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/domain&gt;</span>
+</span></span></code></pre></div><p>Finally, create the instance:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh create fedora-q35-uefi.xml
+</span></span></code></pre></div><p>Since we&rsquo;re using the workstation image, you&rsquo;re going to need a graphical
 console. As a result, you&rsquo;ll note that we&rsquo;ve attached a VNC graphics device to
 the instance and you can use VNC to connect to the guest. The easiest way to do
 this is via <code>virt-manager</code> (use the <strong>QEMU/KVM User Session</strong> connection),
@@ -274,8 +274,8 @@ after creating the guest to view the final XML and get the port that libvirt
 assigned to the VNC interface, and then use this to connect to the instance
 from your favourite VNC viewer.</p>
 <p>Once you&rsquo;re done, destroy the guest:</p>
-<pre><code class="language-console" data-lang="console">$ virsh destroy fedora-q35-uefi-experiment
-</code></pre><h2 id="secure-boot-woes">Secure boot woes</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh destroy fedora-q35-uefi-experiment
+</span></span></code></pre></div><h2 id="secure-boot-woes">Secure boot woes</h2>
 <p>I&rsquo;d be remiss if I didn&rsquo;t highlight one issue with this approach, at least
 using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
 the time of writing. My initial attempts at this didn&rsquo;t use Fedora but rather
@@ -287,91 +287,91 @@ To demonstrate the issue and explain why it occurs, it&rsquo;s probably best to 
 with another example.</p>
 <p>To work through this, let&rsquo;s first grab the <em>Alpine Linux Virtual</em> image,
 available from the <a href="https://alpinelinux.org/downloads/">Alpine Linux website</a>:</p>
-<pre><code class="language-console" data-lang="console">$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
-</code></pre><p>The domain XML we&rsquo;ll use for booting this image is virtually identical to the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
+</span></span></code></pre></div><p>The domain XML we&rsquo;ll use for booting this image is virtually identical to the
 one used for Fedora previously. We could of course use the same specs as the
 Fedora 33-based guest and it would work just fine, but we&rsquo;ve chosen to remove
 the VNC graphics device and display adapter, which are unnecessary for a distro
 like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
 <code>/tmp/alpine-q35-uefi.xml</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
-  <span style="color:#f92672">&lt;name&gt;</span>alpinelinux-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
-  <span style="color:#f92672">&lt;metadata&gt;</span>
-    <span style="color:#f92672">&lt;libosinfo:libosinfo</span> <span style="color:#a6e22e">xmlns:libosinfo=</span><span style="color:#e6db74">&#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;libosinfo:os</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;http://alpinelinux.org/alpinelinux/3.13&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/libosinfo:libosinfo&gt;</span>
-  <span style="color:#f92672">&lt;/metadata&gt;</span>
-  <span style="color:#f92672">&lt;memory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>1048576<span style="color:#f92672">&lt;/memory&gt;</span>
-  <span style="color:#f92672">&lt;currentMemory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>1048576<span style="color:#f92672">&lt;/currentMemory&gt;</span>
-  <span style="color:#f92672">&lt;vcpu&gt;</span>1<span style="color:#f92672">&lt;/vcpu&gt;</span>
-  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
-    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/os&gt;</span>
-  <span style="color:#f92672">&lt;features&gt;</span>
-    <span style="color:#f92672">&lt;acpi/&gt;</span>
-    <span style="color:#f92672">&lt;apic/&gt;</span>
-    <span style="color:#f92672">&lt;vmport</span> <span style="color:#a6e22e">state=</span><span style="color:#e6db74">&#34;off&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/features&gt;</span>
-  <span style="color:#f92672">&lt;cpu</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;host-model&#34;</span> <span style="color:#a6e22e">check=</span><span style="color:#e6db74">&#34;partial&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;clock</span> <span style="color:#a6e22e">offset=</span><span style="color:#e6db74">&#34;utc&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;rtc&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;catchup&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;pit&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;delay&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;hpet&#34;</span> <span style="color:#a6e22e">present=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;/clock&gt;</span>
-  <span style="color:#f92672">&lt;devices&gt;</span>
-    <span style="color:#f92672">&lt;emulator&gt;</span>/usr/bin/qemu-system-x86_64<span style="color:#f92672">&lt;/emulator&gt;</span>
-    <span style="color:#f92672">&lt;disk</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">device=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;qemu&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;raw&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">file=</span><span style="color:#e6db74">&#34;/tmp/alpine-virt-3.13.1-x86_64.iso&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;sda&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;sata&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;readonly/&gt;</span>
-    <span style="color:#f92672">&lt;/disk&gt;</span>
-    <span style="color:#f92672">&lt;serial</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">&gt;</span>
-        <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;/target&gt;</span>
-    <span style="color:#f92672">&lt;/serial&gt;</span>
-    <span style="color:#f92672">&lt;console</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
-      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/console&gt;</span>
-  <span style="color:#f92672">&lt;/devices&gt;</span>
-<span style="color:#f92672">&lt;/domain&gt;</span>
-</code></pre></div><p>With the image downloaded and domain XML file created, we can create the guest:</p>
-<pre><code class="language-console" data-lang="console">$ virsh create alpine-q35-uefi.xml
-</code></pre><p>Since this isn&rsquo;t using a graphical device, you can instead connect via the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;name&gt;</span>alpinelinux-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;metadata&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;libosinfo:libosinfo</span> <span style="color:#a6e22e">xmlns:libosinfo=</span><span style="color:#e6db74">&#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;libosinfo:os</span> <span style="color:#a6e22e">id=</span><span style="color:#e6db74">&#34;http://alpinelinux.org/alpinelinux/3.13&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/libosinfo:libosinfo&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/metadata&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;memory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>1048576<span style="color:#f92672">&lt;/memory&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;currentMemory</span> <span style="color:#a6e22e">unit=</span><span style="color:#e6db74">&#34;KiB&#34;</span><span style="color:#f92672">&gt;</span>1048576<span style="color:#f92672">&lt;/currentMemory&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;vcpu&gt;</span>1<span style="color:#f92672">&lt;/vcpu&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/os&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;features&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;acpi/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;apic/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;vmport</span> <span style="color:#a6e22e">state=</span><span style="color:#e6db74">&#34;off&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/features&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;cpu</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#34;host-model&#34;</span> <span style="color:#a6e22e">check=</span><span style="color:#e6db74">&#34;partial&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;clock</span> <span style="color:#a6e22e">offset=</span><span style="color:#e6db74">&#34;utc&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;rtc&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;catchup&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;pit&#34;</span> <span style="color:#a6e22e">tickpolicy=</span><span style="color:#e6db74">&#34;delay&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;timer</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;hpet&#34;</span> <span style="color:#a6e22e">present=</span><span style="color:#e6db74">&#34;no&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/clock&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;devices&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;emulator&gt;</span>/usr/bin/qemu-system-x86_64<span style="color:#f92672">&lt;/emulator&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;disk</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">device=</span><span style="color:#e6db74">&#34;cdrom&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;driver</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;qemu&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;raw&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;source</span> <span style="color:#a6e22e">file=</span><span style="color:#e6db74">&#34;/tmp/alpine-virt-3.13.1-x86_64.iso&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#34;sda&#34;</span> <span style="color:#a6e22e">bus=</span><span style="color:#e6db74">&#34;sata&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;readonly/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/disk&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;serial</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;model</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;isa-serial&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;/target&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/serial&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;console</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;pty&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;target</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;serial&#34;</span> <span style="color:#a6e22e">port=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/console&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/devices&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/domain&gt;</span>
+</span></span></code></pre></div><p>With the image downloaded and domain XML file created, we can create the guest:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh create alpine-q35-uefi.xml
+</span></span></code></pre></div><p>Since this isn&rsquo;t using a graphical device, you can instead connect via the
 serial console:</p>
-<pre><code class="language-console" data-lang="console">$ virsh console alpinelinux-q35-uefi-experiment
-</code></pre><p>However, upon connecting you&rsquo;ll note that you eventually end up at the
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh console alpinelinux-q35-uefi-experiment
+</span></span></code></pre></div><p>However, upon connecting you&rsquo;ll note that you eventually end up at the
 bootloader rather than a login prompt and if you connect early enough, you&rsquo;ll
 probably see something like the following:</p>
-<pre><code>BdsDxe: loading Boot0001 &quot;UEFI QEMU DVD-ROM QM00001 &quot; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0)
-BdsDxe: failed to load Boot0001 &quot;UEFI QEMU DVD-ROM QM00001 &quot; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0): Access Denied
+<pre tabindex="0"><code>BdsDxe: loading Boot0001 &#34;UEFI QEMU DVD-ROM QM00001 &#34; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0)
+BdsDxe: failed to load Boot0001 &#34;UEFI QEMU DVD-ROM QM00001 &#34; from PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0): Access Denied
 BdsDxe: No bootable option or device was found.
 BdsDxe: Press any key to enter the Boot Manager Menu.
 </code></pre><p>(You can use <code>Ctrl + ]</code> to quit the console).</p>
 <p>The apparent root cause for this can be seen by investigating the domain XML:</p>
-<pre><code class="language-console" data-lang="console">$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath '//os'
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os&gt;</span>
-  <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
-  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#39;no&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/loader&gt;</span>
-  <span style="color:#f92672">&lt;nvram</span> <span style="color:#a6e22e">template=</span><span style="color:#e6db74">&#39;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#39;</span><span style="color:#f92672">&gt;</span>/home/stephenfin/.config/libvirt/qemu/nvram/alpinelinux-q35-uefi-experiment_VARS.fd<span style="color:#f92672">&lt;/nvram&gt;</span>
-  <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>
-<span style="color:#f92672">&lt;/os&gt;</span>
-</code></pre></div><p>You&rsquo;ll note that we requested <code>secure='no'</code> and libvirt has included this in
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath <span style="color:#e6db74">&#39;//os&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#39;no&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/loader&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;nvram</span> <span style="color:#a6e22e">template=</span><span style="color:#e6db74">&#39;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#39;</span><span style="color:#f92672">&gt;</span>/home/stephenfin/.config/libvirt/qemu/nvram/alpinelinux-q35-uefi-experiment_VARS.fd<span style="color:#f92672">&lt;/nvram&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/os&gt;</span>
+</span></span></code></pre></div><p>You&rsquo;ll note that we requested <code>secure='no'</code> and libvirt has included this in
 the final XML, however, UEFI firmware with secure boot support,
 <code>OVMF_CODE.secboot.fd</code>, has been used, rather than <code>OVMF_CODE.fd</code>. In theory,
 this firmware should work for non-secure boot instances also but that&rsquo;s not
 happening. The solution for now is to specify the path to the non-secure boot
 UEFI firmware when creating the instance, replacing the <code>&lt;os&gt;</code> element included
 in the XML above with the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;os&gt;</span>
-  <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
-  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.fd<span style="color:#f92672">&lt;/loader&gt;</span>
-  <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>
-<span style="color:#f92672">&lt;/os&gt;</span>
-</code></pre></div><p>Obviously this is less than ideal. The issue has been <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1929357">reported</a> and will
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.fd<span style="color:#f92672">&lt;/loader&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/os&gt;</span>
+</span></span></code></pre></div><p>Obviously this is less than ideal. The issue has been <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1929357">reported</a> and will
 hopefully be resolved sooner rather than later but until then, be aware that
 secure boot with <strong>always</strong> be enabled when using this auto-configuration of
 firmware.</p>
@@ -381,7 +381,7 @@ firmware.</p>
   <div class="disqus">
     <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
