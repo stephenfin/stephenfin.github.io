@@ -6,7 +6,29 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 14 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 20 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Issues pairing Beats Studio Buds</title>
+      <link>https://that.guru/blog/beats-studio-buds-pairing/</link>
+      <pubDate>Mon, 20 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/beats-studio-buds-pairing/</guid>
+      <description>&lt;p&gt;I recently had an issue pairing a set of &lt;a href=&#34;https://www.beatsbydre.com/earbuds/studio-buds&#34;&gt;Beats Studio Buds&lt;/a&gt; to my
+laptop. The Apple website suggests that pairing the headphones &lt;a href=&#34;https://support.apple.com/en-us/HT212254&#34;&gt;was as simple
+as pressing the system button until the LED started flashing white&lt;/a&gt;.
+However, this wasn&amp;rsquo;t happening. Instead, I was seeing three red LED flashes
+each time I opened the case and pressing the button did nothing. Attempting to
+reset the headphones &lt;a href=&#34;https://support.apple.com/en-us/HT212505&#34;&gt;by holding the system button for 15 seconds&lt;/a&gt;
+didn&amp;rsquo;t help either. After 30+ minutes of messing with various bluetooth
+headphones, I realized the issue was neither the Linux Bluetooth stack (for
+once!) or a defective button in the case: I simply needed to charge the case.
+Three red LED flashes indicates a dead case battery. Having put the case
+charging (yay, USB C), things paired just fine. TIL.&lt;/p&gt;
+&lt;p&gt;Leaving this here since Google wasn&amp;rsquo;t all that helpful when I tried looking for
+similar issues.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Reproducing DevStack-based OSC Gate Jobs Locally</title>
       <link>https://that.guru/blog/reproducing-devstack-gate-jobs-locally/</link>
@@ -2889,103 +2911,6 @@ December, when it can be -7°C during day, dropping to as low as -20°C during
 the night. We were told it&amp;rsquo;s visiting in March or April can also be a good idea
 as the forest is in full bloom. Note that it&amp;rsquo;s a lot warmer at this time of
 year, however.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Updating Mellanox ConnectX-3 NIC Firmware</title>
-      <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
-      <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
-      <description>&lt;p&gt;In a &lt;a href=&#34;https://that.guru/blog/sriov-mellanox-connectx-3&#34;&gt;previous post&lt;/a&gt;, I provided a guide on configuring SR-IOV for a Mellanox
-ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting
-to follow through on the same guide. However, when I attempted to &amp;ldquo;&lt;em&gt;query&lt;/em&gt;&amp;rdquo; the
-device, I saw the following:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstconfig -d 02:00.0 query
-
-Device #1:
-----------
-
-Device type:    ConnectX3
-PCI device:     02:00.0
-
--E- Failed to query device: 02:00.0. Unsupported FW (version 2.31.5000 or above required for CX3/PRO)
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Clearly we need to update something here, hence, here&amp;rsquo;s my guide to updating
-that firmware and making &lt;code&gt;mstconfig&lt;/code&gt; happy again.&lt;/p&gt;
-&lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;
-&lt;p&gt;As with the other post, you&amp;rsquo;re going to need a Mellanox ConnectX-3 card for
-this to be of any use. Once again, I&amp;rsquo;m using Ubuntu 16.04 because that&amp;rsquo;s what
-that OpenStack gate uses but I think most of this stuff is packaged on Fedora
-too.&lt;/p&gt;
-&lt;h2 id=&#34;identify-and-download-firmware&#34;&gt;Identify and Download Firmware&lt;/h2&gt;
-&lt;p&gt;As you can see on the &lt;a href=&#34;http://www.mellanox.com/page/firmware_table_ConnectX3EN&#34;&gt;firmware download page&lt;/a&gt;, there are a variety of
-ConnectX-3 models available, each with different feature sets (Ethernet vs.
-Infiniband, two ports vs. four). You need to figure out which one you have.
-These models are identified by their &lt;strong&gt;OPN&lt;/strong&gt; and &lt;strong&gt;PSID&lt;/strong&gt;. I&amp;rsquo;ve still to figure
-out how to identify the former, but the latter is easily identified using the
-&lt;code&gt;mstflint&lt;/code&gt; tool. For example:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstflint -d 02:00.0 q
-Image type:      FS2
-FW Version:      2.30.8000
-Rom Info:        type=PXE version=3.4.151 devid=4099 proto=ETH
-Device ID:       4099
-Description:     Node             Port1            Port2            Sys image
-GUIDs:           0002c90300056aa8 0002c90300056aa9 0002c90300056aaa 0002c90300056aab
-MACs:                                 0002c921d6d0     0002c921d6d1
-VSD:
-PSID:            MT_108012002
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So with our PSID to hand - &lt;code&gt;MT_108012002&lt;/code&gt; in this case - we can proceed to
-downloading the correct firmware from the firmware download page. There doesn&amp;rsquo;t
-seem to be anyway to download by just PSID so I had to click through the list
-of OPNs until I found the OPN with a PSID that matches. In my case, this was
-&lt;code&gt;MCX312A-XCBT&lt;/code&gt; for firmware version &lt;code&gt;2.42.5000&lt;/code&gt;. Download the relevant
-firmware to your host. For example:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ wget http://www.mellanox.com/downloads/firmware/fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;update-firmware&#34;&gt;Update Firmware&lt;/h2&gt;
-&lt;p&gt;With our firmware update to hand, it&amp;rsquo;s time to actually update the NIC. For
-this section, I initially followed the &lt;a href=&#34;http://www.mellanox.com/page/firmware_NIC_FW_update&#34;&gt;updating guide&lt;/a&gt; provided by Mellanox.
-However, as before, I didn&amp;rsquo;t want to install anything that wasn&amp;rsquo;t already
-provided with my distro. As such the instructions provided below are a suitable
-alternative.&lt;/p&gt;
-&lt;p&gt;Firstly, extract the firmware you downloaded previously. For example:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ unzip fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Once done, it&amp;rsquo;s time to flash the firmware. To do this, we once again use the
-&lt;code&gt;mstflint&lt;/code&gt; tool::&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstflint -d 02:00.0 -i fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin burn
-
-Current FW version on flash:  2.30.8000
-New FW version:               2.42.5000
-
-Burning FS2 FW image without signatures - OK
-Restoring signature                     - OK
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now reboot your machine so the new firmware is loaded::&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo reboot
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And with that, we have flashed out new firmware and can query the NIC
-configuration::&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstconfig -d 02:00.0 query
-
-Device #1:
-----------
-
-Device type:    ConnectX3
-PCI device:     02:00.0
-
-Configurations:                              Current
-         SRIOV_EN                            0
-         NUM_OF_VFS                          8
-         LOG_BAR_SIZE                        3
-         BOOT_OPTION_ROM_EN_P1               1
-         BOOT_VLAN_EN_P1                     0
-         BOOT_RETRY_CNT_P1                   0
-         LEGACY_BOOT_PROTOCOL_P1             1
-         BOOT_VLAN_P1                        1
-         BOOT_OPTION_ROM_EN_P2               1
-         BOOT_VLAN_EN_P2                     0
-         BOOT_RETRY_CNT_P2                   0
-         LEGACY_BOOT_PROTOCOL_P2             1
-         BOOT_VLAN_P2                        1
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Easy peasy. Now back to &lt;a href=&#34;https://that.guru/blog/sriov-mellanox-connectx-3&#34;&gt;configuring SR-IOV&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
