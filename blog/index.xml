@@ -93,13 +93,13 @@ fewer (if any) gaps to worry about.&lt;/p&gt;
 There has been debate on whether newly added commands should use SDK or the
 legacy client under the hood. I tend to favour using the latter first and
 switching to SDK later since it makes it easier to compare the OSC and legacy
-client shell implementations during development and review. In addition, for
-the quirkier APIs, an OSC command can often be the first real-world user of the
-SDK implementation which can highlight bugs. It would be a shame to get stuck
-implementing an OSC command due to an SDK bug. The sole exception to this is
-where library clients have removed support for an API, such as Cinder dropping
-support for API v2 in &lt;a href=&#34;https://github.com/openstack/python-cinderclient/commit/cb5235250cc10957b4392764b1dc3a6757784da5&#34;&gt;cinderclient 9.0.0&lt;/a&gt;. In this case,
-we&amp;rsquo;ve no choice but to use SDK.&lt;/p&gt;
+client shell implementations during development and review. In addition, an OSC
+command can sometimes be the first real-world user of the SDK implementation
+which can highlight bugs. This is particularly an issue for the quirkier, less
+utilized APIs. It would be a shame to get stuck implementing an OSC command due
+to an SDK bug. The sole exception to this is where library clients have removed
+support for an API, such as Cinder dropping support for API v2 in &lt;a href=&#34;https://github.com/openstack/python-cinderclient/commit/cb5235250cc10957b4392764b1dc3a6757784da5&#34;&gt;cinderclient
+9.0.0&lt;/a&gt;. In this case, we&amp;rsquo;ve no choice but to use SDK.&lt;/p&gt;
 &lt;h2 id=&#34;where-can-i-get-more-info--how-can-i-get-involved&#34;&gt;Where can I get more info? / How can I get involved?&lt;/h2&gt;
 &lt;p&gt;Just ask! You can find us on IRC at #openstack-sdk (OFTC) or via email at
 [openstack-discuss@openstack.org][mailto:openstack-discuss@openstack.org].&lt;/p&gt;
