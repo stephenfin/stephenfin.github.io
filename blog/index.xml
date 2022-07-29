@@ -49,9 +49,11 @@ command.&lt;/p&gt;
 &lt;aside class=&#34;admonition note&#34;&gt;
 	
 	
-	&lt;div class=&#34;admonition-content&#34;&gt;OSC doesn&amp;rsquo;t aim to provide a 1:1 mapping to the underlying APIs it calls which
-means there are commands that we will never implement. However, these should be
-explicitly called out with &lt;code&gt;WONTFIX&lt;/code&gt; comments&lt;/div&gt;
+	&lt;div class=&#34;admonition-content&#34;&gt;OSC doesn&amp;rsquo;t aim to provide a 1:1 mapping to the underlying APIs it calls. There
+are also commands or options which are historical baggage and don&amp;rsquo;t need to be
+exposed. This means there are commands that we will never implement. However,
+these should be explicitly called out with &lt;code&gt;WONTFIX&lt;/code&gt; comments rather than left
+blank.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;The next step is looking for command that should exist in those documents but
