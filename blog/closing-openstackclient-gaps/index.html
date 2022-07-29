@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Closing the OpenStackClient (and OpenStackSDK) Gaps | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/MYKAZlzW6Nw/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Closing the OpenStackClient (and OpenStackSDK) Gaps</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2022-07-29T00:00:00Z'>Jul 29, 2022</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>The unified OpenStack command-line client project, <code>python-openstackclient</code>
+(OSC), has been around <a href="https://github.com/openstack/python-openstackclient/commit/f4b5ef39f6f84e66af532583040c9be7556e9b69">for over a decade</a>. As noted in the
+<a href="https://github.com/openstack/python-openstackclient/blob/master/README.rst">README</a>, &ldquo;[t]he primary goal is to provide a unified shell command
+structure and a common language to describe operations in OpenStack.&rdquo; In
+essence, this means OSC should replace the shell command implementations of the
+various project-specific clients, such as <code>python-novaclient</code> and
+<code>python-glanceclient</code>. It <em>does not</em> aim to replace the client library
+implementations (Python binding) of these libraries: that task is handled by
+another project, the unified OpenStack client library, <code>openstacksdk</code> (SDK).</p>
+<p>For most high-level &ldquo;simpler&rdquo; OpenStack-related activities, OSC has long been
+&ldquo;good enough&rdquo; as it provided the ability to do CRUD operations on the essential
+resources in a cloud including instances, volumes and images. However, as soon
+as you started trying to use more advanced or less common features, you&rsquo;d run
+into a swathe of feature gaps. These would generally mean having to revert to
+using the legacy project-specific clients like <code>python-novaclient</code> (e.g. <code>nova foo</code>) or <code>python-glanceclient</code> (<code>glance foo</code>). There were exceptions to this,
+most notably <a href="https://github.com/openstack/python-neutronclient/commit/3a64a7a166be25d40436fd40c8351a79267bd3c4">neutronclient</a>, but ultimately the
+result of this partial switchover was a poor user experience that was more
+confusing than it should have been.</p>
+<p>Over the course of the past number of cycles (starting with Train), there has
+been a concerted effort to close these gaps and achieve feature parity between
+the shells of the various legacy clients and OSC. As of Yoga, we have
+effectively achieved this for <a href="https://github.com/openstack/python-novaclient/commit/0fb7190c062a08a3969a71955c014e3a572cdc9e">nova</a> and are well on
+our way to doing so for <a href="https://review.opendev.org/q/topic:cinder-gaps">cinder</a>.</p>
+<p>I&rsquo;ve put together a little FAQ below that should be helpful in helping people
+understand what has gone into this effort and how you can identify features
+gaps to to be closed.</p>
+<h2 id="how-do-we-determine-where-these-gaps-lie">How do we determine where these gaps lie?</h2>
+<p>Unfortunately, pretty manually. OSC only aims to implement support for the six
+&ldquo;core&rdquo; services: nova, neutron, keystone, cinder, glance, and swift. We provide
+<a href="https://github.com/openstack/python-openstackclient/tree/master/doc/source/cli/data">CSV files</a> mapping commands found in the legacy clients with their
+OSC equivalents. The first step is looking for obvious gaps in this document,
+by which I mean missing entries for an OSC equivalent to a given legacy client
+command.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">OSC doesn&rsquo;t aim to provide a 1:1 mapping to the underlying APIs it calls which
+means are commands that we will implement. However, these should be explicitly
+called out with <code>WONTFIX</code> comments</div>
+</aside>
+
+<p>The next step is looking for command that should exist in those documents but
+don&rsquo;t. This is pretty easy: just run e.g. <code>nova help</code>, capture the output, and
+reformat it so that it resembles the CSV file (this would actually be one of
+the few good places where scripting could help!). It&rsquo;s worth noting that many
+of the legacy clients change their help output depending on the API version
+requested so you should run this a couple of times with different API versions.
+For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ OS_COMPUTE_API_VERSION<span style="color:#f92672">=</span>2.88 nova help
+</span></span></code></pre></div><p>The final and most involved step required is examining individual commands.
+There are two things we&rsquo;re concerned with: missing options and missing
+microversion support. Assessing the first can be achieved similarly to
+identifying missing commands: just run e.g. <code>nova help boot</code>, capture the
+output and compare the options supported with those supported by the
+equivalent OSC command (<code>openstack server create</code> in this case). The second
+is a little trickier and usually involves manual inspection of the
+corresponding shell and client library code in the legacy code. You could also
+look at the API reference documentation for the particular service but projects
+like Cinder have large documentation gaps that means the client is a better
+source of truth.</p>
+<h2 id="how-do-i-fix-them">How do I fix them?</h2>
+<p>Just push a patch. It probably makes sense to push a highly WIP patch first
+since OSC has some design conventions which we note in the <a href="https://docs.openstack.org/python-openstackclient/latest/contributor/">contributor
+guide</a>. There are also plenty of existing examples to
+look for: search for the topics <code>cinder-gaps</code> and <code>nova-gaps</code> to get an idea.</p>
+<h2 id="what-about-non-core-projects">What about non-&ldquo;core&rdquo; projects?</h2>
+<p>OSC is built on top of <a href="https://github.com/openstack/osc-lib"><code>osc-lib</code></a>, which is in turn built on top of
+<a href="https://github.com/openstack/cliff"><code>cliff</code></a>. <code>cliff</code> is highly extensible and provides a number of hook
+points that allow users to build plugins which can extend an existing CLI tool.
+Projects like <a href="https://github.com/openstack/python-manilaclient/blob/2c3d29313c18015f73982269401761608b9ece45/setup.cfg#L34-L155"><code>manila</code></a>, <a href="https://github.com/openstack/python-ironicclient/blob/489bb43058d446a577377cff5828e98d13c79967/setup.cfg#L29-L127"><code>ironic</code></a> and
+<a href="https://github.com/openstack/python-cyborgclient/blob/501d9f3e2c3a161b2ec0ae433d6c8b1f4ae32ea9/setup.cfg#L31-L52"><code>cyborg</code></a> all provide their own OSC plugins. This is also the
+mechanism that neutron uses to provide <a href="https://github.com/openstack/python-neutronclient/blob/7467c710f624aee80de8ef487e5b2c0e78143214/setup.cfg#L32-L172">more advanced commands</a>.
+Many of these projects never had a legacy client to speak of, so there are
+fewer (if any) gaps to worry about.</p>
+<h2 id="what-about-openstacksdk">What about OpenStackSDK?</h2>
+<p>We&rsquo;re working on that too and the work has been mostly going on in parallel.
+There has been debate on whether newly added commands should use SDK or the
+legacy client under the hood. I tend to favour using the latter first and
+switching to SDK later since it makes it easier to compare the OSC and legacy
+client shell implementations during development and review. In addition, for
+the quirkier APIs, an OSC command can often be the first real-world user of the
+SDK implementation which can highlight bugs. It would be a shame to get stuck
+implementing an OSC command due to an SDK bug. The sole exception to this is
+where library clients have removed support for an API, such as Cinder dropping
+support for API v2 in <a href="https://github.com/openstack/python-cinderclient/commit/cb5235250cc10957b4392764b1dc3a6757784da5">cinderclient 9.0.0</a>. In this case,
+we&rsquo;ve no choice but to use SDK.</p>
+<h2 id="where-can-i-get-more-info--how-can-i-get-involved">Where can I get more info? / How can I get involved?</h2>
+<p>Just ask! You can find us on IRC at #openstack-sdk (OFTC) or via email at
+[openstack-discuss@openstack.org][mailto:openstack-discuss@openstack.org].</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2022 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
