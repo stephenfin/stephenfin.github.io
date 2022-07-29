@@ -75,9 +75,10 @@ like Cinder have large documentation gaps that means the client is a better
 source of truth.&lt;/p&gt;
 &lt;h2 id=&#34;how-do-i-fix-them&#34;&gt;How do I fix them?&lt;/h2&gt;
 &lt;p&gt;Just push a patch. It probably makes sense to push a highly WIP patch first
-since OSC has some design conventions which we note in the &lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/&#34;&gt;contributor
-guide&lt;/a&gt;. There are also plenty of existing examples to
-look for: search for the topics &lt;code&gt;cinder-gaps&lt;/code&gt; and &lt;code&gt;nova-gaps&lt;/code&gt; to get an idea.&lt;/p&gt;
+since OSC has some design conventions, noted in the &lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/&#34;&gt;contributor
+guide&lt;/a&gt;, which can take some time to get a feel for. There
+are also plenty of existing examples to look for: search for the topics
+&lt;code&gt;cinder-gaps&lt;/code&gt; and &lt;code&gt;nova-gaps&lt;/code&gt; to get an idea.&lt;/p&gt;
 &lt;h2 id=&#34;what-about-non-core-projects&#34;&gt;What about non-&amp;ldquo;core&amp;rdquo; projects?&lt;/h2&gt;
 &lt;p&gt;OSC is built on top of &lt;a href=&#34;https://github.com/openstack/osc-lib&#34;&gt;&lt;code&gt;osc-lib&lt;/code&gt;&lt;/a&gt;, which is in turn built on top of
 &lt;a href=&#34;https://github.com/openstack/cliff&#34;&gt;&lt;code&gt;cliff&lt;/code&gt;&lt;/a&gt;. &lt;code&gt;cliff&lt;/code&gt; is highly extensible and provides a number of hook
