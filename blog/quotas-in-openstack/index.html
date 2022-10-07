@@ -154,12 +154,12 @@ mailing lists threads are helpful:</p>
 <p>Obviously applying quotas to projects and users is one thing, but we actually
 need to track that usage somewhere. This also happens at the project level.
 The nova, cinder and neutron projects all track both a <code>reserved</code> value and an
-<code>in_use</code>. In nova&rsquo;s case, the <code>reserved</code> value was previously used to reserve a
-resource at the API layer (<code>nova-api</code>) before committing them at the compute
-layer (<code>nova-compute</code>). Nova moved away from this model in the 16.0.0 (Pike)
-release as part of the work to introduce cells v2, and the <code>reserved</code> value
-will now always be <code>0</code>. This effort was tracked in the <a href="https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html"><em>Count resources to
-check quota in API for cells</em> spec</a>.</p>
+<code>in_use</code> value. In nova&rsquo;s case, the <code>reserved</code> value was previously used to
+reserve a resource at the API layer (<code>nova-api</code>) before committing them at the
+compute layer (<code>nova-compute</code>). Nova moved away from this model in the 16.0.0
+(Pike) release as part of the work to introduce cells v2, and the <code>reserved</code>
+value will now always be <code>0</code>. This effort was tracked in the <a href="https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html"><em>Count resources
+to check quota in API for cells</em> spec</a>.</p>
 <p>In the case of nova, much of this information is gleaned either from the
 database or the placement service, depending on configuration. I suspect most
 services use a similar model. This usage information is available to the user

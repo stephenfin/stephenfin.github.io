@@ -82,12 +82,12 @@ mailing lists threads are helpful:&lt;/p&gt;
 &lt;p&gt;Obviously applying quotas to projects and users is one thing, but we actually
 need to track that usage somewhere. This also happens at the project level.
 The nova, cinder and neutron projects all track both a &lt;code&gt;reserved&lt;/code&gt; value and an
-&lt;code&gt;in_use&lt;/code&gt;. In nova&amp;rsquo;s case, the &lt;code&gt;reserved&lt;/code&gt; value was previously used to reserve a
-resource at the API layer (&lt;code&gt;nova-api&lt;/code&gt;) before committing them at the compute
-layer (&lt;code&gt;nova-compute&lt;/code&gt;). Nova moved away from this model in the 16.0.0 (Pike)
-release as part of the work to introduce cells v2, and the &lt;code&gt;reserved&lt;/code&gt; value
-will now always be &lt;code&gt;0&lt;/code&gt;. This effort was tracked in the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html&#34;&gt;&lt;em&gt;Count resources to
-check quota in API for cells&lt;/em&gt; spec&lt;/a&gt;.&lt;/p&gt;
+&lt;code&gt;in_use&lt;/code&gt; value. In nova&amp;rsquo;s case, the &lt;code&gt;reserved&lt;/code&gt; value was previously used to
+reserve a resource at the API layer (&lt;code&gt;nova-api&lt;/code&gt;) before committing them at the
+compute layer (&lt;code&gt;nova-compute&lt;/code&gt;). Nova moved away from this model in the 16.0.0
+(Pike) release as part of the work to introduce cells v2, and the &lt;code&gt;reserved&lt;/code&gt;
+value will now always be &lt;code&gt;0&lt;/code&gt;. This effort was tracked in the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html&#34;&gt;&lt;em&gt;Count resources
+to check quota in API for cells&lt;/em&gt; spec&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;In the case of nova, much of this information is gleaned either from the
 database or the placement service, depending on configuration. I suspect most
 services use a similar model. This usage information is available to the user
