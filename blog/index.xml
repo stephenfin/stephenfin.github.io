@@ -23,7 +23,7 @@ couple of reasons for this. Quoting from the docs:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The &lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/relationship_api.html#sqlalchemy.orm.relationship.params.backref&#34;&gt;&lt;code&gt;relationship.backref&lt;/code&gt;&lt;/a&gt; keyword should be considered legacy,
 and use of &lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/relationship_api.html#sqlalchemy.orm.relationship.params.back_populates&#34;&gt;&lt;code&gt;relationship.back_populates&lt;/code&gt;&lt;/a&gt; with explicit
-[&lt;code&gt;relationship()&lt;/code&gt;][relationship] constructs should be preferred. Using
+&lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/relationship_api.html#sqlalchemy.orm.relationship&#34;&gt;&lt;code&gt;relationship()&lt;/code&gt;&lt;/a&gt; constructs should be preferred. Using
 individual &lt;code&gt;relationship()&lt;/code&gt; constructs provides advantages including that
 both ORM mapped classes will include their attributes up front as the class
 is constructed, rather than as a deferred step, and configuration is more
