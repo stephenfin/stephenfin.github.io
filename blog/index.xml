@@ -474,6 +474,7 @@ for the &lt;code&gt;Child&lt;/code&gt; model relationship.&lt;/p&gt;
 &lt;p&gt;So that&amp;rsquo;s how you migrate from &lt;code&gt;backref&lt;/code&gt; to &lt;code&gt;back_populates&lt;/code&gt; on models without
 foreign key constraints present. This likely isn&amp;rsquo;t broadly useful but hopefully
 it will help someone that encounters this.&lt;/p&gt;
+&lt;p&gt;The code for this blog post can be found on &lt;a href=&#34;https://github.com/stephenfin/sqlalchemy-relationships-demo&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
