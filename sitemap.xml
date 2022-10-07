@@ -8,7 +8,13 @@
     <loc>https://that.guru/categories/</loc>
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://that.guru/categories/openstack/</loc>
+    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/categories/python/</loc>
+    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/blog/quotas-in-openstack/</loc>
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/sqlalchemy/</loc>
@@ -21,9 +27,6 @@
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/closing-openstackclient-gaps/</loc>
-    <lastmod>2022-07-29T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/openstack/</loc>
     <lastmod>2022-07-29T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/beats-studio-buds-pairing/</loc>

@@ -8,6 +8,260 @@
     <language>en-IE</language>
     <lastBuildDate>Fri, 07 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Quotas in OpenStack</title>
+      <link>https://that.guru/blog/quotas-in-openstack/</link>
+      <pubDate>Fri, 07 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/quotas-in-openstack/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been playing around with quotas in OpenStack again. Every time I do, I
+encounter another strange bit of behavior that catches me out. This time, I&amp;rsquo;ve
+decided to write down these strange things so at least I have a reference to go
+back to at some point in the future. I should probably get these notes into the
+docs for nova, cinder and neutron at some point&amp;hellip;&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This post focuses on the nova (compute), cinder (block storage), and neutron
+(networking) services. There are other OpenStack services that implement quotas
+but I&amp;rsquo;m not overly familiar with their quota models. However, I would suspect
+that what&amp;rsquo;s discussed here &lt;em&gt;should&lt;/em&gt; be broadly applicable.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;project-quotas-and-default-quotas&#34;&gt;Project quotas and default quotas&lt;/h2&gt;
+&lt;p&gt;Quotas are a complicated area with a lot of baggage. Broadly speaking, there
+are two types of quota: default quotas and project-specific quotas. The default
+quotas are applied to projects unless specifically overridden by project
+quotas. In addition, for nova and cinder, there are two types of default quota:
+API-configured default quotas and statically configured default quotas defined
+in config files (so &lt;code&gt;nova.conf&lt;/code&gt; or &lt;code&gt;cinder.conf&lt;/code&gt; respectively). Neutron only
+supports statically configured quotas (&lt;code&gt;neutron.conf&lt;/code&gt;). Project specific quotas
+take precedence over API-configured default quotas (where available), which in
+turn take priority over statically configured default quotas. We can visualize
+this as such:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;nova:    conf default quotas &amp;lt; API default quotas &amp;lt; project quotas
+cinder:  conf default quotas &amp;lt; API default quotas &amp;lt; project quotas
+neutron: conf default quotas           &amp;lt;            project quotas
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;user-specific-quotas&#34;&gt;User-specific quotas&lt;/h2&gt;
+&lt;p&gt;Nova has another type of quota: user-specific quotas. There&amp;rsquo;s only one type of
+user-specific quota in nova - &lt;code&gt;keypairs&lt;/code&gt; and they&amp;rsquo;re not something that nova is
+likely to continue supporting in the long-term. As you&amp;rsquo;d expect, the primary
+difference between between user-specific quotas and project-specific quotas is
+that user-specific quotas are tied to the user instead of the project. This
+means you can specify that user &lt;code&gt;foo&lt;/code&gt; has e.g. a keypair quota of &lt;code&gt;5&lt;/code&gt;, while
+user &lt;code&gt;bar&lt;/code&gt; has a keypair quota of &lt;code&gt;6&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;quota-classes&#34;&gt;Quota classes&lt;/h2&gt;
+&lt;p&gt;Finally, nova and cinder also have the concept of quota classes. The idea
+behind these was to allow for a two-level hierarchy of quotas, where you could
+define different &amp;ldquo;classes&amp;rdquo; of default quota and specific what class a project
+would get. For example, you could have three quota classes - gold, silver and
+bronze - and a project would get assigned to one of these quota classes
+depending on how much the customer was paying. This was seen as an easier
+alternative to setting defaults for each project individually. However,
+actually using quota classes required a separate out-of-tree service that would
+set a &lt;code&gt;quota_class&lt;/code&gt; attribute in the request context. Rackspace apparently had
+one such service called &lt;em&gt;Turnstile&lt;/em&gt; that did this but no one else appears to
+have implemented something like this and efforts to remove the need for an
+external service &lt;a href=&#34;https://bugs.launchpad.net/nova/+bug/969537&#34;&gt;never went
+anywhere&lt;/a&gt;. In effect, this feature
+was never fully implemented and both nova and cinder only support the &lt;code&gt;default&lt;/code&gt;
+quota class while neutron never even tried implementing this. It&amp;rsquo;s an
+irrelevance nowadays.&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;For more information on the background of &lt;em&gt;quota classes&lt;/em&gt;, the following
+mailing lists threads are helpful:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack@lists.launchpad.net/msg09237.html&#34;&gt;Quota classes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack-dev@lists.openstack.org/msg124494.html&#34;&gt;Does ANYONE at all use the quota class functionality in Nova?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;quota-usage&#34;&gt;Quota usage&lt;/h2&gt;
+&lt;p&gt;Obviously applying quotas to projects and users is one thing, but we actually
+need to track that usage somewhere. This also happens at the project level.
+The nova, cinder and neutron projects all track both a &lt;code&gt;reserved&lt;/code&gt; value and an
+&lt;code&gt;in_use&lt;/code&gt;. In nova&amp;rsquo;s case, the &lt;code&gt;reserved&lt;/code&gt; value was previously used to reserve a
+resource at the API layer (&lt;code&gt;nova-api&lt;/code&gt;) before committing them at the compute
+layer (&lt;code&gt;nova-compute&lt;/code&gt;). Nova moved away from this model in the 16.0.0 (Pike)
+release as part of the work to introduce cells v2, and the &lt;code&gt;reserved&lt;/code&gt; value
+will now always be &lt;code&gt;0&lt;/code&gt;. This effort was tracked in the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html&#34;&gt;&lt;em&gt;Count resources to
+check quota in API for cells&lt;/em&gt; spec&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In the case of nova, much of this information is gleaned either from the
+database or the placement service, depending on configuration. I suspect most
+services use a similar model. This usage information is available to the user
+via various APIs or &lt;em&gt;openstackclient&lt;/em&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;quota-drivers&#34;&gt;Quota drivers&lt;/h2&gt;
+&lt;p&gt;The nova, cinder and neutron projects all have the concept of quota drivers. By
+default, all projects use a DB-based quota driver but both nova and neutron
+offer alternative drivers. I haven&amp;rsquo;t gone into detail on these here since it&amp;rsquo;s
+not entirely relevant to this discussion. You should refer to the
+&lt;a href=&#34;https://docs.openstack.org/nova/latest/configuration/config.html#quota.driver&#34;&gt;nova&lt;/a&gt; and &lt;a href=&#34;https://docs.openstack.org/neutron/latest/configuration/neutron.html#quotas.quota_driver&#34;&gt;neutron&lt;/a&gt; configuration
+documentation for more information if interested though.&lt;/p&gt;
+&lt;h2 id=&#34;how-do-i-use-the-damn-thing&#34;&gt;How do I use the damn thing?&lt;/h2&gt;
+&lt;p&gt;The best way to interact with quotas is using a tool that tries to abstract all
+of the above craziness from you. To this end, I&amp;rsquo;d recommend &lt;em&gt;openstackclient&lt;/em&gt;.
+While OSC has supported quotas for years, recent versions of this (v6.1.0 or
+later) have improved the UX further and contain some important feature
+additions, like the ability to view quota usage for the cinder service.&lt;/p&gt;
+&lt;p&gt;Firstly, let&amp;rsquo;s create a project-specific quota for, say, the number of
+instances.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota set --instances &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; $OS_PROJECT_NAME
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we can inspect those quotas:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota show $OS_PROJECT_NAME
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Resource              | Limit |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| cores                 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| instances             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ram                   | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;43&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes             |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backups               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes_lvmdriver-1   |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes_lvmdriver-1 |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots_lvmdriver-1 |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes___DEFAULT__   |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes___DEFAULT__ |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots___DEFAULT__ |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| groups                |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| networks              |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ports                 |   &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rbac_policies         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| routers               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;21&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnets               |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnet_pools          |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| fixed-ips             |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-file-size    | &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-path-size    |   &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-files        |     &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| key-pairs             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties            |   &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-groups         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-group-members  |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| floating-ips          |    &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroup-rules        |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroups             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backup-gigabytes      |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| per-volume-gigabytes  |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also include usage information if you want:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota show --usage $OS_PROJECT_NAME
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+--------+----------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Resource              | Limit | In Use | Reserved |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+--------+----------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| cores                 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| instances             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ram                   | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |   &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;43&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes             |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backups               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes_lvmdriver-1   |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes_lvmdriver-1 |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots_lvmdriver-1 |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes___DEFAULT__   |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes___DEFAULT__ |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots___DEFAULT__ |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| groups                |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| networks              |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ports                 |   &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rbac_policies         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| routers               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;21&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnets               |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnet_pools          |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| fixed-ips             |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-file-size    | &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-path-size    |   &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-files        |     &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| key-pairs             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties            |   &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-groups         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-group-members  |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| floating-ips          |    &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroup-rules        |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroups             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backup-gigabytes      |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| per-volume-gigabytes  |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+--------+----------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Default quotas are applied to each project unless there are project-specific
+quotas to override them. These can be inspected also:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota show --default
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Resource              | Limit |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| cores                 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| instances             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ram                   | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;43&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes             |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backups               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes_lvmdriver-1   |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes_lvmdriver-1 |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots_lvmdriver-1 |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes___DEFAULT__   |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes___DEFAULT__ |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots___DEFAULT__ |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| groups                |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| networks              |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ports                 |   &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rbac_policies         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| routers               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnets               |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnet_pools          |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| fixed-ips             |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-file-size    | &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-path-size    |   &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-files        |     &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| key-pairs             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties            |   &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-groups         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-group-members  |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| floating-ips          |    &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroup-rules        |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroups             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backup-gigabytes      |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| per-volume-gigabytes  |    -1 |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can list quotas for multiple projects. Note that when doing this, only the
+projects with project-specific quotas are shown to avoid dumping potentially
+thousands of lines of duplicate, useless info to the terminal.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota list --compute
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Project ID                       | Cores | Fixed IPs | Injected Files | Injected File Content Bytes | Injected File Path Bytes | Instances | Key Pairs | Metadata Items |   Ram | Server Groups | Server Group Members |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 700a8fa37f154153809be9d1814d8625 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |        -1 |              &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |                       &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |                      &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |         &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |            &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |            &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |                   &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you can unset configured quotas:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota delete $OS_PROJECT_NAME
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Many of these commands have additional flags that might be relevant. Pass the
+&lt;code&gt;--help&lt;/code&gt; option to view the help text for the option.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;addendum-unified-limits&#34;&gt;Addendum! Unified limits&lt;/h2&gt;
+&lt;p&gt;If you consider the above rather confusing, you should try to using it in
+real-world environments! The deficiencies with the existing quota model were
+brought up in multiple discussions with operators and end users over the years,
+and the end result of these discussions was a concept known as &lt;em&gt;unified
+limits&lt;/em&gt;. As the name would suggest, the aim of this feature is to provide a
+unified model for maintaining resource limits across multiple services. Good
+&lt;a href=&#34;https://docs.openstack.org/project-team-guide/technical-guides/unified-limits.html&#34;&gt;documentation&lt;/a&gt; exists to describe the benefits of this approach
+over the status quo. Adding support for unified limits requires significant
+effort on the end of the individual projects, and so far only the compute
+project appears to have started down this path, introducing preliminary support
+for unified limits during the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/yoga/implemented/unified-limits-nova.html&#34;&gt;yoga release&lt;/a&gt;. This remains in
+development and I&amp;rsquo;m not sure when we plan to finish it. The above guide will
+probably be useful for some time to come 😅&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>SQLAlchemy Relationships Without Foreign Keys (And How to Replace &#39;backref&#39; With &#39;back_populates&#39;)</title>
       <link>https://that.guru/blog/sqlalchemy-relationships-without-foreign-keys/</link>
       <pubDate>Fri, 07 Oct 2022 00:00:00 +0000</pubDate>
@@ -3034,222 +3288,6 @@ flash to &lt;code&gt;firmware&lt;/code&gt;:&lt;/p&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.friedzombie.com/tplink-stripped-firmware/&#34;&gt;https://www.friedzombie.com/tplink-stripped-firmware/&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://forum.openwrt.org/t/solved-re-installing-the-original-tp-link-firmware-a-second-time/9249/5&#34;&gt;https://forum.openwrt.org/t/solved-re-installing-the-original-tp-link-firmware-a-second-time/9249/5&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>NUMA, CPU Pinning and &#39;vcpu_pin_set&#39;</title>
-      <link>https://that.guru/blog/cpu-resources/</link>
-      <pubDate>Fri, 19 Apr 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/cpu-resources/</guid>
-      <description>&lt;p&gt;The libvirt driver in the OpenStack Compute service (nova) has supported
-instance NUMA topologies for a number of releases. A NUMA topology can be added
-to an instance either explicitly, using the &lt;code&gt;hw:numa_nodes=N&lt;/code&gt; flavor extra
-spec, or implicitly, by requesting a specific mempage size
-(&lt;code&gt;hw:mem_page_size=N&lt;/code&gt;) or CPU pinning (&lt;code&gt;hw:cpu_policy=dedicated&lt;/code&gt;). For
-historical reasons, it is not possible to request memory pages or CPU pinning
-without getting a NUMA topology meaning every pinned instance or instance with
-hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
-topology associated with it.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;For most of the extra specs mentioned here and below, there exists an
-equivalent image metadata property. These are omitted here for brevity.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;For yet more historical reasons, nova has gained a number of configuration
-options that only apply to these instances with NUMA topologies or those
-without. This article aims to discuss the implications of one of these,
-&lt;code&gt;vcpu_pin_set&lt;/code&gt;, through a number of relevant examples.&lt;/p&gt;
-&lt;h2 id=&#34;overview-of-vcpu_pin_set&#34;&gt;Overview of &lt;code&gt;vcpu_pin_set&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;The &lt;code&gt;vcpu_pin_set&lt;/code&gt; option has existed in nova for quite some time and describes
-itself as:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Defines which physical CPUs (pCPUs) can be used by instance
-virtual CPUs (vCPUs).&lt;/p&gt;
-&lt;p&gt;Possible values:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;A comma-separated list of physical CPU numbers that virtual CPUs can be
-allocated to by default. Each element should be either a single CPU number,
-a range of CPU numbers, or a caret followed by a CPU number to be
-excluded from a previous range. For example:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;  vcpu_pin_set = &amp;quot;4-12,^8,15&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;This config option has two purposes. Firstly, the placement service uses it to
-generate the amount of &lt;code&gt;VCPU&lt;/code&gt; resources available on a given host using the
-following formula:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;(SUM(CONF.vcpu_pin_set) * CONF.cpu_allocation_ratio) - CONF.reserved_host_cpus
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;(where &lt;code&gt;SUM&lt;/code&gt; is the sum of CPUs expressed by the CPU mask).&lt;/p&gt;
-&lt;p&gt;How we do this can be seen at [&lt;a href=&#34;https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754&#34;&gt;1&lt;/a&gt;]&lt;a href=&#34;https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L5714-L5754&#34;&gt;1&lt;/a&gt;, [&lt;a href=&#34;https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661&#34;&gt;2&lt;/a&gt;]&lt;a href=&#34;https://github.com/openstack/nova/blob/19.0.0/nova/virt/libvirt/driver.py#L6645-L6661&#34;&gt;2&lt;/a&gt;, [&lt;a href=&#34;https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935&#34;&gt;3&lt;/a&gt;]&lt;a href=&#34;https://github.com/openstack/nova/blob/19.0.0/nova/virt/driver.py#L903-L935&#34;&gt;3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;The number of &lt;code&gt;VCPU&lt;/code&gt; resources impacts instances regardless of whether they
-have a NUMA topology or not since potential NUMA/non-NUMA&amp;rsquo;ness is not
-considered at this early stage of scheduling. However, once allocation
-candidates have been provided by placement, we see the original purpose of this
-option emerge: for instances with a NUMA topology, it is used by
-&lt;code&gt;nova-scheduler&lt;/code&gt; (specifically by the &lt;code&gt;NUMATopologyFilter&lt;/code&gt;) and by
-&lt;code&gt;nova-compute&lt;/code&gt; (when building instance XML). NUMA instances either map their
-entire range of instance cores to a range of host cores (for non-pinned
-instances) or each individual instance core to a specific host core (for pinned
-instances), and this mapping is calculated by both &lt;code&gt;nova-scheduler&lt;/code&gt;&amp;rsquo;s
-&lt;code&gt;NUMATopologyFilter&lt;/code&gt; filter and &lt;code&gt;nova-compute&lt;/code&gt; &lt;code&gt;vcpu_pin_set&lt;/code&gt; is used to limit
-which of these host cores can be used and allows you to do things like exclude
-every core from a host NUMA node. However, since instances without a NUMA
-topology are entirely floating and are not limited to any host NUMA node, this
-option is totally ignored.&lt;/p&gt;
-&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;
-&lt;p&gt;Let&amp;rsquo;s look at some examples of how this would be reflected in the real world.
-For all these examples, consider a host with two sockets and two CPUs with four
-cores and no hyperthreading (so eight CPUs).&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_host-topology.png&#34; alt=&#34;Non-NUMA instances without vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;The host NUMA topology with two sockets and four cores per socket&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;We can see the resources that this reports like so:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 8     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 8     |
-+------------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;non-numa&#34;&gt;Non-NUMA&lt;/h3&gt;
-&lt;p&gt;First, consider an instance without a NUMA topology:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
-$ openstack server create --flavor test-flavor ... test-server
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As this instance does not have a NUMA topology, the instance will float across
-all host cores with no regard for NUMA affinity.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_non-numa.png&#34; alt=&#34;Non-NUMA instances without vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;The host NUMA topology is ignored for instances without a NUMA topology.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;If we look at what placement is reporting, we can see that our inventory has
-changed accordingly:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider usage show \
-    6a969900-bbf7-4725-959b-2db3092933b0
-+----------------+-------+
-| resource_class | usage |
-+----------------+-------+
-| VCPU           |     2 |
-| MEMORY_MB      |   512 |
-| DISK_GB        |     0 |
-+----------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now let&amp;rsquo;s use &lt;code&gt;vcpu_pin_set&lt;/code&gt; to exclude the cores from host NUMA node &lt;code&gt;0&lt;/code&gt; as
-seen in the sample &lt;code&gt;nova.conf&lt;/code&gt; below, then restart the service:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[DEFAULT]
-vcpu_pin_set = 4-7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If we examine the number of resources available in placement, we can see that
-it has changed:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 4     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 4     |
-+------------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Unfortunately though, because the instance does not have a NUMA topology, this
-option is completely ignored when actually booting the instance. As above, the
-instance continues to run across the entire range of host cores.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_non-numa.png&#34; alt=&#34;Non-NUMA instances with vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;The &lt;code&gt;vcpu_pin_set&lt;/code&gt; option is also ignored for instances without a NUMA
-topology.&lt;/em&gt;&lt;/p&gt;
-&lt;h3 id=&#34;numa-no-pinning&#34;&gt;NUMA, no pinning&lt;/h3&gt;
-&lt;p&gt;Next, consider an instance with a NUMA topology. We can create such an instance
-like so:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
-$ openstack flavor set --property hw:numa_nodes=1 test-flavor
-$ openstack server create --flavor test-flavor ... test-server
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Because this instance has a NUMA topology, the instance will be confined to
-cores from a single host NUMA node.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_numa_wo_vcpu_pin_set.png&#34; alt=&#34;NUMA instances without vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;The host NUMA topology is considered for instances with a NUMA topology.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;Now, once again we&amp;rsquo;ll use &lt;code&gt;vcpu_pin_set&lt;/code&gt; to exclude the cores from host NUMA
-node &lt;code&gt;0&lt;/code&gt; via &lt;code&gt;nova.conf&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[DEFAULT]
-vcpu_pin_set = 4-7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;And again we&amp;rsquo;ll see this change in what&amp;rsquo;s reported to placement:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 4     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 4     |
-+------------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This time &lt;code&gt;vcpu_pin_set&lt;/code&gt; will actually be respected and we&amp;rsquo;ll see it reflected
-in the host cores used by the instance.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_numa_w_vcpu_pin_set.png&#34; alt=&#34;NUMA instances with vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;The &lt;code&gt;vcpu_pin_set&lt;/code&gt; option is respected for instances with a NUMA topology, so
-cores &lt;code&gt;0-3&lt;/code&gt; are excluded.&lt;/em&gt;&lt;/p&gt;
-&lt;h3 id=&#34;numa-with-pinning&#34;&gt;NUMA, with pinning&lt;/h3&gt;
-&lt;p&gt;Finally, let&amp;rsquo;s consider pinned instances. We can create such an instance like
-so:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack flavor create --vcpus 2 --ram 512 --disk 0 test-flavor
-$ openstack flavor set --property hw:cpu_policy=dedicated test-flavor
-$ openstack server create --flavor test-flavor ... test-server
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As noted previously, these have an implicit NUMA topology but whereas every
-core of an unpinned instance is mapped to the same range of host cores, the
-cores of pinned instances are mapped to their own individual host cores.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_pinning_wo_vcpu_pin_set.png&#34; alt=&#34;Pinned instances without vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Because they have a NUMA topology, pinned instances also respect
-&lt;code&gt;vcpu_pin_set&lt;/code&gt;. As always, we can use &lt;code&gt;vcpu_pin_set&lt;/code&gt; to exclude the cores from
-host NUMA node &lt;code&gt;0&lt;/code&gt; via &lt;code&gt;nova.conf&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[DEFAULT]
-vcpu_pin_set = 4-7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As always, we&amp;rsquo;ll see this reflected in placement:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 4     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 4     |
-+------------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;And because pinned instances also have a NUMA topology, we&amp;rsquo;ll also see this
-reflected in the host cores used by the instance.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_pinning_w_vcpu_pin_set.png&#34; alt=&#34;Pinned instances with vcpu_pin_set&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;The &lt;code&gt;vcpu_pin_set&lt;/code&gt; option is also respected for instances with CPU pinning.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;However, it&amp;rsquo;s worth noting here that pinned instances cannot be overcommited.
-Despite the fact that we have an &lt;code&gt;allocation_ratio&lt;/code&gt; of 16.0, we can only
-schedule &lt;code&gt;total&lt;/code&gt; instances cores. These cores also can&amp;rsquo;t be spread across host
-NUMA nodes unless you&amp;rsquo;ve specifically said otherwise (via the
-&lt;code&gt;hw:numa_nodes=N&lt;/code&gt; flavor extra spec).&lt;/p&gt;
-&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
-&lt;p&gt;The &lt;code&gt;vcpu_pin_set&lt;/code&gt; option is used to generate the amount of &lt;code&gt;VCPU&lt;/code&gt; resources
-available in placement but it otherwise has no effect on instances without a
-NUMA topology. For instances with a NUMA topology, it also controls the host
-cores that the instance can schedule to.&lt;/p&gt;
 </description>
     </item>
     

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quotas in OpenStack | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/z47okydJjGs/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Quotas in OpenStack</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2022-10-07T00:00:00Z'>Oct 7, 2022</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>9 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>I&rsquo;ve been playing around with quotas in OpenStack again. Every time I do, I
+encounter another strange bit of behavior that catches me out. This time, I&rsquo;ve
+decided to write down these strange things so at least I have a reference to go
+back to at some point in the future. I should probably get these notes into the
+docs for nova, cinder and neutron at some point&hellip;</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">This post focuses on the nova (compute), cinder (block storage), and neutron
+(networking) services. There are other OpenStack services that implement quotas
+but I&rsquo;m not overly familiar with their quota models. However, I would suspect
+that what&rsquo;s discussed here <em>should</em> be broadly applicable.</div>
+</aside>
+
+<h2 id="project-quotas-and-default-quotas">Project quotas and default quotas</h2>
+<p>Quotas are a complicated area with a lot of baggage. Broadly speaking, there
+are two types of quota: default quotas and project-specific quotas. The default
+quotas are applied to projects unless specifically overridden by project
+quotas. In addition, for nova and cinder, there are two types of default quota:
+API-configured default quotas and statically configured default quotas defined
+in config files (so <code>nova.conf</code> or <code>cinder.conf</code> respectively). Neutron only
+supports statically configured quotas (<code>neutron.conf</code>). Project specific quotas
+take precedence over API-configured default quotas (where available), which in
+turn take priority over statically configured default quotas. We can visualize
+this as such:</p>
+<pre tabindex="0"><code>nova:    conf default quotas &lt; API default quotas &lt; project quotas
+cinder:  conf default quotas &lt; API default quotas &lt; project quotas
+neutron: conf default quotas           &lt;            project quotas
+</code></pre><h2 id="user-specific-quotas">User-specific quotas</h2>
+<p>Nova has another type of quota: user-specific quotas. There&rsquo;s only one type of
+user-specific quota in nova - <code>keypairs</code> and they&rsquo;re not something that nova is
+likely to continue supporting in the long-term. As you&rsquo;d expect, the primary
+difference between between user-specific quotas and project-specific quotas is
+that user-specific quotas are tied to the user instead of the project. This
+means you can specify that user <code>foo</code> has e.g. a keypair quota of <code>5</code>, while
+user <code>bar</code> has a keypair quota of <code>6</code>.</p>
+<h2 id="quota-classes">Quota classes</h2>
+<p>Finally, nova and cinder also have the concept of quota classes. The idea
+behind these was to allow for a two-level hierarchy of quotas, where you could
+define different &ldquo;classes&rdquo; of default quota and specific what class a project
+would get. For example, you could have three quota classes - gold, silver and
+bronze - and a project would get assigned to one of these quota classes
+depending on how much the customer was paying. This was seen as an easier
+alternative to setting defaults for each project individually. However,
+actually using quota classes required a separate out-of-tree service that would
+set a <code>quota_class</code> attribute in the request context. Rackspace apparently had
+one such service called <em>Turnstile</em> that did this but no one else appears to
+have implemented something like this and efforts to remove the need for an
+external service <a href="https://bugs.launchpad.net/nova/+bug/969537">never went
+anywhere</a>. In effect, this feature
+was never fully implemented and both nova and cinder only support the <code>default</code>
+quota class while neutron never even tried implementing this. It&rsquo;s an
+irrelevance nowadays.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>For more information on the background of <em>quota classes</em>, the following
+mailing lists threads are helpful:</p>
+<ul>
+<li><a href="https://www.mail-archive.com/openstack@lists.launchpad.net/msg09237.html">Quota classes</a></li>
+<li><a href="https://www.mail-archive.com/openstack-dev@lists.openstack.org/msg124494.html">Does ANYONE at all use the quota class functionality in Nova?</a></li>
+</ul>
+</div>
+</aside>
+
+<h2 id="quota-usage">Quota usage</h2>
+<p>Obviously applying quotas to projects and users is one thing, but we actually
+need to track that usage somewhere. This also happens at the project level.
+The nova, cinder and neutron projects all track both a <code>reserved</code> value and an
+<code>in_use</code>. In nova&rsquo;s case, the <code>reserved</code> value was previously used to reserve a
+resource at the API layer (<code>nova-api</code>) before committing them at the compute
+layer (<code>nova-compute</code>). Nova moved away from this model in the 16.0.0 (Pike)
+release as part of the work to introduce cells v2, and the <code>reserved</code> value
+will now always be <code>0</code>. This effort was tracked in the <a href="https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html"><em>Count resources to
+check quota in API for cells</em> spec</a>.</p>
+<p>In the case of nova, much of this information is gleaned either from the
+database or the placement service, depending on configuration. I suspect most
+services use a similar model. This usage information is available to the user
+via various APIs or <em>openstackclient</em>.</p>
+<h2 id="quota-drivers">Quota drivers</h2>
+<p>The nova, cinder and neutron projects all have the concept of quota drivers. By
+default, all projects use a DB-based quota driver but both nova and neutron
+offer alternative drivers. I haven&rsquo;t gone into detail on these here since it&rsquo;s
+not entirely relevant to this discussion. You should refer to the
+<a href="https://docs.openstack.org/nova/latest/configuration/config.html#quota.driver">nova</a> and <a href="https://docs.openstack.org/neutron/latest/configuration/neutron.html#quotas.quota_driver">neutron</a> configuration
+documentation for more information if interested though.</p>
+<h2 id="how-do-i-use-the-damn-thing">How do I use the damn thing?</h2>
+<p>The best way to interact with quotas is using a tool that tries to abstract all
+of the above craziness from you. To this end, I&rsquo;d recommend <em>openstackclient</em>.
+While OSC has supported quotas for years, recent versions of this (v6.1.0 or
+later) have improved the UX further and contain some important feature
+additions, like the ability to view quota usage for the cinder service.</p>
+<p>Firstly, let&rsquo;s create a project-specific quota for, say, the number of
+instances.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota set --instances <span style="color:#ae81ff">5</span> $OS_PROJECT_NAME
+</span></span></code></pre></div><p>Now we can inspect those quotas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show $OS_PROJECT_NAME
+</span></span><span style="display:flex;"><span>+-----------------------+-------+
+</span></span><span style="display:flex;"><span>| Resource              | Limit |
+</span></span><span style="display:flex;"><span>+-----------------------+-------+
+</span></span><span style="display:flex;"><span>| cores                 |    <span style="color:#ae81ff">20</span> |
+</span></span><span style="display:flex;"><span>| instances             |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| ram                   | <span style="color:#ae81ff">51200</span> |
+</span></span><span style="display:flex;"><span>| volumes               |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| snapshots             |    <span style="color:#ae81ff">43</span> |
+</span></span><span style="display:flex;"><span>| gigabytes             |  <span style="color:#ae81ff">1000</span> |
+</span></span><span style="display:flex;"><span>| backups               |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| volumes_lvmdriver-1   |    -1 |
+</span></span><span style="display:flex;"><span>| gigabytes_lvmdriver-1 |    -1 |
+</span></span><span style="display:flex;"><span>| snapshots_lvmdriver-1 |    -1 |
+</span></span><span style="display:flex;"><span>| volumes___DEFAULT__   |    -1 |
+</span></span><span style="display:flex;"><span>| gigabytes___DEFAULT__ |    -1 |
+</span></span><span style="display:flex;"><span>| snapshots___DEFAULT__ |    -1 |
+</span></span><span style="display:flex;"><span>| groups                |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| networks              |   <span style="color:#ae81ff">100</span> |
+</span></span><span style="display:flex;"><span>| ports                 |   <span style="color:#ae81ff">500</span> |
+</span></span><span style="display:flex;"><span>| rbac_policies         |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| routers               |    <span style="color:#ae81ff">21</span> |
+</span></span><span style="display:flex;"><span>| subnets               |   <span style="color:#ae81ff">100</span> |
+</span></span><span style="display:flex;"><span>| subnet_pools          |    -1 |
+</span></span><span style="display:flex;"><span>| fixed-ips             |    -1 |
+</span></span><span style="display:flex;"><span>| injected-file-size    | <span style="color:#ae81ff">10240</span> |
+</span></span><span style="display:flex;"><span>| injected-path-size    |   <span style="color:#ae81ff">255</span> |
+</span></span><span style="display:flex;"><span>| injected-files        |     <span style="color:#ae81ff">5</span> |
+</span></span><span style="display:flex;"><span>| key-pairs             |    <span style="color:#ae81ff">33</span> |
+</span></span><span style="display:flex;"><span>| properties            |   <span style="color:#ae81ff">128</span> |
+</span></span><span style="display:flex;"><span>| server-groups         |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| server-group-members  |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| floating-ips          |    <span style="color:#ae81ff">50</span> |
+</span></span><span style="display:flex;"><span>| secgroup-rules        |   <span style="color:#ae81ff">100</span> |
+</span></span><span style="display:flex;"><span>| secgroups             |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| backup-gigabytes      |  <span style="color:#ae81ff">1000</span> |
+</span></span><span style="display:flex;"><span>| per-volume-gigabytes  |    -1 |
+</span></span><span style="display:flex;"><span>+-----------------------+-------+
+</span></span></code></pre></div><p>You can also include usage information if you want:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show --usage $OS_PROJECT_NAME
+</span></span><span style="display:flex;"><span>+-----------------------+-------+--------+----------+
+</span></span><span style="display:flex;"><span>| Resource              | Limit | In Use | Reserved |
+</span></span><span style="display:flex;"><span>+-----------------------+-------+--------+----------+
+</span></span><span style="display:flex;"><span>| cores                 |    <span style="color:#ae81ff">20</span> |      <span style="color:#ae81ff">2</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| instances             |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">2</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| ram                   | <span style="color:#ae81ff">51200</span> |   <span style="color:#ae81ff">4096</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| volumes               |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">1</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| snapshots             |    <span style="color:#ae81ff">43</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| gigabytes             |  <span style="color:#ae81ff">1000</span> |      <span style="color:#ae81ff">5</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| backups               |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| volumes_lvmdriver-1   |    -1 |      <span style="color:#ae81ff">1</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| gigabytes_lvmdriver-1 |    -1 |      <span style="color:#ae81ff">5</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| snapshots_lvmdriver-1 |    -1 |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| volumes___DEFAULT__   |    -1 |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| gigabytes___DEFAULT__ |    -1 |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| snapshots___DEFAULT__ |    -1 |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| groups                |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| networks              |   <span style="color:#ae81ff">100</span> |      <span style="color:#ae81ff">2</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| ports                 |   <span style="color:#ae81ff">500</span> |      <span style="color:#ae81ff">4</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| rbac_policies         |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">4</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| routers               |    <span style="color:#ae81ff">21</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| subnets               |   <span style="color:#ae81ff">100</span> |      <span style="color:#ae81ff">3</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| subnet_pools          |    -1 |      <span style="color:#ae81ff">2</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| fixed-ips             |    -1 |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| injected-file-size    | <span style="color:#ae81ff">10240</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| injected-path-size    |   <span style="color:#ae81ff">255</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| injected-files        |     <span style="color:#ae81ff">5</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| key-pairs             |    <span style="color:#ae81ff">33</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| properties            |   <span style="color:#ae81ff">128</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| server-groups         |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| server-group-members  |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| floating-ips          |    <span style="color:#ae81ff">50</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| secgroup-rules        |   <span style="color:#ae81ff">100</span> |      <span style="color:#ae81ff">4</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| secgroups             |    <span style="color:#ae81ff">10</span> |      <span style="color:#ae81ff">1</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| backup-gigabytes      |  <span style="color:#ae81ff">1000</span> |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>| per-volume-gigabytes  |    -1 |      <span style="color:#ae81ff">0</span> |        <span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>+-----------------------+-------+--------+----------+
+</span></span></code></pre></div><p>Default quotas are applied to each project unless there are project-specific
+quotas to override them. These can be inspected also:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show --default
+</span></span><span style="display:flex;"><span>+-----------------------+-------+
+</span></span><span style="display:flex;"><span>| Resource              | Limit |
+</span></span><span style="display:flex;"><span>+-----------------------+-------+
+</span></span><span style="display:flex;"><span>| cores                 |    <span style="color:#ae81ff">20</span> |
+</span></span><span style="display:flex;"><span>| instances             |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| ram                   | <span style="color:#ae81ff">51200</span> |
+</span></span><span style="display:flex;"><span>| volumes               |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| snapshots             |    <span style="color:#ae81ff">43</span> |
+</span></span><span style="display:flex;"><span>| gigabytes             |  <span style="color:#ae81ff">1000</span> |
+</span></span><span style="display:flex;"><span>| backups               |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| volumes_lvmdriver-1   |    -1 |
+</span></span><span style="display:flex;"><span>| gigabytes_lvmdriver-1 |    -1 |
+</span></span><span style="display:flex;"><span>| snapshots_lvmdriver-1 |    -1 |
+</span></span><span style="display:flex;"><span>| volumes___DEFAULT__   |    -1 |
+</span></span><span style="display:flex;"><span>| gigabytes___DEFAULT__ |    -1 |
+</span></span><span style="display:flex;"><span>| snapshots___DEFAULT__ |    -1 |
+</span></span><span style="display:flex;"><span>| groups                |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| networks              |   <span style="color:#ae81ff">100</span> |
+</span></span><span style="display:flex;"><span>| ports                 |   <span style="color:#ae81ff">500</span> |
+</span></span><span style="display:flex;"><span>| rbac_policies         |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| routers               |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| subnets               |   <span style="color:#ae81ff">100</span> |
+</span></span><span style="display:flex;"><span>| subnet_pools          |    -1 |
+</span></span><span style="display:flex;"><span>| fixed-ips             |    -1 |
+</span></span><span style="display:flex;"><span>| injected-file-size    | <span style="color:#ae81ff">10240</span> |
+</span></span><span style="display:flex;"><span>| injected-path-size    |   <span style="color:#ae81ff">255</span> |
+</span></span><span style="display:flex;"><span>| injected-files        |     <span style="color:#ae81ff">5</span> |
+</span></span><span style="display:flex;"><span>| key-pairs             |    <span style="color:#ae81ff">33</span> |
+</span></span><span style="display:flex;"><span>| properties            |   <span style="color:#ae81ff">128</span> |
+</span></span><span style="display:flex;"><span>| server-groups         |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| server-group-members  |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| floating-ips          |    <span style="color:#ae81ff">50</span> |
+</span></span><span style="display:flex;"><span>| secgroup-rules        |   <span style="color:#ae81ff">100</span> |
+</span></span><span style="display:flex;"><span>| secgroups             |    <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>| backup-gigabytes      |  <span style="color:#ae81ff">1000</span> |
+</span></span><span style="display:flex;"><span>| per-volume-gigabytes  |    -1 |
+</span></span><span style="display:flex;"><span>+-----------------------+-------+
+</span></span></code></pre></div><p>You can list quotas for multiple projects. Note that when doing this, only the
+projects with project-specific quotas are shown to avoid dumping potentially
+thousands of lines of duplicate, useless info to the terminal.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota list --compute
+</span></span><span style="display:flex;"><span>+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
+</span></span><span style="display:flex;"><span>| Project ID                       | Cores | Fixed IPs | Injected Files | Injected File Content Bytes | Injected File Path Bytes | Instances | Key Pairs | Metadata Items |   Ram | Server Groups | Server Group Members |
+</span></span><span style="display:flex;"><span>+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
+</span></span><span style="display:flex;"><span>| 700a8fa37f154153809be9d1814d8625 |    <span style="color:#ae81ff">20</span> |        -1 |              <span style="color:#ae81ff">5</span> |                       <span style="color:#ae81ff">10240</span> |                      <span style="color:#ae81ff">255</span> |         <span style="color:#ae81ff">5</span> |        <span style="color:#ae81ff">33</span> |            <span style="color:#ae81ff">128</span> | <span style="color:#ae81ff">51200</span> |            <span style="color:#ae81ff">10</span> |                   <span style="color:#ae81ff">10</span> |
+</span></span><span style="display:flex;"><span>+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
+</span></span></code></pre></div><p>Finally, you can unset configured quotas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota delete $OS_PROJECT_NAME
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">Many of these commands have additional flags that might be relevant. Pass the
+<code>--help</code> option to view the help text for the option.</div>
+</aside>
+
+<h2 id="addendum-unified-limits">Addendum! Unified limits</h2>
+<p>If you consider the above rather confusing, you should try to using it in
+real-world environments! The deficiencies with the existing quota model were
+brought up in multiple discussions with operators and end users over the years,
+and the end result of these discussions was a concept known as <em>unified
+limits</em>. As the name would suggest, the aim of this feature is to provide a
+unified model for maintaining resource limits across multiple services. Good
+<a href="https://docs.openstack.org/project-team-guide/technical-guides/unified-limits.html">documentation</a> exists to describe the benefits of this approach
+over the status quo. Adding support for unified limits requires significant
+effort on the end of the individual projects, and so far only the compute
+project appears to have started down this path, introducing preliminary support
+for unified limits during the <a href="https://specs.openstack.org/openstack/nova-specs/specs/yoga/implemented/unified-limits-nova.html">yoga release</a>. This remains in
+development and I&rsquo;m not sure when we plan to finish it. The above guide will
+probably be useful for some time to come 😅</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2022 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
