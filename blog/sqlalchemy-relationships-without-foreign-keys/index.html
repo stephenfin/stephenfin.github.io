@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SQLAlchemy Relationships Without Foreign Keys (And How to Replace &#39;backref&#39; With &#39;back_populates&#39;) | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/ZiQkhI7417A/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">SQLAlchemy Relationships Without Foreign Keys (And How to Replace &#39;backref&#39; With &#39;back_populates&#39;)</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2022-10-07T00:00:00Z'>Oct 7, 2022</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>8 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>When implementing relationships in SQLAlchemy models, you will generally need
+to cross-reference one model from another, ideally in a bidirectional manner.
+Historically, the mechanism to do this has been the <code>relationship.backref</code>
+keyword. However, as noted in the <a href="https://docs.sqlalchemy.org/en/14/orm/backref.html">SQLAlchemy
+documentation</a>, this keyword should now be considered legacy
+and the <code>relationship.back_populates</code> migration preferred instead. There are a
+couple of reasons for this. Quoting from the docs:</p>
+<blockquote>
+<p>The <a href="https://docs.sqlalchemy.org/en/14/orm/relationship_api.html#sqlalchemy.orm.relationship.params.backref"><code>relationship.backref</code></a> keyword should be considered legacy,
+and use of <a href="https://docs.sqlalchemy.org/en/14/orm/relationship_api.html#sqlalchemy.orm.relationship.params.back_populates"><code>relationship.back_populates</code></a> with explicit
+[<code>relationship()</code>][relationship] constructs should be preferred. Using
+individual <code>relationship()</code> constructs provides advantages including that
+both ORM mapped classes will include their attributes up front as the class
+is constructed, rather than as a deferred step, and configuration is more
+straightforward as all arguments are explicit. New <a href="https://peps.python.org/pep-0484/"><strong>PEP 484</strong></a>
+features in SQLAlchemy 2.0 also take advantage of attributes being explicitly
+present in source code rather than using dynamic attribute generation.</p>
+</blockquote>
+<p>The SQLAlchemy docs <a href="https://docs.sqlalchemy.org/en/14/orm/backref.html">include a guide on migrating tables</a>,
+(as well as a great overview on <a href="https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html">relationships in
+general</a>), however, this guide assumes you are using
+foreign key constraints in your models and using the auto-incrementing primary
+key field as your reference. To be honest, you probably should be using foreign
+keys since without these <a href="https://stackoverflow.com/questions/3433975/why-use-foreign-key-constraints-in-mysql">you have no way to enforce referential
+integrity</a> but say you can&rsquo;t use them or don&rsquo;t want to, how does
+one migrate? The below examples should hopefully guide you in migrating these.</p>
+<h2 id="one-to-many">One-to-Many</h2>
+<p>The <em>one-to-many</em> pattern is the simpler one to migrate. Consider the following
+example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> uuid
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlalchemy <span style="color:#66d9ef">as</span> sa
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> orm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>BASE <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>declarative_base()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;user&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Address</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;addresses&#39;</span>
+</span></span><span style="display:flex;"><span>    __tableargs__ <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Index(<span style="color:#e6db74">&#39;addresses_user_uuid_idx&#39;</span>, <span style="color:#e6db74">&#39;user_uuid&#39;</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    user_uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;User&#39;</span>,
+</span></span><span style="display:flex;"><span>        backref<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;addresses&#39;</span>,
+</span></span><span style="display:flex;"><span>        primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Address.user_uuid == User.uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        foreign_keys<span style="color:#f92672">=</span>user_uuid,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    engine <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>create_engine(<span style="color:#e6db74">&#39;sqlite://&#39;</span>)
+</span></span><span style="display:flex;"><span>    session <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>sessionmaker(bind<span style="color:#f92672">=</span>engine)()
+</span></span><span style="display:flex;"><span>    BASE<span style="color:#f92672">.</span>metadata<span style="color:#f92672">.</span>create_all(engine)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> User(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;John Doe&#39;</span>, uuid<span style="color:#f92672">=</span>str(uuid<span style="color:#f92672">.</span>uuid4()))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(user)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    address <span style="color:#f92672">=</span> Address(user_uuid<span style="color:#f92672">=</span>user<span style="color:#f92672">.</span>uuid)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(address)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Users&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> user <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(User)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;User: name=</span><span style="color:#e6db74">{</span>user<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Addresses&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> address <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(Address)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Address: user=</span><span style="color:#e6db74">{</span>address<span style="color:#f92672">.</span>user_uuid<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><p>Before looking at migrating from <code>backref</code> to <code>back_populates</code>, it&rsquo;s worth
+understanding what&rsquo;s going on here. You&rsquo;ll note that we have a relationship
+from the <code>Address</code> model back to the <code>User</code> model. This has the <code>backref</code>
+keyword set on it, allowing you to reference related addresses from instances
+of <code>User</code>, however it also has <code>primaryjoin</code> and <code>foreign_keys</code> keywords set.
+These are necessary because the <code>user_uuid</code> column does not have a foreign key
+constraint present. You can confirm this running the above and looking at the
+schemas dumped in the output.</p>
+<pre tabindex="0"><code>❯ python test_o2m.py
+# Users
+User: name=John Doe
+
+# Addresses
+Address: user=fa1b9773-e0a2-465e-a1e6-1c6434b682ad
+
+# Schemas
+
+CREATE TABLE &#34;user&#34; (
+        id INTEGER NOT NULL,
+        uuid VARCHAR(36) NOT NULL,
+        name VARCHAR,
+        PRIMARY KEY (id)
+)
+
+
+
+CREATE TABLE addresses (
+        id INTEGER NOT NULL,
+        user_uuid VARCHAR(36) NOT NULL,
+        PRIMARY KEY (id)
+)
+</code></pre><p>Because we don&rsquo;t have a foreign key present, SQLAlchemy isn&rsquo;t able to determine
+the join condition. This necessitates the addition of the <code>primaryjoin</code> and
+<code>foreign_keys</code> keywords to guide SQLAlchemy on resolving these relations.
+Removing these keywords will yield an error message.</p>
+<pre tabindex="0"><code>sqlalchemy.exc.NoForeignKeysError: Can&#39;t find any foreign key relationships between &#39;addresses&#39; and &#39;user&#39;.
+</code></pre><aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>An alternative to the <code>foreign_keys</code> argument is to annotate the join condition
+with the <code>foreign()</code> annotation.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>user <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;User&#39;</span>,
+</span></span><span style="display:flex;"><span>    backref<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;addresses&#39;</span>,
+</span></span><span style="display:flex;"><span>    primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Address.user_uuid == foreign(User.uuid)&#39;</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div></div>
+</aside>
+
+<p>The only other unusual thing here is that we&rsquo;re using a field other than <code>id</code>
+to reference things, namely a <code>uuid</code> field on both models. There&rsquo;s no real
+reason to do this here but this was the case in the models that I had to
+migrate and it makes things a little more complicated and &ldquo;real-world&rsquo;y&rdquo;.</p>
+<p>Now that we understand what&rsquo;s going, it&rsquo;s time to look at switching from
+<code>backref</code> to <code>back_populates</code>. It turns out to be pretty simple for one-to-many
+models like this.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> uuid
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlalchemy <span style="color:#66d9ef">as</span> sa
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> orm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>BASE <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>declarative_base()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;user&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    addresses <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Address&#39;</span>,
+</span></span><span style="display:flex;"><span>        primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;User.uuid == Address.user_uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        back_populates<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;user&#39;</span>,
+</span></span><span style="display:flex;"><span>        foreign_keys<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Address.user_uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Address</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;addresses&#39;</span>
+</span></span><span style="display:flex;"><span>    __tableargs__ <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Index(<span style="color:#e6db74">&#39;addresses_user_uuid_idx&#39;</span>, <span style="color:#e6db74">&#39;user_uuid&#39;</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    user_uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;User&#39;</span>,
+</span></span><span style="display:flex;"><span>        primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Address.user_uuid == User.uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        back_populates<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;addresses&#39;</span>,
+</span></span><span style="display:flex;"><span>        foreign_keys<span style="color:#f92672">=</span>user_uuid,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    engine <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>create_engine(<span style="color:#e6db74">&#39;sqlite://&#39;</span>)
+</span></span><span style="display:flex;"><span>    session <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>sessionmaker(bind<span style="color:#f92672">=</span>engine)()
+</span></span><span style="display:flex;"><span>    BASE<span style="color:#f92672">.</span>metadata<span style="color:#f92672">.</span>create_all(engine)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> User(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;John Doe&#39;</span>, uuid<span style="color:#f92672">=</span>str(uuid<span style="color:#f92672">.</span>uuid4()))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(user)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    address <span style="color:#f92672">=</span> Address(user_uuid<span style="color:#f92672">=</span>user<span style="color:#f92672">.</span>uuid)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(address)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Users&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> user <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(User)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;User: name=</span><span style="color:#e6db74">{</span>user<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Addresses&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> address <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(Address)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Address: user=</span><span style="color:#e6db74">{</span>address<span style="color:#f92672">.</span>user_uuid<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><p>Looking at the diff for these two files, we see the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>diff --git test_o2m.py test_o2m.py
+</span></span><span style="display:flex;"><span>index 4f23221..f865045 100644
+</span></span><span style="display:flex;"><span><span style="color:#f92672">--- test_o2m.py
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ test_o2m.py
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -14,6 +14,13 @@ class User(BASE):
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>     uuid = sa.Column(sa.String(36), nullable=False)
+</span></span><span style="display:flex;"><span>     name = sa.Column(sa.String)
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+    addresses = orm.relationship(
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        &#39;Address&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        primaryjoin=&#39;User.uuid == Address.user_uuid&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        back_populates=&#39;user&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        foreign_keys=&#39;Address.user_uuid&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+    )
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span> 
+</span></span><span style="display:flex;"><span> class Address(BASE):
+</span></span><span style="display:flex;"><span>     __tablename__ = &#39;addresses&#39;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -26,8 +33,8 @@ class Address(BASE):
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> 
+</span></span><span style="display:flex;"><span>     user = orm.relationship(
+</span></span><span style="display:flex;"><span>         &#39;User&#39;,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-        backref=&#39;addresses&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span>         primaryjoin=&#39;Address.user_uuid == User.uuid&#39;,
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        back_populates=&#39;addresses&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>         foreign_keys=user_uuid,
+</span></span><span style="display:flex;"><span>     )
+</span></span></code></pre></div><p>So for the <code>Address</code> model, we have simply replaced the <code>backref</code> keyword with
+<code>back_populates</code>. For the <code>User</code> model, we have added a new relationship. This
+is mostly the inverse of the relationship on the <code>Address</code> model and only the
+<code>foreign_key</code> argument points to the same field (a foreign field in the
+<code>Address</code> model case).</p>
+<p>Overall, this isn&rsquo;t a difficult migration. Migrating many-to-many models could
+be a little trickier though. Let&rsquo;s see.</p>
+<h2 id="many-to-many">Many-to-Many</h2>
+<p>Now consider the following example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> uuid
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlalchemy <span style="color:#66d9ef">as</span> sa
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> orm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>BASE <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>declarative_base()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>association_table <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Table(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;association&#39;</span>,
+</span></span><span style="display:flex;"><span>    BASE<span style="color:#f92672">.</span>metadata,
+</span></span><span style="display:flex;"><span>    sa<span style="color:#f92672">.</span>Column(<span style="color:#e6db74">&#39;parent_uuid&#39;</span>, sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    sa<span style="color:#f92672">.</span>Column(<span style="color:#e6db74">&#39;child_uuid&#39;</span>, sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Parent</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;parents&#39;</span>
+</span></span><span style="display:flex;"><span>    __table_args__ <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Index(<span style="color:#e6db74">&#39;parents_uuid_idx&#39;</span>, <span style="color:#e6db74">&#39;uuid&#39;</span>, unique<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Child</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;children&#39;</span>
+</span></span><span style="display:flex;"><span>    __table_args__ <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Index(<span style="color:#e6db74">&#39;children_uuid_idx&#39;</span>, <span style="color:#e6db74">&#39;uuid&#39;</span>, unique<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    parents <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Parent&#39;</span>,
+</span></span><span style="display:flex;"><span>        secondary<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;association&#39;</span>,
+</span></span><span style="display:flex;"><span>        primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Child.uuid == association.c.child_uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        secondaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;association.c.parent_uuid == Parent.uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        backref<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;children&#39;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    engine <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>create_engine(<span style="color:#e6db74">&#39;sqlite://&#39;</span>)
+</span></span><span style="display:flex;"><span>    session <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>sessionmaker(bind<span style="color:#f92672">=</span>engine)()
+</span></span><span style="display:flex;"><span>    BASE<span style="color:#f92672">.</span>metadata<span style="color:#f92672">.</span>create_all(engine)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    parent <span style="color:#f92672">=</span> Parent(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;John Doe&#39;</span>, uuid<span style="color:#f92672">=</span>str(uuid<span style="color:#f92672">.</span>uuid4()))
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(parent)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    child <span style="color:#f92672">=</span> Child(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Jimmy Doe&#39;</span>, uuid<span style="color:#f92672">=</span>str(uuid<span style="color:#f92672">.</span>uuid4()))
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(child)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    parent<span style="color:#f92672">.</span>children<span style="color:#f92672">.</span>append(child)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Parents&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> parent <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(Parent)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        children <span style="color:#f92672">=</span> [x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> parent<span style="color:#f92672">.</span>children]
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Parent: name=</span><span style="color:#e6db74">{</span>parent<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">, children=</span><span style="color:#e6db74">{</span>children<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Children&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> child <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(Child)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        parents <span style="color:#f92672">=</span> [x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> child<span style="color:#f92672">.</span>parents]
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Child: name=</span><span style="color:#e6db74">{</span>child<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">, parents=</span><span style="color:#e6db74">{</span>parents<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><p>Again, there are a couple of things to consider here. Firstly, since this is a
+many-to-many relationship, we need a so-called <em>join table</em> (also known as a
+<em>association table</em> in SQLAlchemy or a <em>through table</em> in Django). The
+necessitates the use of the <code>secondary</code> keyword to indicate the association
+table. Next up, once again we do not have a foreign key constraint present
+meaning we need to inform SQLAlchemy how the join should be managed. The use of
+the association table means we must specify not only <code>primaryjoin</code> but also
+<code>secondaryjoin</code>: the former describes the relationship from <code>Child</code> to the
+association table, while the latter describes the relationship from the
+association table to <code>Parent</code>. Finally, once again we&rsquo;re using a <code>uuid</code> field
+for referencing to makes things a little more like the real world.</p>
+<p>Now to switch from <code>backref</code> to <code>back_populates</code> once again.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> uuid
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlalchemy <span style="color:#66d9ef">as</span> sa
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> orm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>BASE <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>declarative_base()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>association_table <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Table(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;association&#39;</span>,
+</span></span><span style="display:flex;"><span>    BASE<span style="color:#f92672">.</span>metadata,
+</span></span><span style="display:flex;"><span>    sa<span style="color:#f92672">.</span>Column(<span style="color:#e6db74">&#39;parent_uuid&#39;</span>, sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    sa<span style="color:#f92672">.</span>Column(<span style="color:#e6db74">&#39;child_uuid&#39;</span>, sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Parent</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;parents&#39;</span>
+</span></span><span style="display:flex;"><span>    __table_args__ <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Index(<span style="color:#e6db74">&#39;parents_uuid_idx&#39;</span>, <span style="color:#e6db74">&#39;uuid&#39;</span>, unique<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    children <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Child&#39;</span>,
+</span></span><span style="display:flex;"><span>        secondary<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;association&#39;</span>,
+</span></span><span style="display:flex;"><span>        primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Parent.uuid == association.c.parent_uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        secondaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;association.c.child_uuid == Child.uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        back_populates<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;parents&#39;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Child</span>(BASE):
+</span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;children&#39;</span>
+</span></span><span style="display:flex;"><span>    __table_args__ <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Index(<span style="color:#e6db74">&#39;children_uuid_idx&#39;</span>, <span style="color:#e6db74">&#39;uuid&#39;</span>, unique<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    uuid <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String(<span style="color:#ae81ff">36</span>), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>Column(sa<span style="color:#f92672">.</span>String)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    parents <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>relationship(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Parent&#39;</span>,
+</span></span><span style="display:flex;"><span>        secondary<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;association&#39;</span>,
+</span></span><span style="display:flex;"><span>        primaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Child.uuid == association.c.child_uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        secondaryjoin<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;association.c.parent_uuid == Parent.uuid&#39;</span>,
+</span></span><span style="display:flex;"><span>        back_populates<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;children&#39;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    engine <span style="color:#f92672">=</span> sa<span style="color:#f92672">.</span>create_engine(<span style="color:#e6db74">&#39;sqlite://&#39;</span>)
+</span></span><span style="display:flex;"><span>    session <span style="color:#f92672">=</span> orm<span style="color:#f92672">.</span>sessionmaker(bind<span style="color:#f92672">=</span>engine)()
+</span></span><span style="display:flex;"><span>    BASE<span style="color:#f92672">.</span>metadata<span style="color:#f92672">.</span>create_all(engine)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    parent <span style="color:#f92672">=</span> Parent(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;John Doe&#39;</span>, uuid<span style="color:#f92672">=</span>str(uuid<span style="color:#f92672">.</span>uuid4()))
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(parent)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    child <span style="color:#f92672">=</span> Child(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Jimmy Doe&#39;</span>, uuid<span style="color:#f92672">=</span>str(uuid<span style="color:#f92672">.</span>uuid4()))
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>add(child)
+</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    parent<span style="color:#f92672">.</span>children<span style="color:#f92672">.</span>append(child)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Parents&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> parent <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(Parent)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        children <span style="color:#f92672">=</span> [x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> parent<span style="color:#f92672">.</span>children]
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Parent: name=</span><span style="color:#e6db74">{</span>parent<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">, children=</span><span style="color:#e6db74">{</span>children<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;# Children&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> child <span style="color:#f92672">in</span> session<span style="color:#f92672">.</span>query(Child)<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>        parents <span style="color:#f92672">=</span> [x<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> child<span style="color:#f92672">.</span>parents]
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Child: name=</span><span style="color:#e6db74">{</span>child<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">, parents=</span><span style="color:#e6db74">{</span>parents<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>    print()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><p>Looking at the diff for these two files, we see the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>diff --git test_m2m.py test_m2m.py
+</span></span><span style="display:flex;"><span>index 948942f..d1dc0d4 100644
+</span></span><span style="display:flex;"><span><span style="color:#f92672">--- test_m2m.py
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ test_m2m.py
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -25,6 +25,14 @@ class Parent(BASE):
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>     uuid = sa.Column(sa.String(36), nullable=False)
+</span></span><span style="display:flex;"><span>     name = sa.Column(sa.String)
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">+    children = orm.relationship(
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        &#39;Child&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        secondary=&#39;association&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        primaryjoin=&#39;Parent.uuid == association.c.parent_uuid&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        secondaryjoin=&#39;association.c.child_uuid == Child.uuid&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        back_populates=&#39;parents&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+    )
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span> 
+</span></span><span style="display:flex;"><span> class Child(BASE):
+</span></span><span style="display:flex;"><span>     __tablename__ = &#39;children&#39;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -41,7 +49,7 @@ class Child(BASE):
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         secondary=&#39;association&#39;,
+</span></span><span style="display:flex;"><span>         primaryjoin=&#39;Child.uuid == association.c.child_uuid&#39;,
+</span></span><span style="display:flex;"><span>         secondaryjoin=&#39;association.c.parent_uuid == Parent.uuid&#39;,
+</span></span><span style="display:flex;"><span><span style="color:#f92672">-        backref=&#39;children&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+        back_populates=&#39;children&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>     )
+</span></span></code></pre></div><p>This is nearly identical to the changes required for migrating the one-to-many
+models. Once again, we simply replace <code>backref</code> with <code>back_populates</code> on the
+relationship that is defined. We then define a new <code>relationship</code> on the
+<code>Parent</code> model which has an inverse of the primary and secondary joins given
+for the <code>Child</code> model relationship.</p>
+<h2 id="summary">Summary</h2>
+<p>So that&rsquo;s how you migrate from <code>backref</code> to <code>back_populates</code> on models without
+foreign key constraints present. This likely isn&rsquo;t broadly useful but hopefully
+it will help someone that encounters this.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/python">#python</a>
+    
+    <a class="category" href="https://that.guru/categories/sqlalchemy">#sqlalchemy</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2022 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
