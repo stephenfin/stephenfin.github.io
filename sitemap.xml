@@ -2,28 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://that.guru/categories/alembic/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/</loc>
-    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/python/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/sqlalchemy/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/blog/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openstack/</loc>
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/quotas-in-openstack/</loc>
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/categories/sqlalchemy/</loc>
-    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://that.guru/blog/sqlalchemy-relationships-without-foreign-keys/</loc>
-    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/</loc>
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/closing-openstackclient-gaps/</loc>
