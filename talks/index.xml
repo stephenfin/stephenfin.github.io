@@ -9,10 +9,10 @@
     <lastBuildDate>Sun, 13 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Zero-Downtime Upgrades With SQLAlchemy and Alembic</title>
-      <link>https://that.guru/talks/zero-downtime-upgrades-with-sqlalchemy-and-alembic/</link>
+      <link>https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</link>
       <pubDate>Sun, 13 Nov 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://that.guru/talks/zero-downtime-upgrades-with-sqlalchemy-and-alembic/</guid>
+      <guid>https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</guid>
       <description>&lt;p&gt;This talk was delivered at &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;PyCon Ireland 2022&lt;/a&gt;. As the name would suggest,
 I aimed to describe how to implement a database upgrade pattern using
 SQLAlchemy + Alembic that would allow you to evolve you database schema without
