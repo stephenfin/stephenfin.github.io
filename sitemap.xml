@@ -11,6 +11,9 @@
     <loc>https://that.guru/categories/</loc>
     <lastmod>2022-11-13T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://that.guru/categories/openstack/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/categories/python/</loc>
     <lastmod>2022-11-13T00:00:00+00:00</lastmod>
   </url><url>
@@ -20,11 +23,17 @@
     <loc>https://that.guru/</loc>
     <lastmod>2022-11-13T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://that.guru/talks/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/blog/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</loc>
     <lastmod>2022-11-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2022-10-07T00:00:00+00:00</lastmod>
+    <loc>https://that.guru/talks/zero-downtime-upgrades-with-sqlalchemy-and-alembic/</loc>
+    <lastmod>2022-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/talks/openstack-from-10000ft/</loc>
+    <lastmod>2022-11-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/quotas-in-openstack/</loc>
     <lastmod>2022-10-07T00:00:00+00:00</lastmod>
@@ -42,9 +51,6 @@
     <lastmod>2022-06-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/reproducing-devstack-gate-jobs-locally/</loc>
-    <lastmod>2022-06-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/talks/</loc>
     <lastmod>2022-06-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</loc>

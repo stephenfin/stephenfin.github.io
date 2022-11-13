@@ -6,7 +6,50 @@
     <description>Recent content in Talks on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 14 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Zero-Downtime Upgrades With SQLAlchemy and Alembic</title>
+      <link>https://that.guru/talks/zero-downtime-upgrades-with-sqlalchemy-and-alembic/</link>
+      <pubDate>Sun, 13 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/zero-downtime-upgrades-with-sqlalchemy-and-alembic/</guid>
+      <description>&lt;p&gt;This talk was delivered at &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;PyCon Ireland 2022&lt;/a&gt;. As the name would suggest,
+I aimed to describe how to implement a database upgrade pattern using
+SQLAlchemy + Alembic that would allow you to evolve you database schema without
+incurring downtime.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Alembic is a database migrations tool written by the author of SQLAlchemy.
+Alembic is easy to get started with an provides a number of sensible defaults
+out-of-the-box. However, like SQLAlchemy itself, when you look under the hood
+you find a seriously capable engine capable of powering all sorts of database
+schema migrations. It can even auto-generate the migration files themselves!&lt;/p&gt;
+&lt;p&gt;In this presentation, we seek to explore some of these advanced features by
+implementing a pattern - the expand-contract pattern - that can allow for near
+zero-downtime database upgrades.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;Python Ireland&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;1114ae54fe09427c98a6cff38c9041f8&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>Openstack From 10000ft</title>
+      <link>https://that.guru/talks/openstack-from-10000ft/</link>
+      <pubDate>Sat, 12 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/openstack-from-10000ft/</guid>
+      <description>&lt;p&gt;This talk was a lightning talk I gave at PyCon Ireland 2022. There&amp;rsquo;s no real
+abstract.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7e9c43bd0cb4715b72e9ace211e5370&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>Teaching Padawans to Chop Wood and Carry Water in Their Open Source Journey</title>
       <link>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</link>
