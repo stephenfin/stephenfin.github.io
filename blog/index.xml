@@ -6,7 +6,100 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Sun, 13 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 03 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>API Versioning in Openstack</title>
+      <link>https://that.guru/blog/api-versioning-in-openstack/</link>
+      <pubDate>Fri, 03 Feb 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/api-versioning-in-openstack/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt;
+documentation, which you can find
+&lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning&#34;&gt;here&lt;/a&gt;.
+I&amp;rsquo;m duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The API versioning schemes in use in OpenStack vary between services and have
+evolved since the early days of OpenStack. There are two types of API
+versioning to consider: the &lt;em&gt;major&lt;/em&gt; version and the &lt;em&gt;minor&lt;/em&gt; version. Today,
+most OpenStack services have settled on a single &lt;em&gt;major&lt;/em&gt; API version and have
+chosen to evolve the API without bumping the &lt;em&gt;major&lt;/em&gt; API version any further.
+There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.&lt;/p&gt;
+&lt;h2 id=&#34;per-release-versions&#34;&gt;Per-release versions&lt;/h2&gt;
+&lt;p&gt;This is used by the Image service (glance) and Identity service (keystone). All
+changes to the API during a given release cycle are gathered into a single new
+API version. As such, the API version will increase at most once per release.
+You can continue to request older versions.&lt;/p&gt;
+&lt;p&gt;For example, consider the Image (glance) API.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Release&lt;/th&gt;
+&lt;th&gt;Supported 2.x API versions&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Grizzly&lt;/td&gt;
+&lt;td&gt;2.0 - 2.1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Havana&lt;/td&gt;
+&lt;td&gt;2.0 - 2.2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Kilo&lt;/td&gt;
+&lt;td&gt;2.0 - 2.3&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;microversions&#34;&gt;Microversions&lt;/h2&gt;
+&lt;p&gt;This is used by multiple services including the Compute service (nova), Block
+Storage service (cinder), and Shared Filesystem service (manila). Each change
+to the API will result in a new API version. As such, the API version can
+increase multiple times per release. You can continue to request older
+versions.&lt;/p&gt;
+&lt;p&gt;For example, consider the Compute (nova) API.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Release&lt;/th&gt;
+&lt;th&gt;Supported 2.x API versions&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Kilo&lt;/td&gt;
+&lt;td&gt;2.1 - 2.3&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Liberty&lt;/td&gt;
+&lt;td&gt;2.1 - 2.12&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Mitaka&lt;/td&gt;
+&lt;td&gt;2.1 - 2.25&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;extensions&#34;&gt;Extensions&lt;/h2&gt;
+&lt;p&gt;This is used by the Networking service (neutron). It’s a versioning scheme that
+doesn’t use API versions. Instead, it exposes a list of available extensions.
+An extension can add, remove or modify features and vendor-specific
+functionality to the API. This can include API resources/routes as well as new
+fields in API requests and responses. If you want to depend on a feature added
+by an extension, you should check if the extension is present.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Zero-downtime Upgrades With Alembic and SQLAlchemy</title>
       <link>https://that.guru/blog/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</link>
@@ -3809,214 +3902,6 @@ extra spec.&lt;/p&gt;
 placement means any effort to map a given instance to a specific host NUMA node
 is dead on arrival. We can achieve what&amp;rsquo;s necessary, but it can and should be
 done in a better way.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>VCPUs, PCPUs and Placement</title>
-      <link>https://that.guru/blog/cpu-resources-redux/</link>
-      <pubDate>Wed, 12 Feb 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/cpu-resources-redux/</guid>
-      <description>&lt;p&gt;In a &lt;a href=&#34;https://that.guru/blog/cpu-resources&#34;&gt;previous blog post&lt;/a&gt;, I&amp;rsquo;d described how instance NUMA
-topologies and CPU pinning worked in the OpenStack Compute service (nova).
-Starting with the 20.0.0 (Train) release, things have changed somewhat. This
-post serves to explain how things have changed and what impact that will have
-on a typical deployment.&lt;/p&gt;
-&lt;h2 id=&#34;the-pre-train-world&#34;&gt;The pre-Train world&lt;/h2&gt;
-&lt;p&gt;As noted previously, a NUMA topology could be added to an instance either
-explicitly, using the &lt;code&gt;hw:numa_nodes=N&lt;/code&gt; flavor extra spec, or implicitly, by
-requesting a specific mempage size (&lt;code&gt;hw:mem_page_size=N&lt;/code&gt;) or CPU pinning
-(&lt;code&gt;hw:cpu_policy=dedicated&lt;/code&gt;). For historical reasons, it is not possible to
-request memory pages or CPU pinning without getting a NUMA topology meaning
-every pinned instance or instance with hugepages (common when using something
-like Open vSwitch with DPDK) has a NUMA topology associated with it.&lt;/p&gt;
-&lt;p&gt;The presence of a NUMA topology implies a couple of things. The most
-beneficial of them is that each instance NUMA node is mapped to a unique host
-NUMA node and will only consume CPUs and RAM from that host node. The NUMA
-topology of the instance is exposed to the guest OS meaning well engineered
-applications running in the guest OS are able to able to tune themselves for
-this topology and avoid cross-NUMA node memory accesses and the performance
-penalties these brings. Unfortunately, there have also been some downsides, of
-which two were rather significant. The most impactful of these was the
-inability to correctly live migrate such instances, as noted in
-&lt;a href=&#34;https://bugs.launchpad.net/nova/+bug/1417667&#34;&gt;bug #1417667&lt;/a&gt;. In short, that bug noted that nova was not recalculating any
-of its CPU or mempage pinning information on a migration, resulting in a
-failure to live migrate to hosts with different NUMA topologies or, worse,
-individual instance NUMA nodes being spread across multiple NUMA nodes or the
-pinned CPUs of pinned instances overlapping with those of other pinned
-instances. The other issue stemmed from nova&amp;rsquo;s schizophrenic model for tracking
-resource utilization, where it used different models for tracking pinned CPUs
-from unpinned or &amp;ldquo;floating&amp;rdquo; CPUs, along with different models for tracking
-standard memory from explicit small and huge page requests. Combined, these led
-to a scenario where operators had to divide their datacenters up into &lt;a href=&#34;https://docs.openstack.org/nova/latest/admin/aggregates.html&#34;&gt;host
-aggregates&lt;/a&gt; in order to separate normal, unpinned instances from both pinned
-instances and unpinned instances with a NUMA topology.&lt;/p&gt;
-&lt;h2 id=&#34;train-to-the-rescue&#34;&gt;Train to the rescue&lt;/h2&gt;
-&lt;p&gt;Train changes things. Not only does it resolve the live migration issue through
-the completion of the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/train/approved/numa-aware-live-migration.html&#34;&gt;NUMA-aware live migration spec&lt;/a&gt; but it introduces an
-&lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/train/approved/cpu-resources.html&#34;&gt;entirely new model for tracking CPU resources&lt;/a&gt; that prevents the need to
-shard your datacenter using host aggregates. This is made possible by the
-reporting of a new resource type, &lt;code&gt;PCPU&lt;/code&gt;, for host CPUs intended to host pinned
-instance CPUs. This is described in the &lt;a href=&#34;https://docs.openstack.org/releasenotes/nova/train.html#relnotes-20-0-0-stable-train&#34;&gt;Train release notes&lt;/a&gt;.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Compute nodes using the libvirt driver can now report &lt;code&gt;PCPU&lt;/code&gt; inventory. This
-is consumed by instances with dedicated (pinned) CPUs. This can be configured
-using the &lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt; config option. The scheduler will
-automatically translate the legacy &lt;code&gt;hw:cpu_policy&lt;/code&gt; flavor extra spec or
-&lt;code&gt;hw_cpu_policy&lt;/code&gt; image metadata property to &lt;code&gt;PCPU&lt;/code&gt; requests, falling back to
-&lt;code&gt;VCPU&lt;/code&gt; requests only if no &lt;code&gt;PCPU&lt;/code&gt; candidates are found. Refer to the help
-text of the &lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt;, &lt;code&gt;[compute] cpu_shared_set&lt;/code&gt; and
-&lt;code&gt;vcpu_pin_set&lt;/code&gt; config options for more information.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;We&amp;rsquo;ll explore how this manifests itself in a bit, but before that we should
-look at how one can migrate from an existing pre-Train deployment using
-&lt;code&gt;[DEFAULT] vcpu_pin_set&lt;/code&gt; (or not using it, as the case may be) to these new
-configuration options.&lt;/p&gt;
-&lt;h2 id=&#34;migrating-to-train&#34;&gt;Migrating to Train&lt;/h2&gt;
-&lt;p&gt;The migration from Stein to Train is tricky. In short, we need to migrate from
-&lt;code&gt;[DEFAULT] vcpu_pin_set&lt;/code&gt; to a combination of &lt;code&gt;[compute] cpu_shared_set&lt;/code&gt; and
-&lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt; and unset &lt;code&gt;[DEFAULT] reserved_host_cpus&lt;/code&gt;. How you
-do this is touched upon in the help text for the &lt;a href=&#34;https://docs.openstack.org/nova/train/configuration/config.html#DEFAULT.vcpu_pin_set&#34;&gt;&lt;code&gt;[DEFAULT] vcpu_pin_set&lt;/code&gt;&lt;/a&gt;,
-&lt;a href=&#34;https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_shared_set&#34;&gt;&lt;code&gt;[compute] cpu_shared_set&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://docs.openstack.org/nova/train/configuration/config.html#compute.cpu_dedicated_set&#34;&gt;&lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt;&lt;/a&gt; options.
-As always, a diagram will help:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources-redux_migration.png&#34; alt=&#34;Migrating nova.conf&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Once this migration is complete, restarting the &lt;code&gt;nova-compute&lt;/code&gt; service will
-result in nova automatically &amp;ldquo;reshaping&amp;rdquo; the inventory for the compute node
-stored in placement. Any host CPUs listed in the &lt;code&gt;[compute] cpu_shared_set&lt;/code&gt;
-config option will continue to be reported as &lt;code&gt;VCPU&lt;/code&gt; inventory, but host CPUs
-listed in the &lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt; config option will be reported as
-&lt;code&gt;PCU&lt;/code&gt; inventory.&lt;/p&gt;
-&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;
-&lt;p&gt;Let&amp;rsquo;s look at some examples of how this would be reflected in the real world.
-For all these examples, consider a host with two sockets and two CPUs with four
-cores and no hyperthreading (so eight CPUs).&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://that.guru/media/cpu-resources_host-topology.png&#34; alt=&#34;The basic host&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;hosts-with-unpinned-workloads&#34;&gt;Hosts with unpinned workloads&lt;/h3&gt;
-&lt;p&gt;If your host is only intended for unpinned workloads, you don&amp;rsquo;t need to do
-anything! If neither &lt;code&gt;[compute] cpu_shared_set&lt;/code&gt; nor &lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt; are configured, the former will default to all host cores.&lt;/p&gt;
-&lt;p&gt;We can see this in practice by examining the placement records for the given
-compute node. For example:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 8     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 8     |
-+------------------+-------+
-
-$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Optionally, we might decide to exclude a certain number of cores, perhaps
-setting aside some for the host. For example, to reserve core 0 from each host
-NUMA node for the host, configure the following in &lt;code&gt;nova.conf&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[compute]
-cpu_shared_set = 1-3,5-7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If we now query placement again, we&amp;rsquo;ll see the number of available &lt;code&gt;VCPU&lt;/code&gt;
-inventory has dropped.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 6     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 6     |
-+------------------+-------+
-
-$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;hosts-with-pinned-workloads&#34;&gt;Hosts with pinned workloads&lt;/h3&gt;
-&lt;p&gt;Next, let&amp;rsquo;s consider a host that&amp;rsquo;s only intended for pinned workloads.
-Previously, we highly recommended configuring &lt;code&gt;[DEFAULT] vcpu_pin_set&lt;/code&gt; as not
-setting this could result in impacted performance for some workloads due to
-contention from the host. The new &lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt; option is
-mandatory because, as noted above, not configuring any option will result in
-all host cores being reported as &lt;code&gt;VCPU&lt;/code&gt; inventory. Let&amp;rsquo;s once again reserve
-core 0 from each host NUMA node for the host by configuring our &lt;code&gt;nova.conf&lt;/code&gt;
-like so:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[compute]
-cpu_dedicated_set = 1-3,5-7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If we query placement, we&amp;rsquo;ll no longer see &lt;code&gt;VCPU&lt;/code&gt; inventory but rather &lt;code&gt;PCPU&lt;/code&gt;
-inventory.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-
-$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 1.0   |
-| max_unit         | 6     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 6     |
-+------------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;PCPU&lt;/code&gt; inventory will always have an &lt;code&gt;allocation_ratio&lt;/code&gt; or &lt;code&gt;1.0&lt;/code&gt;. This is
-because pinned CPUs cannot be oversubscribed.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;hosts-with-mixed-pinned-and-unpinned-workloads&#34;&gt;Hosts with mixed pinned and unpinned workloads&lt;/h2&gt;
-&lt;p&gt;Finally, let&amp;rsquo;s consider a host with both pinned and unpinned workloads. As
-discussed earlier, this was not previously possible. To do this, we must simple
-configure both &lt;code&gt;[compute] cpu_shared_set&lt;/code&gt; and &lt;code&gt;[compute] cpu_dedicated_set&lt;/code&gt; on
-the host. Given that we have two host NUMA nodes with for cores per node, let&amp;rsquo;s
-reserve two cores from each node for both pinned and unpinned workloads by
-configuring our &lt;code&gt;nova.conf&lt;/code&gt; like so:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[compute]
-cpu_shared_set = 0,1,4,5
-cpu_dedicated_set = 2,3,6,7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If we query placement, we&amp;rsquo;ll now see both &lt;code&gt;VCPU&lt;/code&gt; and &lt;code&gt;PCPU&lt;/code&gt; inventory reported
-alongside each other.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 VCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 16.0  |
-| max_unit         | 4     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 4     |
-+------------------+-------+
-
-$ openstack --os-placement-api-version 1.18 resource provider inventory show \
-    6a969900-bbf7-4725-959b-2db3092933b0 PCPU
-+------------------+-------+
-| Field            | Value |
-+------------------+-------+
-| allocation_ratio | 1.0   |
-| max_unit         | 4     |
-| reserved         | 0     |
-| step_size        | 1     |
-| min_unit         | 1     |
-| total            | 4     |
-+------------------+-------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
-&lt;p&gt;The ability to place both pinned and unpinned instances on the same compute
-node should lead to higher resource utilization and avoid the need to shard
-your compute, both of which are very useful features for smaller deployments.&lt;/p&gt;
 </description>
     </item>
     

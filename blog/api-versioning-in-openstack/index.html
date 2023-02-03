@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Using AMI Images in OpenStack | that.guru</title>
+  <title>API Versioning in Openstack | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -22,7 +22,7 @@
   <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
   <style type="text/css">
     .header-wrapper {
-      background-image: url(https://source.unsplash.com/5yEiCUynJ9w/1920x1080);
+      background-image: url(https://source.unsplash.com/yD5rv8_WzxA/1920x1080);
     }
   </style>
 </head>
@@ -34,7 +34,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Using AMI Images in OpenStack</h1>
+    <h1 class="title">API Versioning in Openstack</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -78,48 +78,98 @@
         <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
       </div>
       <div class="byline-meta-content">
-        <time datetime='2020-05-28T00:00:00Z'>May 28, 2020</time>
+        <time datetime='2023-02-03T00:00:00Z'>Feb 3, 2023</time>
         <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
       </div>
     </div>
   </div>
 
   <article>
-    <p>I recently had to validate some interactions between the OpenStack Image
-service, <a href="https://docs.openstack.org/glance/latest/">glance</a>, and the Compute service, <a href="https://docs.openstack.org/nova/latest/">nova</a>. For this, I needed
-separate kernel and ramdisk images. Glance supports a variety of image formats,
-which is required since different virtualization backends support different
-image formats. For quite some time, the <a href="https://docs.openstack.org/devstack/latest/">DevStack</a> installer defaulted to
-using AMI images, so if you&rsquo;d run <code>openstack image list</code> on a fresh
-DevStack-based deployment, you&rsquo;d have seen three <a href="https://download.cirros-cloud.net/">CirrOS</a> &ldquo;images&rdquo; with
-differing suffixes: <code>-uec</code>, <code>-uec-ramdisk</code>, and <code>-uec-kernel</code>. This has since
-<a href="https://github.com/openstack/devstack/commit/6fc332d85279865c32f50b081efb25ba7b671a9a">changed</a>, but there&rsquo;s no reason we can&rsquo;t create these types of image still.</p>
-<p>First, let&rsquo;s get the image. We&rsquo;re going to want the Ubuntu Enterprise Cloud
-(UEC) CirrOS images:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ wget https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-uec.tar.gz
-</span></span></code></pre></div><p>Extract this tarball, which will yield three files: a <code>vmlinuz</code> kernel image,
-a <code>initrd</code> ramdisk image, and a empty mkfs&rsquo;d <code>blank</code> image:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ tar -xvzf cirros-0.5.1-x86_64-uec.tar.gz
-</span></span></code></pre></div><p>With those created, we can now create the three images in glance. First, the
-kernel image:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack image create cirros-0.5.1-x86_64-uec-kernel <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --public --disk-format aki --container-format aki \
-</span></span><span style="display:flex;"><span>    --file cirros-0.5.1-x86_64-vmlinuz
-</span></span></code></pre></div><p>Then the ramdisk image:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack image create cirros-0.5.1-x86_64-uec-ramdisk <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --public --disk-format ari --container-format ari \
-</span></span><span style="display:flex;"><span>    --file cirros-0.5.1-x86_64-initrd
-</span></span></code></pre></div><p>And finally the &ldquo;machine&rdquo; image, which requires references to the kernel and
-ramdisk image by way of image metadata properties:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack image create cirros-0.5.1-x86_64-uec <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --property ramdisk_id=52ab2881-3f0e-4d0b-8824-d6c144eb872a \
-</span></span><span style="display:flex;"><span>    --property kernel_id=b582cf17-1785-4915-9b89-dc31c1794757 \
-</span></span><span style="display:flex;"><span>    --public --disk-format ami --container-format ami \
-</span></span><span style="display:flex;"><span>    --file cirros-0.5.1-x86_64-blank.img
-</span></span></code></pre></div><p>Once done, you should be able to boot an instance using the machine image:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack server create cirros-server <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
-</span></span></code></pre></div>
+    <blockquote>
+<p>This post is based on changes I recently made to the <em>python-openstackclient</em>
+documentation, which you can find
+<a href="https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning">here</a>.
+I&rsquo;m duplicating it here in the hopes that it&rsquo;ll be more discoverable.</p>
+</blockquote>
+<p>The API versioning schemes in use in OpenStack vary between services and have
+evolved since the early days of OpenStack. There are two types of API
+versioning to consider: the <em>major</em> version and the <em>minor</em> version. Today,
+most OpenStack services have settled on a single <em>major</em> API version and have
+chosen to evolve the API without bumping the <em>major</em> API version any further.
+There are three API <em>minor</em> versioning schemes in common use.</p>
+<h2 id="per-release-versions">Per-release versions</h2>
+<p>This is used by the Image service (glance) and Identity service (keystone). All
+changes to the API during a given release cycle are gathered into a single new
+API version. As such, the API version will increase at most once per release.
+You can continue to request older versions.</p>
+<p>For example, consider the Image (glance) API.</p>
+<table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Supported 2.x API versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grizzly</td>
+<td>2.0 - 2.1</td>
+</tr>
+<tr>
+<td>Havana</td>
+<td>2.0 - 2.2</td>
+</tr>
+<tr>
+<td>Kilo</td>
+<td>2.0 - 2.3</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td>&hellip;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="microversions">Microversions</h2>
+<p>This is used by multiple services including the Compute service (nova), Block
+Storage service (cinder), and Shared Filesystem service (manila). Each change
+to the API will result in a new API version. As such, the API version can
+increase multiple times per release. You can continue to request older
+versions.</p>
+<p>For example, consider the Compute (nova) API.</p>
+<table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Supported 2.x API versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kilo</td>
+<td>2.1 - 2.3</td>
+</tr>
+<tr>
+<td>Liberty</td>
+<td>2.1 - 2.12</td>
+</tr>
+<tr>
+<td>Mitaka</td>
+<td>2.1 - 2.25</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td>&hellip;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="extensions">Extensions</h2>
+<p>This is used by the Networking service (neutron). It’s a versioning scheme that
+doesn’t use API versions. Instead, it exposes a list of available extensions.
+An extension can add, remove or modify features and vendor-specific
+functionality to the API. This can include API resources/routes as well as new
+fields in API requests and responses. If you want to depend on a feature added
+by an extension, you should check if the extension is present.</p>
+
   </article>
 
   <div class="disqus">

@@ -202,7 +202,7 @@ header, footer, h1, h2, h3, h4 {
 }
 
 /* TODO: We should set this on 'html' and counter it elsewhere */
-p, li {
+p, li, table {
   font-size: 1.25rem;
 }
 
@@ -240,6 +240,22 @@ pre code {
 article a {
   font-weight: normal;
   text-decoration: underline;
+}
+
+table, th, td {
+  border: 1px solid;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.1rem 0.5rem;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
 /* Structure */
