@@ -116,18 +116,18 @@ implement this yourself if you didn&amp;rsquo;t want to the &lt;code&gt;utils&lt
       <pubDate>Fri, 03 Feb 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/api-versioning-in-openstack/</guid>
-      <description>&lt;blockquote&gt;
-&lt;p&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt;
-documentation, which you can find
-&lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning&#34;&gt;here&lt;/a&gt;.
-I&amp;rsquo;m duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;The API versioning schemes in use in OpenStack vary between services and have
+      <description>&lt;p&gt;The API versioning schemes in use in OpenStack vary between services and have
 evolved since the early days of OpenStack. There are two types of API
 versioning to consider: the &lt;em&gt;major&lt;/em&gt; version and the &lt;em&gt;minor&lt;/em&gt; version. Today,
 most OpenStack services have settled on a single &lt;em&gt;major&lt;/em&gt; API version and have
 chosen to evolve the API without bumping the &lt;em&gt;major&lt;/em&gt; API version any further.
 There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt;
+documentation, which you can find
+&lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning&#34;&gt;here&lt;/a&gt;.
+I&amp;rsquo;m duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&#34;per-release-versions&#34;&gt;Per-release versions&lt;/h2&gt;
 &lt;p&gt;This is used by the Image service (glance) and Identity service (keystone). All
 changes to the API during a given release cycle are gathered into a single new
