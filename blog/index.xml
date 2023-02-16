@@ -6,7 +6,107 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Fri, 03 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 16 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hello, Gophercloud</title>
+      <link>https://that.guru/blog/gophercloud-hello-world/</link>
+      <pubDate>Thu, 16 Feb 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/gophercloud-hello-world/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been playing around with &lt;a href=&#34;https://github.com/gophercloud/gophercloud&#34;&gt;Gophercloud&lt;/a&gt; over the past few days. While it&amp;rsquo;s nowhere near as complete as
+&lt;a href=&#34;https://opendev.org/openstack/openstacksdk&#34;&gt;openstacksdk&lt;/a&gt; (which, coincidentally, recently hit the big &lt;a href=&#34;https://pypi.org/project/openstacksdk/1.0.0&#34;&gt;1.0.0 milestone&lt;/a&gt; 🎉) or
+legacy Python-based service clients yet, it is clearly a great tool to have in your arsenal and is the library
+underlying the &lt;a href=&#34;https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs&#34;&gt;Terraform OpenStack Provider&lt;/a&gt;, OpenStack platform support in
+&lt;a href=&#34;https://github.com/openshift/installer&#34;&gt;openshift-install&lt;/a&gt;, various OpenStack-specific Kubernetes components, among others.&lt;/p&gt;
+&lt;p&gt;In the interests of easing ramp-up for anyone else trying to get started with &lt;em&gt;Gophercloud&lt;/em&gt;, here&amp;rsquo;s an simple &amp;ldquo;hello,
+world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt;/em&gt; and &lt;em&gt;openstacksdk&lt;/em&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;gophercloud-go&#34;&gt;Gophercloud (Go)&lt;/h2&gt;
+&lt;p&gt;Create a new directory containing a single file, &lt;code&gt;main.go&lt;/code&gt;, and add the following to it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;github.com/gophercloud/gophercloud/openstack/compute/v2/servers&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;github.com/gophercloud/utils/openstack/clientconfig&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;opts&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; new(&lt;span style=&#34;color:#a6e22e&#34;&gt;clientconfig&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ClientOpts&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// We could configure the cloud manually but we don&amp;#39;t. Instead we&amp;#39;ll opt to load the cloud from the &amp;#39;OS_CLOUD&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// environment variable
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// opts.Cloud = &amp;#34;devstack-admin&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;client&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;clientconfig&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;NewServiceClient&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;compute&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;opts&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;pager&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;servers&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;List&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;client&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;AllPages&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;servers&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;servers&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ExtractServers&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;pager&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;servers:&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;server&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;range&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;servers&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Printf&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;  server %d: id=%s\n&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;i&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;server&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ID&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now generate the &lt;code&gt;go.mod&lt;/code&gt; file.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ go mod init gophercloud-hello-world
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ go mod tidy
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you can run the command.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ export OS_CLOUD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;devstack-admin  &lt;span style=&#34;color:#75715e&#34;&gt;# or another entry from your local &amp;#39;clouds.yaml&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ go run .
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should dump something like the following.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;servers:
+  server 0: id=395b60b4-73be-4ba4-a8a8-fdaa3fce57d5
+&lt;/code&gt;&lt;/pre&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This example also makes use of the &lt;a href=&#34;https://github.com/gophercloud/utils&#34;&gt;gophercloud/utils&lt;/a&gt; library, to simplify authentication and the
+creation of clients. &lt;em&gt;gophercloud&lt;/em&gt; itself doesn&amp;rsquo;t provider native support for &lt;code&gt;clouds.yaml&lt;/code&gt; files, meaning you&amp;rsquo;d need to
+implement this yourself if you didn&amp;rsquo;t want to the &lt;code&gt;utils&lt;/code&gt;  library.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;openstacksdk-python&#34;&gt;openstacksdk (Python)&lt;/h2&gt;
+&lt;p&gt;Create a new directory containing a single file, &lt;code&gt;main.py&lt;/code&gt;, and add the following to it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    conn &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;connect()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    servers &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; conn&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;compute&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;servers()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    print(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;servers:&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i, server &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; enumerate(servers):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  server &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;i&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;: id=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;id&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; __name__ &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    main()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now create a virtual environment and install the dependencies.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ virtualenv .venv
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ source .venv/bin/activate
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pip install openstacksdk
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you can run the command.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ export OS_CLOUD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;devstack-admin  &lt;span style=&#34;color:#75715e&#34;&gt;# or another entry from your local &amp;#39;clouds.yaml&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ python main.py
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should dump identical output to the Go-based script.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;servers:
+  server 0: id=395b60b4-73be-4ba4-a8a8-fdaa3fce57d5
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    
     <item>
       <title>API Versioning in Openstack</title>
       <link>https://that.guru/blog/api-versioning-in-openstack/</link>
@@ -3741,168 +3841,6 @@ ramdisk image by way of image metadata properties:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server create cirros-server &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
-    </item>
-    
-    <item>
-      <title>Why You Can&#39;t Schedule to Host NUMA Nodes in Nova?</title>
-      <link>https://that.guru/blog/the-numa-scheduling-story-in-nova/</link>
-      <pubDate>Thu, 21 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/the-numa-scheduling-story-in-nova/</guid>
-      <description>&lt;p&gt;If I had a euro for every time someone had asked me or someone else working on
-nova for the ability to schedule an instance to a specific host NUMA node, I
-might never have to leave the pub (back in halcyon days pre-COVID-19 when pubs
-were still a thing, that is).&lt;/p&gt;
-&lt;p&gt;Below is an edited version of a response one of my friends and colleagues,
-&lt;a href=&#34;https://github.com/SeanMooney&#34;&gt;Sean Mooney&lt;/a&gt;, provided to a Red Hat partner asking just this question
-recently. This information is accurate as of the OpenStack 21.0.0 (Ussuri)
-release but is subject to change in future releases.&lt;/p&gt;
-&lt;h2 id=&#34;whats-wrong-with-choosing-a-host-numa-node&#34;&gt;What&amp;rsquo;s wrong with choosing a host NUMA node?&lt;/h2&gt;
-&lt;p&gt;In almost all cases when we discuss the motivation for this request with
-people, we discover that selecting host CPUs or NUMA nodes via the flavor is
-not actually what they wanted to do. Rather, it is seen as a means to an end
-recommended by people familiar with virtualisation technologies but not with
-cloud platforms. There are a number of reasons this is not considered an
-acceptable solution in a cloud context. To summarize:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;It is seen as a potential security concern for public clouds.&lt;/p&gt;
-&lt;p&gt;To correctly understand which flavor to use when flavors can map to host
-resources like CPUs or NUMA nodes would require knowledge of the underlying
-hardware. This information can be used by a malicious user as a DDOS vector
-as they could intentionally place their instance on the same NUMA node
-(opening the opportunity to exhaust memory bandwidth of a NUMA node) and
-host as their victim. It also exposes information about what hardware a
-cloud is running indirectly that many clouds would prefer not to share.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;It is a violation of the cloud abstraction.&lt;/p&gt;
-&lt;p&gt;OpenStack is a cloud platform intended to provide a consistent API across
-multiple backend implementations of services. In fact, cloud abstraction is
-a key element of the &lt;a href=&#34;https://docs.openstack.org/nova/latest/contributor/project-scope.html#driver-parity&#34;&gt;nova project scope&lt;/a&gt;. Virtual NUMA topologies are
-supported by two main drivers today, Libvirt and HyperV, and while the
-Libvirt driver and Libvirt in general are much more flexible than other
-virt drivers in many aspects, nova does strive to keep the differences to a
-minimum. If we were to encode the semantics of how virtual resources map to
-physical resources, we would exclude the possibility of achieving
-interoperability between different drivers or different clouds as well as
-create barriers to adopting features across multiple drivers.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;It makes our clouds much smaller and less useful.&lt;/p&gt;
-&lt;p&gt;Encoding host specific resource assignment information severely limits the
-available hosts that can be used to create an instance. It complicates move
-operations and makes the maintainability and extensibility of the scheduler
-harder over time. The operational overhead of having to create different
-flavors for a VM that runs on node 5 vs node 6 and the additional cognitive
-load that this puts on the end user is a failure in API design. Instead of
-expressing an abstract policy, the end user and operator needs to
-understand the intricate mechanics of how the workload compute context is
-created.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;There are additional reasons to those listed above, but these alone should
-serve to illustrate that this is not oversight in how nova currently functions
-but rather a very deliberate design choice that we do not want to remove.&lt;/p&gt;
-&lt;h2 id=&#34;but-we-really-need-this-so-why-cant-you-special-case-it-for-us&#34;&gt;But we really need this, so why can&amp;rsquo;t you special case it for us?&lt;/h2&gt;
-&lt;p&gt;If you were willing to ignore all of the above, and the many other reasons for
-not doing this, you might tempted to think that you could maybe hack this in
-anyway. After all, extra specs have long been one of the untamed corners of
-nova (at least, they were until &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/ussuri/implemented/flavor-extra-spec-validators.html&#34;&gt;Ussuri&lt;/a&gt;). Not so fast. Long-term, it&amp;rsquo;s
-unlikely that this will even be an option for reasons to do with how we&amp;rsquo;ve
-handled scheduling in nova in the past and how we&amp;rsquo;re planning to evolve it in
-the future.&lt;/p&gt;
-&lt;p&gt;As you may or may not be aware, there has been a multi-year effort to evolve
-the tracking of resources in OpenStack. This effort predates the creation of
-the placement service but was the primary reason for its existence. Nova has a
-multi-layer scheduling approach, the first step of which is delegated to the
-placement service, followed by filtering and then weighing. Following
-scheduling (that is, the act of selecting a host) there is then a resource
-assignment phase that is performed by the virt driver.&lt;/p&gt;
-&lt;p&gt;While the scheduling and resource assignment steps are heavily linked, they are
-&lt;strong&gt;independent&lt;/strong&gt; operations. To put this in concrete terms, while the NUMA
-topology filter has input into selecting a host, by determining whether a given
-NUMA topology can be created on a given host, it has no input into selecting
-which NUMA nodes on the host will be used for the VM. That decision is made
-entirely by the virt driver during the assignment phase. The three phases of
-nova scheduling today are summarised as follows:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;The placement service is queried for a set of allocation candidates
-(potential hosts your instance can be scheduled to) that represent resource
-allocation on hosts that can fulfil the quantitative and qualitative
-requirement of the resources requested for an instance.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;The hosts represented by those allocation candidates are filtered based
-primarily on non-resource related attributes such as server group affinity
-or anti-affinity constraints and resources and topologies that are not yet
-modeled in placement, such as PCI devices and hugepages and various NUMA
-affinity metrics.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;The filtered hosts are weighed to select an optimal host.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Up until now, placement, which has a global hierarchical view of resources from
-multiple services, has largely operated on the basis of tracking a simple tally
-count of resources on a given host. When it was originally created, placement
-modeled each compute host as a single resource provider containing multiple
-inventories of different resources classes. Each resource provider can only
-have one instance of an inventory per resource class, so when memory is
-represented as &lt;code&gt;MEMORY_MB&lt;/code&gt; it tracks the total available system memory on the
-host. Placement also tracks allocation from resource providers to instances so
-it can know how much of each resource is still available. It can then use this
-capacity information in addition to some qualitative traits (e.g. this host
-has SSD storage while this host does not) to produce a set of potential
-allocation candidates.&lt;/p&gt;
-&lt;p&gt;As we have evolved from this simple view, we have extended the placement API to
-support nested resource providers, allowing us to convert a flat view of a
-host&amp;rsquo;s resources into a tree data structure. There were many reasons for this
-effort, but the chief motivator was that it allows us to begin modelling of
-&lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/ussuri/approved/numa-topology-with-rps.html&#34;&gt;NUMA topologies in placement&lt;/a&gt;. This will allow us to track hugepages as
-inventory in placement as well as consider NUMA affinity for things like vGPUs
-(note: we also plan to model generic PCI devices in placement, though this
-effort will likely not begin until the NUMA-in-placement effort is complete).
-There are two implications of this work that would prevent a &amp;ldquo;boot on NUMA node
-N&amp;rdquo; feature in the future.&lt;/p&gt;
-&lt;p&gt;Firstly, doing this work will allow us to remove the NUMA topology filter in
-the future, increasing scheduler performance among other things but you do not
-get this performance for free. In the case of placement, the trade-off is in
-the freedom to select resources on the host during the assignment phase. In
-order to maintain placement as the single source or truth with regard to
-capacity and availability of resources, it is vitally important that, when a
-resource class on a host exists on multiple separate providers, the virt driver
-will &lt;strong&gt;only&lt;/strong&gt; allocate resources from the hardware corresponding to the
-resource provider chosen during scheduling. For example, memory tracked per
-NUMA node or vGPUs tracked per physical GPU must be assigned from the NUMA node
-or pGPU that the allocation is made against in placement. This means that in a
-world where all resources are tracked in placement, the assignment done by a
-virt driver is constrained to only looking at a subset of hardware that
-correlates with the placement allocation and it will no longer be possible to,
-for example, ensure that a given instance is pinned to CPUs from a specific
-NUMA node.&lt;/p&gt;
-&lt;p&gt;Secondly, it&amp;rsquo;s important to realize that the resource topology reported to
-placement will be determined by the virt driver that reports them.  For
-example, ironic hosts are represented using a single custom resource class
-rather than reporting &lt;code&gt;VCPU&lt;/code&gt;, &lt;code&gt;MEMORY_MB&lt;/code&gt; and &lt;code&gt;DISK_GB&lt;/code&gt; inventories in
-order to model their consumption as a single unit. This means that at the time
-of making the placement query, since we have not yet selected a host we also
-have not selected a compute context (hypervisor, baremetal/composable server or
-container runtime) and as such cannot make assumptions about how the virt
-driver that manages that host will model its resource in placement. Nova
-supports using multiple compute contexts concurrently and it&amp;rsquo;s not uncommon for
-operators to use image-based filters to map Windows images to HyperV hosts and
-Linux images to VMWare or Libvirt hosts. Similarly, in a multi-architecture
-cloud, they may offer PowerVM hosts. Since each of these compute contexts may
-support assigning host resources to instances in different ways we cannot make
-it an API requirement to pin the instance to NUMA node N based on a flavor
-extra spec.&lt;/p&gt;
-&lt;p&gt;Taken together, the continued effort to move tracking of all resource to
-placement means any effort to map a given instance to a specific host NUMA node
-is dead on arrival. We can achieve what&amp;rsquo;s necessary, but it can and should be
-done in a better way.&lt;/p&gt;
-</description>
     </item>
     
   </channel>
