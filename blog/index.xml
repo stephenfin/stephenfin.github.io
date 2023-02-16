@@ -17,7 +17,7 @@
 &lt;a href=&#34;https://opendev.org/openstack/openstacksdk&#34;&gt;openstacksdk&lt;/a&gt; (which, coincidentally, recently hit the big &lt;a href=&#34;https://pypi.org/project/openstacksdk/1.0.0&#34;&gt;1.0.0 milestone&lt;/a&gt; 🎉) or
 legacy Python-based service clients yet, it is clearly a great tool to have in your arsenal and is the library
 underlying the &lt;a href=&#34;https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs&#34;&gt;Terraform OpenStack Provider&lt;/a&gt;, OpenStack platform support in
-&lt;a href=&#34;https://github.com/openshift/installer&#34;&gt;openshift-install&lt;/a&gt;, various OpenStack-specific Kubernetes components, among others.&lt;/p&gt;
+&lt;a href=&#34;https://github.com/openshift/installer&#34;&gt;openshift-install&lt;/a&gt;, and various OpenStack-specific Kubernetes components, among others.&lt;/p&gt;
 &lt;p&gt;In the interests of easing ramp-up for anyone else trying to get started with &lt;em&gt;Gophercloud&lt;/em&gt;, here&amp;rsquo;s an simple &amp;ldquo;hello,
 world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt;/em&gt; and &lt;em&gt;openstacksdk&lt;/em&gt;.&lt;/p&gt;
 &lt;h2 id=&#34;gophercloud-go&#34;&gt;Gophercloud (Go)&lt;/h2&gt;
