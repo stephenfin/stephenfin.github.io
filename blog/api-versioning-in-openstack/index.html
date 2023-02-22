@@ -91,12 +91,14 @@ versioning to consider: the <em>major</em> version and the <em>minor</em> versio
 most OpenStack services have settled on a single <em>major</em> API version and have
 chosen to evolve the API without bumping the <em>major</em> API version any further.
 There are three API <em>minor</em> versioning schemes in common use.</p>
-<blockquote>
-<p>This post is based on changes I recently made to the <em>python-openstackclient</em>
-documentation, which you can find
-<a href="https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning">here</a>.
-I&rsquo;m duplicating it here in the hopes that it&rsquo;ll be more discoverable.</p>
-</blockquote>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">This post is based on changes I recently made to the <em>python-openstackclient</em> documentation, which you can find
+<a href="https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning">here</a>. I&rsquo;m
+duplicating it here in the hopes that it&rsquo;ll be more discoverable.</div>
+</aside>
+
 <h2 id="per-release-versions">Per-release versions</h2>
 <p>This is used by the Image service (glance) and Identity service (keystone). All
 changes to the API during a given release cycle are gathered into a single new

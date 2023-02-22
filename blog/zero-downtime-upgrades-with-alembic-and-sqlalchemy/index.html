@@ -85,18 +85,13 @@
   </div>
 
   <article>
-    <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is the blog form of a talk I delivered at <a href="https://python.ie/pycon-2022/schedule/">PyCon Ireland 2022</a>. You can find the slides <a href="https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy">here</a> and the source code <a href="https://github.com/stephenfin/alembic-expand-contract-demo">here</a>.</div>
-</aside>
-
-<aside class="admonition note">
-	
-	
-	<div class="admonition-content">I mention OpenStack services a bit below but don&rsquo;t worry, this article isn&rsquo;t actually about OpenStack 😉 We&rsquo;re merely using it as a good example. The problems that OpenStack needs to address such as scaling out services in larger deployments are common to most distributed services.</div>
-</aside>
-
+    <p>This is the blog form of a talk I delivered at <a href="https://python.ie/pycon-2022/schedule/">PyCon Ireland 2022</a>. You can
+find the slides <a href="https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy">here</a> and the source code
+<a href="https://github.com/stephenfin/alembic-expand-contract-demo">here</a>.</p>
+<p>One thing to note before we begin is that while I mention OpenStack services below, this article isn&rsquo;t actually about
+OpenStack 😉 We&rsquo;re merely using it as a good example. The problems that OpenStack needs to address such as scaling out
+services in larger deployments are common to most distributed services.</p>
+<h2 id="background">Background</h2>
 <p>In the beginning, there were only two OpenStack services: Swift, which was responsible for object-storage, and Nova, which handled everything else. Over time, the list of services has <a href="https://en.wikipedia.org/wiki/OpenStack#Release_history">grown enormously</a> as Nova has shed some of its former responsibilities to other services and the amounts of things an OpenStack cloud can do has grown. However, due to many projects&rsquo; shared heritage (where they were split out from or modeled on Nova) and general design decisions made in the early days of OpenStack, even the newest OpenStack services tend to have a couple of commonalities in their design. Two of these are relevant to this article. Firstly, many of the services are designed to be horizontally scalable and almost always use a message broker to achieve this. This message broker is typically RabbitMQ and it provides a way for multiple instances of a service to communicate with each other. Secondly, without fail, OpenStack services will use a traditional relational DB to store data. The database backend is usually MySQL (although PostgreSQL is also an option) while SQLAlchemy is used for them ORM.</p>
 <p>These two design decisions are relevant because they contain an inherent conflict. There can be many instances of a service (e.g. <code>nova-conductor</code> or <code>nova-api</code>) but they will all share a single database. If the schema of the database changes then each of these services will need to understand the new format. Historically in OpenStack, the way to do this was to closely couple the source code and database schema. An upgrade to a new version of OpenStack would necessitate taking all services down, upgrading the service code and the database schema, and then restarting the services. It works but it requires potentially large API downtime: the table lock that MySQL grabs while migrating the schema will block all reads and writes until the migration is complete, and for large installations where tables can have many millions of rows that migration can take minutes if not hours. This isn&rsquo;t good enough for most production enterprise clouds, let alone specific applications like Telco where SLAs are something that the <em>government</em> cares about. What we want is the ability to do rolling upgrades. Enter expand-contract.</p>
 <h2 id="the-expand-migrate-contract-pattern">The Expand-Migrate-Contract pattern</h2>

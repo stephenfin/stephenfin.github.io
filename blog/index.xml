@@ -121,12 +121,14 @@ versioning to consider: the &lt;em&gt;major&lt;/em&gt; version and the &lt;em&gt
 most OpenStack services have settled on a single &lt;em&gt;major&lt;/em&gt; API version and have
 chosen to evolve the API without bumping the &lt;em&gt;major&lt;/em&gt; API version any further.
 There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt;
-documentation, which you can find
-&lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning&#34;&gt;here&lt;/a&gt;.
-I&amp;rsquo;m duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/p&gt;
-&lt;/blockquote&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt; documentation, which you can find
+&lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning&#34;&gt;here&lt;/a&gt;. I&amp;rsquo;m
+duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;h2 id=&#34;per-release-versions&#34;&gt;Per-release versions&lt;/h2&gt;
 &lt;p&gt;This is used by the Image service (glance) and Identity service (keystone). All
 changes to the API during a given release cycle are gathered into a single new
@@ -208,18 +210,13 @@ by an extension, you should check if the extension is present.&lt;/p&gt;
       <pubDate>Sun, 13 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</guid>
-      <description>&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is the blog form of a talk I delivered at &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;PyCon Ireland 2022&lt;/a&gt;. You can find the slides &lt;a href=&#34;https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy&#34;&gt;here&lt;/a&gt; and the source code &lt;a href=&#34;https://github.com/stephenfin/alembic-expand-contract-demo&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;I mention OpenStack services a bit below but don&amp;rsquo;t worry, this article isn&amp;rsquo;t actually about OpenStack 😉 We&amp;rsquo;re merely using it as a good example. The problems that OpenStack needs to address such as scaling out services in larger deployments are common to most distributed services.&lt;/div&gt;
-&lt;/aside&gt;
-
+      <description>&lt;p&gt;This is the blog form of a talk I delivered at &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;PyCon Ireland 2022&lt;/a&gt;. You can
+find the slides &lt;a href=&#34;https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy&#34;&gt;here&lt;/a&gt; and the source code
+&lt;a href=&#34;https://github.com/stephenfin/alembic-expand-contract-demo&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;One thing to note before we begin is that while I mention OpenStack services below, this article isn&amp;rsquo;t actually about
+OpenStack 😉 We&amp;rsquo;re merely using it as a good example. The problems that OpenStack needs to address such as scaling out
+services in larger deployments are common to most distributed services.&lt;/p&gt;
+&lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
 &lt;p&gt;In the beginning, there were only two OpenStack services: Swift, which was responsible for object-storage, and Nova, which handled everything else. Over time, the list of services has &lt;a href=&#34;https://en.wikipedia.org/wiki/OpenStack#Release_history&#34;&gt;grown enormously&lt;/a&gt; as Nova has shed some of its former responsibilities to other services and the amounts of things an OpenStack cloud can do has grown. However, due to many projects&amp;rsquo; shared heritage (where they were split out from or modeled on Nova) and general design decisions made in the early days of OpenStack, even the newest OpenStack services tend to have a couple of commonalities in their design. Two of these are relevant to this article. Firstly, many of the services are designed to be horizontally scalable and almost always use a message broker to achieve this. This message broker is typically RabbitMQ and it provides a way for multiple instances of a service to communicate with each other. Secondly, without fail, OpenStack services will use a traditional relational DB to store data. The database backend is usually MySQL (although PostgreSQL is also an option) while SQLAlchemy is used for them ORM.&lt;/p&gt;
 &lt;p&gt;These two design decisions are relevant because they contain an inherent conflict. There can be many instances of a service (e.g. &lt;code&gt;nova-conductor&lt;/code&gt; or &lt;code&gt;nova-api&lt;/code&gt;) but they will all share a single database. If the schema of the database changes then each of these services will need to understand the new format. Historically in OpenStack, the way to do this was to closely couple the source code and database schema. An upgrade to a new version of OpenStack would necessitate taking all services down, upgrading the service code and the database schema, and then restarting the services. It works but it requires potentially large API downtime: the table lock that MySQL grabs while migrating the schema will block all reads and writes until the migration is complete, and for large installations where tables can have many millions of rows that migration can take minutes if not hours. This isn&amp;rsquo;t good enough for most production enterprise clouds, let alone specific applications like Telco where SLAs are something that the &lt;em&gt;government&lt;/em&gt; cares about. What we want is the ability to do rolling upgrades. Enter expand-contract.&lt;/p&gt;
 &lt;h2 id=&#34;the-expand-migrate-contract-pattern&#34;&gt;The Expand-Migrate-Contract pattern&lt;/h2&gt;
