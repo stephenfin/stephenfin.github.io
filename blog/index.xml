@@ -6,7 +6,32 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 16 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 22 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Playing with OpenStack Nova APIs from a Python Shell</title>
+      <link>https://that.guru/blog/interacting-with-nova-from-a-python-shell/</link>
+      <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/interacting-with-nova-from-a-python-shell/</guid>
+      <description>&lt;p&gt;A quick hack. If you want to call various OpenStack Nova APIs outside the context of a service like &lt;code&gt;nova-compute&lt;/code&gt;, there&amp;rsquo;s a good chance you&amp;rsquo;ll need some
+configuration. If you have deployment, you&amp;rsquo;ll likely have a configuration file with all the necessary details. DevStack places its Nova configuration files at
+&lt;code&gt;/etc/nova&lt;/code&gt;. Nova provides APIs, which are tiny wrappers around oslo.db functionality, for loading these.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; nova.conf
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; config
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; config&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;parse_args(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;foo --config-file /etc/nova/nova.conf&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;split())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; CONF &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; nova&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CONF
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With you configuration, you can now do things that require this configuration. For example, let&amp;rsquo;s look at our databases using SQLAlchemy.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; from nova.db.main import api
+&amp;gt;&amp;gt;&amp;gt; engine = api.get_engine()
+&amp;gt;&amp;gt;&amp;gt; import sqlalchemy
+&amp;gt;&amp;gt;&amp;gt; sqlalchemy.inspect(engine).has_table(&amp;#39;alembic_version&amp;#39;)
+True
+&amp;gt;&amp;gt;&amp;gt; sqlalchemy.inspect(engine).has_table(&amp;#39;migrate_version&amp;#39;)
+False
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This can be handy to get you out of a hole, or to hack on stuff in a development environment.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Hello, Gophercloud</title>
       <link>https://that.guru/blog/gophercloud-hello-world/</link>
@@ -3797,49 +3822,6 @@ out in-progress vTPM changes)&lt;/li&gt;
 &lt;li&gt;Barbican: &lt;code&gt;1ad43597352b225b6f3a21ef6c4186330cadf660&lt;/code&gt; (master)&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-    </item>
-    
-    <item>
-      <title>Using AMI Images in OpenStack</title>
-      <link>https://that.guru/blog/upload-cirros-ami-images/</link>
-      <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/upload-cirros-ami-images/</guid>
-      <description>&lt;p&gt;I recently had to validate some interactions between the OpenStack Image
-service, &lt;a href=&#34;https://docs.openstack.org/glance/latest/&#34;&gt;glance&lt;/a&gt;, and the Compute service, &lt;a href=&#34;https://docs.openstack.org/nova/latest/&#34;&gt;nova&lt;/a&gt;. For this, I needed
-separate kernel and ramdisk images. Glance supports a variety of image formats,
-which is required since different virtualization backends support different
-image formats. For quite some time, the &lt;a href=&#34;https://docs.openstack.org/devstack/latest/&#34;&gt;DevStack&lt;/a&gt; installer defaulted to
-using AMI images, so if you&amp;rsquo;d run &lt;code&gt;openstack image list&lt;/code&gt; on a fresh
-DevStack-based deployment, you&amp;rsquo;d have seen three &lt;a href=&#34;https://download.cirros-cloud.net/&#34;&gt;CirrOS&lt;/a&gt; &amp;ldquo;images&amp;rdquo; with
-differing suffixes: &lt;code&gt;-uec&lt;/code&gt;, &lt;code&gt;-uec-ramdisk&lt;/code&gt;, and &lt;code&gt;-uec-kernel&lt;/code&gt;. This has since
-&lt;a href=&#34;https://github.com/openstack/devstack/commit/6fc332d85279865c32f50b081efb25ba7b671a9a&#34;&gt;changed&lt;/a&gt;, but there&amp;rsquo;s no reason we can&amp;rsquo;t create these types of image still.&lt;/p&gt;
-&lt;p&gt;First, let&amp;rsquo;s get the image. We&amp;rsquo;re going to want the Ubuntu Enterprise Cloud
-(UEC) CirrOS images:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ wget https://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-uec.tar.gz
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Extract this tarball, which will yield three files: a &lt;code&gt;vmlinuz&lt;/code&gt; kernel image,
-a &lt;code&gt;initrd&lt;/code&gt; ramdisk image, and a empty mkfs&amp;rsquo;d &lt;code&gt;blank&lt;/code&gt; image:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ tar -xvzf cirros-0.5.1-x86_64-uec.tar.gz
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With those created, we can now create the three images in glance. First, the
-kernel image:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack image create cirros-0.5.1-x86_64-uec-kernel &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --public --disk-format aki --container-format aki \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --file cirros-0.5.1-x86_64-vmlinuz
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then the ramdisk image:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack image create cirros-0.5.1-x86_64-uec-ramdisk &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --public --disk-format ari --container-format ari \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --file cirros-0.5.1-x86_64-initrd
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And finally the &amp;ldquo;machine&amp;rdquo; image, which requires references to the kernel and
-ramdisk image by way of image metadata properties:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack image create cirros-0.5.1-x86_64-uec &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --property ramdisk_id=52ab2881-3f0e-4d0b-8824-d6c144eb872a \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --property kernel_id=b582cf17-1785-4915-9b89-dc31c1794757 \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --public --disk-format ami --container-format ami \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --file cirros-0.5.1-x86_64-blank.img
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once done, you should be able to boot an instance using the machine image:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server create cirros-server &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --flavor m1.tiny --image cirros-0.5.1-x86_64-uec
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     
   </channel>
