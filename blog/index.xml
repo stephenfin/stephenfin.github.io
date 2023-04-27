@@ -6,7 +6,51 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 22 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 27 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Installing Openstackclient With Pipx</title>
+      <link>https://that.guru/blog/installing-openstackclient-with-pipx/</link>
+      <pubDate>Thu, 27 Apr 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/installing-openstackclient-with-pipx/</guid>
+      <description>&lt;p&gt;Another one that really belongs in a separate &lt;em&gt;&amp;ldquo;tips &amp;amp; tricks&amp;rdquo;&lt;/em&gt; section of the blog, which unfortunately does not yet exist. I use &lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/&#34;&gt;openstackclient (OSC)&lt;/a&gt;
+pretty extensively day-to-day. Fedora provides a relatively up-to-date version of the package, but OSC has been evolving very rapidly of late and Fedora&amp;rsquo;s
+packagers just can&amp;rsquo;t be that fast 😁. The solution, therefore, is to install from &lt;code&gt;pip&lt;/code&gt;. Installing things globally, even if that&amp;rsquo;s global to the user, is a bad
+idea though: there are too many opportunities for dependency updates to break other packages. I want to use a virtualenv. The obvious solution is to use
+&lt;a href=&#34;https://pypa.github.io/pipx/&#34;&gt;&lt;code&gt;pipx&lt;/code&gt;&lt;/a&gt;, which is specifically designed for this use case. From the &lt;a href=&#34;https://pypa.github.io/pipx/&#34;&gt;homepage&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;pipx is a tool to help you install and run end-user applications written in Python. It&amp;rsquo;s roughly similar to macOS&amp;rsquo;s &lt;code&gt;brew&lt;/code&gt;, JavaScript&amp;rsquo;s &lt;code&gt;npx&lt;/code&gt;, and Linux&amp;rsquo;s
+&lt;code&gt;apt&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s closely related to pip. In fact, it uses pip, but is focused on installing and managing Python packages that can be run from the command line directly as
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;code&gt;pipx&lt;/code&gt; itself is available in the Fedora repos so if Fedora is you distro of choice then you can install it with &lt;code&gt;dnf&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sudo dnf install pipx
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once that&amp;rsquo;s in place, you can install OSC with &lt;code&gt;pipx&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx install python-openstackclient
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Unlike &lt;code&gt;openstacksdk&lt;/code&gt;, however, the &lt;code&gt;python-openstackclient&lt;/code&gt; package doesn&amp;rsquo;t provide support for OpenStack services beyond the core ones: Identity (keystone),
+Compute (nova), Image (glance), Block Storage (cinder), Network (neutron) and Object Storage (swift). For services like the Share Filesystem-as-a-Service
+(manila), Load Balancer-as-a-Service (octavia) or Placement service, you need to install additional packages (&lt;code&gt;python-manilaclient&lt;/code&gt;, &lt;code&gt;python-octaviaclient&lt;/code&gt;, and
+&lt;code&gt;osc-placement&lt;/code&gt;, respectively).&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack loadbalancer list
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;loadbalancer list&amp;#39;&lt;/span&gt; is not an openstack command. See &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;openstack --help&amp;#39;&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Did you mean one of these?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container create
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container delete
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container list
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container save
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container set
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container show
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container unset
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It took me a beat to figure out but &lt;code&gt;pipx&lt;/code&gt; provides an easy mechanism to do this: the &lt;code&gt;inject&lt;/code&gt; command. For example, to install &lt;code&gt;python-octaviaclient&lt;/code&gt; in the
+same virtualenv, run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx inject python-openstackclient python-octaviaclient
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can repeat this for additional dependencies:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx inject python-openstackclient python-neutronclient python-manilaclient python-ironicclient python-barbicanclient python-designateclient
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that done, you should have access to &lt;em&gt;all&lt;/em&gt; the commands. 💪&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Playing with OpenStack Nova APIs from a Python Shell</title>
       <link>https://that.guru/blog/interacting-with-nova-from-a-python-shell/</link>
@@ -3647,180 +3691,6 @@ following:&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is a big change with significant impacts, but should make policy
 significantly more useful. It is explained in great detail in the nova
 &lt;a href=&#34;https://docs.openstack.org/nova/latest/configuration/policy-concepts.html&#34;&gt;documentation&lt;/a&gt; and &lt;a href=&#34;https://docs.openstack.org/releasenotes/nova/ussuri.html#relnotes-21-0-0-stable-ussuri&#34;&gt;release notes&lt;/a&gt;, and I recommend reading both.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Emulated Trusted Platform Module (vTPM) in OpenStack 🔐</title>
-      <link>https://that.guru/blog/emulated-tpm-in-openstack/</link>
-      <pubDate>Thu, 28 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/emulated-tpm-in-openstack/</guid>
-      <description>&lt;p&gt;Work is &lt;a href=&#34;https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)&#34;&gt;ongoing&lt;/a&gt; in nova to provide support for attaching virtual Trusted
-Platform Modules (vTPMs) to instances. The below guide demonstrates how you can
-go about testing this feature for yourself. This work was conducted on a Fedora
-31 VM (with nested virt, though that&amp;rsquo;s not relevant) using DevStack master.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is all very much work-in-progress at the moment. I aim to come back and
-update this if/when things are merged.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;initial-steps&#34;&gt;Initial Steps&lt;/h2&gt;
-&lt;p&gt;We&amp;rsquo;re going to use DevStack on Fedora 31 to test this. Fedora 31 is necessary
-since Ubuntu 18.04 (Bionic) does not provide new enough versions of
-&lt;a href=&#34;https://packages.ubuntu.com/bionic/libvirt-daemon&#34;&gt;libvirt&lt;/a&gt; or &lt;a href=&#34;https://packages.ubuntu.com/xenial/qemu-kvm&#34;&gt;QEMU&lt;/a&gt;, while Ubuntu 20.04 (Focal) is not supported by
-DevStack at the time of writing and was affected by a &lt;a href=&#34;https://github.com/sqlalchemy/alembic/issues/699&#34;&gt;bug in barbican&lt;/a&gt;.
-With a Fedora 31 installation at the ready, let&amp;rsquo;s update and get DevStack:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo dnf upgrade -y
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ git clone https://opendev.org/openstack/devstack
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cd devstack
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The DevStack installation is pretty bog standard with the key differences being
-that you need to enable the OpenStack Key Manager service, &lt;a href=&#34;https://docs.openstack.org/barbican/latest/&#34;&gt;barbican&lt;/a&gt;, for
-storing secrets along with the virt preview repo to get new versions of libvirt
-and QEMU. Here&amp;rsquo;s a sample &lt;code&gt;local.conf&lt;/code&gt;, to be placed into the &lt;code&gt;devstack&lt;/code&gt;
-directory:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[[&lt;/span&gt;local|localrc&lt;span style=&#34;color:#f92672&#34;&gt;]]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;RECLONE&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;True
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;## Passwords&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ADMIN_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;DATABASE_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;RABBIT_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;HORIZON_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;SERVICE_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;SERVICE_TOKEN&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;no-token-password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;## Additional plugins and configuration&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;enable_plugin barbican https://opendev.org/openstack/barbican
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;enable_service rabbit mysql key
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ENABLE_FEDORA_VIRT_PREVIEW_REPO&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;true
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There&amp;rsquo;s also a minor tweak necessary to work around pip 10 refusing to
-uninstall system-provided Python packages:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;diff --git inc/python inc/python
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;index dd772960..63a3dc19 100644
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;--- inc/python
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+++ inc/python
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;@@ -196,7 +196,7 @@ function pip_install {
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;         no_proxy=&amp;#34;${no_proxy:-}&amp;#34; \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         PIP_FIND_LINKS=$PIP_FIND_LINKS \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         SETUPTOOLS_SYS_PATH_TECHNIQUE=rewrite \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-        $cmd_pip $upgrade \
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+        $cmd_pip --ignore-installed $upgrade \
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;         $@
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;     result=$?
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Yes, I&amp;rsquo;m aware that there can be negative implications to this, but it&amp;rsquo;s good
-enough for our purposes here. Hopefully one of us will eventually get around to
-configuring DevStack to install in virtualenvs by default.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;We also need to install the &lt;code&gt;swtpm&lt;/code&gt; and &lt;code&gt;swtpm_setup&lt;/code&gt; binaries. These are
-provided in the Fedora repos (yay!):&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo dnf install swtpm swtpm-tools
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, &lt;code&gt;crudini&lt;/code&gt; makes working with INI files a breeze. Let&amp;rsquo;s install that
-too:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo dnf install crudini
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With all this done, you can stack:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;./stack.sh
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now go make a cup of tea. ☕&lt;/p&gt;
-&lt;h2 id=&#34;configuring-nova&#34;&gt;Configuring nova&lt;/h2&gt;
-&lt;p&gt;With the stack (hopefully) complete, we need to configure nova appropriately.
-This is a simple, single-node &amp;ldquo;can I boot an instance&amp;rdquo; test so we don&amp;rsquo;t need to
-do too much. The key steps are to check out the correct code, given that it&amp;rsquo;s
-not yet merged, add some &lt;code&gt;nova.conf&lt;/code&gt; configuration options and create a new
-flavor. First up, let&amp;rsquo;s checkout the correct nova code. You can use the
-checkout link from the &lt;a href=&#34;https://packages.ubuntu.com/bionic/libvirt-daemon&#34;&gt;Gerrit review&lt;/a&gt; for this purpose:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cd /opt/stack/nova
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;# checkout using the &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Checkout&amp;#34;&lt;/span&gt; link in the &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Download&amp;#34;&lt;/span&gt; dropdown on the review,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;# which I&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;m not providing here since it won&amp;#39;&lt;/span&gt;t age well
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now, let&amp;rsquo;s modify the &lt;code&gt;nova.conf&lt;/code&gt; file the &lt;code&gt;nova-compute&lt;/code&gt; service. We&amp;rsquo;ll use
-&lt;code&gt;crudini&lt;/code&gt; for this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ crudini --set /etc/nova/nova-cpu.conf libvirt swtpm_enabled True
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Let&amp;rsquo;s restart the various nova services to load both the correct code and the
-configuration changes:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo systemctl restart devstack@n-*
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With everything restarted, we should be able to see the relevant
-&lt;code&gt;COMPUTE_SECURITY_TPM_*&lt;/code&gt; traits reported by our sole compute node:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack --os-placement-api-version 1.20 resource provider trait list &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --format value $RP_UUID | grep TPM
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;(where &lt;code&gt;$RP_UUID&lt;/code&gt; is the UUID of the resource provider of the compute node,
-which can be found via &lt;code&gt;openstack resource provider list&lt;/code&gt;)&lt;/p&gt;
-&lt;p&gt;This should return the following:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;COMPUTE_SECURITY_TPM_1_2
-COMPUTE_SECURITY_TPM_2_0
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With that done, let&amp;rsquo;s create a suitable flavor. The key feature here is the
-configuration of the &lt;code&gt;hw:tpm_version&lt;/code&gt; and &lt;code&gt;hw:tpm_model&lt;/code&gt; extra specs.
-&lt;code&gt;hw:tpm_model&lt;/code&gt; is optional but &lt;code&gt;hw:tpm_version&lt;/code&gt; is required to enable the
-feature:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack flavor create test.vtpm &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --ram 512 --disk 1 --vcpus 1 --wait \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --property hw:tpm_version=1.2 \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --property hw:tpm_model=tpm-tis
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;create-an-instance-with-vtpm&#34;&gt;Create an instance with vTPM&lt;/h2&gt;
-&lt;p&gt;With configuration complete, we can finally proceed to creating an instance.
-Nothing to funky here: simply create an instance using the flavor we created
-previously.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack --os-compute-api-version 2.latest server create test.server &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --image cirros-0.5.1-x86_64-disk --flavor test.vtpm \
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --nic none --wait test.server
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once booted, let&amp;rsquo;s check if the generated XML includes the &lt;a href=&#34;https://libvirt.org/formatdomain.html#elementsTpm&#34;&gt;&lt;code&gt;&amp;lt;tpm&amp;gt;&lt;/code&gt;&lt;/a&gt; device
-as expected:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo virsh list
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; Id   Name                State
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-----------------------------------
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 10   instance-0000000d   running
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&lt;/span&gt;$ sudo virsh dumpxml instance-0000000d | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/domain/devices/tpm&amp;#39;&lt;/span&gt; -
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;tpm model=&amp;#34;tpm-tis&amp;#34;&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &amp;lt;backend type=&amp;#34;emulator&amp;#34; version=&amp;#34;1.2&amp;#34;&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &amp;lt;encryption secret=&amp;#34;8cc4e70c-d805-4d48-9302-e3c970d1217b&amp;#34;/&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &amp;lt;/backend&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &amp;lt;alias name=&amp;#34;tpm0&amp;#34;/&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &amp;lt;/tpm&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We can also query barbican to see if nova correctly stored keys as expected:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack secret list --format yaml
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- Algorithm: null
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Bit length: null
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Content types:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    default: application/octet-stream
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Created: &amp;#39;2020-05-28T15:41:05+00:00&amp;#39;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Expiration: null
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Mode: null
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Name: vTPM secret for instance bbe8bc62-8403-490b-bce3-bd9c8267147e
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Secret href: http://172.20.4.203/key-manager/v1/secrets/8cc4e70c-d805-4d48-9302-e3c970d1217b
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Secret type: passphrase
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  Status: ACTIVE
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We can also validate that the rebuild operation works as expected:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server rebuild --wait test.server
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, we can ensure that things are properly cleaned up once we&amp;rsquo;re finished:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server delete test.server
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack secret list --format yaml
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[]
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;QED. 🎉&lt;/p&gt;
-&lt;h2 id=&#34;further-reading&#34;&gt;Further reading&lt;/h2&gt;
-&lt;p&gt;The &lt;a href=&#34;https://review.opendev.org/#/c/728505/&#34;&gt;spec&lt;/a&gt; and &lt;a href=&#34;https://review.opendev.org/#/q/topic:bp/add-emulated-virtual-tpm+(status:open+OR+status:merged)&#34;&gt;WIP code&lt;/a&gt; are well worth a read and contain background
-information on most of the topics discussed here.&lt;/p&gt;
-&lt;h2 id=&#34;package-versions&#34;&gt;Package versions&lt;/h2&gt;
-&lt;p&gt;The following software versions were used. In summary, these correspond to the
-master versions of various OpenStack projects and latest Fedora package
-versions on the day of test:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Distro: Fedora 31 (with virt preview repo via DevStack)&lt;/li&gt;
-&lt;li&gt;Kernel: &lt;code&gt;5.3.7-301.fc31.x86_64&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Libvirt: 6.3.0&lt;/li&gt;
-&lt;li&gt;QEMU: 5.0.0&lt;/li&gt;
-&lt;li&gt;DevStack: &lt;code&gt;9a6ae3419c6412a55456aa87b7a790c255f01028&lt;/code&gt; (master)&lt;/li&gt;
-&lt;li&gt;Nova: &lt;code&gt;de42f9e983cb4d4e94977697f86abf0a05e61cb4&lt;/code&gt; (master) (before checking
-out in-progress vTPM changes)&lt;/li&gt;
-&lt;li&gt;Barbican: &lt;code&gt;1ad43597352b225b6f3a21ef6c4186330cadf660&lt;/code&gt; (master)&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
