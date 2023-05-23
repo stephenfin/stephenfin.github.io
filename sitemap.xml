@@ -3,18 +3,36 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2023-04-27T00:00:00+00:00</lastmod>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/</loc>
-    <lastmod>2023-04-27T00:00:00+00:00</lastmod>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/blog/installing-openstackclient-with-pipx/</loc>
-    <lastmod>2023-04-27T00:00:00+00:00</lastmod>
+    <loc>https://that.guru/blog/deploying-metallb-on-openstack-part-2/</loc>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/metallb/</loc>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openshift/</loc>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2023-04-27T00:00:00+00:00</lastmod>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/</loc>
+    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/blog/deploying-metallb-on-openstack-part-1/</loc>
+    <lastmod>2023-05-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/notes/docker-network-access-on-fedora/</loc>
+    <lastmod>2023-05-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/notes/</loc>
+    <lastmod>2023-05-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/blog/installing-openstackclient-with-pipx/</loc>
     <lastmod>2023-04-27T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/tips/</loc>
@@ -86,16 +104,10 @@
     <loc>https://that.guru/categories/kubernetes/</loc>
     <lastmod>2022-05-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/categories/openshift/</loc>
-    <lastmod>2022-05-09T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://that.guru/blog/openstackclient-nova-microversions/</loc>
     <lastmod>2022-03-29T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/add-another-network-to-znc/</loc>
-    <lastmod>2022-03-08T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/notes/</loc>
     <lastmod>2022-03-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/sysadmin/</loc>

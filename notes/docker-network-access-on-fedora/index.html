@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Categories | that.guru</title>
+  <title>Docker network access on Fedora | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -34,7 +34,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Categories</h1>
+    <h1 class="title">Docker network access on Fedora</h1>
 
     <nav class="site-nav">
       <div class="site-nav-left">
@@ -67,112 +67,19 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  <div class="tag-cloud">
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/alembic/">alembic</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/c/">C</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/ci/">CI</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/documentation/">documentation</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/dpdk/">dpdk</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/go/">go</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/howto/">howto</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/hpc/">HPC</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/kubernetes/">kubernetes</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/libvirt/">libvirt</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/metallb/">metallb</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/networking/">networking</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/nfv/">NFV</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/openshift/">openshift</a>
-    
-  
-    
-    <a class="tag very-popular" href="https://that.guru/categories/openstack/">openstack</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/openvswitch/">openvswitch</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/patchwork/">patchwork</a>
-    
-  
-    
-    <a class="tag popular" href="https://that.guru/categories/python/">python</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/random/">random</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/sphinx/">sphinx</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/sqlalchemy/">sqlalchemy</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/sysadmin/">sysadmin</a>
-    
-  
-    
-    <a class="tag very-popular" href="https://that.guru/categories/tips/">tips</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/travel/">travel</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/web/">web</a>
-    
-  
-    
-    <a class="tag not-popular" href="https://that.guru/categories/zuul/">zuul</a>
-    
-  
+  <div>
+    <p>The Fedora Docker packages (or rather, moby packages) don&rsquo;t provide additional things like <code>buildx</code>, which means you might be forced to use Docker&rsquo;s own repos.
+The documentation for these is pretty thorough and can be found <a href="https://docs.docker.com/engine/install/fedora/">here</a>. One thing that is doesn&rsquo;t describe is
+the need to configure firewall policies though. If you find you have no network connectivity inside docker containers then you want to do the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --permanent --zone<span style="color:#f92672">=</span>docker --add-interface<span style="color:#f92672">=</span>docker0
+</span></span><span style="display:flex;"><span>sudo firewall-cmd --reload
+</span></span><span style="display:flex;"><span>sudo systemctl restart docker
+</span></span></code></pre></div><p>This assumes you have the <code>docker</code> zone, which I&rsquo;m going to guess the <code>moby</code> packages created for me. If not, you can simply use the <code>trusted</code> zone. A list of
+all available zones can be found like so:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --list-all-zones
+</span></span></code></pre></div><p>All interfaces can found like so:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --list-interfaces
+</span></span></code></pre></div>
   </div>
 
     </main>

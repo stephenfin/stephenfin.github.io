@@ -6,7 +6,27 @@
     <description>Recent content in Notes on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 08 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/notes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker network access on Fedora</title>
+      <link>https://that.guru/notes/docker-network-access-on-fedora/</link>
+      <pubDate>Wed, 03 May 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/notes/docker-network-access-on-fedora/</guid>
+      <description>&lt;p&gt;The Fedora Docker packages (or rather, moby packages) don&amp;rsquo;t provide additional things like &lt;code&gt;buildx&lt;/code&gt;, which means you might be forced to use Docker&amp;rsquo;s own repos.
+The documentation for these is pretty thorough and can be found &lt;a href=&#34;https://docs.docker.com/engine/install/fedora/&#34;&gt;here&lt;/a&gt;. One thing that is doesn&amp;rsquo;t describe is
+the need to configure firewall policies though. If you find you have no network connectivity inside docker containers then you want to do the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo firewall-cmd --permanent --zone&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;docker --add-interface&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;docker0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo firewall-cmd --reload
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo systemctl restart docker
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This assumes you have the &lt;code&gt;docker&lt;/code&gt; zone, which I&amp;rsquo;m going to guess the &lt;code&gt;moby&lt;/code&gt; packages created for me. If not, you can simply use the &lt;code&gt;trusted&lt;/code&gt; zone. A list of
+all available zones can be found like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo firewall-cmd --list-all-zones
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All interfaces can found like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo firewall-cmd --list-interfaces
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
     <item>
       <title>Validate Floating IPs with OVS</title>
       <link>https://that.guru/notes/validate-fips/</link>

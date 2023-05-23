@@ -6,7 +6,442 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 27 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 23 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deploying MetalLB with BGP on Openstack (Part 2)</title>
+      <link>https://that.guru/blog/deploying-metallb-on-openstack-part-2/</link>
+      <pubDate>Tue, 23 May 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/deploying-metallb-on-openstack-part-2/</guid>
+      <description>&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is part two of two. If you&amp;rsquo;re looking for part one, you can find it
+&lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-1&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;As noted &lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-1&#34;&gt;previously&lt;/a&gt;, one of the goals for an upcoming OpenShift release is to formally support
+&lt;a href=&#34;https://metallb.universe.tf/&#34;&gt;MetalLB&lt;/a&gt; and the &lt;a href=&#34;https://github.com/metallb/metallb-operator&#34;&gt;MetalLB operator&lt;/a&gt; on the OpenStack platform. In part one of these series,
+we configured an environment with OpenStack, OpenShift and BGP software routers. Now, in part two, we&amp;rsquo;re going to focus
+on installing and configuring MetalLB itself.&lt;/p&gt;
+&lt;h2 id=&#34;install-metallb&#34;&gt;Install MetalLB&lt;/h2&gt;
+&lt;p&gt;As a Kubernetes project, MetalLB comes with all the usual mechanisms for installation of Kubernetes components. Plain
+manifests are provided as are Helm Charts and an operator, the MetalLB Operator. The various installation mechanisms are
+all discussed in the &lt;a href=&#34;https://metallb.universe.tf/installation/&#34;&gt;MetalLB installation guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Because operators are awesome, I opted to the MetalLB Operator to deploy MetalLB and manage its lifecycle. The MetalLB
+Operator is available on OperatorHub at operatorhub.io/operator/metallb-operator but when I was testing the &lt;code&gt;main&lt;/code&gt;
+branch contained a feature I wanted, namely the ability to configure &lt;a href=&#34;https://github.com/metallb/metallb-operator/pull/342&#34;&gt;&lt;code&gt;loadBalancerClass&lt;/code&gt;&lt;/a&gt;. As a result, I
+opted to deploy MetalLB Operator from source. The MetalLB Operator provides a very helpful &lt;code&gt;Make&lt;/code&gt; target to do this,
+which you can use:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ git clone https://github.com/metallb/metallb-operator
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ cd metallb-operator
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ make deploy-openshift
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Deployment takes a while but once finished we can validate that everything is running:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get all -n metallb-system
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now onto configuration.&lt;/p&gt;
+&lt;h2 id=&#34;initial-metallb-configuration&#34;&gt;Initial MetalLB configuration&lt;/h2&gt;
+&lt;p&gt;With the MetalLB Operator installed, it&amp;rsquo;s time to configure MetalLB. By using MetalLB Operator we gain the ability to
+manage configuration of MetalLB itself via CRDs. First up is the &lt;code&gt;MetalLB&lt;/code&gt; CRD. This is primary configuration mechanism
+and is the thing that enables MetalLB itself. There should only be one of them, which you can create like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF | oc apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;apiVersion: metallb.io/v1beta1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;kind: MetalLB
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    name: metallb
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    namespace: metallb-system
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;spec:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    loadBalancerClass: &amp;#39;metallb.universe.tf/metallb&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    nodeSelector:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        kubernetes.io/os: linux
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        node-role.kubernetes.io/worker: &amp;#34;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There are a couple of things to note here. Firstly, we are configuring &lt;code&gt;spec.loadBalancerClass&lt;/code&gt;. This is necessary
+because &lt;code&gt;dev-install&lt;/code&gt; deploys Octavia by default and &lt;code&gt;cloud-provider-openstack&lt;/code&gt; is using this for load balancing by
+default. By setting this, we have the ability to later configure &lt;code&gt;Service&lt;/code&gt;s to use MetalLB rather than Octavia.
+Secondly, we are restricting the speakers to run on worker nodes by configuring &lt;code&gt;spec.nodeSelector&lt;/code&gt;: there&amp;rsquo;s simply no
+need to run them on the master nodes.&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;The choice of &lt;code&gt;metallb.universe.tf/metallb&lt;/code&gt; as the &lt;code&gt;spec.loadBalancerClass&lt;/code&gt; is totally arbitrary. You can use anything
+label-like here so long as you use the same value later when creating &lt;code&gt;Service&lt;/code&gt;s.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Validate that the CRD was successfully created:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system metallb metallb
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Assuming so, ensure the &lt;code&gt;loadBalancerClass&lt;/code&gt; attribute made it through to the underlying service containers:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system pods
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                                  READY   STATUS    RESTARTS      AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;controller-7df7bbcffb-8cqzb                           1/1     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;             5m1s
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;metallb-operator-controller-manager-c44c967b9-l6rvx   1/1     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;             13h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;metallb-operator-webhook-server-6fdccfb5c5-k8b2m      1/1     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;13h ago&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;   13h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;speaker-bg6pq                                         4/4     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;             5m1s
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;speaker-q6dmg                                         4/4     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;             5m1s
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;speaker-sjmtc                                         4/4     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;             5m1s
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;speaker-z9zrr                                         4/4     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;             5m1s
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system pod controller-7df7bbcffb-8cqzb -o jsonpath&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{.spec.containers[0].args}&amp;#34;&lt;/span&gt; | yq -P
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --port&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;7472&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --log-level&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;info
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --cert-service-name&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;webhook-service
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --lb-class&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;metallb.universe.tf/metallb
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --webhook-mode&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;disabled
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system pod speaker-bg6pq -o jsonpath&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{.spec.containers[0].args}&amp;#34;&lt;/span&gt; | yq -P
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --port&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;7472&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --log-level&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;info
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- --lb-class&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;metallb.universe.tf/metallb
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This all looks good.&lt;/p&gt;
+&lt;h2 id=&#34;configuring-metallb-to-talk-to-the-router&#34;&gt;Configuring MetalLB to talk to the router&lt;/h2&gt;
+&lt;p&gt;We&amp;rsquo;ve not got our initial configuration out-of-the-way, which means it&amp;rsquo;s time to get down to specifics. Let&amp;rsquo;s configure
+our IP address pools, BGP peers, and BGP advertisements. First up, IP address pools.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF | oc apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;apiVersion: metallb.io/v1beta1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;kind: IPAddressPool
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  namespace: metallb-system
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  name: ipaddresspool
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;spec:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  addresses:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    - 192.168.50.1-192.168.50.254
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ve picked a totally arbitrary IP address range, ensuring it doesn&amp;rsquo;t overlap with any other IP address range on the
+network. Obviously if you have specific IP addresses you wish to use, you should configure these instead.&lt;/p&gt;
+&lt;p&gt;Next, BGP peers. While we have multiple leaf routers, our master and worker nodes are all talking to the &lt;code&gt;rack1-gateway&lt;/code&gt;
+router. As a result, we really only need to create a BGP peer for this router.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF | oc apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;apiVersion: metallb.io/v1beta2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;kind: BGPPeer
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  name: rack1-bgp-peer
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  namespace: metallb-system
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;spec:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  myASN: 64998
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  peerASN: 64999
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  peerAddress: 192.168.10.1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  password: &amp;#34;f00barZ&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;poc-bgp&lt;/code&gt; project so I&amp;rsquo;ve configured an ASN of &lt;code&gt;64999&lt;/code&gt; and a password of &lt;code&gt;f00barZ&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Finally, the BGP advertisement. This is pretty simple as we only have one &lt;code&gt;IPAddressPool&lt;/code&gt; and can advertise all IPs in
+this pool via BGP.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF | oc apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;apiVersion: metallb.io/v1beta1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;kind: BGPAdvertisement
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  name: bgpadvertisement
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  namespace: metallb-system
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;When all of these are applied, you can validate that they have been created.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system ipaddresspool
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME            AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ipaddresspool   true          false             &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;192.168.50.1-192.168.50.254&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system bgppeer
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME             ADDRESS        ASN     BFD PROFILE   MULTI HOPS
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;rack1-bgp-peer   192.168.10.1   &lt;span style=&#34;color:#ae81ff&#34;&gt;64999&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system bgpadvertisement
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME               IPADDRESSPOOLS   IPADDRESSPOOL SELECTORS   PEERS
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bgpadvertisement
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;dealing-with-port-security-issues&#34;&gt;Dealing with port security issues&lt;/h2&gt;
+&lt;p&gt;With the above steps completed, our configuration of MetalLB is complete. However, if you were to create a &lt;code&gt;Service&lt;/code&gt;
+with &lt;code&gt;type=LoadBalancer&lt;/code&gt; now, you would find it doesn&amp;rsquo;t actually work. This is because Neutron has MAC spoofing
+protection that is enabled by default and the fact that our worker node is advertising IP addresses that neutron does
+not know about triggers this protection.&lt;/p&gt;
+&lt;p&gt;To work around this issue you have two options: disable port security or add allowed address pairs for each IP address
+specified in your &lt;code&gt;IPAddressPool&lt;/code&gt;. Let&amp;rsquo;s take the simpler option first.&lt;/p&gt;
+&lt;h3 id=&#34;disable-port-security&#34;&gt;Disable port security&lt;/h3&gt;
+&lt;p&gt;If you you opt to do this, you will need to do this it for all worker node ports. As we only only have one worker node
+here, there is only one port to worry about.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ports&lt;span style=&#34;color:#f92672&#34;&gt;=(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    stephenfin-qfnvm-worker-0-97fkv
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; port in &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ports[@]&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;do&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    openstack port set --no-allowed-address &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$port&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    openstack port set --no-security-group &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$port&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    openstack port set --disable-port-security &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$port&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;done&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;I&amp;rsquo;ve used a static list of ports here. You can find this list of ports by filtering on the &lt;code&gt;openshiftClusterID=foo&lt;/code&gt; tag,
+where &lt;code&gt;foo&lt;/code&gt; is the name &lt;code&gt;openshift-installer&lt;/code&gt; (or rather, Terraform) assigned to the cluster. Don&amp;rsquo;t forget to skip the
+ingress and API ports!&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;This is definitely the simpler option, though you will obviously be reliant on something else to provide network
+security.&lt;/p&gt;
+&lt;h3 id=&#34;configure-allowed-address-pairs&#34;&gt;Configure allowed address pairs&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;allowed-address-pairs&lt;/code&gt; extension can be used to allow egress traffic from a VM with an IP outside of the one
+configured on the neutron port. From the docs:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The &lt;code&gt;allowed-address-pairs&lt;/code&gt; extension adds an &lt;code&gt;allowed_address_pairs&lt;/code&gt;
+attribute to ports. The value of &lt;code&gt;allowed_address_pairs&lt;/code&gt; is an array of
+allowed address pair objects, each having an &lt;code&gt;ip_address&lt;/code&gt; and a
+&lt;code&gt;mac_address&lt;/code&gt;. The set of allowed address pairs defines IP and MAC address
+that the port can use when sending packets if &lt;code&gt;port_security_enabled&lt;/code&gt; is
+&lt;code&gt;true&lt;/code&gt; (see the &lt;code&gt;port-security&lt;/code&gt; extension). Note that while the
+&lt;code&gt;ip_address&lt;/code&gt; is required in each allowed address pair, the &lt;code&gt;mac_address&lt;/code&gt;
+is optional and will be taken from the port if not specified.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;OpenShift on OpenStack already uses this for the ingress and API VIPs and we can use it here also. Unfortunately, there
+is no easy way to create allowed address pairs for all IP addresses in a given subnet, nor create them in a manner where
+they apply to all hosts. As a result, applying this will be tedious and scalability will become a concern, particularly
+where there is a large number of worker nodes or a large range of IP addresses (via &lt;code&gt;IPAddressPool&lt;/code&gt;). Since we only have
+one node and will only create one example, we can at least try it out.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack port set --allowed-address&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;ip-address&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.50.1 stephenfin-qfnvm-worker-0-97fkv-0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you wanted to create multiple services, you would need to create an allowed address pair for each and every IP
+address specified in the &lt;code&gt;IPAddressPool&lt;/code&gt;.&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;The upcoming Bobcat release of neutron adds a new &lt;code&gt;allowedaddresspairs-atomic&lt;/code&gt; extension, which provides new
+&lt;code&gt;add_allowed_address_pairs&lt;/code&gt; and &lt;code&gt;remove_allowed_address_pairs&lt;/code&gt; member actions. Once released, you could use this to bulk
+update the allowed-address-pairs in an atomic manner, though you would still need to do this for all possible IP
+addresses.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;testing-it-out&#34;&gt;Testing it out&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s create a simple &amp;ldquo;Hello, world&amp;rdquo; example to test this out.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc new-project test-metallb
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc create deployment hello-node --image&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;k8s.gcr.io/e2e-test-images/agnhost:2.33 -- /agnhost serve-hostname
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ cat  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF | oc apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;apiVersion: v1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;kind: Service
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  name: test-frr
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;spec:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  selector:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    app: hello-node
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  ports:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    - port: 80
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      protocol: TCP
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      targetPort: 9376
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  loadBalancerClass: metallb.universe.tf/metallb
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  type: LoadBalancer
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Nothing unusual here aside from the use of &lt;code&gt;spec.loadBalancerClass&lt;/code&gt;, which again is necessary to ensure we use MetalLB
+as our load balancer rather than Octavia. Let&amp;rsquo;s test it out.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ curl 192.168.50.1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;hello-node-855787d74c-fkbt5
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Hurrah! It&amp;rsquo;s alive!&lt;/p&gt;
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap Up&lt;/h2&gt;
+&lt;p&gt;In this post, we deployed MetalLB via the MetalLB Operator, configured it a minimal manner, and worked around the port
+security issues that using an external routing solution with neutron presents. As you can see though, port security
+issues aside the actual process of deploying and configuring MetalLB is rather effortless. I hope this will be helpful
+to someone exploring this configuration.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Deploying MetalLB with BGP on Openstack (Part 1)</title>
+      <link>https://that.guru/blog/deploying-metallb-on-openstack-part-1/</link>
+      <pubDate>Mon, 22 May 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/deploying-metallb-on-openstack-part-1/</guid>
+      <description>&lt;p&gt;One of the goals for an upcoming OpenShift release is to formally support &lt;a href=&#34;https://metallb.universe.tf/&#34;&gt;MetalLB&lt;/a&gt; and the &lt;a href=&#34;https://github.com/metallb/metallb-operator&#34;&gt;MetalLB
+operator&lt;/a&gt; on the OpenStack platform. While MetalLB is mainly targeted at bare metal deployments, it
+also has value on some on-prem platforms such as OpenStack; for example, if you can&amp;rsquo;t or don&amp;rsquo;t want to deploy the
+OpenStack Load Balancing service (Octavia). I&amp;rsquo;ve been investigating how this would work and this post consists of my
+testing notes, along with some asides to help flesh things out. I took a few shortcuts, particularly when it comes to
+initial deployment, so I don&amp;rsquo;t know how broadly useful this will be. However, there are very few blogs talking about
+MetalLB &lt;strong&gt;in BGP mode&lt;/strong&gt; on OpenStack so I imagine there&amp;rsquo;s &lt;em&gt;something&lt;/em&gt; of use here.&lt;/p&gt;
+&lt;p&gt;One thing to note from the get-go is that this focuses on using MetalLB as a load balancer for &lt;strong&gt;applications&lt;/strong&gt; or data
+plane - that is, &lt;code&gt;Service&lt;/code&gt; instances with &lt;code&gt;type=LoadBalancer&lt;/code&gt;. Like OpenShift on bare metal, OpenShift on OpenStack uses
+&lt;em&gt;keepalived&lt;/em&gt; and &lt;em&gt;HAProxy&lt;/em&gt; to load balance the API and ingress VIPs (which you can see in action by inspecting the pods
+in &lt;code&gt;openshift-openstack-infra&lt;/code&gt; namespace). There are no current plans to provide a mechanism for using MetalLB to load
+balance the control plane.&lt;/p&gt;
+&lt;p&gt;This is the first part of two and focuses on deploying OpenStack, configuring a BGP environment, before deploying an
+OpenShift cluster. The end result should look something like this:&lt;/p&gt;
+&lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
+         alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
+            &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;This is likely the most involved section to do from scratch owing to the variety and varying complexity of options
+available for configuring OpenStack, BGP, and OpenShift. It is so heavily dependent on the hardware you have available
+to you. As a result, you may wish to ignore this part entirely and figure out your own mechanism for getting an
+environment that looks like the above.&lt;/p&gt;
+&lt;h2 id=&#34;openstack&#34;&gt;OpenStack&lt;/h2&gt;
+&lt;p&gt;Before we even start thinking about OpenShift, we need our OpenStack platform to run things on. You may well have an
+OpenStack platform already, in which case you can skip this section entirely. Similarly, you may have a preferred
+tool or workflow for deploying OpenStack clusters, in which case again you can skip this section entirely and do your
+own thing. The important thing is that whatever environment you have must have enough capacity to run 4 small instances
+for BGP routing (a flavour with 1GB RAM, 1 vCPU, and 10GB disk will suffice) and 4 much larger instances for OpenShift
+nodes (16GB RAM, 4 vCPU and 40GB disk &lt;em&gt;minimum&lt;/em&gt;).&lt;/p&gt;
+&lt;p&gt;In my case, I was deploying OpenStack from scratch onto a single beefy bare metal machine (A Dell PowerEdge R640 with 2
+Intel Xeon Silver 4216 CPUs, 192 GB RAM and 512GB SSD + 2TB HDD). To do so, I used
+&lt;a href=&#34;https://github.com/shiftstack/dev-install/&#34;&gt;github.com/shiftstack/dev-install&lt;/a&gt;, an opinionated wrapper around &lt;a href=&#34;https://docs.openstack.org/project-deploy-guide/tripleo-docs/latest/deployment/standalone.html&#34;&gt;TripleO
+Standalone&lt;/a&gt;, to deploy an OSP 16.2 cloud (OpenStack Train). Using &lt;code&gt;dev-install&lt;/code&gt; is relatively easy:
+simply clone the repo and configure a &lt;code&gt;local-overrides.yaml&lt;/code&gt; file that contains information about the IP address and
+hostname of the server, the OSP release you wish to use, and any other overrides necessary. I didn&amp;rsquo;t need anything
+special so there were no overrides in my case. This will look something like this.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ git clone https://github.com/shiftstack/dev-install
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ cd dev-install
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF &amp;gt; local_overrides.yaml
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;hostname: acme
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;public_api: 10.1.240.35
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;standalone_host: acme.shiftstack.test
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;rhos_release: 16.2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;clouddomain: shiftstack.test
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ make config host&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;acme.shiftstack.test
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ make osp_full overrides&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;local_overrides.yaml
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;em&gt;dev-install&lt;/em&gt; creates a &lt;code&gt;hostonly&lt;/code&gt; network that is not routable outside the host. As a result, once installation is
+complete you should start &lt;code&gt;sshuttle&lt;/code&gt; to proxy requests for the associated &lt;code&gt;hostonly-subnet&lt;/code&gt; subnet to the host itself.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ ./scripts/sshuttle-standalone.sh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;bgp&#34;&gt;BGP&lt;/h2&gt;
+&lt;p&gt;Next, we need to configure a BGP environment. I didn&amp;rsquo;t have access to some ToR switches with BGP support so we
+opted to emulate it using &lt;a href=&#34;https://frrouting.org/&#34;&gt;&lt;code&gt;frr&lt;/code&gt;&lt;/a&gt;, a software routing solution. To do this, I used
+&lt;a href=&#34;https://github.com/shiftstack/poc-bgp/&#34;&gt;github.com/shiftstack/poc-bgp&lt;/a&gt;, a set of Ansible playbooks which deployed four instances on my new OpenStack
+cloud: a spine router instance and three leaf router instances. Once again, there are other software routing solutions
+and you might even have access to real hardware, so if you opt for another approach you could obviously skip this
+section (though if you do, you will likely need to modify your MetalLB configuration when we get to that step in a later
+post). Assuming you opt to use &lt;code&gt;poc-bgp&lt;/code&gt;, you&amp;rsquo;ll need a CentOS 9 Stream image to exist on the cloud as well as a
+keypair so that you can SSH into the instances it creates. You can create the image like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ wget https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20230417.0.x86_64.qcow2
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack image create --public --disk-format qcow2 --file CentOS-Stream-GenericCloud-9-20230417.0.x86_64.qcow2 centos9-stream
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Similarly, you can create the keypair like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack keypair create --public-key ~/.ssh/id_ed25519.pub default
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once these resources exists, configuration and deployment is otherwise relatively uncomplex.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;❯ git clone https://github.com/shiftstack/poc-bgp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;❯ cd poc-bgp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;❯ cat &amp;lt;&amp;lt; EOF &amp;gt; localvars.yaml&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;cloud_name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;standalone_openshift&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;image&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;centos9-stream&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;instance_name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;stephenfin-poc-bgp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;external_network&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;hostonly&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;keypair&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;default&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;dns_nameservers&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1.1.1.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;flavor&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;m1.tiny&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;❯ make deploy&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once deployed you will end up with 4 instances and 7 networks (6 plus the &lt;code&gt;hostonly&lt;/code&gt; network):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack server list
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+----------------------------------+--------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------+-----------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ID                                   | Name                             | Status | Networks                                                                                                                                                                   | Image          | Flavor    |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+----------------------------------+--------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------+-----------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| a3375961-0821-4135-b064-b884460d11c2 | stephenfin-poc-bgp-spine-gateway | ACTIVE | hostonly&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.25.191, 2001:db8::100; stephenfin-poc-bgp-rack1-patch&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.0.1; stephenfin-poc-bgp-rack2-patch&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.0.5; stephenfin-poc-bgp-rack3-patch&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.0.9 | centos9-stream | m1.tiny   |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| f1e3b324-bf60-440e-808a-3e548f571f1a | stephenfin-poc-bgp-rack1-gateway | ACTIVE | stephenfin-poc-bgp-rack1-leaf&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.10.1; stephenfin-poc-bgp-rack1-patch&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.0.2                                                                                     | centos9-stream | m1.tiny   |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 2b6051cb-f98a-4112-8096-c5c96c56f05a | stephenfin-poc-bgp-rack2-gateway | ACTIVE | stephenfin-poc-bgp-rack2-leaf&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.20.1; stephenfin-poc-bgp-rack2-patch&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.0.6                                                                                     | centos9-stream | m1.tiny   |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 2d14cda5-377a-4383-b6e8-feb50455fad0 | stephenfin-poc-bgp-rack3-gateway | ACTIVE | stephenfin-poc-bgp-rack3-leaf&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.30.1; stephenfin-poc-bgp-rack3-patch&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.0.10                                                                                    | centos9-stream | m1.tiny   |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+----------------------------------+--------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------+-----------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack network list
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+--------------------------------+----------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ID                                   | Name                           | Subnets                                                                    |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+--------------------------------+----------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 19708577-3757-4956-903e-9656229e1286 | stephenfin-poc-bgp-rack1-leaf  | 6152b856-781b-4fc9-9979-e4cfc9e282b8                                       |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 2a28f908-e9ec-4fb5-a4cb-09cd5dae8723 | stephenfin-poc-bgp-rack3-patch | 0f15d6ed-0b8a-435e-90d0-83edb2164100                                       |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 2cd308e3-8370-425b-af1c-0ce5562c2b36 | stephenfin-poc-bgp-rack1-patch | f22c9d7e-9c7f-4985-be7c-63eb05014544                                       |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 3060e6b0-c2c3-4f59-ac13-9d07a7a963f1 | stephenfin-poc-bgp-rack2-leaf  | 824cfd85-f89b-4a07-a330-3c3adb55b0e3                                       |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 538a2436-07c5-48f1-8cd0-39931244bcb7 | stephenfin-poc-bgp-rack3-leaf  | 3109bff8-fdd5-4824-ab2d-58184096e35c                                       |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 91efea92-eaf8-4146-ac4c-48d3edfedfe4 | hostonly                       | 607ba284-3762-4667-a2fa-2a7f31de6f35, b147f959-3122-4ad9-aaaa-6ff1af41c8df |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| b15da053-0625-4d33-ad6a-036dd76cfc8d | stephenfin-poc-bgp-rack2-patch | 71a6eeef-2c3d-45e2-80a9-efff6e15a289                                       |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+--------------------------------+----------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;spine-gateway&lt;/code&gt; instance is connected to the three &lt;code&gt;rackN-gateway&lt;/code&gt; instances via separate patch networks, while the
+three &lt;code&gt;rackN-gateway&lt;/code&gt; instances have their own &lt;code&gt;rackN-leaf&lt;/code&gt; leaf network. We&amp;rsquo;re going to use one of the latter as our
+machine subnet when installing OpenShift shortly.&lt;/p&gt;
+&lt;p&gt;We have some final steps to do here. First, we need to configure the subnets created by &lt;code&gt;poc-bgp&lt;/code&gt; to keep IP address &amp;lt;
+&lt;code&gt;.10&lt;/code&gt; free. This is necessary because we are going to use some of these IP addresses for OpenShift VIPs shortly.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack subnet set --no-allocation-pool --allocation-pool &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;start=192.168.10.10,end=192.168.10.239&amp;#34;&lt;/span&gt; stephenfin-poc-bgp-rack1-subnet
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack subnet set --no-allocation-pool --allocation-pool &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;start=192.168.20.10,end=192.168.20.239&amp;#34;&lt;/span&gt; stephenfin-poc-bgp-rack2-subnet
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack subnet set --no-allocation-pool --allocation-pool &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;start=192.168.30.10,end=192.168.30.239&amp;#34;&lt;/span&gt; stephenfin-poc-bgp-rack3-subnet
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In addition, we need another instance of &lt;code&gt;sshuttle&lt;/code&gt; to configure traffic for these new networks to route through the
+&lt;code&gt;spine-gateway&lt;/code&gt; host. This will look something like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sshuttle -r cloud-user@&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;GATEWAY_HOST_IP&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; 192.168.10.0/24 192.168.20.0/24 192.168.30.0/24
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;where &lt;code&gt;${GATEWAY_HOST_IP}&lt;/code&gt; is the IP of the &lt;code&gt;spine-gateway&lt;/code&gt; host (&lt;code&gt;192.168.25.191&lt;/code&gt; in my case).&lt;/p&gt;
+&lt;h2 id=&#34;openshift&#34;&gt;OpenShift&lt;/h2&gt;
+&lt;p&gt;Finally, OpenShift. I used &lt;code&gt;openshift-install&lt;/code&gt; to do this, deploying a 4.12 OpenShift cluster on my OpenStack cloud.
+When deploying OpenShift, you&amp;rsquo;ll want to pay special attention to the networking configuration. As noted above, we want
+to use one of the &lt;code&gt;rackN-leaf&lt;/code&gt; networks and I chose &lt;code&gt;rack1-leaf&lt;/code&gt; arbitrarily. You should also use IPs from this subnet
+for your API and Ingress VIPs, picking address in the &amp;lt; &lt;code&gt;.10&lt;/code&gt; range we previously set aside. This means you should end
+up with configuration similar to the following in your &lt;code&gt;install-config.yaml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;platform&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;openstack&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;machinesSubnet&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;6152b856-781b-4fc9-9979-e4cfc9e282b8 &lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;# stephenfin-poc-bgp-rack1-subnet&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;apiVIPs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.10.5&lt;/span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# from stephenfin-poc-bgp-rack1-subnet, &amp;lt; .10&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;ingressVIPs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.10.7&lt;/span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# from stephenfin-poc-bgp-rack1-subnet, &amp;lt; .10&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;networking&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;clusterNetworks&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;cidr&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;10.128.0.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/14&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;hostSubnetLength&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;serviceCIDR&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;172.30.0.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;machineNetwork&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;cidr&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.10.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/24&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;cidr&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.25.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/24&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;My full &lt;code&gt;install-config.yaml&lt;/code&gt; is given in the appendices.&lt;/p&gt;
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap Up&lt;/h2&gt;
+&lt;p&gt;In this post, we deployed an OpenStack deployment, configured BGP software routers, and deployed OpenShift on OpenStack.
+In the next post, we will work to install MetalLB itself.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;appendix-configuration-files&#34;&gt;Appendix: Configuration files&lt;/h2&gt;
+&lt;p&gt;Here are the full configuration files used for my deployment.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;dev-install&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;dev-install&lt;/em&gt; is highly opinionated and I did not alter the configuration in any way. As a result, it was only necessary
+to configure the hostname, IP address and OSP release I wished to use.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;local-overrides.yaml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;hostname&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;acme&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;public_api&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;10.1.240.35&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;standalone_host&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;acme.shiftstack.test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;rhos_release&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;16.2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;clouddomain&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;shiftstack.test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;poc-bgp&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;local_vars.yaml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;cloud_name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;standalone_openshift&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;image&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;centos9-stream&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;instance_name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;stephenfin-poc-bgp&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;external_network&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;hostonly&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;keypair&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;default&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;dns_nameservers&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1.1.1.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;flavor&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;m1.tiny&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;openshift-installer&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;This is the most complicated configuration file, but again it builds on the work of the previous sections.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;install-config.yaml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;baseDomain&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;openshift.shiftstack.test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;stephenfin&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;controlPlane&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;master&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;platform&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;openstack&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;m1.xlarge&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;replicas&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;compute&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;worker&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;platform&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;openstack&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;m1.xlarge&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;replicas&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;platform&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;openstack&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;defaultMachinePlatform&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;m1.xlarge&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;clusterOSImage&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;rhcos-4.12&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;cloud&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;standalone_openshift&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;machinesSubnet&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;6152b856-781b-4fc9-9979-e4cfc9e282b8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;apiVIPs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.10.5&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;ingressVIPs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.10.7&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;networking&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;clusterNetworks&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;cidr&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;10.128.0.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/14&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;hostSubnetLength&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;9&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;serviceCIDR&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;172.30.0.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;machineNetwork&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;cidr&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.10.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/24&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;cidr&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.25.0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/24&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;pullSecret&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;&amp;lt;redacted&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
     <item>
       <title>Installing OSC With pipx</title>
       <link>https://that.guru/blog/installing-openstackclient-with-pipx/</link>
@@ -3459,251 +3894,6 @@ Preferences&amp;rdquo; pane of the &amp;ldquo;Evolution Preferences&amp;rdquo; p
 &lt;/figure&gt;
 
 &lt;p&gt;Usable email again!&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Comparing Nova Database Migrations</title>
-      <link>https://that.guru/blog/comparing-nova-db-migrations/</link>
-      <pubDate>Mon, 19 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/comparing-nova-db-migrations/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://blueprints.launchpad.net/nova/+spec/compact-db-migrations-wallaby&#34;&gt;One of the goals&lt;/a&gt; for the Wallaby release of OpenStack Nova is to compact
-many of the database migrations that have been slowly building up since the
-Icehouse release some 6½ years ago. We used to do this regularly but stopped
-based on operator feedback suggesting it made upgrades harder than necessary.
-However, things have changed since then and the amount of database migrations
-in each release has slowed considerably. In fact, the latest release, Victoria,
-contained no database migrations whatsoever. This change, coupled with the fact
-that we&amp;rsquo;re still using the effectively dead &lt;a href=&#34;https://sqlalchemy-migrate.readthedocs.io/en/latest/&#34;&gt;sqlalchemy-migrate&lt;/a&gt; library
-rather than something like &lt;a href=&#34;https://alembic.sqlalchemy.org/en/latest/&#34;&gt;alembic&lt;/a&gt; means we now have good reason to kick
-off the compaction.&lt;/p&gt;
-&lt;p&gt;Below are my notes on this exercises, which demonstrate how to use the current
-migrations without using &lt;code&gt;nova-manage&lt;/code&gt; and everything it entails. This should
-allow people to test the changes we&amp;rsquo;re making locally and might even help
-people interested in writing their own migrations in the future.&lt;/p&gt;
-&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;
-&lt;p&gt;When compressing migrations, the expectation is that the before and after of
-the migration should be identical. Nova doesn&amp;rsquo;t have any built-in tests to do
-this (why would it) so we&amp;rsquo;re going to do this manually. The steps to do this
-are effectively:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Create a new empty database.&lt;/li&gt;
-&lt;li&gt;Apply migrations N to M from current &lt;code&gt;master&lt;/code&gt;, where N is the current base
-migration and M is the migration you wish to compact up to.&lt;/li&gt;
-&lt;li&gt;Dump the schema for the database.&lt;/li&gt;
-&lt;li&gt;Drop and recreate the database, then apply the compaction patch.&lt;/li&gt;
-&lt;li&gt;Apply the new base migration.&lt;/li&gt;
-&lt;li&gt;Dump the schema for the database.&lt;/li&gt;
-&lt;li&gt;Compare the schemas from steps 3 and 6, looking for any serious changes.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;These steps are implementation differently depending on the RDBMS in use, so
-sample steps for both SQLite and MySQL are provided below. These already assume
-you have your system configured for nova development and can successfully run
-unit tests using &lt;code&gt;tox&lt;/code&gt;. You should also have SQLite and MySQL packages
-installed. For all cases, we&amp;rsquo;re going to use a virtualenv to ensure the
-required dependencies are installed so do that first:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cd nova
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ virtualenv .venv
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ source .venv/bin/activate
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ pip install &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -c https://releases.openstack.org/constraints/upper/master &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -r requirements.txt -r test-requirements.txt
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ pip install -e .
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You should also navigate to the &lt;em&gt;migration repository&lt;/em&gt; in nova, to avoid having
-to manually specify this for the various &lt;em&gt;sqlalchemy-migrate&lt;/em&gt; commands.&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-base&#34; data-lang=&#34;base&#34;&gt;$ cd nova/db/sqlalchemy/migrate_repo
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;sqlite&#34;&gt;SQLite&lt;/h2&gt;
-&lt;p&gt;Since SQLite databases are stored as a single file, there is no additional
-setup necessary. SQLite also provides a handy tool to compare databases,
-&lt;code&gt;sqldiff&lt;/code&gt;, which is packaged on Fedora 32 at least. Install that first:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo dnf install sqlite-tools
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that installed, we can get right to generating two databases that we can
-then compare using this &lt;code&gt;sqldiff&lt;/code&gt; tool. It would of course be possible to dump
-the schemas and compare those, but doing so means we&amp;rsquo;d have to filter out
-things like simple ordering changes that SQLite seems prone to.&lt;/p&gt;
-&lt;p&gt;Generating the database using &lt;em&gt;sqlalchemy-migrate&lt;/em&gt; is a two steps process. We
-first need to mark our database as version controlled, which will create the
-necessary &lt;em&gt;version table&lt;/em&gt;. The name of this version table is configurable in
-the &lt;code&gt;migrate.cfg&lt;/code&gt; configuration file found in your migration repository and is
-called &lt;code&gt;migrate_version&lt;/code&gt; in nova. The &lt;code&gt;version_control&lt;/code&gt; command will create
-this table and initialize it for version N, which is the base migration you
-wish to test. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py version_control --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;sqlite:///nova_before.db&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once this is configured, apply all migrations up to M. You can use the
-&lt;code&gt;upgrade&lt;/code&gt; command for this. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py upgrade --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;sqlite:///nova_before.db&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once we have a database instance using the &lt;em&gt;before&lt;/em&gt; schema, we can apply the
-code change and repeat the steps above, this time creating a &lt;code&gt;nova_after.db&lt;/code&gt;
-database. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py version_control --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;sqlite:///nova_after.db&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py upgrade --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;sqlite:///nova_after.db&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now, with these two databases to hand, we an diff them to ensure nothing has
-changed:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sqldiff --schema nova_before.db nova_after.db
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;mysql&#34;&gt;MySQL&lt;/h2&gt;
-&lt;p&gt;The steps for MySQL are quite similar to those for SQLite, but we do need to do
-some pre-work - namely, creating a suitable database and user - before we can
-get to validating schemas. Do this now. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ mysql
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; CREATE DATABASE nova_before;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; GRANT ALL PRIVILEGES ON nova_before.* TO &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nova&amp;#39;&lt;/span&gt;@&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;localhost&amp;#39;&lt;/span&gt; IDENTIFIED BY &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; quit;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With this created, the steps are similar to those for SQLite. Once again, we
-will use the &lt;code&gt;version_control&lt;/code&gt; and &lt;code&gt;upgrade&lt;/code&gt; management commands:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py version_control &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py upgrade &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, unlike SQLite, we have a specific tool available to dump the DB
-schemas - &lt;code&gt;mysqldump&lt;/code&gt;. Use that to dump the &lt;em&gt;before&lt;/em&gt; schema:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ mysqldump --no-data --skip-comments -u nova -ppassword nova_before &amp;gt; nova_before.sql
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Fedora previously provided a &lt;code&gt;mysql-utilities&lt;/code&gt; package that provided a
-&lt;code&gt;mysqldiff&lt;/code&gt; utility for doing this exact thing. However, it was retired in
-Fedora 31 as it was no longer maintained.
-See &lt;a href=&#34;https://bugzilla.redhat.com/show_bug.cgi?id=1691185&#34;&gt;Bugzilla&lt;/a&gt; for more
-details.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;Once we have a database instance using the &lt;em&gt;before&lt;/em&gt; schema, we can apply the
-code change and repeat the steps above, this time creating a &lt;code&gt;nova_after&lt;/code&gt;
-database. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ mysql
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; CREATE DATABASE nova_after;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; GRANT ALL PRIVILEGES ON nova_after.* TO &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nova&amp;#39;&lt;/span&gt;@&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;localhost&amp;#39;&lt;/span&gt; IDENTIFIED BY &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt;;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MariaDB &lt;span style=&#34;color:#f92672&#34;&gt;[(&lt;/span&gt;none&lt;span style=&#34;color:#f92672&#34;&gt;)]&lt;/span&gt;&amp;gt; quit;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py version_control --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_after&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py upgrade --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mysql+pymysql://nova:password@localhost/nova_after&amp;#39;&lt;/span&gt; --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ mysqldump --no-data --skip-comments -u nova -ppassword nova_after &amp;gt; nova_after.sql
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, diff the two schemas to identify any differences:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ diff nova_before.sql nova_after.sql
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;postgresql&#34;&gt;PostgreSQL&lt;/h2&gt;
-&lt;p&gt;PostgreSQL exists in a funny space in nova, where it&amp;rsquo;s technically supported
-but not many people use it. Nonetheless, there are PostgreSQL-specific
-migrations in-tree so we must test them.&lt;/p&gt;
-&lt;p&gt;Once again, this is quite similar to the above, though Postgres&amp;rsquo; user model
-makes things a little more complicated. You need to create a user to run the
-operations as, but you can&amp;rsquo;t simply create this as Postgres defaults to the
-&lt;code&gt;ident&lt;/code&gt; auth (local UNIX user) scheme rather than &lt;code&gt;password&lt;/code&gt; (or, more
-specifically, &lt;code&gt;md5&lt;/code&gt;). You need to &lt;a href=&#34;https://ubuntu.com/server/docs/databases-postgresql&#34;&gt;configure &lt;code&gt;pg_hba.conf&lt;/code&gt; to enable DB-specific
-users&lt;/a&gt; and create e.g. a &lt;code&gt;nova&lt;/code&gt; user with a &lt;code&gt;password&lt;/code&gt; password.&lt;/p&gt;
-&lt;p&gt;Once the user is created, you can create the DB using the &lt;code&gt;postgres&lt;/code&gt; tool:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo -u postgres dropdb --if-exists nova_before
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo -u postgres createdb --owner&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;nova nova_before
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the DB created, the steps to generate the schema dump are once again
-quite similar to SQLite and MySQL. Using &lt;code&gt;version_control&lt;/code&gt; and &lt;code&gt;upgrade&lt;/code&gt;
-management commands once more:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py version_control &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py upgrade &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_before&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As with MySQL, Postgres comes with a specific tool for dumping the DB schemas -
-&lt;code&gt;pg_dump&lt;/code&gt;. Use that to dump the &lt;em&gt;before&lt;/em&gt; schema:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ pg_dump postgresql://nova:password@localhost/nova_before &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --schema-only &amp;gt; nova_before.sql
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once we have a database instance using the &lt;em&gt;before&lt;/em&gt; schema, we can apply the
-code change and repeat the steps above, this time creating a &lt;code&gt;nova_after&lt;/code&gt;
-database. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo -u postgres dropdb --if-exists nova_after
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo -u postgres createdb --owner&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;nova nova_after
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py version_control &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_after&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;215&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python manage.py upgrade &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --database &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;postgresql://nova:password@localhost/nova_after&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --version &lt;span style=&#34;color:#ae81ff&#34;&gt;216&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ pg_dump postgresql://nova:password@localhost/nova_after &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --schema-only &amp;gt; nova_after.sql
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, diff the two schemas to identify any differences:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ diff nova_before.sql nova_after.sql
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;example&#34;&gt;Example&lt;/h2&gt;
-&lt;p&gt;The below script can be used to diff the database. It should be placed in the
-root directory of the nova repo and executed from there. It relies on the
-&lt;code&gt;py36&lt;/code&gt; tox virtualenv, which you probably have on your local system already (if
-not, &lt;code&gt;tox -e py36&lt;/code&gt; will create it). It also uses a single database for each
-backend, rather than the separate &lt;code&gt;nova_before&lt;/code&gt; and &lt;code&gt;nova_after&lt;/code&gt; databases.&lt;/p&gt;
-&lt;script type=&#34;application/javascript&#34; src=&#34;https://gist.github.com/stephenfin/adc84a21f5f5ae3793f6a8ffa0b3f40f.js&#34;&gt;&lt;/script&gt;
-
-</description>
-    </item>
-    
-    <item>
-      <title>Understanding the &#39;admin_or_owner&#39; rule in nova policies</title>
-      <link>https://that.guru/blog/understanding-the-admin-or-owner-policy/</link>
-      <pubDate>Wed, 03 Jun 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/understanding-the-admin-or-owner-policy/</guid>
-      <description>&lt;p&gt;The OpenStack Compute service, nova, exposes a &lt;a href=&#34;https://docs.openstack.org/nova/latest/configuration/policy.html&#34;&gt;rich policy framework&lt;/a&gt; that
-provides the ability to configure what certain types of users are allowed to
-do across the API. The policy defaults are stored in code, allowing us to
-define, for example, who is allowed to create or delete an instance, who can
-configure flavors, and so forth. However, these policies are slightly
-confusing. Take the aforementioned policy defining who can delete a specific
-instance. This is configured using the &lt;a href=&#34;https://github.com/openstack/nova/blob/20.0.0/nova/policies/servers.py#L219-L228&#34;&gt;&lt;code&gt;os_compute_api:servers:delete&lt;/code&gt;
-policy&lt;/a&gt; and, prior to the 21.0.0 (Ussuri) release, defaulted to the
-&lt;a href=&#34;https://github.com/openstack/nova/blob/20.0.0/nova/policies/servers.py#L221&#34;&gt;&lt;code&gt;admin_or_owner&lt;/code&gt;&lt;/a&gt; rule. The name of this would suggest that the only person
-that could delete an instance would be an admin or the person that created the
-instance, but a quick test shows this not to be the case. Consider the
-following case, used on a standard DevStack-based installation:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ source openrc admin
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack project create --domain default test_project
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack user create --project test_project --password test testuser1
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack user create --project test_project --password test testuser2
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This creates a new project, &lt;code&gt;test_project&lt;/code&gt;, along with two new users,
-&lt;code&gt;testuser1&lt;/code&gt; and &lt;code&gt;testuser2&lt;/code&gt;. We can then use the first of these users to create
-a new instance:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF &amp;gt; openrc-testuser1
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_PROJECT_DOMAIN_ID=default
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_USER_DOMAIN_ID=default
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_AUTH_TYPE=password
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_USERNAME=testuser1
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_PASSWORD=test
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_PROJECT_NAME=test_project
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_TENANT_NAME=test_project
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ source openrc-testuser1
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server create --flavor m1.tiny --image cirros-0.5.1-x86_64-disk test-server
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the instance created, let&amp;rsquo;s now attempt to delete the server as the second
-user:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF &amp;gt; openrc-testuser2
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_PROJECT_DOMAIN_ID=default
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_USER_DOMAIN_ID=default
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_AUTH_TYPE=password
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_USERNAME=testuser2
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_PASSWORD=test
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_PROJECT_NAME=test_project
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_TENANT_NAME=test_project
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;export OS_AUTH_URL=http://172.20.4.203/identity  # adjust accordingly
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server delete test-server
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This succeeds, which at first glance seems wrong but is actually correct.
-Remember, the default rule is &lt;code&gt;admin_or_owner&lt;/code&gt; and the &amp;ldquo;owner&amp;rdquo; of an instance
-is not the user - it&amp;rsquo;s the project that the server is created in.  Because both
-&lt;code&gt;testuser1&lt;/code&gt; and &lt;code&gt;testuser2&lt;/code&gt; are members of the project that the instance was
-created in, &lt;code&gt;test_project&lt;/code&gt;, it&amp;rsquo;s possible for &lt;code&gt;testuser2&lt;/code&gt; to delete the server
-created by &lt;code&gt;testuser1&lt;/code&gt;. This &amp;ldquo;project as owner&amp;rdquo; design is consistent across
-nova, with only a &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/newton/implemented/user-id-based-policy-enforcement.html&#34;&gt;few, limited exceptions&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This is confusing, and really lessens the power of policy is nova, which is why
-in the 21.0.0 (Ussuri) release, we have introduced the concept of scope types
-and roles via the &lt;a href=&#34;https://review.opendev.org/#/c/686058/&#34;&gt;policy defaults refresh blueprint&lt;/a&gt;. Though not yet
-enabled by default, this (&lt;a href=&#34;https://review.opendev.org/#/q/topic:bp/policy-defaults-refresh&#34;&gt;huge&lt;/a&gt;) effort allows us to do things like mark a
-user as having read-only permissions for things like servers or project-level
-admin privileges. For example, if we wanted to say that &lt;code&gt;testuser1&lt;/code&gt; was an
-admin but &lt;code&gt;testuser2&lt;/code&gt; was only allowed read-only permissions, we could do the
-following:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack role add --project test_project --user testuser1 admin
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack role add --project test_project --user testuser2 reader
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is a big change with significant impacts, but should make policy
-significantly more useful. It is explained in great detail in the nova
-&lt;a href=&#34;https://docs.openstack.org/nova/latest/configuration/policy-concepts.html&#34;&gt;documentation&lt;/a&gt; and &lt;a href=&#34;https://docs.openstack.org/releasenotes/nova/ussuri.html#relnotes-21-0-0-stable-ussuri&#34;&gt;release notes&lt;/a&gt;, and I recommend reading both.&lt;/p&gt;
 </description>
     </item>
     
