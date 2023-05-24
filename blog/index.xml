@@ -31,7 +31,7 @@ these routers. These were all discussed in &lt;a href=&#34;https://that.guru/blo
 you will currently have a deployment that looks like this:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
          alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
+            &lt;h4&gt;Our deployment configured&lt;/h4&gt;
         &lt;/figcaption&gt;
 &lt;/figure&gt;
 
