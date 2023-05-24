@@ -79,7 +79,7 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2023-05-23T00:00:00Z'>May 23, 2023</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>7 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>9 min read</span>
       </div>
     </div>
   </div>
@@ -93,27 +93,28 @@
 </aside>
 
 <p>As noted <a href="https://that.guru/blog/deploying-metallb-on-openstack-part-1">previously</a>, one of the goals for an upcoming OpenShift release is to formally support
-<a href="https://metallb.universe.tf/">MetalLB</a> and the <a href="https://github.com/metallb/metallb-operator">MetalLB operator</a> on the OpenStack platform. In part one of these series,
+<a href="https://metallb.universe.tf/">MetalLB</a> and the <a href="https://github.com/metallb/metallb-operator">MetalLB operator</a> on the OpenStack platform. In part one of the series,
 we configured an environment with OpenStack, OpenShift and BGP software routers. Now, in part two, we&rsquo;re going to focus
 on installing and configuring MetalLB itself.</p>
 <h2 id="install-metallb">Install MetalLB</h2>
-<p>As a Kubernetes project, MetalLB comes with all the usual mechanisms for installation of Kubernetes components. Plain
-manifests are provided as are Helm Charts and an operator, the MetalLB Operator. The various installation mechanisms are
-all discussed in the <a href="https://metallb.universe.tf/installation/">MetalLB installation guide</a>.</p>
-<p>Because operators are awesome, I opted to the MetalLB Operator to deploy MetalLB and manage its lifecycle. The MetalLB
-Operator is available on OperatorHub at operatorhub.io/operator/metallb-operator but when I was testing the <code>main</code>
-branch contained a feature I wanted, namely the ability to configure <a href="https://github.com/metallb/metallb-operator/pull/342"><code>loadBalancerClass</code></a>. As a result, I
-opted to deploy MetalLB Operator from source. The MetalLB Operator provides a very helpful <code>Make</code> target to do this,
-which you can use:</p>
+<p>The first step on the path to using MetalLB is actually installing it. As a Kubernetes project, MetalLB comes with all
+the usual mechanisms for installation of Kubernetes components. Plain manifests are provided as are Helm Charts and an
+operator, the MetalLB Operator. The various installation mechanisms are all discussed in the <a href="https://metallb.universe.tf/installation/">MetalLB installation
+guide</a>.</p>
+<p>Because operators are awesome, I opted to use the MetalLB Operator to deploy MetalLB and manage its lifecycle. The
+MetalLB Operator is available on OperatorHub at operatorhub.io/operator/metallb-operator but when I was testing, the
+<code>main</code> branch contained a feature I wanted, namely the ability to configure a <a href="https://github.com/metallb/metallb-operator/pull/342"><code>loadBalancerClass</code></a>. As a
+result, I opted to deploy MetalLB Operator from source. The MetalLB Operator provides a very helpful <code>Make</code> target to do
+this, which you can use:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ git clone https://github.com/metallb/metallb-operator
 </span></span><span style="display:flex;"><span>❯ cd metallb-operator
 </span></span><span style="display:flex;"><span>❯ make deploy-openshift
 </span></span></code></pre></div><p>Deployment takes a while but once finished we can validate that everything is running:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get all -n metallb-system
-</span></span></code></pre></div><p>Now onto configuration.</p>
+</span></span></code></pre></div><p>Installation complete! Now onto configuration.</p>
 <h2 id="initial-metallb-configuration">Initial MetalLB configuration</h2>
-<p>With the MetalLB Operator installed, it&rsquo;s time to configure MetalLB. By using MetalLB Operator we gain the ability to
-manage configuration of MetalLB itself via CRDs. First up is the <code>MetalLB</code> CRD. This is primary configuration mechanism
+<p>With the MetalLB Operator installed, it&rsquo;s time to <em>configure</em> MetalLB. By using MetalLB Operator we gain the ability to
+manage configuration of MetalLB itself via CRs. First up is the <code>MetalLB</code> CR. This is primary configuration mechanism
 and is the thing that enables MetalLB itself. There should only be one of them, which you can create like so:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
@@ -129,9 +130,9 @@ and is the thing that enables MetalLB itself. There should only be one of them, 
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
 </span></span></code></pre></div><p>There are a couple of things to note here. Firstly, we are configuring <code>spec.loadBalancerClass</code>. This is necessary
 because <code>dev-install</code> deploys Octavia by default and <code>cloud-provider-openstack</code> is using this for load balancing by
-default. By setting this, we have the ability to later configure <code>Service</code>s to use MetalLB rather than Octavia.
-Secondly, we are restricting the speakers to run on worker nodes by configuring <code>spec.nodeSelector</code>: there&rsquo;s simply no
-need to run them on the master nodes.</p>
+default (this is also the reason we deployed the operator from source). By setting this, we have the ability to later
+configure <code>Service</code>s to use MetalLB rather than Octavia. Secondly, we are restricting the speakers to run on worker
+nodes by configuring <code>spec.nodeSelector</code> as there&rsquo;s simply no need to run them on the master nodes.</p>
 <aside class="admonition note">
 	
 	
@@ -139,9 +140,10 @@ need to run them on the master nodes.</p>
 label-like here so long as you use the same value later when creating <code>Service</code>s.</div>
 </aside>
 
-<p>Validate that the CRD was successfully created:</p>
+<p>Validate that the CR was successfully created:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system metallb metallb
-</span></span></code></pre></div><p>Assuming so, ensure the <code>loadBalancerClass</code> attribute made it through to the underlying service containers:</p>
+</span></span></code></pre></div><p>Assuming so, you can ensure the <code>loadBalancerClass</code> attribute is in effect by inspecting the underlying service
+containers:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pods
 </span></span><span style="display:flex;"><span>NAME                                                  READY   STATUS    RESTARTS      AGE
 </span></span><span style="display:flex;"><span>controller-7df7bbcffb-8cqzb                           1/1     Running   <span style="color:#ae81ff">0</span>             5m1s
@@ -161,10 +163,13 @@ label-like here so long as you use the same value later when creating <code>Serv
 </span></span><span style="display:flex;"><span>- --port<span style="color:#f92672">=</span><span style="color:#ae81ff">7472</span>
 </span></span><span style="display:flex;"><span>- --log-level<span style="color:#f92672">=</span>info
 </span></span><span style="display:flex;"><span>- --lb-class<span style="color:#f92672">=</span>metallb.universe.tf/metallb
-</span></span></code></pre></div><p>This all looks good.</p>
+</span></span></code></pre></div><p>This all looks good. With this, the initial configuration of MetalLB is also complete. Now to the next step: configuring
+MetalLB for our BGP environment.</p>
 <h2 id="configuring-metallb-to-talk-to-the-router">Configuring MetalLB to talk to the router</h2>
-<p>We&rsquo;ve not got our initial configuration out-of-the-way, which means it&rsquo;s time to get down to specifics. Let&rsquo;s configure
-our IP address pools, BGP peers, and BGP advertisements. First up, IP address pools.</p>
+<p>MetalLB in BGP mode requires a few bits of information. It needs a list of IP addresses that it can hand out, it needs
+information about the routers that it should peer with, and it needs to be told which IP addresses it can advertise.
+This configuration is all done using CRs, namely the <code>IPAddressPool</code>, <code>BGPPeer</code>, and <code>BGPAdvertisement</code> CRs.
+First up, the IP address pools.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: IPAddressPool
@@ -176,9 +181,10 @@ our IP address pools, BGP peers, and BGP advertisements. First up, IP address po
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - 192.168.50.1-192.168.50.254
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
 </span></span></code></pre></div><p>I&rsquo;ve picked a totally arbitrary IP address range, ensuring it doesn&rsquo;t overlap with any other IP address range on the
-network. Obviously if you have specific IP addresses you wish to use, you should configure these instead.</p>
-<p>Next, BGP peers. While we have multiple leaf routers, our master and worker nodes are all talking to the <code>rack1-gateway</code>
-router. As a result, we really only need to create a BGP peer for this router.</p>
+network. Obviously if you have specific IP addresses you wish to use, you should configure these instead. I&rsquo;ve also only
+configured one. This should be loads for our purposes.</p>
+<p>Next, the BGP peers. While we have multiple leaf routers, our master and worker nodes are all talking to the
+<code>rack1-gateway</code> router. As a result, we really only need to create a BGP peer for this router.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta2
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: BGPPeer
@@ -191,9 +197,13 @@ router. As a result, we really only need to create a BGP peer for this router.</
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  peerAddress: 192.168.10.1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  password: &#34;f00barZ&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
-</span></span></code></pre></div><p>The <code>poc-bgp</code> project so I&rsquo;ve configured an ASN of <code>64999</code> and a password of <code>f00barZ</code>.</p>
-<p>Finally, the BGP advertisement. This is pretty simple as we only have one <code>IPAddressPool</code> and can advertise all IPs in
-this pool via BGP.</p>
+</span></span></code></pre></div><p>The <code>poc-bgp</code> project we used to configure our BGP software router uses the <code>64999</code> ASN for all of the leaf routers and
+configured a password of <code>f00barZ</code>. Since we&rsquo;re pairing with one of these leaf routers, <code>rack1-gateway</code>, we needed to
+configure these. We chose the <code>64998</code> ASN for ourselves.</p>
+<p>Finally, the BGP advertisement. Because MetalLB supports both a BGP and an L2 mode, it is possible that you could have
+some IP addresses that are meant to be assigned using BGP and other IP addresses that are meant to be assigned using
+ARP. In our case, we are only configuring MetalLB in BGP mode and only have a single IP address pool, which means we can
+advertise all IPs via BGP.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: BGPAdvertisement
@@ -201,7 +211,7 @@ this pool via BGP.</p>
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  name: bgpadvertisement
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  namespace: metallb-system
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
-</span></span></code></pre></div><p>When all of these are applied, you can validate that they have been created.</p>
+</span></span></code></pre></div><p>With those three CRs created, we can validate that they have been in fact created.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system ipaddresspool
 </span></span><span style="display:flex;"><span>NAME            AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
 </span></span><span style="display:flex;"><span>ipaddresspool   true          false             <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;192.168.50.1-192.168.50.254&#34;</span><span style="color:#f92672">]</span>
@@ -211,16 +221,21 @@ this pool via BGP.</p>
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system bgpadvertisement
 </span></span><span style="display:flex;"><span>NAME               IPADDRESSPOOLS   IPADDRESSPOOL SELECTORS   PEERS
 </span></span><span style="display:flex;"><span>bgpadvertisement
-</span></span></code></pre></div><h2 id="dealing-with-port-security-issues">Dealing with port security issues</h2>
+</span></span></code></pre></div><p>Wonderful!</p>
+<h2 id="dealing-with-port-security-issues">Dealing with port security issues</h2>
 <p>With the above steps completed, our configuration of MetalLB is complete. However, if you were to create a <code>Service</code>
 with <code>type=LoadBalancer</code> now, you would find it doesn&rsquo;t actually work. This is because Neutron has MAC spoofing
-protection that is enabled by default and the fact that our worker node is advertising IP addresses that neutron does
-not know about triggers this protection.</p>
-<p>To work around this issue you have two options: disable port security or add allowed address pairs for each IP address
-specified in your <code>IPAddressPool</code>. Let&rsquo;s take the simpler option first.</p>
+protection that is enabled by default. The fact that our worker node is advertising IP addresses that neutron does not
+know about triggers this protection and results in packets getting dropped as they egress our worker node.</p>
+<p>To work around this issue you have two options: you can disable port security, or you make use of neutron&rsquo;s
+<code>allowed-address-pairs</code> extension to allow additional IPs, subnets, and MAC addresses, other than the fixed IP and MAC
+address associated with the port, to act as source addresses for traffic leaving the port/virtual interface. Let&rsquo;s
+start with the former.</p>
 <h3 id="disable-port-security">Disable port security</h3>
-<p>If you you opt to do this, you will need to do this it for all worker node ports. As we only only have one worker node
-here, there is only one port to worry about.</p>
+<p>Disabling port security requires removing any existing allowed address pairs, removing any security groups, and finally
+disabling port security in general. If you you opt to do this, you will need to do this it for all worker node ports. As
+we only only have one worker node here, there is only one port to worry about, but you can trivially script the removal
+of port security for a larger number of ports using <em>openstackclient</em> or something like Ansible. For example:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ports<span style="color:#f92672">=(</span>
 </span></span><span style="display:flex;"><span>    stephenfin-qfnvm-worker-0-97fkv
 </span></span><span style="display:flex;"><span><span style="color:#f92672">)</span>
@@ -239,7 +254,7 @@ ingress and API ports!</div>
 </aside>
 
 <p>This is definitely the simpler option, though you will obviously be reliant on something else to provide network
-security.</p>
+security. Let&rsquo;s look at the alternative option.</p>
 <h3 id="configure-allowed-address-pairs">Configure allowed address pairs</h3>
 <p>The <code>allowed-address-pairs</code> extension can be used to allow egress traffic from a VM with an IP outside of the one
 configured on the neutron port. From the docs:</p>
@@ -253,14 +268,16 @@ that the port can use when sending packets if <code>port_security_enabled</code>
 <code>ip_address</code> is required in each allowed address pair, the <code>mac_address</code>
 is optional and will be taken from the port if not specified.</p>
 </blockquote>
-<p>OpenShift on OpenStack already uses this for the ingress and API VIPs and we can use it here also. Unfortunately, there
-is no easy way to create allowed address pairs for all IP addresses in a given subnet, nor create them in a manner where
-they apply to all hosts. As a result, applying this will be tedious and scalability will become a concern, particularly
-where there is a large number of worker nodes or a large range of IP addresses (via <code>IPAddressPool</code>). Since we only have
-one node and will only create one example, we can at least try it out.</p>
+<p>If you inspect the ports assigned to the master and worker nodes, you&rsquo;ll note that we already have some allowed address
+pairs defined. OpenShift on OpenStack uses this feature to enable load balancing of the ingress and API VIPs and we can
+opt to use it for load balancing of services also. Unfortunately, there is no easy way to create allowed address pairs
+for all IP addresses in a given subnet, nor to create them in a manner where they apply to all hosts. As a result,
+applying this will be tedious and scalability may well become a concern, particularly where there is a large number of
+worker nodes or a large range of IP addresses (via <code>IPAddressPool</code>). Since we only have one node and will only create
+one example, we can at least try it out.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack port set --allowed-address<span style="color:#f92672">=</span>ip-address<span style="color:#f92672">=</span>192.168.50.1 stephenfin-qfnvm-worker-0-97fkv-0
 </span></span></code></pre></div><p>If you wanted to create multiple services, you would need to create an allowed address pair for each and every IP
-address specified in the <code>IPAddressPool</code>.</p>
+address specified in the <code>IPAddressPool</code>(s).</p>
 <aside class="admonition note">
 	
 	
@@ -270,8 +287,10 @@ update the allowed-address-pairs in an atomic manner, though you would still nee
 addresses.</div>
 </aside>
 
+<p>This is the more involved option but either option should work. In any case, with port security issues mitigated, we are
+finally in a position to validate behavior.</p>
 <h2 id="testing-it-out">Testing it out</h2>
-<p>Let&rsquo;s create a simple &ldquo;Hello, world&rdquo; example to test this out.</p>
+<p>Let&rsquo;s create a simple &ldquo;Hello, world&rdquo; example to test this out. We&rsquo;ll use the <code>e2e-test-images/agnhost</code> image to do this:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc new-project test-metallb
 </span></span><span style="display:flex;"><span>❯ oc create deployment hello-node --image<span style="color:#f92672">=</span>k8s.gcr.io/e2e-test-images/agnhost:2.33 -- /agnhost serve-hostname
 </span></span><span style="display:flex;"><span>❯ cat  <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
@@ -290,16 +309,19 @@ addresses.</div>
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  loadBalancerClass: metallb.universe.tf/metallb
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  type: LoadBalancer
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
-</span></span></code></pre></div><p>Nothing unusual here aside from the use of <code>spec.loadBalancerClass</code>, which again is necessary to ensure we use MetalLB
-as our load balancer rather than Octavia. Let&rsquo;s test it out.</p>
+</span></span></code></pre></div><p>This should look very familiar if you&rsquo;ve ever worked with services. In fact, there&rsquo;s nothing unusual here aside from our
+use of <code>spec.type=LoadBalancer</code> and the declaration of <code>spec.loadBalancerClass</code>. The former ensure we actually use a
+load balancer while the latter ensures that the load balancer used is MetalLB rather than Octavia.</p>
+<p>Let&rsquo;s test it out.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ curl 192.168.50.1
 </span></span><span style="display:flex;"><span>hello-node-855787d74c-fkbt5
-</span></span></code></pre></div><p>Hurrah! It&rsquo;s alive!</p>
+</span></span></code></pre></div><p>And it works. Good job, people!</p>
 <h2 id="wrap-up">Wrap Up</h2>
 <p>In this post, we deployed MetalLB via the MetalLB Operator, configured it a minimal manner, and worked around the port
 security issues that using an external routing solution with neutron presents. As you can see though, port security
-issues aside the actual process of deploying and configuring MetalLB is rather effortless. I hope this will be helpful
-to someone exploring this configuration.</p>
+issues aside, the actual process of deploying and configuring MetalLB is rather effortless.</p>
+<p>In a future post, I plan to outline some of the steps I used to debug and resolve issues I had deploying this initial
+configuration (there were a few). For now, I hope this was helpful to someone.</p>
 
   </article>
 
