@@ -25,10 +25,20 @@
 we configured an environment with OpenStack, OpenShift and BGP software routers. Now, in part two, we&amp;rsquo;re going to focus
 on installing and configuring MetalLB itself.&lt;/p&gt;
 &lt;h2 id=&#34;install-metallb&#34;&gt;Install MetalLB&lt;/h2&gt;
-&lt;p&gt;The first step on the path to using MetalLB is actually installing it. As a Kubernetes project, MetalLB comes with all
-the usual mechanisms for installation of Kubernetes components. Plain manifests are provided as are Helm Charts and an
-operator, the MetalLB Operator. The various installation mechanisms are all discussed in the &lt;a href=&#34;https://metallb.universe.tf/installation/&#34;&gt;MetalLB installation
-guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The first step on the path to using MetalLB is actually installing it. As a reminder, we want to use MetalLB in &lt;em&gt;BGP
+mode&lt;/em&gt;. This necessitates things like routers that speak BGP and an OpenStack deployment that is configured to talk to
+these routers. These were all discussed in &lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-1&#34;&gt;part one&lt;/a&gt; of this series, and if you followed along with this then
+you will currently have a deployment that looks like this:&lt;/p&gt;
+&lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
+         alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
+            &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;If this is not the case, you probably want to read that part first. However, assuming it is, we can now proceed with
+installation. As a Kubernetes-native project, MetalLB comes with all the usual mechanisms for installation of Kubernetes
+components. Plain manifests are provided, as are Helm Charts and an operator, the MetalLB Operator. The various
+installation mechanisms are all discussed in the &lt;a href=&#34;https://metallb.universe.tf/installation/&#34;&gt;MetalLB installation guide&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Because operators are awesome, I opted to use the MetalLB Operator to deploy MetalLB and manage its lifecycle. The
 MetalLB Operator is available on OperatorHub at operatorhub.io/operator/metallb-operator but when I was testing, the
 &lt;code&gt;main&lt;/code&gt; branch contained a feature I wanted, namely the ability to configure a &lt;a href=&#34;https://github.com/metallb/metallb-operator/pull/342&#34;&gt;&lt;code&gt;loadBalancerClass&lt;/code&gt;&lt;/a&gt;. As a
@@ -57,10 +67,10 @@ and is the thing that enables MetalLB itself. There should only be one of them, 
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        node-role.kubernetes.io/worker: &amp;#34;&amp;#34;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There are a couple of things to note here. Firstly, we are configuring &lt;code&gt;spec.loadBalancerClass&lt;/code&gt;. This is necessary
-because &lt;code&gt;dev-install&lt;/code&gt; deploys Octavia by default and &lt;code&gt;cloud-provider-openstack&lt;/code&gt; is using this for load balancing by
-default (this is also the reason we deployed the operator from source). By setting this, we have the ability to later
-configure &lt;code&gt;Service&lt;/code&gt;s to use MetalLB rather than Octavia. Secondly, we are restricting the speakers to run on worker
-nodes by configuring &lt;code&gt;spec.nodeSelector&lt;/code&gt; as there&amp;rsquo;s simply no need to run them on the master nodes.&lt;/p&gt;
+because &lt;em&gt;dev-install&lt;/em&gt; deploys Octavia by default and &lt;code&gt;cloud-provider-openstack&lt;/code&gt; is using this for load balancing by
+default. By setting this, we have the ability to later configure &lt;code&gt;Service&lt;/code&gt;s to use MetalLB rather than Octavia.
+Secondly, we are restricting the speakers to run on worker nodes by configuring &lt;code&gt;spec.nodeSelector&lt;/code&gt; as there&amp;rsquo;s simply no
+need to run them on the master nodes.&lt;/p&gt;
 &lt;aside class=&#34;admonition note&#34;&gt;
 	
 	
@@ -68,7 +78,7 @@ nodes by configuring &lt;code&gt;spec.nodeSelector&lt;/code&gt; as there&amp;rsq
 label-like here so long as you use the same value later when creating &lt;code&gt;Service&lt;/code&gt;s.&lt;/div&gt;
 &lt;/aside&gt;
 
-&lt;p&gt;Validate that the CR was successfully created:&lt;/p&gt;
+&lt;p&gt;Once the CR is created, we can validate that it exists:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n metallb-system metallb metallb
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Assuming so, you can ensure the &lt;code&gt;loadBalancerClass&lt;/code&gt; attribute is in effect by inspecting the underlying service
 containers:&lt;/p&gt;
@@ -95,9 +105,9 @@ containers:&lt;/p&gt;
 MetalLB for our BGP environment.&lt;/p&gt;
 &lt;h2 id=&#34;configuring-metallb-to-talk-to-the-router&#34;&gt;Configuring MetalLB to talk to the router&lt;/h2&gt;
 &lt;p&gt;MetalLB in BGP mode requires a few bits of information. It needs a list of IP addresses that it can hand out, it needs
-information about the routers that it should peer with, and it needs to be told which IP addresses it can advertise.
-This configuration is all done using CRs, namely the &lt;code&gt;IPAddressPool&lt;/code&gt;, &lt;code&gt;BGPPeer&lt;/code&gt;, and &lt;code&gt;BGPAdvertisement&lt;/code&gt; CRs.
-First up, the IP address pools.&lt;/p&gt;
+information about the routers that it should peer with, and it needs to be told which IP addresses it can advertise via
+BGP. This configuration is all done using CRs, namely the &lt;code&gt;IPAddressPool&lt;/code&gt;, &lt;code&gt;BGPPeer&lt;/code&gt;, and &lt;code&gt;BGPAdvertisement&lt;/code&gt; CRs. First
+up, the IP address pools.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF | oc apply -f -
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;apiVersion: metallb.io/v1beta1
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;kind: IPAddressPool
@@ -259,7 +269,14 @@ configuration (there were a few). For now, I hope this was helpful to someone.&l
       <pubDate>Mon, 22 May 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/deploying-metallb-on-openstack-part-1/</guid>
-      <description>&lt;p&gt;One of the goals for an upcoming OpenShift release is to formally support &lt;a href=&#34;https://metallb.universe.tf/&#34;&gt;MetalLB&lt;/a&gt; and the &lt;a href=&#34;https://github.com/metallb/metallb-operator&#34;&gt;MetalLB
+      <description>&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is part one of two. If you&amp;rsquo;re looking for part two, you can find it
+&lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-2&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;One of the goals for an upcoming OpenShift release is to formally support &lt;a href=&#34;https://metallb.universe.tf/&#34;&gt;MetalLB&lt;/a&gt; and the &lt;a href=&#34;https://github.com/metallb/metallb-operator&#34;&gt;MetalLB
 operator&lt;/a&gt; on the OpenStack platform. While MetalLB is mainly targeted at bare metal deployments, it
 also has value on some on-prem platforms such as OpenStack; for example, if you can&amp;rsquo;t or don&amp;rsquo;t want to deploy the
 OpenStack Load Balancing service (Octavia). I&amp;rsquo;ve been investigating how this would work and this post consists of my

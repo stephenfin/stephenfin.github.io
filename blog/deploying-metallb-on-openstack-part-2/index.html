@@ -79,7 +79,7 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2023-05-23T00:00:00Z'>May 23, 2023</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>9 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>10 min read</span>
       </div>
     </div>
   </div>
@@ -97,10 +97,20 @@
 we configured an environment with OpenStack, OpenShift and BGP software routers. Now, in part two, we&rsquo;re going to focus
 on installing and configuring MetalLB itself.</p>
 <h2 id="install-metallb">Install MetalLB</h2>
-<p>The first step on the path to using MetalLB is actually installing it. As a Kubernetes project, MetalLB comes with all
-the usual mechanisms for installation of Kubernetes components. Plain manifests are provided as are Helm Charts and an
-operator, the MetalLB Operator. The various installation mechanisms are all discussed in the <a href="https://metallb.universe.tf/installation/">MetalLB installation
-guide</a>.</p>
+<p>The first step on the path to using MetalLB is actually installing it. As a reminder, we want to use MetalLB in <em>BGP
+mode</em>. This necessitates things like routers that speak BGP and an OpenStack deployment that is configured to talk to
+these routers. These were all discussed in <a href="https://that.guru/blog/deploying-metallb-on-openstack-part-1">part one</a> of this series, and if you followed along with this then
+you will currently have a deployment that looks like this:</p>
+<figure><img src="https://that.guru/media/deploying-metallb-on-openstack-1.png"
+         alt="Image displaying the network topology of VMs in a deployment"/><figcaption>
+            <h4>Our proposed deployment</h4>
+        </figcaption>
+</figure>
+
+<p>If this is not the case, you probably want to read that part first. However, assuming it is, we can now proceed with
+installation. As a Kubernetes-native project, MetalLB comes with all the usual mechanisms for installation of Kubernetes
+components. Plain manifests are provided, as are Helm Charts and an operator, the MetalLB Operator. The various
+installation mechanisms are all discussed in the <a href="https://metallb.universe.tf/installation/">MetalLB installation guide</a>.</p>
 <p>Because operators are awesome, I opted to use the MetalLB Operator to deploy MetalLB and manage its lifecycle. The
 MetalLB Operator is available on OperatorHub at operatorhub.io/operator/metallb-operator but when I was testing, the
 <code>main</code> branch contained a feature I wanted, namely the ability to configure a <a href="https://github.com/metallb/metallb-operator/pull/342"><code>loadBalancerClass</code></a>. As a
@@ -129,10 +139,10 @@ and is the thing that enables MetalLB itself. There should only be one of them, 
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        node-role.kubernetes.io/worker: &#34;&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
 </span></span></code></pre></div><p>There are a couple of things to note here. Firstly, we are configuring <code>spec.loadBalancerClass</code>. This is necessary
-because <code>dev-install</code> deploys Octavia by default and <code>cloud-provider-openstack</code> is using this for load balancing by
-default (this is also the reason we deployed the operator from source). By setting this, we have the ability to later
-configure <code>Service</code>s to use MetalLB rather than Octavia. Secondly, we are restricting the speakers to run on worker
-nodes by configuring <code>spec.nodeSelector</code> as there&rsquo;s simply no need to run them on the master nodes.</p>
+because <em>dev-install</em> deploys Octavia by default and <code>cloud-provider-openstack</code> is using this for load balancing by
+default. By setting this, we have the ability to later configure <code>Service</code>s to use MetalLB rather than Octavia.
+Secondly, we are restricting the speakers to run on worker nodes by configuring <code>spec.nodeSelector</code> as there&rsquo;s simply no
+need to run them on the master nodes.</p>
 <aside class="admonition note">
 	
 	
@@ -140,7 +150,7 @@ nodes by configuring <code>spec.nodeSelector</code> as there&rsquo;s simply no n
 label-like here so long as you use the same value later when creating <code>Service</code>s.</div>
 </aside>
 
-<p>Validate that the CR was successfully created:</p>
+<p>Once the CR is created, we can validate that it exists:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system metallb metallb
 </span></span></code></pre></div><p>Assuming so, you can ensure the <code>loadBalancerClass</code> attribute is in effect by inspecting the underlying service
 containers:</p>
@@ -167,9 +177,9 @@ containers:</p>
 MetalLB for our BGP environment.</p>
 <h2 id="configuring-metallb-to-talk-to-the-router">Configuring MetalLB to talk to the router</h2>
 <p>MetalLB in BGP mode requires a few bits of information. It needs a list of IP addresses that it can hand out, it needs
-information about the routers that it should peer with, and it needs to be told which IP addresses it can advertise.
-This configuration is all done using CRs, namely the <code>IPAddressPool</code>, <code>BGPPeer</code>, and <code>BGPAdvertisement</code> CRs.
-First up, the IP address pools.</p>
+information about the routers that it should peer with, and it needs to be told which IP addresses it can advertise via
+BGP. This configuration is all done using CRs, namely the <code>IPAddressPool</code>, <code>BGPPeer</code>, and <code>BGPAdvertisement</code> CRs. First
+up, the IP address pools.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: IPAddressPool
