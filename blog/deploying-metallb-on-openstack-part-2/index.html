@@ -293,8 +293,9 @@ address specified in the <code>IPAddressPool</code>(s).</p>
 	
 	<div class="admonition-content">The upcoming Bobcat release of neutron adds a new <code>allowedaddresspairs-atomic</code> extension, which provides new
 <code>add_allowed_address_pairs</code> and <code>remove_allowed_address_pairs</code> member actions. Once released, you could use this to bulk
-update the allowed-address-pairs in an atomic manner, though you would still need to do this for all possible IP
-addresses.</div>
+update the allowed-address-pairs in an atomic manner, which would be helpful if you wanted to write a tool to automate
+the configuration of allowed address pairs where there are large numbers of possible IP addresses. You will still have
+to specify all possible IP addresses individually, however.</div>
 </aside>
 
 <p>This is the more involved option but either option should work. In any case, with port security issues mitigated, we are
@@ -322,7 +323,12 @@ finally in a position to validate behavior.</p>
 </span></span></code></pre></div><p>This should look very familiar if you&rsquo;ve ever worked with services. In fact, there&rsquo;s nothing unusual here aside from our
 use of <code>spec.type=LoadBalancer</code> and the declaration of <code>spec.loadBalancerClass</code>. The former ensure we actually use a
 load balancer while the latter ensures that the load balancer used is MetalLB rather than Octavia.</p>
-<p>Let&rsquo;s test it out.</p>
+<p>Once created, inspect the service to find the IP address assigned:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get service test-frr
+</span></span><span style="display:flex;"><span>NAME       TYPE           CLUSTER-IP       EXTERNAL-IP    PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>        AGE
+</span></span><span style="display:flex;"><span>test-frr   LoadBalancer   172.30.130.128   192.168.50.1   80:32519/TCP   2m13s
+</span></span></code></pre></div><p>From this, we can see that the service has been assigned IP <code>192.168.50.1</code>. If we <code>curl</code> this, we should get something
+back. Let&rsquo;s test it out.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ curl 192.168.50.1
 </span></span><span style="display:flex;"><span>hello-node-855787d74c-fkbt5
 </span></span></code></pre></div><p>And it works. Good job, people!</p>

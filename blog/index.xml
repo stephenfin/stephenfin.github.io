@@ -221,8 +221,9 @@ address specified in the &lt;code&gt;IPAddressPool&lt;/code&gt;(s).&lt;/p&gt;
 	
 	&lt;div class=&#34;admonition-content&#34;&gt;The upcoming Bobcat release of neutron adds a new &lt;code&gt;allowedaddresspairs-atomic&lt;/code&gt; extension, which provides new
 &lt;code&gt;add_allowed_address_pairs&lt;/code&gt; and &lt;code&gt;remove_allowed_address_pairs&lt;/code&gt; member actions. Once released, you could use this to bulk
-update the allowed-address-pairs in an atomic manner, though you would still need to do this for all possible IP
-addresses.&lt;/div&gt;
+update the allowed-address-pairs in an atomic manner, which would be helpful if you wanted to write a tool to automate
+the configuration of allowed address pairs where there are large numbers of possible IP addresses. You will still have
+to specify all possible IP addresses individually, however.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;This is the more involved option but either option should work. In any case, with port security issues mitigated, we are
@@ -250,7 +251,12 @@ finally in a position to validate behavior.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should look very familiar if you&amp;rsquo;ve ever worked with services. In fact, there&amp;rsquo;s nothing unusual here aside from our
 use of &lt;code&gt;spec.type=LoadBalancer&lt;/code&gt; and the declaration of &lt;code&gt;spec.loadBalancerClass&lt;/code&gt;. The former ensure we actually use a
 load balancer while the latter ensures that the load balancer used is MetalLB rather than Octavia.&lt;/p&gt;
-&lt;p&gt;Let&amp;rsquo;s test it out.&lt;/p&gt;
+&lt;p&gt;Once created, inspect the service to find the IP address assigned:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get service test-frr
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME       TYPE           CLUSTER-IP       EXTERNAL-IP    PORT&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;S&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;        AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;test-frr   LoadBalancer   172.30.130.128   192.168.50.1   80:32519/TCP   2m13s
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;From this, we can see that the service has been assigned IP &lt;code&gt;192.168.50.1&lt;/code&gt;. If we &lt;code&gt;curl&lt;/code&gt; this, we should get something
+back. Let&amp;rsquo;s test it out.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ curl 192.168.50.1
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;hello-node-855787d74c-fkbt5
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And it works. Good job, people!&lt;/p&gt;
