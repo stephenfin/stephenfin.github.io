@@ -18,7 +18,8 @@ networks and implements MAC spoofing protection, preventing VMs from advertising
 them. However, we want a &lt;a href=&#34;https://opensource.com/article/17/4/openstack-neutron-networks&#34;&gt;provider network&lt;/a&gt; in our deployment in order to provide external network
 connectivity to OpenStack VMs, which meant we needed some kind of L2 network. Enter overlay networks, specifically VXLAN
 network, which will let us provide a virtual L2 domain for our created VMs. We ended up not needing this as we only
-deployed a single networking controller node, but it was an interesting exercise all the same.&lt;/p&gt;
+deployed a single networking controller node, but it was an interesting exercise all the same. I&amp;rsquo;ve documented the steps
+I needed to take to get this functioning below.&lt;/p&gt;
 &lt;h2 id=&#34;the-scenario&#34;&gt;The scenario&lt;/h2&gt;
 &lt;p&gt;We have three hosts: a bastion and two OpenStack hosts. We would like to configure a VXLAN mesh between all three VMs.&lt;/p&gt;
 &lt;ul&gt;
