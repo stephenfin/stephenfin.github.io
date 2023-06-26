@@ -120,15 +120,15 @@ deployed a single networking controller node, but it was an interesting exercise
 </span></span></code></pre></div><h2 id="the-alternative-solution">The (alternative) solution</h2>
 <p>If using Debian or Ubuntu, you can achieve part of this using netplan. This can be helpful when using e.g. Ansible.
 If using netplan, simply omit the <code>network.tunnels.{name}.remote</code> setting, like so:</p>
-<pre tabindex="0"><code>network:
-  tunnels:
-    provider0:
-      mode: vxlan
-      id: 16
-      local: 192.168.226.4
-      addresses: [ 192.168.234.1/23 ]
-  version: 2
-</code></pre><p>You then need to run the <code>bridge fdb</code> commands manually as it doesn&rsquo;t seem to be possible to configure this via netplan.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">network</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tunnels</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">provider0</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">vxlan</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id</span>: <span style="color:#ae81ff">16</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">local</span>: <span style="color:#ae81ff">192.168.226.4</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">addresses</span>: [ <span style="color:#ae81ff">192.168.234.1</span><span style="color:#ae81ff">/23 ]</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">version</span>: <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div><p>You then need to run the <code>bridge fdb</code> commands manually as it doesn&rsquo;t seem to be possible to configure this via netplan.</p>
 <h2 id="the-explanation">The explanation</h2>
 <p>Typically, you would create a VXLAN tunnel endpoint (VTEP) using a command like so:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ip link add provider0 type vxlan id <span style="color:#ae81ff">16</span> local 192.168.226.4 remote 192.168.226.5 dstport <span style="color:#ae81ff">0</span>

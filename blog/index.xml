@@ -48,15 +48,15 @@ deployed a single networking controller node, but it was an interesting exercise
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;the-alternative-solution&#34;&gt;The (alternative) solution&lt;/h2&gt;
 &lt;p&gt;If using Debian or Ubuntu, you can achieve part of this using netplan. This can be helpful when using e.g. Ansible.
 If using netplan, simply omit the &lt;code&gt;network.tunnels.{name}.remote&lt;/code&gt; setting, like so:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;network:
-  tunnels:
-    provider0:
-      mode: vxlan
-      id: 16
-      local: 192.168.226.4
-      addresses: [ 192.168.234.1/23 ]
-  version: 2
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You then need to run the &lt;code&gt;bridge fdb&lt;/code&gt; commands manually as it doesn&amp;rsquo;t seem to be possible to configure this via netplan.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;network&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;tunnels&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;provider0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;mode&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;vxlan&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;id&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;local&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.226.4&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;addresses&lt;/span&gt;: [ &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.234.1&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/23 ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;version&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You then need to run the &lt;code&gt;bridge fdb&lt;/code&gt; commands manually as it doesn&amp;rsquo;t seem to be possible to configure this via netplan.&lt;/p&gt;
 &lt;h2 id=&#34;the-explanation&#34;&gt;The explanation&lt;/h2&gt;
 &lt;p&gt;Typically, you would create a VXLAN tunnel endpoint (VTEP) using a command like so:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 remote 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
