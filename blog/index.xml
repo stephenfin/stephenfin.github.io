@@ -6,7 +6,72 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 23 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 26 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Multipoint VXLAN Tunnels</title>
+      <link>https://that.guru/blog/multipoint-vxlan-tunnels/</link>
+      <pubDate>Mon, 26 Jun 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/multipoint-vxlan-tunnels/</guid>
+      <description>&lt;p&gt;I recently had to deploy a multi-node OpenStack cluster in Azure. Like most cloud platforms, Azure does not expose L2
+networks and implements MAC spoofing protection, preventing VMs from advertising IPs that have not been assigned to
+them. However, we want a &lt;a href=&#34;https://opensource.com/article/17/4/openstack-neutron-networks&#34;&gt;provider network&lt;/a&gt; in our deployment in order to provide external network
+connectivity to OpenStack VMs, which meant we needed some kind of L2 network. Enter overlay networks, specifically VXLAN
+network, which will let us provide a virtual L2 domain for our created VMs. We ended up not needing this as we only
+deployed a single networking controller node, but it was an interesting exercise all the same.&lt;/p&gt;
+&lt;h2 id=&#34;the-scenario&#34;&gt;The scenario&lt;/h2&gt;
+&lt;p&gt;We have three hosts: a bastion and two OpenStack hosts. We would like to configure a VXLAN mesh between all three VMs.&lt;/p&gt;
+&lt;p&gt;Bastion: &lt;code&gt;192.168.226.4&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.1/23&lt;/code&gt;)
+Host 00: &lt;code&gt;192.168.226.5&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.2/23&lt;/code&gt;)
+Host 01: &lt;code&gt;192.168.226.6&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.3/23&lt;/code&gt;)&lt;/p&gt;
+&lt;h2 id=&#34;the-solution&#34;&gt;The solution&lt;/h2&gt;
+&lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-00&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.2/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-01&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.6 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.3/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;the-alternative-solution&#34;&gt;The (alternative) solution&lt;/h2&gt;
+&lt;p&gt;If using Debian or Ubuntu, you can achieve part of this using netplan. This can be helpful when using e.g. Ansible.
+If using netplan, simply omit the &lt;code&gt;network.tunnels.{name}.remote&lt;/code&gt; setting, like so:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;network:
+  tunnels:
+    provider0:
+      mode: vxlan
+      id: 16
+      local: 192.168.226.4
+      addresses: [ 192.168.234.1/23 ]
+  version: 2
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You then need to run the &lt;code&gt;bridge fdb&lt;/code&gt; commands manually as it doesn&amp;rsquo;t seem to be possible to configure this via netplan.&lt;/p&gt;
+&lt;h2 id=&#34;the-explanation&#34;&gt;The explanation&lt;/h2&gt;
+&lt;p&gt;Typically, you would create a VXLAN tunnel endpoint (VTEP) using a command like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 remote 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, the &lt;code&gt;ip&lt;/code&gt; command does not allow you to specify multiple &lt;code&gt;remote&lt;/code&gt; stanzas. As a result, you need to omit this
+and manually specify forwarding database entries using the &lt;code&gt;bridge fdb&lt;/code&gt; command.&lt;/p&gt;
+&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://vincent.bernat.ch/en/blog/2017-vxlan-linux&#34;&gt;VXLAN &amp;amp; Linux - Vincent Bernat&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://joejulian.name/post/how-to-configure-linux-vxlans-with-multiple-unicast-endpoints/&#34;&gt;How to configure linux vxlans with multiple unicast endpoints - Joe Julian&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://mcastelino.medium.com/setting-up-a-overlay-network-using-point-to-multi-point-gre-tunnels-c8c2422c2fa2&#34;&gt;Setting up a overlay network using point to multi-point GRE tunnels - M Castelino&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking&#34;&gt;Chapter 10. Using a VXLAN to create a virtual layer-2 domain for VMs - RHEL 9 Networking Guide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.rdoproject.org/networking/networking-in-too-much-detail/#network-host-external-traffic-kl&#34;&gt;Networking in too much detail - RDO&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
     <item>
       <title>Deploying MetalLB with BGP on Openstack (Part 2)</title>
       <link>https://that.guru/blog/deploying-metallb-on-openstack-part-2/</link>
@@ -3917,48 +3982,6 @@ in the XML above with the following:&lt;/p&gt;
 hopefully be resolved sooner rather than later but until then, be aware that
 secure boot with &lt;strong&gt;always&lt;/strong&gt; be enabled when using this auto-configuration of
 firmware.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Plain Text Email in Evolution 3.38</title>
-      <link>https://that.guru/blog/plain-text-in-evolution-3-38/</link>
-      <pubDate>Mon, 23 Nov 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/plain-text-in-evolution-3-38/</guid>
-      <description>&lt;p&gt;I recently upgraded to Fedora 33, which comes with Evolution 3.38 (previously
-3.36, iirc). Following the upgrade, I noticed that quoting in plain text emails
-appeared to have regressed. Previously, Evolution would wrap quotes at your
-recommended width, but by selecting the email and changing the style from
-&amp;ldquo;Normal&amp;rdquo; to &amp;ldquo;Preformatted&amp;rdquo;, you could avoid this text wrapping. With Evolution
-3.38, this no longer works, necessitating manual line wrapping which is rather
-hit and miss: I managed to send mails where the message I was replying to ended
-up unquoted.&lt;/p&gt;
-&lt;p&gt;I haven&amp;rsquo;t figured out the quoting issue, though &lt;a href=&#34;https://gitlab.gnome.org/GNOME/evolution/-/issues/1235&#34;&gt;issue 1235&lt;/a&gt; looks
-promising, but the wrapping issue is thankfully solvable. Turns out there&amp;rsquo;s a
-new (to me) &amp;ldquo;Wrap quoted text in replies&amp;rdquo; option available in the &amp;ldquo;Composer
-Preferences&amp;rdquo; pane of the &amp;ldquo;Evolution Preferences&amp;rdquo; pane, which accessible via
-&amp;ldquo;Edit &amp;gt; Preferences&amp;rdquo;.&lt;/p&gt;
-&lt;figure&gt;&lt;img src=&#34;https://that.guru/media/plain-text-in-evolution-3-38-1.png&#34;
-         alt=&#34;The Composer Preferences Pane&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Composer Preferences&lt;/h4&gt;
-        &lt;/figcaption&gt;
-&lt;/figure&gt;
-
-&lt;p&gt;Compare before and after:&lt;/p&gt;
-&lt;figure&gt;&lt;img src=&#34;https://that.guru/media/plain-text-in-evolution-3-38-2.png&#34;
-         alt=&#34;Before (with &amp;#39;Wrap quoted text in replies&amp;#39; checked)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Before (with &amp;#39;Wrap quoted text in replies&amp;#39; checked)&lt;/h4&gt;
-        &lt;/figcaption&gt;
-&lt;/figure&gt;
-
-&lt;figure&gt;&lt;img src=&#34;https://that.guru/media/plain-text-in-evolution-3-38-3.png&#34;
-         alt=&#34;After (with &amp;#39;Wrap quoted text in replies&amp;#39; unchecked)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;After (with &amp;#39;Wrap quoted text in replies&amp;#39; unchecked)&lt;/h4&gt;
-        &lt;/figcaption&gt;
-&lt;/figure&gt;
-
-&lt;p&gt;Usable email again!&lt;/p&gt;
 </description>
     </item>
     

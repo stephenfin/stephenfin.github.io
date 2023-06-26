@@ -3,10 +3,19 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://that.guru/blog/</loc>
-    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
+    <lastmod>2023-06-26T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/</loc>
-    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
+    <lastmod>2023-06-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/blog/multipoint-vxlan-tunnels/</loc>
+    <lastmod>2023-06-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/networking/</loc>
+    <lastmod>2023-06-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/</loc>
+    <lastmod>2023-06-26T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/deploying-metallb-on-openstack-part-2/</loc>
     <lastmod>2023-05-23T00:00:00+00:00</lastmod>
@@ -18,9 +27,6 @@
     <lastmod>2023-05-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2023-05-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/</loc>
     <lastmod>2023-05-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/deploying-metallb-on-openstack-part-1/</loc>
@@ -198,9 +204,6 @@
     <lastmod>2019-03-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/direct-vs-hostdev-interfaces/</loc>
-    <lastmod>2019-02-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/networking/</loc>
     <lastmod>2019-02-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/poon-hill-trek/</loc>
