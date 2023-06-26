@@ -21,9 +21,11 @@ network, which will let us provide a virtual L2 domain for our created VMs. We e
 deployed a single networking controller node, but it was an interesting exercise all the same.&lt;/p&gt;
 &lt;h2 id=&#34;the-scenario&#34;&gt;The scenario&lt;/h2&gt;
 &lt;p&gt;We have three hosts: a bastion and two OpenStack hosts. We would like to configure a VXLAN mesh between all three VMs.&lt;/p&gt;
-&lt;p&gt;Bastion: &lt;code&gt;192.168.226.4&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.1/23&lt;/code&gt;)
-Host 00: &lt;code&gt;192.168.226.5&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.2/23&lt;/code&gt;)
-Host 01: &lt;code&gt;192.168.226.6&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.3/23&lt;/code&gt;)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Bastion: &lt;code&gt;192.168.226.4&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.1/23&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Host 00: &lt;code&gt;192.168.226.5&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.2/23&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Host 01: &lt;code&gt;192.168.226.6&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.3/23&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 id=&#34;the-solution&#34;&gt;The solution&lt;/h2&gt;
 &lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;

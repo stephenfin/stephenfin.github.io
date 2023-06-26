@@ -93,9 +93,11 @@ network, which will let us provide a virtual L2 domain for our created VMs. We e
 deployed a single networking controller node, but it was an interesting exercise all the same.</p>
 <h2 id="the-scenario">The scenario</h2>
 <p>We have three hosts: a bastion and two OpenStack hosts. We would like to configure a VXLAN mesh between all three VMs.</p>
-<p>Bastion: <code>192.168.226.4</code> (VXLAN IP: <code>192.168.234.1/23</code>)
-Host 00: <code>192.168.226.5</code> (VXLAN IP: <code>192.168.234.2/23</code>)
-Host 01: <code>192.168.226.6</code> (VXLAN IP: <code>192.168.234.3/23</code>)</p>
+<ul>
+<li>Bastion: <code>192.168.226.4</code> (VXLAN IP: <code>192.168.234.1/23</code>)</li>
+<li>Host 00: <code>192.168.226.5</code> (VXLAN IP: <code>192.168.234.2/23</code>)</li>
+<li>Host 01: <code>192.168.226.6</code> (VXLAN IP: <code>192.168.234.3/23</code>)</li>
+</ul>
 <h2 id="the-solution">The solution</h2>
 <p>On <code>bastion</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ip link add provider0 type vxlan id <span style="color:#ae81ff">16</span> local 192.168.226.4 dstport <span style="color:#ae81ff">0</span>
