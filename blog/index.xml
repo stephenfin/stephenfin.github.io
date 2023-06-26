@@ -66,6 +66,7 @@ and manually specify forwarding database entries using the &lt;code&gt;bridge fd
 &lt;li&gt;&lt;a href=&#34;https://vincent.bernat.ch/en/blog/2017-vxlan-linux&#34;&gt;VXLAN &amp;amp; Linux - Vincent Bernat&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://joejulian.name/post/how-to-configure-linux-vxlans-with-multiple-unicast-endpoints/&#34;&gt;How to configure linux vxlans with multiple unicast endpoints - Joe Julian&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://mcastelino.medium.com/setting-up-a-overlay-network-using-point-to-multi-point-gre-tunnels-c8c2422c2fa2&#34;&gt;Setting up a overlay network using point to multi-point GRE tunnels - M Castelino&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.madebymikal.com/setting-up-vxlan-between-nested-virt-vms-on-google-compute-engine/&#34;&gt;Setting up VXLAN between nested virt VMs on Google Compute Engine - Michael Still&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking&#34;&gt;Chapter 10. Using a VXLAN to create a virtual layer-2 domain for VMs - RHEL 9 Networking Guide&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.rdoproject.org/networking/networking-in-too-much-detail/#network-host-external-traffic-kl&#34;&gt;Networking in too much detail - RDO&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
