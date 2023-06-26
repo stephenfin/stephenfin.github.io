@@ -64,7 +64,28 @@ If using netplan, simply omit the &lt;code&gt;network.tunnels.{name}.remote&lt;/
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, the &lt;code&gt;ip&lt;/code&gt; command does not allow you to specify multiple &lt;code&gt;remote&lt;/code&gt; stanzas. As a result, you need to omit this
 and manually specify forwarding database entries using the &lt;code&gt;bridge fdb&lt;/code&gt; command.&lt;/p&gt;
-&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;h2 id=&#34;bonus-using-gre-instead&#34;&gt;BONUS! Using GRE instead&lt;/h2&gt;
+&lt;p&gt;This wasn&amp;rsquo;t an option for me because GRE &lt;a href=&#34;https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq&#34;&gt;is apparently blocked by Azure&lt;/a&gt;. In theory though, there&amp;rsquo;s no
+reason this shouldn&amp;rsquo;t work otherwise.&lt;/p&gt;
+&lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.4 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-00&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.5 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.2/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-01&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.6 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.3/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://vincent.bernat.ch/en/blog/2017-vxlan-linux&#34;&gt;VXLAN &amp;amp; Linux - Vincent Bernat&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://joejulian.name/post/how-to-configure-linux-vxlans-with-multiple-unicast-endpoints/&#34;&gt;How to configure linux vxlans with multiple unicast endpoints - Joe Julian&lt;/a&gt;&lt;/li&gt;

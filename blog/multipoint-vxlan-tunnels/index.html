@@ -79,7 +79,7 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2023-06-26T00:00:00Z'>Jun 26, 2023</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>3 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>4 min read</span>
       </div>
     </div>
   </div>
@@ -136,7 +136,28 @@ If using netplan, simply omit the <code>network.tunnels.{name}.remote</code> set
 </span></span><span style="display:flex;"><span>ip addr add 192.168.234.1/23 dev provider0
 </span></span></code></pre></div><p>However, the <code>ip</code> command does not allow you to specify multiple <code>remote</code> stanzas. As a result, you need to omit this
 and manually specify forwarding database entries using the <code>bridge fdb</code> command.</p>
-<h2 id="references">References</h2>
+<h2 id="bonus-using-gre-instead">BONUS! Using GRE instead</h2>
+<p>This wasn&rsquo;t an option for me because GRE <a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq">is apparently blocked by Azure</a>. In theory though, there&rsquo;s no
+reason this shouldn&rsquo;t work otherwise.</p>
+<p>On <code>bastion</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ip tunnel add provider0 mode gre local 192.168.226.4 key <span style="color:#ae81ff">1234</span>
+</span></span><span style="display:flex;"><span>ip addr add 192.168.234.1/23 dev provider0
+</span></span><span style="display:flex;"><span>ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  <span style="color:#75715e"># host-00</span>
+</span></span><span style="display:flex;"><span>ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  <span style="color:#75715e"># host-01</span>
+</span></span><span style="display:flex;"><span>ip link set dev provider0 up
+</span></span></code></pre></div><p>On <code>host-00</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ip tunnel add provider0 mode gre local 192.168.226.5 key <span style="color:#ae81ff">1234</span>
+</span></span><span style="display:flex;"><span>ip addr add 192.168.234.2/23 dev provider0
+</span></span><span style="display:flex;"><span>ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  <span style="color:#75715e"># bastion</span>
+</span></span><span style="display:flex;"><span>ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  <span style="color:#75715e"># host-01</span>
+</span></span><span style="display:flex;"><span>ip link set dev provider0 up
+</span></span></code></pre></div><p>On <code>host-01</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ip tunnel add provider0 mode gre local 192.168.226.6 key <span style="color:#ae81ff">1234</span>
+</span></span><span style="display:flex;"><span>ip addr add 192.168.234.3/23 dev provider0
+</span></span><span style="display:flex;"><span>ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  <span style="color:#75715e"># bastion</span>
+</span></span><span style="display:flex;"><span>ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  <span style="color:#75715e"># host-00</span>
+</span></span><span style="display:flex;"><span>ip link set dev provider0 up
+</span></span></code></pre></div><h2 id="references">References</h2>
 <ul>
 <li><a href="https://vincent.bernat.ch/en/blog/2017-vxlan-linux">VXLAN &amp; Linux - Vincent Bernat</a></li>
 <li><a href="https://joejulian.name/post/how-to-configure-linux-vxlans-with-multiple-unicast-endpoints/">How to configure linux vxlans with multiple unicast endpoints - Joe Julian</a></li>
