@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listening to notifications in Openstack | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/qtRFE7MYnHo/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Listening to notifications in Openstack</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2023-07-07T00:00:00Z'>Jul 7, 2023</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>Another short one. As mostly anyone that has had to maintain an OpenStack cluster will know, many of the OpenStack
+services has the ability to report notifications via the message bus. These notifications will be enabled in most
+production deployments but DevStack doesn&rsquo;t enable them by default. Fortunately enabling them is pretty painless. If we
+wanted to enable the notifications in, say, Keystone, we can do so by configuring the following in
+<code>/etc/keystone/keystone.conf</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#66d9ef">[oslo_messaging_notifications]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">transport_url</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">rabbit://stackrabbit:***@***:5672/</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">driver</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">messagingv2</span>
+</span></span></code></pre></div><p>These options are provided by the <a href="https://docs.openstack.org/oslo.messaging/latest/">oslo.messaging</a> project, which virtually every OpenStack services
+harnesses.</p>
+<p>Once you&rsquo;ve enabled them though, you what can you do with them? Using the <code>messagingv2</code> means they&rsquo;re published over the
+AMQP message bus (and the message is enveloped, which is the difference to <code>messaging</code>), however, they&rsquo;re not exposed
+via HTTP APIs or similar. We could whip out a telemetry tool like <a href="https://docs.openstack.org/ceilometer/latest/">Ceilometer</a> but that seems overkill for a
+quick bit of debugging. Well it turns out <em>oslo.messaging</em> provides utilities for both creating notifications <strong>and</strong>
+listening to them. Writing a listener is relatively simple:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> json
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> logging
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> oslo_config <span style="color:#f92672">import</span> cfg
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> oslo_messaging
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cfg<span style="color:#f92672">.</span>CONF()
+</span></span><span style="display:flex;"><span>logging<span style="color:#f92672">.</span>basicConfig(level<span style="color:#f92672">=</span>logging<span style="color:#f92672">.</span>INFO)
+</span></span><span style="display:flex;"><span>LOG <span style="color:#f92672">=</span> logging<span style="color:#f92672">.</span>getLogger()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;rabbit://stackrabbit:***@***:5672/&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NotificationEndpoint</span>:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_notify</span>(self, ctxt, publisher_id, event_type, payload, metadata):
+</span></span><span style="display:flex;"><span>        LOG<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#39;notification received </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">:</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> (publisher_id, event_type))
+</span></span><span style="display:flex;"><span>        output <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>dumps(
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;payload&#34;</span>: payload,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;publisher_id&#34;</span>: publisher_id,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;event_type&#34;</span>: event_type,
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            indent<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        print(output)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    audit <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>    debug <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>    info <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>    warn <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>    error <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>    critical <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>    sample <span style="color:#f92672">=</span> _notify
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    transport <span style="color:#f92672">=</span> oslo_messaging<span style="color:#f92672">.</span>get_notification_transport(cfg<span style="color:#f92672">.</span>CONF, url<span style="color:#f92672">=</span>URL)
+</span></span><span style="display:flex;"><span>    targets <span style="color:#f92672">=</span> [oslo_messaging<span style="color:#f92672">.</span>Target(topic<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;notifications&#39;</span>)]
+</span></span><span style="display:flex;"><span>    endpoints <span style="color:#f92672">=</span> [NotificationEndpoint()]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    server <span style="color:#f92672">=</span> oslo_messaging<span style="color:#f92672">.</span>get_notification_listener(
+</span></span><span style="display:flex;"><span>        transport,
+</span></span><span style="display:flex;"><span>        targets,
+</span></span><span style="display:flex;"><span>        endpoints,
+</span></span><span style="display:flex;"><span>        executor<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;threading&#39;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    LOG<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;messaging starting&#34;</span>)
+</span></span><span style="display:flex;"><span>    server<span style="color:#f92672">.</span>start()
+</span></span><span style="display:flex;"><span>    LOG<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;messaging started&#34;</span>)
+</span></span><span style="display:flex;"><span>    server<span style="color:#f92672">.</span>wait()
+</span></span><span style="display:flex;"><span>    LOG<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;exit&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">Don&rsquo;t forget to update <code>URL</code> to match the value of your services'
+[<code>[oslo_messaging_notifications] transport_url</code>][conf-transport_url]. You might also need to modify the target topic or
+add additional targets if any of your services override [<code>[oslo_messaging_notifications] topics</code>][conf-topics].</div>
+</aside>
+
+<p>If you run this and then, say, attempt to authenticate with invalid credentials, you&rsquo;ll see notifications arriving:</p>
+<pre tabindex="0"><code>INFO:root:notification received identity.stephenfin-devstack:identity.authenticate
+{
+    &#34;payload&#34;: {
+        &#34;typeURI&#34;: &#34;http://schemas.dmtf.org/cloud/audit/1.0/event&#34;,
+        &#34;eventType&#34;: &#34;activity&#34;,
+        &#34;id&#34;: &#34;68c5b24b-89f0-5c93-abe4-5c3d6651fb00&#34;,
+        &#34;eventTime&#34;: &#34;2023-07-07T15:52:00.496156+0000&#34;,
+        &#34;action&#34;: &#34;authenticate&#34;,
+        &#34;outcome&#34;: &#34;failure&#34;,
+        &#34;observer&#34;: {
+            &#34;id&#34;: &#34;08d95fde312344debbcc00106b139995&#34;,
+            &#34;typeURI&#34;: &#34;service/security&#34;
+        },
+        &#34;initiator&#34;: {
+            &#34;id&#34;: &#34;78fab588d9d34900a6c59fc22f3a2049&#34;,
+            &#34;typeURI&#34;: &#34;service/security/account/user&#34;,
+            &#34;host&#34;: {
+                &#34;address&#34;: &#34;***&#34;,
+                &#34;agent&#34;: &#34;openstacksdk/1.3.0 keystoneauth1/5.2.1 python-requests/2.31.0 CPython/3.11.4&#34;
+            },
+            &#34;request_id&#34;: &#34;req-0126be50-db3a-4975-a814-d717a5fdfdf8&#34;,
+            &#34;user_id&#34;: &#34;***&#34;,
+            &#34;username&#34;: &#34;***&#34;
+        },
+        &#34;target&#34;: {
+            &#34;id&#34;: &#34;fc220ce7-2787-5152-bf81-9943cb8ee24b&#34;,
+            &#34;typeURI&#34;: &#34;service/security/account/user&#34;
+        }
+    },
+    &#34;publisher_id&#34;: &#34;identity.stephenfin-devstack&#34;,
+    &#34;event_type&#34;: &#34;identity.authenticate&#34;
+}
+</code></pre><p>This can be extremely valuable for debugging since notifications will expose things that aren&rsquo;t necessarily obvious from
+logs.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/rabbitmq">#rabbitmq</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2023 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
