@@ -161,8 +161,8 @@ listening to them. Writing a listener is relatively simple:</p>
 	
 	
 	<div class="admonition-content">Don&rsquo;t forget to update <code>URL</code> to match the value of your services'
-[<code>[oslo_messaging_notifications] transport_url</code>][conf-transport_url]. You might also need to modify the target topic or
-add additional targets if any of your services override [<code>[oslo_messaging_notifications] topics</code>][conf-topics].</div>
+<a href="https://docs.openstack.org/oslo.messaging/latest/configuration/opts.html#oslo_messaging_notifications.transport_url"><code>[oslo_messaging_notifications] transport_url</code></a>. You might also need to modify the target topic or
+add additional targets if any of your services override <a href="https://docs.openstack.org/oslo.messaging/latest/configuration/opts.html#oslo_messaging_notifications.topics"><code>[oslo_messaging_notifications] topics</code></a>.</div>
 </aside>
 
 <p>If you run this and then, say, attempt to authenticate with invalid credentials, you&rsquo;ll see notifications arriving:</p>

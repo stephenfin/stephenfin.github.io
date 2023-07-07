@@ -89,8 +89,8 @@ listening to them. Writing a listener is relatively simple:&lt;/p&gt;
 	
 	
 	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to update &lt;code&gt;URL&lt;/code&gt; to match the value of your services&#39;
-[&lt;code&gt;[oslo_messaging_notifications] transport_url&lt;/code&gt;][conf-transport_url]. You might also need to modify the target topic or
-add additional targets if any of your services override [&lt;code&gt;[oslo_messaging_notifications] topics&lt;/code&gt;][conf-topics].&lt;/div&gt;
+&lt;a href=&#34;https://docs.openstack.org/oslo.messaging/latest/configuration/opts.html#oslo_messaging_notifications.transport_url&#34;&gt;&lt;code&gt;[oslo_messaging_notifications] transport_url&lt;/code&gt;&lt;/a&gt;. You might also need to modify the target topic or
+add additional targets if any of your services override &lt;a href=&#34;https://docs.openstack.org/oslo.messaging/latest/configuration/opts.html#oslo_messaging_notifications.topics&#34;&gt;&lt;code&gt;[oslo_messaging_notifications] topics&lt;/code&gt;&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;If you run this and then, say, attempt to authenticate with invalid credentials, you&amp;rsquo;ll see notifications arriving:&lt;/p&gt;
