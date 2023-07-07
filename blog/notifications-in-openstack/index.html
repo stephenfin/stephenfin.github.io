@@ -93,7 +93,7 @@ wanted to enable the notifications in, say, Keystone, we can do so by configurin
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#66d9ef">[oslo_messaging_notifications]</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">transport_url</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">rabbit://stackrabbit:***@***:5672/</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">driver</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">messagingv2</span>
-</span></span></code></pre></div><p>These options are provided by the <a href="https://docs.openstack.org/oslo.messaging/latest/">oslo.messaging</a> project, which virtually every OpenStack services
+</span></span></code></pre></div><p>These options are provided by the <a href="https://docs.openstack.org/oslo.messaging/latest/">oslo.messaging</a> project, which virtually every OpenStack service
 harnesses.</p>
 <p>Once you&rsquo;ve enabled them though, you what can you do with them? Using the <code>messagingv2</code> means they&rsquo;re published over the
 AMQP message bus (and the message is enveloped, which is the difference to <code>messaging</code>), however, they&rsquo;re not exposed
