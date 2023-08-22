@@ -13,10 +13,10 @@
       <pubDate>Tue, 22 Aug 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/</guid>
-      <description>&lt;p&gt;After seeing a few too many availability zone-related issues popping up of late, I decided it might make sense to
-document the situation with AZ on OpenShift (and, by extension, Kubernetes). This is the first of two parts. This part
-provides some background on what AZs are and how you can configure them, while the second part examines how AZs affect
-the Machine API, the Cluster API, and the Cinder and Manila CSI drivers.&lt;/p&gt;
+      <description>&lt;p&gt;After seeing a few too many availability zone-related issues popping up of late, I&amp;rsquo;ve decided it might make sense to
+document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the first of two parts.
+This part provides some background on what AZs are and how you can configure them, while the second part examines how
+AZs affect the Machine API, the Cluster API, and the Cinder and Manila CSI drivers.&lt;/p&gt;
 &lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
 &lt;p&gt;Both the Compute (Nova) and Block Storage (Cinder) services in OpenStack support the concept of Availability Zones (AZs)
 and the use case is very similar in both cases. Quoting from the &lt;a href=&#34;https://docs.openstack.org/nova/latest/admin/availability-zones.html&#34;&gt;Nova documentation&lt;/a&gt;:&lt;/p&gt;
