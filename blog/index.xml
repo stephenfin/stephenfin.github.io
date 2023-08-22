@@ -6,7 +6,134 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Fri, 07 Jul 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 22 Aug 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Availability Zones in Openstack and Openshift (part one)</title>
+      <link>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/</link>
+      <pubDate>Tue, 22 Aug 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/</guid>
+      <description>&lt;p&gt;After seeing a few too many availability zone-related issues popping up of late, I decided it might make sense to
+document the situation with AZ on OpenShift (and, by extension, Kubernetes). This is the first of two parts. This part
+provides some background on what AZs are and how you can configure them, while the second part examines how AZs affect
+the Machine API, the Cluster API, and the Cinder and Manila CSI drivers.&lt;/p&gt;
+&lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
+&lt;p&gt;Both the Compute (Nova) and Block Storage (Cinder) services in OpenStack support the concept of Availability Zones (AZs)
+and the use case is very similar in both cases. Quoting from the &lt;a href=&#34;https://docs.openstack.org/nova/latest/admin/availability-zones.html&#34;&gt;Nova documentation&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
+infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
+rack), network layout and/or power source.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The Nova documentation specifically notes that the AZ feature provides no HA benefit in and of itself: whatever benefits
+there are are entirely down to how the deployment is designed. In any case we frequently see them used to demarcate
+compute nodes existing on different racks or datacenters.&lt;/p&gt;
+&lt;p&gt;As you might expect, Nova&amp;rsquo;s AZs are an attribute of the compute hosts (hosts running the &lt;code&gt;nova-compute&lt;/code&gt; service), while
+Cinder&amp;rsquo;s are an attribute of the block storage hosts (hosts running the &lt;code&gt;cinder-volume&lt;/code&gt; service). In a &lt;a href=&#34;https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index&#34;&gt;Hyperconverged
+Infrastructure (HCI)&lt;/a&gt; deployment, where compute and block storage services run side-by-side on hyperconverged
+hosts, the compute hosts &lt;em&gt;are&lt;/em&gt; the block storage hosts and this is meaningless difference. In a non-HCI deployment, this
+is unlikely to be the case but this hasn&amp;rsquo;t prevented people and applications from frequently munging the two types of
+AZ, as we will see later. Because this conflation of different AZ types can happen, the general expectation we would
+have is that one of the following is true:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;em&gt;There is only a single compute AZ, a single block storage and they have the same name.&lt;/em&gt; This is the default
+configuration if you use &amp;ldquo;stock&amp;rdquo; OpenStack: Nova&amp;rsquo;s default AZ is &lt;code&gt;nova&lt;/code&gt; and Cinder helpfully defaults to the same
+value.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;em&gt;There are multiple compute and block storage AZs, but there is the same number of both and they share the same
+name.&lt;/em&gt; For example, both the compute and block storage services have the following AZs defined: &lt;code&gt;AZ0&lt;/code&gt;, &lt;code&gt;AZ1&lt;/code&gt;, and
+&lt;code&gt;AZ2&lt;/code&gt;. In this case, users and applications which incorrectly use compute host AZ information to configure the AZ of
+volumes and related block storage resources will &amp;ldquo;just work&amp;rdquo;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;em&gt;There are multiple compute and block storage AZs, and there is either a different number of each or they have
+different names.&lt;/em&gt; For example, the compute services have the &lt;code&gt;compute-az0&lt;/code&gt; and &lt;code&gt;compute-az1&lt;/code&gt; AZs defined while the
+block storage services have the &lt;code&gt;volume-az0&lt;/code&gt; and &lt;code&gt;volume-az1&lt;/code&gt; AZs defined. In this case, the users and applications
+must be very careful to explicitly specify a correct AZ when creating volumes and related block storage resources and
+must ensure Nova is configured to allow attaching volumes in other AZs (more of this later too).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;{{ note }}
+The last case above isn&amp;rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
+storage AZ for a given compute host. To be fair though, such an API would likely be a rather difficult thing to do,
+given multiple backends are a thing to be considered, and it would be effectively impossible to do automatically,
+meaning there would still be initial manual configuration required. The closest analog we have for his today is the
+&lt;a href=&#34;https://docs.openstack.org/cinder/2023.1/admin/availability-zone-type.html&#34;&gt;Volume Type AZ feature&lt;/a&gt;, which allows you to indicate the AZs that can be used when creating a volume
+with a given volume type (so that e.g. a particular block storage backend that is only available to one rack can&amp;rsquo;t be
+requested by volumes hosted by block storage services running on another rack). As the docs for that indicate, this
+configuration is entirely deployment specific and therefore totally manual.
+{{ /note }}&lt;/p&gt;
+&lt;p&gt;Finally, a compute AZ can be specified be when creating an instance (or &amp;ldquo;server&amp;rdquo;, in OpenStackClient parlance),
+while a block storage AZ can be requested when creating volumes, volume backups, volume groups, or consistency groups
+(these are deprecated though). An instance that is not explicitly assigned an AZ during creation (e.g. &lt;code&gt;server create&lt;/code&gt;
+or &lt;code&gt;POST /servers&lt;/code&gt;) will be assigned the AZ of the host that it is eventually scheduled to. This is also the case when
+creating volume or related resources. However, while nova will always reject requests with invalid AZs, cinder allows
+you to configure a fallback to a default value.&lt;/p&gt;
+&lt;h2 id=&#34;configuration&#34;&gt;Configuration&lt;/h2&gt;
+&lt;p&gt;Since this feature exists across two services, there are two sets of configuration options to be concerned with.&lt;/p&gt;
+&lt;h3 id=&#34;nova&#34;&gt;Nova&lt;/h3&gt;
+&lt;p&gt;As of the 2023.1 (Antelope) release, Nova has three relevant configuration options:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[DEFAULT] default_availability_zone&lt;/code&gt; defines the default AZ of each compute host, which can be changed by adding the
+host to a host aggregate and setting the special &lt;code&gt;availability_zone&lt;/code&gt; metadata property as described in the &lt;a href=&#34;https://docs.openstack.org/nova/latest/admin/availability-zones.html&#34;&gt;nova
+docs&lt;/a&gt;. This option defaults to &lt;code&gt;nova&lt;/code&gt; and as noted in the &lt;a href=&#34;https://docs.openstack.org/nova/latest/admin/availability-zones.html&#34;&gt;nova docs&lt;/a&gt;, the default AZ should never
+explicitly requesting this AZ when creating new instances since it will prevent migration of instance between
+different hosts in different AZs (which is allowed by default if the AZ was unset during initial creation) as well as
+identification of hosts that are missing AZ information. You have been warned.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[DEFAULT] default_schedule_zone&lt;/code&gt; defines the default AZ that should be assigned to an instance on creation. If this
+is unset, the instance will be assigned an implicit AZ of the host it lands on. You might want to use this if you
+wanted the majority of instances to go into a &amp;ldquo;generic&amp;rdquo; AZ while special instances can go into specific AZs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[cinder] cross_az_attach&lt;/code&gt; determines whether volumes are allowed to be attached to an instance if the instance host&amp;rsquo;s
+compute AZ differs from that of the volume&amp;rsquo;s block storage AZ. It also determines whether volumes created when
+creating a boot-from-volume server have an explicit AZ associated with them or not. This defaults to &lt;code&gt;true&lt;/code&gt; and with
+good reason, given the aforementioned caveats around munging of compute and block storage AZs and the need for them to
+be identical.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There is also the &lt;code&gt;[DEFAULT] internal_service_availability_zone&lt;/code&gt; configuration option, but this has no real impact for
+end-users.&lt;/p&gt;
+&lt;h3 id=&#34;cinder&#34;&gt;Cinder&lt;/h3&gt;
+&lt;p&gt;As of the 2023.1 (Antelope) release, Cinder has three relevant configuration options:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[DEFAULT] storage_availability_zone&lt;/code&gt; defines the default AZ of the block storage host, which can be changed by
+setting the &lt;code&gt;[foo] backend_availability_zone&lt;/code&gt; option (where &lt;code&gt;foo&lt;/code&gt; is the name of a volume backend). This option
+defaults to &lt;code&gt;nova&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[DEFAULT] default_availability_zone&lt;/code&gt; defines the default AZ that should be assigned to a volume on creation. If this
+is unset, the volume will be assigned the AZ of the host it lands on (which in turn defaults to &lt;code&gt;[DEFAULT] storage_availability_zone&lt;/code&gt;, per above).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[DEFAULT] allow_availability_zone_fallback&lt;/code&gt; allows you to ignore an request for an invalid block storage AZ and
+instead fallback to the default AZ defined in &lt;code&gt;[DEFAULT] default_availability_zone&lt;/code&gt;. This defaults to &lt;code&gt;false&lt;/code&gt;, though
+to be honest &lt;code&gt;true&lt;/code&gt; is probably a sensible value for configurations where e.g. there are multiple compute AZs and a
+single volume AZ.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;usage&#34;&gt;Usage&lt;/h2&gt;
+&lt;p&gt;This isn&amp;rsquo;t really the point of this article, but you can use AZs when creating resources using OpenStackClient. For
+example, when creating an instance (or &amp;ldquo;server&amp;rdquo;):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack server create --availibility-zone compute-az1 ...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Likewise, when creating a volume:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack volume create --availability-zone volume-az1 ...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Or when creating a volume backup:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack volume backup create --availability-zone volume-az2 ...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Other API libraries like gophercloud also expose these attributes and allow them to be configured, but we won&amp;rsquo;t go into
+that here.&lt;/p&gt;
+&lt;h2 id=&#34;next-steps&#34;&gt;Next Steps&lt;/h2&gt;
+&lt;p&gt;In the next post, I&amp;rsquo;ll detail how all of these pieces play into various OpenStack-specific components of OpenShift and
+Kubernetes.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Listening to notifications in Openstack</title>
       <link>https://that.guru/blog/notifications-in-openstack/</link>
@@ -3504,333 +3631,6 @@ start flowing and being received by the &lt;code&gt;pktgen&lt;/code&gt; instance
 &lt;li&gt;&lt;a href=&#34;https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html&#34;&gt;https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://access.redhat.com/solutions/3243661&#34;&gt;https://access.redhat.com/solutions/3243661&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Using the OpenStack SDK</title>
-      <link>https://that.guru/blog/using-openstacksdk/</link>
-      <pubDate>Tue, 23 Mar 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/using-openstacksdk/</guid>
-      <description>&lt;p&gt;The &lt;a href=&#34;https://docs.openstack.org/openstacksdk/latest/&#34;&gt;&lt;em&gt;OpenStack SDK&lt;/em&gt; library&lt;/a&gt; provides a unified API to interact with
-OpenStack clouds. I&amp;rsquo;ve been doing a lot of work on it lately and am only now
-starting to gain an understanding of just what&amp;rsquo;s going on (there are fewer
-layers in an onion 😊). These are my notes on how to use the &lt;code&gt;Resource&lt;/code&gt;-based
-objects found in e.g. &lt;code&gt;openstack/compute/v2/server.py&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;intro-to-the-resource-object&#34;&gt;Intro to the Resource object&lt;/h2&gt;
-&lt;p&gt;As the name would suggest, the &lt;code&gt;Resource&lt;/code&gt; object wraps a type of API resource
-or collection of API resources. For example, take nova&amp;rsquo;s &lt;code&gt;/servers&lt;/code&gt; API. This
-API supports a number of CRUD-style operations:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;GET /servers&lt;/code&gt; (list servers)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;POST /servers&lt;/code&gt; (create server)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;GET /servers/{id}&lt;/code&gt; (fetch server)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;PUT /servers/{id}&lt;/code&gt; (update server)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;DELETE /servers/{id}&lt;/code&gt; (delete server)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This API is rather complex and also provides separate &amp;ldquo;detail&amp;rdquo; endpoints, e.g.
-&lt;code&gt;GET /servers/detail&lt;/code&gt;, plus a load of actions and nested resources. We&amp;rsquo;re going
-to ignore all of those for now and focus on these basic CRUD-style APIs.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;If you were to define a simple &lt;code&gt;Resource&lt;/code&gt; definition for this API, it would
-likely look something like this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Server&lt;/span&gt;(resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Resource):
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# API path&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    base_path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/servers&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# envelope parameters&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    resource_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;server&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    resources_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;servers&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# capabilities&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_create &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_fetch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_commit &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_delete &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_list &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# attributes&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    access_ipv4 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv4&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    access_ipv6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv6&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;There&amp;rsquo;s a lot of abstraction going on here, and it&amp;rsquo;s obviously far from
-complete (look at &lt;code&gt;openstack/compute/v2/server.py&lt;/code&gt; in the &lt;em&gt;openstacksdk&lt;/em&gt;
-project if you want the real deal), but there are a couple of crucial
-components here. Firstly, we&amp;rsquo;re giving the path to the API:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# API path&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    base_path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/servers&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is the &lt;em&gt;base&lt;/em&gt; path, which is extended with additional path components
-depending on the operation.&lt;/p&gt;
-&lt;p&gt;Next up, we&amp;rsquo;re stating the keys used for the envelope:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# envelope parameters&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    resource_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;server&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    resources_key &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;servers&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Pretty much all OpenStack APIs use &lt;a href=&#34;https://stackoverflow.com/a/25930584/613428&#34;&gt;envelopes&lt;/a&gt;, by which we mean all
-responses are returned with a JSON object on the outside. The above
-configuration means the responses for operations that work with multiple
-resources (so just &lt;code&gt;GET /servers&lt;/code&gt; in this case) will be accessible via the
-&lt;code&gt;servers&lt;/code&gt; key, while those that work with individual resources will be
-accessible via the &lt;code&gt;server&lt;/code&gt; key. If we look at the &lt;a href=&#34;https://docs.openstack.org/api-ref/compute/?expanded=list-servers-detail#list-servers&#34;&gt;nova api-ref&lt;/a&gt; we can see
-this is indeed the case. For example, consider a typical response for
-&lt;code&gt;GET /servers&lt;/code&gt; (list servers):&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;servers&amp;#34;&lt;/span&gt;: [
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;22c91117-08de-4894-9aa9-6ef382400985&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;links&amp;#34;&lt;/span&gt;: [
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        {
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;href&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://openstack.example.com/v2/6f70656e737461636b20342065766572/servers/22c91117-08de-4894-9aa9-6ef382400985&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;rel&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;self&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        },
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        {
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;href&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://openstack.example.com/6f70656e737461636b20342065766572/servers/22c91117-08de-4894-9aa9-6ef382400985&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;rel&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;bookmark&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      ],
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;new-server-test&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ],
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;servers_links&amp;#34;&lt;/span&gt;: [
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;href&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://openstack.example.com/v2.1/6f70656e737461636b20342065766572/servers?limit=1&amp;amp;marker=22c91117-08de-4894-9aa9-6ef382400985&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;rel&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;next&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ]
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And an equivalent response for &lt;code&gt;GET /servers/{id}&lt;/code&gt; (fetch server):&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;server&amp;#34;&lt;/span&gt;: {
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;OS-DCF:diskConfig&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;AUTO&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;OS-EXT-AZ:availability_zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;In case you&amp;rsquo;re interested, the reason most services are so consistent in using
-envelopes for their API responses is because they&amp;rsquo;ve been advised to. Despite
-the fact that each OpenStack service is developed by its own mostly unique team
-with their own preferences, we have (thankfully) managed to establish some
-guidelines for things for like [how API responses should be structured][5].&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;Finally, you have the allowed operations and the fields or attributes of the
-server resource:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# capabilities&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_create &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_fetch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_commit &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_delete &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    allow_list &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# attributes&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    access_ipv4 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv4&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    access_ipv6 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;accessIPv6&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The attributes are a fairly simple mapping from the resource to some attribute
-of the API requests and responses and in essence allow us to map e.g. the
-&lt;code&gt;accessIPv4&lt;/code&gt; field in API requests and responses to the &lt;code&gt;access_ipv4&lt;/code&gt; attribute
-of the &lt;code&gt;Server&lt;/code&gt; object. More interestingly though, for the purposes of this
-post, are the capabilities. The value of these capabilities defines whether the
-following aptly named methods from the &lt;code&gt;Resource&lt;/code&gt; class are usable or not:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;create&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;fetch&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;commit&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;delete&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;list&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;We&amp;rsquo;ll go into details on how to use these shortly - that is, after all, the
-main point of this post - but suffice to say you can make a call like
-&lt;code&gt;Server.list(...)&lt;/code&gt; and it will return a list of &lt;code&gt;Server&lt;/code&gt; objects. In any case,
-the servers API supports all of the CRUD-style operations and we&amp;rsquo;re stating as
-much here through this configuration. This means a user can use any of these
-CRUD methods (with correct input and configuration, of course) and expect them
-to work. This isn&amp;rsquo;t always the case. If, for example, this API did not support
-a user updating an existing server then we could configure &lt;code&gt;allow_commit = False&lt;/code&gt; (or simply not define this attribute resulting in the default value of
-&lt;code&gt;False&lt;/code&gt; being used).&lt;/p&gt;
-&lt;p&gt;With this small introduction to the &lt;code&gt;Resource&lt;/code&gt; object complete, let&amp;rsquo;s look at
-how you&amp;rsquo;d actually use this.&lt;/p&gt;
-&lt;h2 id=&#34;using-resource-objects&#34;&gt;Using Resource objects&lt;/h2&gt;
-&lt;p&gt;Let&amp;rsquo;s begin by saying most users won&amp;rsquo;t actually need to use &lt;code&gt;Resource&lt;/code&gt; objects
-directly. &lt;em&gt;openstacksdk&lt;/em&gt; consists of multiple layers, and most users will get
-away with using what&amp;rsquo;s known as the &lt;em&gt;proxy&lt;/em&gt; layer. This is a utility layer that
-provides a number of easy API helpers such as &lt;code&gt;create_server&lt;/code&gt; (to create a new
-server) or &lt;code&gt;flavors&lt;/code&gt; (to list servers) that a user can use to interact with
-their cloud. An example from the &lt;a href=&#34;https://opendev.org/openstack/openstacksdk/src/branch/master/README.rst&#34;&gt;README&lt;/a&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Initialize and turn on debug logging&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;enable_logging(debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Initialize connection&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conn &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;connect(cloud&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mordred&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; server &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; conn&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;compute&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;servers():
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    print(server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;to_dict())
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It also provides an even higher-level layer, known as the &lt;em&gt;cloud&lt;/em&gt; layer, which
-is used by things like Ansible&amp;rsquo;s OpenStack modules and can be used to wrap
-multiple complicated operations. Another example from the README:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Initialize and turn on debug logging&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;enable_logging(debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Initialize connection&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conn &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;connect(cloud&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mordred&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; server &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; conn&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list_servers():
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    print(server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;to_dict())
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Sometimes it can be useful to understand how these things work under the hood
-though, so let&amp;rsquo;s have a look at the ways to use &lt;code&gt;Resource&lt;/code&gt; objects directly,
-from most complicated (and therefore most informative) to most abstract.&lt;/p&gt;
-&lt;p&gt;We said above that the definition of the capabilities attributes on the
-resource - &lt;code&gt;allow_create&lt;/code&gt;, &lt;code&gt;allow_fetch&lt;/code&gt; etc. - meant that users could use
-equivalent methods on the resource such as &lt;code&gt;create&lt;/code&gt;. Let&amp;rsquo;s begin by attempting
-to use one of these on the &lt;code&gt;Server&lt;/code&gt; resource actually provided by
-&lt;em&gt;openstacksdk&lt;/em&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; openstack.compute.v2 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; server
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list()
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Traceback (most recent call last):
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  File &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;lt;stdin&amp;gt;&amp;#34;&lt;/span&gt;, line &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;module&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;TypeError&lt;/span&gt;: list() missing &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; required positional argument: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;session&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Seems pretty legit. We need a &amp;ldquo;session&amp;rdquo; parameter. We can look at the docstring
-for this method to figure out what that should be:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; help(server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Help on method list &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; module openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;resource:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;list(session, paginated&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;, base_path&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;, allow_unknown_params&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;False&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;params) method of builtins&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;type instance
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    This method &lt;span style=&#34;color:#f92672&#34;&gt;is&lt;/span&gt; a generator which yields resource objects&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    This resource object list generator handles pagination &lt;span style=&#34;color:#f92672&#34;&gt;and&lt;/span&gt; takes query
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    params &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; response filtering&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    :param session: The session to use &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; making this request&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    :type session: :class:&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;`&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;~&lt;/span&gt;keystoneauth1&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;adapter&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Adapter&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;`&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Yes, it&amp;rsquo;s called &lt;code&gt;session&lt;/code&gt; but it&amp;rsquo;s actually an Adapter. Someone should probably
-fix that.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;The docs say you can use an &lt;code&gt;keystoneauth1.adapter.Adapter&lt;/code&gt; object but this is
-a lie. If you try, it&amp;rsquo;ll complain about not having methods that are only
-accessible from the &lt;code&gt;openstack.proxy.Proxy&lt;/code&gt; object.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;There are a couple of ways to generate a suitable parameter. Let&amp;rsquo;s start with
-most verbose first. We can manually create a &lt;code&gt;keystoneauth1.session.Session&lt;/code&gt;
-object, wrap this in &lt;em&gt;openstacksdk&lt;/em&gt;&amp;rsquo;s &lt;code&gt;openstack.proxy.Proxy&lt;/code&gt; object (which is
-itself a wrapper around keystoneauth&amp;rsquo;s &lt;code&gt;keystoneauth1.adapter.Adapter&lt;/code&gt; object)
-and then use this on the relevant &lt;code&gt;Resource&lt;/code&gt; object. An example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; keystoneauth1.identity &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; v3
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; keystoneauth1.session
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; keystoneclient.v3 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; client
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; openstack.compute.v2 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; server
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack.proxy
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; auth &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; v3&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Password(
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     auth_url&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;http://172.20.4.155/identity&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     username&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;admin&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     password&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;password&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     project_name&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;demo&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     user_domain_id&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     project_domain_id&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; session &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; keystoneauth1&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;session&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Session(auth&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;auth)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; proxy &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;proxy&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Proxy(
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     session&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;session,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     service_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;compute&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     interface&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;public&amp;#39;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;...&lt;/span&gt;     version&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;2.1&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; print([x&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;name &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list(session&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;proxy)])
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;test-server&amp;#39;&lt;/span&gt;]
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This aligns with what I&amp;rsquo;m seeing if I run &lt;code&gt;openstack server list&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server list -f value -c Name
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;test-server
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Hurrah! However, not only is this super verbose but it&amp;rsquo;s using hard-coded cloud
-details such as keystone details and the version that I extracted from the
-&lt;code&gt;openrc&lt;/code&gt; file laid down by DevStack. This seems unnecessary: you don&amp;rsquo;t need to
-manually specify any of these when using the clients so why do we need to use
-that here. In fact, it &lt;em&gt;is&lt;/em&gt; unnecessary. Not only can &lt;em&gt;openstacksdk&lt;/em&gt; parse the
-environment variables configured via the &lt;code&gt;openrc&lt;/code&gt; file but it also supports (an
-in fact prefers) a &lt;code&gt;clouds.yaml&lt;/code&gt; file, which on a DevStack deployment can be
-found at &lt;code&gt;/etc/openstack/clouds.yaml&lt;/code&gt;. An abbreviated example from my DevStack
-deployment:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cat /etc/openstack/clouds.yaml
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;clouds:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  devstack:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    auth:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      auth_url: http://172.20.4.155/identity
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      password: password
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      project_domain_id: default
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      project_name: demo
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      user_domain_id: default
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      username: demo
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    identity_api_version: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;3&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    region_name: RegionOne
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    volume_api_version: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;3&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  devstack-admin:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ...
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  devstack-alt:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ...
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  devstack-system-admin:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ...
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;functional:
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  image_name: cirros-0.5.2-x86_64-disk
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;em&gt;openstacksdk&lt;/em&gt; provides a helpful little tool to show the configuration it&amp;rsquo;s
-able to identify automatically, the &lt;code&gt;openstack.config.loader&lt;/code&gt; module:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ python -m openstack.config.loader
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;devstack None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;devstack-admin None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;devstack-alt None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;devstack-system-admin None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;envvars None &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;api_timeout&amp;#39;&lt;/span&gt;: None, ..., &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;networks&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[]}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You&amp;rsquo;ll note that most of these correspond to entries in the &lt;code&gt;clouds.yaml&lt;/code&gt; file
-but there&amp;rsquo;s also an additional entry - &lt;code&gt;envvars&lt;/code&gt; - which corresponds to the
-cloud configuration sourced from environment variables which were configured
-via the &lt;code&gt;openrc&lt;/code&gt; file. Very cool.&lt;/p&gt;
-&lt;p&gt;Knowing that we have the above, we can use the above example once again but
-this time use &lt;em&gt;openstacksdk&lt;/em&gt; to generate the &lt;code&gt;Proxy&lt;/code&gt; object for us:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack.config.loader
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; openstack.compute.v2 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; server
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; config &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;config&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;loader&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;OpenStackConfig()&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get_one(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;devstack&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; session &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; config&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get_session_client(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;compute&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; print([x&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;name &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list(session&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;proxy)])
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;test-server&amp;#39;&lt;/span&gt;]
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is far less verbose that the previous example and doesn&amp;rsquo;t require
-hardcoding any configuration into our scripts, or reinventing the wheel with
-regard to parsing environment variables or &lt;code&gt;clouds.yaml&lt;/code&gt; files. Instead, we&amp;rsquo;re
-saying we should use the configuration for the &lt;code&gt;devstack&lt;/code&gt; cloud from
-&lt;code&gt;clouds.yaml&lt;/code&gt;. If we wanted to, we could also use the &lt;code&gt;envvars&lt;/code&gt; &amp;ldquo;cloud&amp;rdquo; or any
-of the other &lt;code&gt;devstack-*&lt;/code&gt; clouds. Ultimately though, it saves us a lot of code.
-We&amp;rsquo;re not done though. We can make this even easier by using the &lt;code&gt;Connection&lt;/code&gt;
-object from the &lt;code&gt;openstack.connection&lt;/code&gt; module. You likely missed it, but we
-already created one of these objects in our brief example on using the &lt;em&gt;proxy&lt;/em&gt;
-and &lt;em&gt;cloud&lt;/em&gt; layers above:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conn &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;connect(cloud&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mordred&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;That does an awful lot for us including generating suitable &lt;code&gt;Proxy&lt;/code&gt; objects. We
-can use it in place of the &lt;code&gt;OpenStackConfig.get_one&lt;/code&gt; and &lt;code&gt;get_session_client&lt;/code&gt;
-calls above:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; openstack
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; openstack.compute.v2 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; server
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; conn &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; openstack&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;connect(cloud&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;devstack&amp;#39;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; print([x&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;name &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Server&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;list(session&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;proxy)])
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;test-server&amp;#39;&lt;/span&gt;]
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Wonderfully concise.&lt;/p&gt;
 </description>
     </item>
     

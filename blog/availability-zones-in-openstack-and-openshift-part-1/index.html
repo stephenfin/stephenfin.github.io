@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Availability Zones in Openstack and Openshift (part one) | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/m49HAhhL1fE/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Availability Zones in Openstack and Openshift (part one)</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2023-08-22T00:00:00Z'>Aug 22, 2023</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>7 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>After seeing a few too many availability zone-related issues popping up of late, I decided it might make sense to
+document the situation with AZ on OpenShift (and, by extension, Kubernetes). This is the first of two parts. This part
+provides some background on what AZs are and how you can configure them, while the second part examines how AZs affect
+the Machine API, the Cluster API, and the Cinder and Manila CSI drivers.</p>
+<h2 id="background">Background</h2>
+<p>Both the Compute (Nova) and Block Storage (Cinder) services in OpenStack support the concept of Availability Zones (AZs)
+and the use case is very similar in both cases. Quoting from the <a href="https://docs.openstack.org/nova/latest/admin/availability-zones.html">Nova documentation</a>:</p>
+<blockquote>
+<p>Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
+infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
+rack), network layout and/or power source.</p>
+</blockquote>
+<p>The Nova documentation specifically notes that the AZ feature provides no HA benefit in and of itself: whatever benefits
+there are are entirely down to how the deployment is designed. In any case we frequently see them used to demarcate
+compute nodes existing on different racks or datacenters.</p>
+<p>As you might expect, Nova&rsquo;s AZs are an attribute of the compute hosts (hosts running the <code>nova-compute</code> service), while
+Cinder&rsquo;s are an attribute of the block storage hosts (hosts running the <code>cinder-volume</code> service). In a <a href="https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index">Hyperconverged
+Infrastructure (HCI)</a> deployment, where compute and block storage services run side-by-side on hyperconverged
+hosts, the compute hosts <em>are</em> the block storage hosts and this is meaningless difference. In a non-HCI deployment, this
+is unlikely to be the case but this hasn&rsquo;t prevented people and applications from frequently munging the two types of
+AZ, as we will see later. Because this conflation of different AZ types can happen, the general expectation we would
+have is that one of the following is true:</p>
+<ol>
+<li>
+<p><em>There is only a single compute AZ, a single block storage and they have the same name.</em> This is the default
+configuration if you use &ldquo;stock&rdquo; OpenStack: Nova&rsquo;s default AZ is <code>nova</code> and Cinder helpfully defaults to the same
+value.</p>
+</li>
+<li>
+<p><em>There are multiple compute and block storage AZs, but there is the same number of both and they share the same
+name.</em> For example, both the compute and block storage services have the following AZs defined: <code>AZ0</code>, <code>AZ1</code>, and
+<code>AZ2</code>. In this case, users and applications which incorrectly use compute host AZ information to configure the AZ of
+volumes and related block storage resources will &ldquo;just work&rdquo;.</p>
+</li>
+<li>
+<p><em>There are multiple compute and block storage AZs, and there is either a different number of each or they have
+different names.</em> For example, the compute services have the <code>compute-az0</code> and <code>compute-az1</code> AZs defined while the
+block storage services have the <code>volume-az0</code> and <code>volume-az1</code> AZs defined. In this case, the users and applications
+must be very careful to explicitly specify a correct AZ when creating volumes and related block storage resources and
+must ensure Nova is configured to allow attaching volumes in other AZs (more of this later too).</p>
+</li>
+</ol>
+<p>{{ note }}
+The last case above isn&rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
+storage AZ for a given compute host. To be fair though, such an API would likely be a rather difficult thing to do,
+given multiple backends are a thing to be considered, and it would be effectively impossible to do automatically,
+meaning there would still be initial manual configuration required. The closest analog we have for his today is the
+<a href="https://docs.openstack.org/cinder/2023.1/admin/availability-zone-type.html">Volume Type AZ feature</a>, which allows you to indicate the AZs that can be used when creating a volume
+with a given volume type (so that e.g. a particular block storage backend that is only available to one rack can&rsquo;t be
+requested by volumes hosted by block storage services running on another rack). As the docs for that indicate, this
+configuration is entirely deployment specific and therefore totally manual.
+{{ /note }}</p>
+<p>Finally, a compute AZ can be specified be when creating an instance (or &ldquo;server&rdquo;, in OpenStackClient parlance),
+while a block storage AZ can be requested when creating volumes, volume backups, volume groups, or consistency groups
+(these are deprecated though). An instance that is not explicitly assigned an AZ during creation (e.g. <code>server create</code>
+or <code>POST /servers</code>) will be assigned the AZ of the host that it is eventually scheduled to. This is also the case when
+creating volume or related resources. However, while nova will always reject requests with invalid AZs, cinder allows
+you to configure a fallback to a default value.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Since this feature exists across two services, there are two sets of configuration options to be concerned with.</p>
+<h3 id="nova">Nova</h3>
+<p>As of the 2023.1 (Antelope) release, Nova has three relevant configuration options:</p>
+<ul>
+<li>
+<p><code>[DEFAULT] default_availability_zone</code> defines the default AZ of each compute host, which can be changed by adding the
+host to a host aggregate and setting the special <code>availability_zone</code> metadata property as described in the <a href="https://docs.openstack.org/nova/latest/admin/availability-zones.html">nova
+docs</a>. This option defaults to <code>nova</code> and as noted in the <a href="https://docs.openstack.org/nova/latest/admin/availability-zones.html">nova docs</a>, the default AZ should never
+explicitly requesting this AZ when creating new instances since it will prevent migration of instance between
+different hosts in different AZs (which is allowed by default if the AZ was unset during initial creation) as well as
+identification of hosts that are missing AZ information. You have been warned.</p>
+</li>
+<li>
+<p><code>[DEFAULT] default_schedule_zone</code> defines the default AZ that should be assigned to an instance on creation. If this
+is unset, the instance will be assigned an implicit AZ of the host it lands on. You might want to use this if you
+wanted the majority of instances to go into a &ldquo;generic&rdquo; AZ while special instances can go into specific AZs.</p>
+</li>
+<li>
+<p><code>[cinder] cross_az_attach</code> determines whether volumes are allowed to be attached to an instance if the instance host&rsquo;s
+compute AZ differs from that of the volume&rsquo;s block storage AZ. It also determines whether volumes created when
+creating a boot-from-volume server have an explicit AZ associated with them or not. This defaults to <code>true</code> and with
+good reason, given the aforementioned caveats around munging of compute and block storage AZs and the need for them to
+be identical.</p>
+</li>
+</ul>
+<p>There is also the <code>[DEFAULT] internal_service_availability_zone</code> configuration option, but this has no real impact for
+end-users.</p>
+<h3 id="cinder">Cinder</h3>
+<p>As of the 2023.1 (Antelope) release, Cinder has three relevant configuration options:</p>
+<ul>
+<li>
+<p><code>[DEFAULT] storage_availability_zone</code> defines the default AZ of the block storage host, which can be changed by
+setting the <code>[foo] backend_availability_zone</code> option (where <code>foo</code> is the name of a volume backend). This option
+defaults to <code>nova</code></p>
+</li>
+<li>
+<p><code>[DEFAULT] default_availability_zone</code> defines the default AZ that should be assigned to a volume on creation. If this
+is unset, the volume will be assigned the AZ of the host it lands on (which in turn defaults to <code>[DEFAULT] storage_availability_zone</code>, per above).</p>
+</li>
+<li>
+<p><code>[DEFAULT] allow_availability_zone_fallback</code> allows you to ignore an request for an invalid block storage AZ and
+instead fallback to the default AZ defined in <code>[DEFAULT] default_availability_zone</code>. This defaults to <code>false</code>, though
+to be honest <code>true</code> is probably a sensible value for configurations where e.g. there are multiple compute AZs and a
+single volume AZ.</p>
+</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>This isn&rsquo;t really the point of this article, but you can use AZs when creating resources using OpenStackClient. For
+example, when creating an instance (or &ldquo;server&rdquo;):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack server create --availibility-zone compute-az1 ...
+</span></span></code></pre></div><p>Likewise, when creating a volume:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
+</span></span></code></pre></div><p>Or when creating a volume backup:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume backup create --availability-zone volume-az2 ...
+</span></span></code></pre></div><p>Other API libraries like gophercloud also expose these attributes and allow them to be configured, but we won&rsquo;t go into
+that here.</p>
+<h2 id="next-steps">Next Steps</h2>
+<p>In the next post, I&rsquo;ll detail how all of these pieces play into various OpenStack-specific components of OpenShift and
+Kubernetes.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/openshift">#openshift</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2023 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
