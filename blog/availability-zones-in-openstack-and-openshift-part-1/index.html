@@ -85,21 +85,25 @@
   </div>
 
   <article>
-    <p>After seeing a few too many availability zone-related issues popping up of late, I&rsquo;ve decided it might make sense to
-document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the first of two parts.
-This part provides some background on what AZs are and how you can configure them, while the second part examines how
-AZs affect the Machine API, the Cluster API, and the Cinder and Manila CSI drivers.</p>
+    <p>After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
+might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the
+first of two parts. This part provides some background on what AZs are and how you can configure them, while the second
+part examines how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API Provider, the
+OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.</p>
 <h2 id="background">Background</h2>
 <p>Both the Compute (Nova) and Block Storage (Cinder) services in OpenStack support the concept of Availability Zones (AZs)
-and the use case is very similar in both cases. Quoting from the <a href="https://docs.openstack.org/nova/latest/admin/availability-zones.html">Nova documentation</a>:</p>
+and the envisioned use cases is very similar for both. Quoting from the <a href="https://docs.openstack.org/nova/latest/admin/availability-zones.html">Nova documentation</a>:</p>
 <blockquote>
 <p>Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
 infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
 rack), network layout and/or power source.</p>
 </blockquote>
-<p>The Nova documentation specifically notes that the AZ feature provides no HA benefit in and of itself: whatever benefits
-there are are entirely down to how the deployment is designed. In any case we frequently see them used to demarcate
-compute nodes existing on different racks or datacenters.</p>
+<p>The Nova documentation then goes on to specifically note that the AZ feature provides no HA benefit in and of itself -
+whatever benefits there are are entirely down to how the deployment is designed - thus it&rsquo;s really just a way to signal
+something you&rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
+experience I&rsquo;ve seen AZs used to demarcate both compute and block storage nodes existing on different racks or in
+different datacenters.</p>
+<h2 id="implementation">Implementation</h2>
 <p>As you might expect, Nova&rsquo;s AZs are an attribute of the compute hosts (hosts running the <code>nova-compute</code> service), while
 Cinder&rsquo;s are an attribute of the block storage hosts (hosts running the <code>cinder-volume</code> service). In a <a href="https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index">Hyperconverged
 Infrastructure (HCI)</a> deployment, where compute and block storage services run side-by-side on hyperconverged
@@ -127,22 +131,24 @@ must be very careful to explicitly specify a correct AZ when creating volumes an
 must ensure Nova is configured to allow attaching volumes in other AZs (more of this later too).</p>
 </li>
 </ol>
-<p>{{ note }}
-The last case above isn&rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
-storage AZ for a given compute host. To be fair though, such an API would likely be a rather difficult thing to do,
-given multiple backends are a thing to be considered, and it would be effectively impossible to do automatically,
-meaning there would still be initial manual configuration required. The closest analog we have for his today is the
-<a href="https://docs.openstack.org/cinder/2023.1/admin/availability-zone-type.html">Volume Type AZ feature</a>, which allows you to indicate the AZs that can be used when creating a volume
-with a given volume type (so that e.g. a particular block storage backend that is only available to one rack can&rsquo;t be
-requested by volumes hosted by block storage services running on another rack). As the docs for that indicate, this
-configuration is entirely deployment specific and therefore totally manual.
-{{ /note }}</p>
-<p>Finally, a compute AZ can be specified be when creating an instance (or &ldquo;server&rdquo;, in OpenStackClient parlance),
-while a block storage AZ can be requested when creating volumes, volume backups, volume groups, or consistency groups
-(these are deprecated though). An instance that is not explicitly assigned an AZ during creation (e.g. <code>server create</code>
-or <code>POST /servers</code>) will be assigned the AZ of the host that it is eventually scheduled to. This is also the case when
-creating volume or related resources. However, while nova will always reject requests with invalid AZs, cinder allows
-you to configure a fallback to a default value.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">The last case above isn&rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
+storage AZ for a given compute host. To be fair, such an API would likely be a rather difficult thing to do, given
+multiple backends are a thing to be considered. It would be effectively impossible to do automatically, meaning there
+would still be initial manual configuration required. The closest analog we have for his today is the [Volume Type AZ
+feature][volume-type-az], which allows you to indicate the AZs that can be used when creating a volume with a given
+volume type (so that e.g. a particular block storage backend that is only available to one rack can&rsquo;t be requested by
+volumes hosted by block storage services running on another rack). As the docs for that indicate, this configuration is
+entirely deployment specific and therefore totally manual.</div>
+</aside>
+
+<p>Finally, a compute AZ can be specified be when creating an instance (or &ldquo;server&rdquo;, in OpenStackClient parlance), while a
+block storage AZ can be requested when creating volumes, volume backups, volume groups, and volume groups&rsquo; deprecated
+predecessor, consistency groups. An instance that is not explicitly assigned an AZ during creation (e.g. <code>server create</code>) will be assigned the AZ of the host that it is eventually scheduled to. This is also the case when creating
+volume or related resources. However, while nova will always reject requests with invalid AZs, cinder allows you to
+configure a fallback to a default value.</p>
 <h2 id="configuration">Configuration</h2>
 <p>Since this feature exists across two services, there are two sets of configuration options to be concerned with.</p>
 <h3 id="nova">Nova</h3>
@@ -172,12 +178,15 @@ be identical.</p>
 <p>There is also the <code>[DEFAULT] internal_service_availability_zone</code> configuration option, but this has no real impact for
 end-users.</p>
 <h3 id="cinder">Cinder</h3>
-<p>As of the 2023.1 (Antelope) release, Cinder has three relevant configuration options:</p>
+<p>As of the 2023.1 (Antelope) release, Cinder has four relevant configuration options:</p>
 <ul>
 <li>
-<p><code>[DEFAULT] storage_availability_zone</code> defines the default AZ of the block storage host, which can be changed by
-setting the <code>[foo] backend_availability_zone</code> option (where <code>foo</code> is the name of a volume backend). This option
-defaults to <code>nova</code></p>
+<p><code>[DEFAULT] storage_availability_zone</code> defines the default AZ of the block storage host. This defaults to <code>nova</code> and
+can be overridden on a per-backend basis using <code>[foo] backend_availability_zone</code>. Speaking of which&hellip;</p>
+</li>
+<li>
+<p><code>[foo] backend_availability_zone</code> define the default AZ for a specific backend of the block storage host. <code>foo</code> should
+be the name of the volume backend, as defined in <code>[DEFAULT] enabled_backends</code>.</p>
 </li>
 <li>
 <p><code>[DEFAULT] default_availability_zone</code> defines the default AZ that should be assigned to a volume on creation. If this
