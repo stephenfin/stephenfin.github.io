@@ -155,8 +155,9 @@ loop further:&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With this done, we finally get a 0 count:&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 0
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With this done, we&amp;rsquo;re now able to inspect elements of the various controller methods. We&amp;rsquo;re using this in the OpenAPI
-effort to associate a schema with a method so &lt;a href=&#34;https://review.opendev.org/c/openstack/nova/+/915735/&#34;&gt;we can ensure all API methods have schemas&lt;/a&gt;.&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This patch therefore means we&amp;rsquo;ll now be able to inspect elements of the various controller methods. We&amp;rsquo;re planning to
+use this as part of the OpenAPI effort to associate a schema with a method so &lt;a href=&#34;https://review.opendev.org/c/openstack/nova/+/915735/&#34;&gt;we can ensure all API methods have
+schemas&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     

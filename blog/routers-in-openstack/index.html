@@ -227,8 +227,9 @@ loop further:</p>
 </span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;useless versioned method count: </span><span style="color:#e6db74">{</span>count<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
 </span></span></code></pre></div><p>With this done, we finally get a 0 count:</p>
 <pre tabindex="0"><code>useless versioned method count: 0
-</code></pre><p>With this done, we&rsquo;re now able to inspect elements of the various controller methods. We&rsquo;re using this in the OpenAPI
-effort to associate a schema with a method so <a href="https://review.opendev.org/c/openstack/nova/+/915735/">we can ensure all API methods have schemas</a>.</p>
+</code></pre><p>This patch therefore means we&rsquo;ll now be able to inspect elements of the various controller methods. We&rsquo;re planning to
+use this as part of the OpenAPI effort to associate a schema with a method so <a href="https://review.opendev.org/c/openstack/nova/+/915735/">we can ensure all API methods have
+schemas</a>.</p>
 
   </article>
 
