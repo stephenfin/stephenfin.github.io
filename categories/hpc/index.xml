@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HPC on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/hpc/</link>
+    <description>Recent content in HPC on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Mon, 27 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/hpc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Trading Flexibility for Performance: The HPC Story in OpenStack</title>
+      <link>https://that.guru/talks/trading-flexibility-for-performance/</link>
+      <pubDate>Mon, 27 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/trading-flexibility-for-performance/</guid>
+      <description>&lt;p&gt;This lightning talk was presented at &lt;a href=&#34;https://indico.cern.ch/event/776411/timetable/#20190527&#34;&gt;OpenStack Days CERN&lt;/a&gt; in May 2019. It
+gave an overview of the state of the art for HPC and NFV in the OpenStack
+Compute. The talk focused on three of the most important and complex NFV/HPC
+features in nova - CPU pinning, NUMA awareness and real-time - and detailed
+what they were, why they existed, and how we were trying to make them better.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;5dd03237e78c4d73aaa68e216941b177&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+  </channel>
+</rss>

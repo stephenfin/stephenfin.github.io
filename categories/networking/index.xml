@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>networking on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/networking/</link>
+    <description>Recent content in networking on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Mon, 26 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/networking/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Multipoint VXLAN Tunnels</title>
+      <link>https://that.guru/blog/multipoint-vxlan-tunnels/</link>
+      <pubDate>Mon, 26 Jun 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/multipoint-vxlan-tunnels/</guid>
+      <description>&lt;p&gt;I recently had to deploy a multi-node OpenStack cluster in Azure. Like most cloud platforms, Azure does not expose L2
+networks and implements MAC spoofing protection, preventing VMs from advertising IPs that have not been assigned to
+them. However, we want a &lt;a href=&#34;https://opensource.com/article/17/4/openstack-neutron-networks&#34;&gt;provider network&lt;/a&gt; in our deployment in order to provide external network
+connectivity to OpenStack VMs, which meant we needed some kind of L2 network. Enter overlay networks, specifically VXLAN
+network, which will let us provide a virtual L2 domain for our created VMs. We ended up not needing this as we only
+deployed a single networking controller node, but it was an interesting exercise all the same. I&amp;rsquo;ve documented the steps
+I needed to take to get this functioning below.&lt;/p&gt;
+&lt;h2 id=&#34;the-scenario&#34;&gt;The scenario&lt;/h2&gt;
+&lt;p&gt;We have three hosts: a bastion and two OpenStack hosts. We would like to configure a VXLAN mesh between all three VMs.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Bastion: &lt;code&gt;192.168.226.4&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.1/23&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Host 00: &lt;code&gt;192.168.226.5&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.2/23&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Host 01: &lt;code&gt;192.168.226.6&lt;/code&gt; (VXLAN IP: &lt;code&gt;192.168.234.3/23&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;the-solution&#34;&gt;The solution&lt;/h2&gt;
+&lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-00&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.2/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-01&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.6 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.3/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;the-alternative-solution&#34;&gt;The (alternative) solution&lt;/h2&gt;
+&lt;p&gt;If using Debian or Ubuntu, you can achieve part of this using netplan. This can be helpful when using e.g. Ansible.
+If using netplan, simply omit the &lt;code&gt;network.tunnels.{name}.remote&lt;/code&gt; setting, like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;network&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;tunnels&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;provider0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;mode&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;vxlan&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;id&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;local&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.226.4&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;addresses&lt;/span&gt;: [ &lt;span style=&#34;color:#ae81ff&#34;&gt;192.168.234.1&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;/23 ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;version&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You then need to run the &lt;code&gt;bridge fdb&lt;/code&gt; commands manually as it doesn&amp;rsquo;t seem to be possible to configure this via netplan.&lt;/p&gt;
+&lt;h2 id=&#34;the-explanation&#34;&gt;The explanation&lt;/h2&gt;
+&lt;p&gt;Typically, you would create a VXLAN tunnel endpoint (VTEP) using a command like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 remote 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, the &lt;code&gt;ip&lt;/code&gt; command does not allow you to specify multiple &lt;code&gt;remote&lt;/code&gt; stanzas. As a result, you need to omit this
+and manually specify forwarding database entries using the &lt;code&gt;bridge fdb&lt;/code&gt; command.&lt;/p&gt;
+&lt;h2 id=&#34;bonus-using-gre-instead&#34;&gt;BONUS! Using GRE instead&lt;/h2&gt;
+&lt;p&gt;This wasn&amp;rsquo;t an option for me because GRE &lt;a href=&#34;https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq&#34;&gt;is apparently blocked by Azure&lt;/a&gt;. In theory though, there&amp;rsquo;s no
+reason this shouldn&amp;rsquo;t work otherwise.&lt;/p&gt;
+&lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.4 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-00&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.5 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.2/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-01&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.6 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.3/23 dev provider0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://vincent.bernat.ch/en/blog/2017-vxlan-linux&#34;&gt;VXLAN &amp;amp; Linux - Vincent Bernat&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://joejulian.name/post/how-to-configure-linux-vxlans-with-multiple-unicast-endpoints/&#34;&gt;How to configure linux vxlans with multiple unicast endpoints - Joe Julian&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://mcastelino.medium.com/setting-up-a-overlay-network-using-point-to-multi-point-gre-tunnels-c8c2422c2fa2&#34;&gt;Setting up a overlay network using point to multi-point GRE tunnels - M Castelino&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.madebymikal.com/setting-up-vxlan-between-nested-virt-vms-on-google-compute-engine/&#34;&gt;Setting up VXLAN between nested virt VMs on Google Compute Engine - Michael Still&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking&#34;&gt;Chapter 10. Using a VXLAN to create a virtual layer-2 domain for VMs - RHEL 9 Networking Guide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.rdoproject.org/networking/networking-in-too-much-detail/#network-host-external-traffic-kl&#34;&gt;Networking in too much detail - RDO&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Direct vs Hostdev Interfaces in Nova</title>
+      <link>https://that.guru/blog/direct-vs-hostdev-interfaces/</link>
+      <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
+      <description>&lt;p&gt;Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in
+nova: &lt;code&gt;direct&lt;/code&gt; and &lt;code&gt;hostdev&lt;/code&gt;. Confusingly, the latter corresponds to passthrough
+of the virtual function (VF), while the former corresponds to macvtap. The
+difference between these is described rather succinctly in an Oracle whitepaper
+titled &lt;a href=&#34;https://cloud.oracle.com/iaas/whitepapers/installing_kvm_multi_vnics.pdf&#34;&gt;&amp;ldquo;Installing and Configuring KVM on Bare Metal Instances with
+Multi-VNIC&amp;rdquo;&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;hostdev&#34;&gt;Hostdev&lt;/h2&gt;
+&lt;p&gt;First, the hostdev VIF type:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The hostdev method is preferred for both performance and guest isolation
+reasons. It provides the guest with direct access to the PCI device, created
+as part of the configuration of SR-IOV on the hypervisor. A PCI device is
+known as a virtual function (VF)and represents an actual interface into the
+hardware of the hypervisor (bare metal instance). This allows the guest to
+have both maximum throughput and maximum isolation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Maximum throughput because there is no operating system between the guest
+and the network&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Maximum isolation because the hypervisor operating system is not involved
+beyond providing the hardware interface (the overhead is minimal)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The disadvantage of the hostdev method is that it isn&amp;rsquo;t possible to emulate
+a different device type. So, the guest operating system must have a driver
+available that matches the hardware type provided by the hypervisor.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;As a user, you are likely to encounter the driver issues outlined above when
+using something like CirrOS image deployed by DevStack.&lt;/p&gt;
+&lt;h2 id=&#34;direct&#34;&gt;Direct&lt;/h2&gt;
+&lt;p&gt;Then the direct VIF type which, again, is not really &amp;ldquo;direct&amp;rdquo;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The direct method relies on hypervisor-configured network interfaces to
+provide connectivity to the guest operating systems. However, the network
+configuration provided by the hypervisor is minimal: the guest operating
+system still issues all the DHCP and related higher-level networking
+management, while the hypervisor simply provides an interface for the guest
+to operate on.&lt;/p&gt;
+&lt;p&gt;The direct method allows KVM to natively emulate some common network
+interface types that are typically found in most current and legacy
+operating systems. The following emulations have been observed to work: the
+e1000 (Intel FastEthernet driver) and the virtio (KVM native) device types,
+although the virtio driver might still require you to inject a driver into a
+Windows operating system. This is useful for prepackaged, virtual machines
+because their configurations are typically static and are looking for
+specific hardware types.&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Updating Mellanox ConnectX-3 NIC Firmware</title>
+      <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
+      <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
+      <description>&lt;p&gt;In a &lt;a href=&#34;https://that.guru/blog/sriov-mellanox-connectx-3&#34;&gt;previous post&lt;/a&gt;, I provided a guide on configuring SR-IOV for a Mellanox
+ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting
+to follow through on the same guide. However, when I attempted to &amp;ldquo;&lt;em&gt;query&lt;/em&gt;&amp;rdquo; the
+device, I saw the following:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstconfig -d 02:00.0 query
+
+Device #1:
+----------
+
+Device type:    ConnectX3
+PCI device:     02:00.0
+
+-E- Failed to query device: 02:00.0. Unsupported FW (version 2.31.5000 or above required for CX3/PRO)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Clearly we need to update something here, hence, here&amp;rsquo;s my guide to updating
+that firmware and making &lt;code&gt;mstconfig&lt;/code&gt; happy again.&lt;/p&gt;
+&lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;
+&lt;p&gt;As with the other post, you&amp;rsquo;re going to need a Mellanox ConnectX-3 card for
+this to be of any use. Once again, I&amp;rsquo;m using Ubuntu 16.04 because that&amp;rsquo;s what
+that OpenStack gate uses but I think most of this stuff is packaged on Fedora
+too.&lt;/p&gt;
+&lt;h2 id=&#34;identify-and-download-firmware&#34;&gt;Identify and Download Firmware&lt;/h2&gt;
+&lt;p&gt;As you can see on the &lt;a href=&#34;http://www.mellanox.com/page/firmware_table_ConnectX3EN&#34;&gt;firmware download page&lt;/a&gt;, there are a variety of
+ConnectX-3 models available, each with different feature sets (Ethernet vs.
+Infiniband, two ports vs. four). You need to figure out which one you have.
+These models are identified by their &lt;strong&gt;OPN&lt;/strong&gt; and &lt;strong&gt;PSID&lt;/strong&gt;. I&amp;rsquo;ve still to figure
+out how to identify the former, but the latter is easily identified using the
+&lt;code&gt;mstflint&lt;/code&gt; tool. For example:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstflint -d 02:00.0 q
+Image type:      FS2
+FW Version:      2.30.8000
+Rom Info:        type=PXE version=3.4.151 devid=4099 proto=ETH
+Device ID:       4099
+Description:     Node             Port1            Port2            Sys image
+GUIDs:           0002c90300056aa8 0002c90300056aa9 0002c90300056aaa 0002c90300056aab
+MACs:                                 0002c921d6d0     0002c921d6d1
+VSD:
+PSID:            MT_108012002
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So with our PSID to hand - &lt;code&gt;MT_108012002&lt;/code&gt; in this case - we can proceed to
+downloading the correct firmware from the firmware download page. There doesn&amp;rsquo;t
+seem to be anyway to download by just PSID so I had to click through the list
+of OPNs until I found the OPN with a PSID that matches. In my case, this was
+&lt;code&gt;MCX312A-XCBT&lt;/code&gt; for firmware version &lt;code&gt;2.42.5000&lt;/code&gt;. Download the relevant
+firmware to your host. For example:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ wget http://www.mellanox.com/downloads/firmware/fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;update-firmware&#34;&gt;Update Firmware&lt;/h2&gt;
+&lt;p&gt;With our firmware update to hand, it&amp;rsquo;s time to actually update the NIC. For
+this section, I initially followed the &lt;a href=&#34;http://www.mellanox.com/page/firmware_NIC_FW_update&#34;&gt;updating guide&lt;/a&gt; provided by Mellanox.
+However, as before, I didn&amp;rsquo;t want to install anything that wasn&amp;rsquo;t already
+provided with my distro. As such the instructions provided below are a suitable
+alternative.&lt;/p&gt;
+&lt;p&gt;Firstly, extract the firmware you downloaded previously. For example:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ unzip fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin.zip
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Once done, it&amp;rsquo;s time to flash the firmware. To do this, we once again use the
+&lt;code&gt;mstflint&lt;/code&gt; tool::&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstflint -d 02:00.0 -i fw-ConnectX3-rel-2_42_5000-MCX312A-XCB_A2-A6-FlexBoot-3.4.752.bin burn
+
+Current FW version on flash:  2.30.8000
+New FW version:               2.42.5000
+
+Burning FS2 FW image without signatures - OK
+Restoring signature                     - OK
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now reboot your machine so the new firmware is loaded::&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo reboot
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And with that, we have flashed out new firmware and can query the NIC
+configuration::&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstconfig -d 02:00.0 query
+
+Device #1:
+----------
+
+Device type:    ConnectX3
+PCI device:     02:00.0
+
+Configurations:                              Current
+         SRIOV_EN                            0
+         NUM_OF_VFS                          8
+         LOG_BAR_SIZE                        3
+         BOOT_OPTION_ROM_EN_P1               1
+         BOOT_VLAN_EN_P1                     0
+         BOOT_RETRY_CNT_P1                   0
+         LEGACY_BOOT_PROTOCOL_P1             1
+         BOOT_VLAN_P1                        1
+         BOOT_OPTION_ROM_EN_P2               1
+         BOOT_VLAN_EN_P2                     0
+         BOOT_RETRY_CNT_P2                   0
+         LEGACY_BOOT_PROTOCOL_P2             1
+         BOOT_VLAN_P2                        1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Easy peasy. Now back to &lt;a href=&#34;https://that.guru/blog/sriov-mellanox-connectx-3&#34;&gt;configuring SR-IOV&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Configuring SR-IOV for a Mellanox ConnectX-3 NIC</title>
+      <link>https://that.guru/blog/sriov-mellanox-connectx-3/</link>
+      <pubDate>Tue, 25 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
+      <description>&lt;p&gt;So &lt;a href=&#34;https://en.wikipedia.org/wiki/Single-root_input/output_virtualization&#34;&gt;SR-IOV&lt;/a&gt; support in my &lt;a href=&#34;https://ark.intel.com/products/84804/Intel-Ethernet-Server-Adapter-I350-T2V2&#34;&gt;Intel I350-T2V2&lt;/a&gt; decided to stop working recently
+(or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a
+new SR-IOV NIC for testing/development. I settled on a used
+&lt;a href=&#34;http://www.mellanox.com/page/products_dyn?product_family=127&#34;&gt;Mellanox ConnectX-3&lt;/a&gt; from eBay because it supported SR-IOV and other cool
+things like RDMA over Ethernet (&lt;a href=&#34;https://en.wikipedia.org/wiki/RDMA_over_Converged_Ethernet&#34;&gt;RoCE&lt;/a&gt;), the Mellanox guys I&amp;rsquo;ve dealt with in
+Nova have been a great bunch and, most crucially at the time, it was cheap. For
+what it&amp;rsquo;s worth, I also got a pair of &lt;a href=&#34;https://en.wikipedia.org/wiki/Small_form-factor_pluggable_transceiver&#34;&gt;SFP&lt;/a&gt; cables&lt;/p&gt;
+&lt;p&gt;The first time I configured this, I followed the instructions from the
+&lt;a href=&#34;https://community.mellanox.com/docs/DOC-2365&#34;&gt;Mellanox website&lt;/a&gt;. This mandated downloading a tarball and
+using their custom installer script, &lt;code&gt;mlnxofedinstall&lt;/code&gt;, to install the
+drivers and various tools. It was only when I later reinstalled the OS on this
+machine that I discovered this was wholly unnecessary: Ubuntu 16.04 (and
+presumably 18.04) already include everything you need to configure and use
+these NICs. As such, here is &amp;ldquo;Stephen&amp;rsquo;s Guide to Using Mellanox ConnectX-3
+Cards Without All That C***&amp;rdquo;.&lt;/p&gt;
+&lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;
+&lt;p&gt;It should go without saying, but you need a Mellanox ConnectX-3 card for this
+to be of any use. In addition, I&amp;rsquo;m using Ubuntu 16.04 because that&amp;rsquo;s what that
+OpenStack gate uses, but I think most of this stuff is packaged on Fedora too.&lt;/p&gt;
+&lt;h2 id=&#34;enable-sr-iov-in-the-firmware&#34;&gt;Enable SR-IOV in the firmware&lt;/h2&gt;
+&lt;p&gt;The ConnectX-3 allows you to configure the amount of VFs available on the
+device. To do this, the &lt;a href=&#34;https://community.mellanox.com/docs/DOC-2365&#34;&gt;official guide&lt;/a&gt; would have you run the &lt;code&gt;mlxconfig&lt;/code&gt;
+tool, which is installed by the aforementioned &lt;code&gt;mlnxofedinstall&lt;/code&gt; tool.
+However, Mellanox have an open source version of this tool, &lt;code&gt;mstconfig&lt;/code&gt;,
+which fulfils the same purpose as is available as part of the
+&lt;a href=&#34;https://github.com/Mellanox/mstflint&#34;&gt;&lt;code&gt;mstflint&lt;/code&gt;&lt;/a&gt; package. Install this:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo apt install mstflint
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Once installed, inspect the current configuration of the device. To do this,
+you need to find the PCI address of the device, which is pretty easy when you
+only have one such device in your system:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ lspci | grep Mellanox
+02:00.0 Ethernet controller: Mellanox Technologies MT27500 Family [ConnectX-3]
+$ sudo mstconfig -d 02:00.0 query
+
+Device #1:
+----------
+
+Device type:    ConnectX3
+PCI device:     02:00.0
+
+Configurations:                              Current
+         SRIOV_EN                            1
+         NUM_OF_VFS                          8
+         LOG_BAR_SIZE                        3
+         BOOT_OPTION_ROM_EN_P1               1
+         BOOT_VLAN_EN_P1                     0
+         BOOT_RETRY_CNT_P1                   0
+         LEGACY_BOOT_PROTOCOL_P1             1
+         BOOT_VLAN_P1                        1
+         BOOT_OPTION_ROM_EN_P2               1
+         BOOT_VLAN_EN_P2                     0
+         BOOT_RETRY_CNT_P2                   0
+         LEGACY_BOOT_PROTOCOL_P2             1
+         BOOT_VLAN_P2                        1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, I already have SR-IOV enabled (&lt;code&gt;SRIOV_EN=1&lt;/code&gt;) and have enabled
+eight VFs (&lt;code&gt;NUM_OF_VFS=8&lt;/code&gt;). If this wasn&amp;rsquo;t the case though, you&amp;rsquo;d need to
+configure these attributes. You can do so using the &lt;code&gt;mstconfig&lt;/code&gt; tool again.
+For example:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstconfig -d 02:00.0 set SRIOV_EN=1 NUM_OF_VFS=8
+
+Device #1:
+----------
+
+Device type:    ConnectX3
+PCI device:     02:00.0
+
+Configurations:                              Current         New
+         SRIOV_EN                            1               1
+         NUM_OF_VFS                          8               8
+         LOG_BAR_SIZE                        3               3
+         BOOT_OPTION_ROM_EN_P1               1               1
+         BOOT_VLAN_EN_P1                     0               0
+         BOOT_RETRY_CNT_P1                   0               0
+         LEGACY_BOOT_PROTOCOL_P1             1               1
+         BOOT_VLAN_P1                        1               1
+         BOOT_OPTION_ROM_EN_P2               1               1
+         BOOT_VLAN_EN_P2                     0               0
+         BOOT_RETRY_CNT_P2                   0               0
+         LEGACY_BOOT_PROTOCOL_P2             1               1
+         BOOT_VLAN_P2                        1               1
+
+ Apply new Configuration? ? (y/n) [n] :
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If applying configuration, you should now reboot and then inspect the
+configuration to ensure it has persisted:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo mstconfig -d 02:00.0 query
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Once the device&amp;rsquo;s firmware is configured, we can move on to configuring the
+driver.&lt;/p&gt;
+&lt;h2 id=&#34;enable-sr-iov-in-the-driver&#34;&gt;Enable SR-IOV in the driver&lt;/h2&gt;
+&lt;p&gt;As with &lt;code&gt;mstconfig&lt;/code&gt; above, Ubuntu 16.04 also provides in-tree alternatives to
+the drivers provided in the tarball o&amp;rsquo; doom. Better yet, these drivers are
+provided and enabled by default: all we need to do is configure them.&lt;/p&gt;
+&lt;p&gt;As noted in the &lt;a href=&#34;https://community.mellanox.com/docs/DOC-2365&#34;&gt;original guide&lt;/a&gt;, this can be done by
+creating (or editing) the &lt;code&gt;/etc/modprobe.d/mlx4_core.conf&lt;/code&gt; file. Add the
+following to that file:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;options mlx4_core num_vfs=4,4,0 port_type_array=2,2 probe_vf=4,4,0 probe_vf=4,4,0
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Reproducing (in slightly modified form) from the guide, this means:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;num_vfs&lt;/strong&gt; - is the number of VF required for this server, in this
+example 8 VFs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;port_type_array&lt;/strong&gt; - is the port type of the interface, 1 is for
+infiniBand, 2 for Ethernet. In this example, both ports are Ethernet.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;probe_vf&lt;/strong&gt; - is the number of VF to be probed in the hypervisor. Probed
+in the hypervisor means that the VF will also have interface in the
+hypervisor (e.g. can be seen using the command &lt;code&gt;ifconfig&lt;/code&gt;).  In this
+example there are no probed VFs. When running &lt;code&gt;ifconfig&lt;/code&gt;, no new
+interfaces will be added (per VF). In case, &lt;code&gt;probe_vf&lt;/code&gt; was equal to 1
+for example, we would get 2 new interfaces in the hypervisor (check
+&lt;code&gt;ifconfig -a&lt;/code&gt;), one each port.&lt;/p&gt;
+&lt;p&gt;Probed VFs can be used by the IT administrator to monitor the traffic on
+that hypervisor without the need of doing that via logging to the VM
+itself.&lt;/p&gt;
+&lt;p&gt;In this example, we will have 4 VFs on the first physical port and 4 on
+the other. The 0 indicates that you don&amp;rsquo;t want VF to be probed on both
+port. Refer to the &lt;a href=&#34;https://community.mellanox.com/docs/DOC-1484#jive_content_id_Configuring_8_VFs_on_a_dual_port_NIC_while_4_VFs_are_probed_on_port_1_and_4_VFs_are_probed_on_port_2&#34;&gt;Mellanox docs&lt;/a&gt; for more information.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Of these, the &lt;code&gt;probe_vf&lt;/code&gt; one is particularly important. Without this, you&amp;rsquo;ll
+see the VFs listed under their parent PF with &lt;code&gt;ip link&lt;/code&gt; but each VF will not
+have its own netdev. Nova requires that these devices do have their own netdev
+so this is a necessity.&lt;/p&gt;
+&lt;p&gt;Once this is configured, save the file and reload the driver.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ sudo modprobe -r mlx4_en mlx4_ib
+$ sudo modprobe mlx4_en
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You should now see the devices listed in &lt;code&gt;ip link&lt;/code&gt;:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ ip link
+1: lo: &amp;lt;LOOPBACK,UP,LOWER_UP&amp;gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp5s0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 0c:c4:7a:d8:bd:72 brd ff:ff:ff:ff:ff:ff
+3: enp6s0: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 0c:c4:7a:d8:bd:73 brd ff:ff:ff:ff:ff:ff
+6: enp2s0: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop portid e41d2d03004c47c0 state DOWN mode DEFAULT group default qlen 1000
+    link/ether e4:1d:2d:4c:47:c0 brd ff:ff:ff:ff:ff:ff
+    vf 0 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 1 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 2 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 3 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 4 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 5 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 6 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 7 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+7: enp2s0d1: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop portid e41d2d03004c47c1 state DOWN mode DEFAULT group default qlen 1000
+    link/ether e4:1d:2d:4c:47:c1 brd ff:ff:ff:ff:ff:ff
+    vf 0 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 1 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 2 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 3 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 4 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 5 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 6 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+    vf 7 MAC 00:00:00:00:00:00, vlan 4095, spoof checking off, link-state auto
+8: enp2s0f1: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop portid e41d2d03004c47c0 state DOWN mode DEFAULT group default qlen 1000
+    link/ether ce:c9:04:d2:00:a4 brd ff:ff:ff:ff:ff:ff
+9: enp2s0f1d1: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop portid e41d2d03004c47c1 state DOWN mode DEFAULT group default qlen 1000
+    link/ether ce:20:d7:8b:38:6c brd ff:ff:ff:ff:ff:ff
+10: enp2s0f2: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop portid e41d2d03004c47c0 state DOWN mode DEFAULT group default qlen 1000
+    link/ether fe:a0:dc:21:1f:4c brd ff:ff:ff:ff:ff:ff
+11: enp2s0f2d1: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu 1500 qdisc noop portid e41d2d03004c47c1 state DOWN mode DEFAULT group default qlen 1000
+    link/ether 46:a5:f9:9c:ee:27 brd ff:ff:ff:ff:ff:ff
+....
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;next-steps&#34;&gt;Next steps&lt;/h2&gt;
+&lt;p&gt;Now that everything is configured, it&amp;rsquo;s time to start using it. I dove straight
+in with OpenStack. Feel free to use the &lt;a href=&#34;https://gist.github.com/stephenfin/a13fb36bb1afb6fcd770cc24ff125a33&#34;&gt;&lt;code&gt;local.conf&lt;/code&gt;&lt;/a&gt; I used to
+deploy this with &lt;a href=&#34;https://docs.openstack.org/devstack/rocky/&#34;&gt;DevStack&lt;/a&gt;. The &lt;a href=&#34;https://docs.openstack.org/neutron/rocky/admin/config-sriov&#34;&gt;neutron SR-IOV docs&lt;/a&gt; are probably worth a look
+too.  These are based on the Rocky release (August 2018) so they probably won&amp;rsquo;t
+age well, but they are a starting point.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

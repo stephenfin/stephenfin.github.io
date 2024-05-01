@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CI on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/ci/</link>
+    <description>Recent content in CI on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Sun, 05 Feb 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/ci/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mailing List, Meet CI</title>
+      <link>https://that.guru/talks/mailing-list-meet-ci/</link>
+      <pubDate>Sun, 05 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/mailing-list-meet-ci/</guid>
+      <description>&lt;p&gt;This talk was presented as a lightning talk at &lt;a href=&#34;https://fosdem.org/2017/schedule/event/patchwork_jenkins/&#34;&gt;FOSDEM 2017&lt;/a&gt;. It described
+the CI features provided in Patchwork 2.0, which was at the time unreleased. I
+wrote a &lt;a href=&#34;https://that.guru/blog/patchwork-and-ci-in-a-tree/&#34;&gt;blog post&lt;/a&gt; to accompany the talk which is well worth reading
+(updated since to reflect changes in Patchwork 2.0 final).&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What does it take to implement continuous integration-style automated testing
+into a mailing list-driven software project? Not a lot, actually. In this
+talk, we demonstrate how a simple but easily scaled testing system can be
+implemented for a such a project through the combination of Patchwork, the
+web-based patch tracking system, and open source CI tools such as Jenkins.&lt;/p&gt;
+&lt;p&gt;At FOSDEM 2016, developers working on Patchwork, the web-based patch tracking
+system, demonstrated some of the ongoing work in Patchwork. This work ranged
+from UI improvements to new features and APIs but, collectively, it had the
+goal of enabling automated testing functionality for software projects
+developed via mailing lists. The Patchwork developers have been busy since
+then and the application, in widespread use since 2008, recently hit the 2.0
+milestone, marking this functionality as complete.&lt;/p&gt;
+&lt;p&gt;Projects such as the Dataplane Development Kit (DPDK) have quickly adopted
+the features that 2.0 brings, using them to enable real time, automated
+testing of patches sent to the mailing list. This automated testing provides
+a mechanism for developers to not only sidestep the more perfunctory of
+tasks, such as coding standard checks, but also to test changes in
+environments that they may not have at their disposal, such as differing
+hardware or OS configurations. As seen in projects pairing open source code
+collaboration tools like Gerrit or Rietveld with CI systems such as Jenkins
+or BuildBot, this continuous testing can provide huge improvements in
+developer velocity.&lt;/p&gt;
+&lt;p&gt;In this talk, we demonstrate how to build a basic &amp;ldquo;checkstyle&amp;rdquo; testing system
+through a combination of Patchwork and an off-the-shelf, open source CI
+system. This system will retrieve patches and dependencies, apply and test
+them, and report the results back to both Patchwork and a separate mailing
+list. This configuration demonstrates the best of Patchwork&amp;rsquo;s new features,
+and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;ce06b0e45f1e460b9fc3d5d96e65ab31&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+  </channel>
+</rss>

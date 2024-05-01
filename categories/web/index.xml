@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>web on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/web/</link>
+    <description>Recent content in web on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Wed, 13 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/web/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Documentation Driven Approach to Building APIs</title>
+      <link>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</link>
+      <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</guid>
+      <description>&lt;p&gt;This talk was delivered during a &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Python virtual meetup&lt;/a&gt;. The aim was to
+introduce Django REST Framework and OpenAPI, in order to demonstrate how they
+could be combined to produce a well-tested, well-documented RESTful API.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Django REST Framework (DRF) does for REST APIs what Django does for web
+applications more generally. That is, it provides a powerful, flexible
+framework to help quickly building applications. OpenAPI (formerly Swagger)
+provides a machine-readable schema for describing the REST APIs made possible
+by the likes of DRF. When combined, they allow you to do some pretty neat
+things, which we&amp;rsquo;re going to cover in this talk.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Automatic generation of schemas from your API&lt;/li&gt;
+&lt;li&gt;Validation of APIs using schemas&lt;/li&gt;
+&lt;li&gt;Documentation!&lt;/li&gt;
+&lt;li&gt;The competition&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Let&amp;rsquo;s see if OpenAPI really is the one API schema to rule them all&amp;hellip;or
+something like that.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Meetup&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;3011a7535ab04961b652b60d18d3a180&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+  </channel>
+</rss>

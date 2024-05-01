@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>wsgi on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/wsgi/</link>
+    <description>Recent content in wsgi on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Wed, 01 May 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/wsgi/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Routers in Openstack</title>
+      <link>https://that.guru/blog/routers-in-openstack/</link>
+      <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/routers-in-openstack/</guid>
+      <description>&lt;p&gt;In the Dalamation (2024.2) cycle, we&amp;rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As
+part of this effort, I&amp;rsquo;ve had to learn more than I would like to know about how various services&amp;rsquo; API machinery works.
+The below is a quick summary of how the mapping of URLs (or rather, paths) to API controller methods works in Nova (and
+Cinder, Manila and other projects that have copied or inherited Nova&amp;rsquo;s patterns). This is very much inside baseball and
+probably not useful outside of OpenStack, since we&amp;rsquo;re using older libraries - namely &lt;a href=&#34;https://pypi.org/project/Routes/&#34;&gt;Routes&lt;/a&gt;, &lt;a href=&#34;https://pypi.org/project/Paste/&#34;&gt;Paste&lt;/a&gt;,
+and &lt;a href=&#34;https://pypi.org/project/WebOb/&#34;&gt;WebOb&lt;/a&gt; - that have been mostly superseded by new libraries like Flask, Falcon, or Starlette. Still, maybe
+it&amp;rsquo;s useful for someone.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The main entry point for routing in Nova is the &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py#L846-L884&#34;&gt;&lt;code&gt;APIRouterV21&lt;/code&gt;&lt;/a&gt; class. &lt;code&gt;APIRouterV21&lt;/code&gt; provides mappings
+of URLs (or rather, URL paths) to methods of &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L378&#34;&gt;&lt;code&gt;Resource&lt;/code&gt;&lt;/a&gt; objects. A &lt;code&gt;Resource&lt;/code&gt; object is a wrapper around
+some &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L750&#34;&gt;&lt;code&gt;Controller&lt;/code&gt;&lt;/a&gt; objects: a main controller and zero or more sub-controllers. If you look at
+&lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py&#34;&gt;&lt;code&gt;nova/api/openstack/compute/routes.py&lt;/code&gt;&lt;/a&gt; you&amp;rsquo;ll see a whole load of &lt;code&gt;functools.partial&lt;/code&gt; calls where we
+create &lt;code&gt;Resource&lt;/code&gt; objects via calls to &lt;code&gt;_create_controller&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;flavor_controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; functools&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;partial(_create_controller,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    flavors&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;FlavorsController,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    [
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        flavor_access&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;FlavorActionController
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here, &lt;code&gt;flavors.FlavorsController&lt;/code&gt; is the &amp;ldquo;main&amp;rdquo; controller and &lt;code&gt;flavor_access.FlavorActionController&lt;/code&gt; is a &amp;ldquo;sub&amp;rdquo; (or
+&amp;ldquo;action&amp;rdquo;/&amp;ldquo;child&amp;rdquo;) controller. The sub-controller extends the main controller by adding new APIs or actions and to the
+best of my knowledge it is legacy from the days where we had API extensions.&lt;/p&gt;
+&lt;p&gt;These wrapped controllers are then mapped to paths latter in the same file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ROUTE_LIST &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    (&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/flavors/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{id}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;, {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;show&amp;#39;&lt;/span&gt;],
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;PUT&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;update&amp;#39;&lt;/span&gt;],
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;DELETE&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;delete&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    (&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/flavors/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{id}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/action&amp;#39;&lt;/span&gt;, {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;action&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;APIRouterV21&lt;/span&gt;(base_wsgi&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Router):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, custom_routes&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        super()&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; path, methods &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; ROUTE_LIST &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; custom_routes:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# register route to mapper&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now with that knowledge, you can run this script locally to see the generated path-method mappings:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.api.openstack &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; compute
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; oslo_config &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; cfg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.tests &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; fixtures
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;CONF &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; cfg&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CONF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fixtures&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ConfFixture(CONF)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;setUp()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fixtures&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RPCFixture(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nova.test&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;setUp()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;router &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; compute&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;APIRouterV21()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; {}:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; action, method &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;items():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  action: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;action&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;, method: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;method&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;version_select&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; str(method):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            count &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All that this is doing is configuring enough config-related fixtures to allow us to create an &lt;code&gt;APIRouterV21&lt;/code&gt; instance so
+that we can iterate through the path-controller mappings it has. If you run this, you&amp;rsquo;ll see a whole load of output
+finishing in this:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 288
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is a count of the number of actions that resolve to &lt;code&gt;version_select&lt;/code&gt; methods. &lt;code&gt;version_select&lt;/code&gt; methods are not the
+&amp;ldquo;real&amp;rdquo; method and are instead wrappers around the real methods (potentially plural, depending on amount of
+microversioned revisions) that allow us to handle API versioning. This wrapper methods are useless to us in the OpenAPI
+work  because we need to get attributes of the real methods - namely, some private attributes we&amp;rsquo;re using to store the
+schema used for a given method. The way to find the &amp;ldquo;real&amp;rdquo; method is to look at the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of a
+Controller, which contains a mapping of method name to real methods. If you change the above for loop you can see this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; {}:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; action, method &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;items():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        method_name &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; method_name:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            versioned_methods &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getattr(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;versioned_methods&amp;#39;&lt;/span&gt;, {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            )&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(method_name)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; versioned_methods:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                method &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; versioned_methods[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;func
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  action: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;action&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;, method: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;method&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;version_select&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; str(method):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            count &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now if you run this, you&amp;rsquo;ll get a reduced count:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 224
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, it&amp;rsquo;s still not 0. This is because we&amp;rsquo;re not able to resolve to all &amp;ldquo;real&amp;rdquo; methods using only the &amp;ldquo;main&amp;rdquo;
+controller alone. To do that, we need the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of the sub-controllers also, or to use the case
+of the controllers we gave at the start, the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of both the &lt;code&gt;FlavorsController&lt;/code&gt; controller
+and the &lt;code&gt;FlavorActionController&lt;/code&gt; controller. However, we currently have no reference to &lt;code&gt;FlavorActionController&lt;/code&gt; (or any
+other sub controller) so we can&amp;rsquo;t do this.&lt;/p&gt;
+&lt;p&gt;A &lt;a href=&#34;https://review.opendev.org/c/openstack/nova/+/915732/&#34;&gt;patch I&amp;rsquo;ve proposed&lt;/a&gt; fixes this so that we store the reference to &lt;code&gt;FlavorActionController&lt;/code&gt; (and any other
+sub-controller) under &lt;code&gt;Resource.sub_controllers&lt;/code&gt;, thus giving us a mechanism to retrieve &lt;code&gt;versioned_methods&lt;/code&gt; attributes
+(and any other attribute we might need later) from these sub-controller. With this patch applied, we can change the for
+loop further:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; {}:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; action, method &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;items():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        main_controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;controller
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        method_name &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; main_controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; method_name:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            versioned_methods &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getattr(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                main_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;versioned_methods&amp;#39;&lt;/span&gt;, {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            )&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(method_name)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; versioned_methods:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                method &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; versioned_methods[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;func
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; sub_controller &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;sub_controllers:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            method_name &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; sub_controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; method_name:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                versioned_methods &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getattr(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    sub_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;versioned_methods&amp;#39;&lt;/span&gt;, {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                )&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(method_name)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; versioned_methods:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    method &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; versioned_methods[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;func
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  action: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;action&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;, method: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;method&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;version_select&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; str(method):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            count &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With this done, we finally get a 0 count:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 0
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With this done, we&amp;rsquo;re now able to inspect elements of the various controller methods. We&amp;rsquo;re using this in the OpenAPI
+effort to associate a schema with a method so &lt;a href=&#34;https://review.opendev.org/c/openstack/nova/+/915735/&#34;&gt;we can ensure all API methods have schemas&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

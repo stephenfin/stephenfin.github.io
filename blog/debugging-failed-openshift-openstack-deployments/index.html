@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Debugging Failed OpenShift-on-OpenStack Deployments | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/qtRFE7MYnHo/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Debugging Failed OpenShift-on-OpenStack Deployments</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2024-04-22T00:00:00Z'>Apr 22, 2024</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>3 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>I deploy OpenShift-on-OpenStack quite regularly these days. Some times these deployments fail and the most common
+failure I usually see is a timeout during bootstrapping.</p>
+<pre tabindex="0"><code>$ openshift-install --log-level debug create cluster
+DEBUG OpenShift Installer 4.15.10
+DEBUG Built from commit 24a827900e76d8f9c79122307415b47a4921bbd7
+DEBUG Fetching Metadata...
+...
+DEBUG Reusing previously-fetched Install Config
+INFO Skipping VM console logs gather: no gather methods registered for &#34;openstack&#34;
+INFO Pulling debug logs from the bootstrap machine
+DEBUG Using SSH_AUTH_SOCK /run/user/1000/keyring/ssh to connect to an existing agent
+ERROR Attempted to gather debug logs after installation failure: failed to connect to the bootstrap machine: dial tcp 10.0.212.9:22: connect: connection timed out
+ERROR Attempted to gather ClusterOperator status after installation failure: listing ClusterOperator objects: Get &#34;https://api.stephenfin.shiftstack-demo.com:6443/apis/config.openshift.io/v1/clusteroperators&#34;: dial tcp 10.0.214.50:6443: i/o timeout
+ERROR Bootstrap failed to complete: timed out waiting for the condition
+ERROR Failed to wait for bootstrapping to complete. This error usually happens when there is a problem with control plane hosts that prevents the control plane operators from creating the control plane.
+</code></pre><p>You&rsquo;ve a couple of tools that you can use to validate this. The first of these is to check the serial console.
+This will highlight the more egregious issues with your deployment. You can do this with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack console url show stephenfin-5ps6d-bootstrap  <span style="color:#75715e"># replace with your own bootstrap server&#39;s name</span>
+</span></span></code></pre></div><p>If this doesn&rsquo;t show anything weird then the next step is to log in to the server and check the status of the <code>bootkube</code>
+service. As is custom with OpenStack, to SSH into a machine you need (a) a floating IP and (b) a security group (or more
+accurately a security group rule) that allows SSH access. The Installer automatically assigns a floating IP to the
+bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &ldquo;allow SSH&rdquo; security group lying
+around and if so, you can use that now:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  <span style="color:#75715e"># replace with your own server, SG names</span>
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>If you don&rsquo;t have such a group, creating one is easy. The following ought to do the trick:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack security group create allow_ssh
+</span></span><span style="display:flex;"><span>$ openstack security group rule create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --protocol tcp --dst-port <span style="color:#ae81ff">22</span> --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    allow_ssh
+</span></span><span style="display:flex;"><span>$ openstack security group rule create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --protocol icmp --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    allow_ssh
+</span></span></code></pre></div></div>
+</aside>
+
+<p>Once you&rsquo;ve allowed SSH traffic you can SSH into the machine.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content"><code>core</code> is the default username for Red Hat CoreOS.</div>
+</aside>
+
+<p>From here you can follow the directions given in the MOTD and check the <code>bootkube</code> service first:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ journalctl -b -f -u release-image.service -u bootkube.service
+</span></span></code></pre></div><p>In my case it appeared the issue was the lack of access to the master nodes:</p>
+<pre tabindex="0"><code>s the base image from which all OpenShift Container Platform images inherit.)
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Check if API and API-Int URLs are reachable during bootstrap
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Checking if api.stephenfin.shiftstack-demo.com of type API_URL reachable
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to reach API_URL&#39;s https endpoint at https://api.stephenfin.shiftstack-demo.com:6443/version
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to validate. https://api.stephenfin.shiftstack-demo.com:6443/version is currently unreachable.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Checking if api-int.stephenfin.shiftstack-demo.com of type API_INT_URL reachable
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to reach API_INT_URL&#39;s https endpoint at https://api-int.stephenfin.shiftstack-demo.com:6443/version
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to validate. https://api-int.stephenfin.shiftstack-demo.com:6443/version is currently unreachable.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: bootkube.service complete
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Deactivated successfully.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Consumed 1min 2.337s CPU time.
+</code></pre><p>The same steps apply for debugging issues with master or worker nodes: add a floating IP, allow SSH access, then SSH
+into the machine.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add floating ip stephenfin-5ps6d-master-0 10.0.214.101
+</span></span><span style="display:flex;"><span>$ openstack server add security group stephenfin-5ps6d-master-0 allow_ssh
+</span></span><span style="display:flex;"><span>$ openstack server ssh stephenfin-5ps6d-master-0 -- -l core
+</span></span></code></pre></div>
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openshift">#openshift</a>
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/troubleshooting">#troubleshooting</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2024 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

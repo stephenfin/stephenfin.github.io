@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Routers in Openstack | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/iDzKdNI7Qgc/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Routers in Openstack</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2024-05-01T00:00:00Z'>May 1, 2024</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>In the Dalamation (2024.2) cycle, we&rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As
+part of this effort, I&rsquo;ve had to learn more than I would like to know about how various services&rsquo; API machinery works.
+The below is a quick summary of how the mapping of URLs (or rather, paths) to API controller methods works in Nova (and
+Cinder, Manila and other projects that have copied or inherited Nova&rsquo;s patterns). This is very much inside baseball and
+probably not useful outside of OpenStack, since we&rsquo;re using older libraries - namely <a href="https://pypi.org/project/Routes/">Routes</a>, <a href="https://pypi.org/project/Paste/">Paste</a>,
+and <a href="https://pypi.org/project/WebOb/">WebOb</a> - that have been mostly superseded by new libraries like Flask, Falcon, or Starlette. Still, maybe
+it&rsquo;s useful for someone.</p>
+<hr>
+<p>The main entry point for routing in Nova is the <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py#L846-L884"><code>APIRouterV21</code></a> class. <code>APIRouterV21</code> provides mappings
+of URLs (or rather, URL paths) to methods of <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L378"><code>Resource</code></a> objects. A <code>Resource</code> object is a wrapper around
+some <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L750"><code>Controller</code></a> objects: a main controller and zero or more sub-controllers. If you look at
+<a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py"><code>nova/api/openstack/compute/routes.py</code></a> you&rsquo;ll see a whole load of <code>functools.partial</code> calls where we
+create <code>Resource</code> objects via calls to <code>_create_controller</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>flavor_controller <span style="color:#f92672">=</span> functools<span style="color:#f92672">.</span>partial(_create_controller,
+</span></span><span style="display:flex;"><span>    flavors<span style="color:#f92672">.</span>FlavorsController,
+</span></span><span style="display:flex;"><span>    [
+</span></span><span style="display:flex;"><span>        flavor_access<span style="color:#f92672">.</span>FlavorActionController
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>Here, <code>flavors.FlavorsController</code> is the &ldquo;main&rdquo; controller and <code>flavor_access.FlavorActionController</code> is a &ldquo;sub&rdquo; (or
+&ldquo;action&rdquo;/&ldquo;child&rdquo;) controller. The sub-controller extends the main controller by adding new APIs or actions and to the
+best of my knowledge it is legacy from the days where we had API extensions.</p>
+<p>These wrapped controllers are then mapped to paths latter in the same file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>ROUTE_LIST <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>    (<span style="color:#e6db74">&#39;/flavors/</span><span style="color:#e6db74">{id}</span><span style="color:#e6db74">&#39;</span>, {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;GET&#39;</span>: [flavor_controller, <span style="color:#e6db74">&#39;show&#39;</span>],
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;PUT&#39;</span>: [flavor_controller, <span style="color:#e6db74">&#39;update&#39;</span>],
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;DELETE&#39;</span>: [flavor_controller, <span style="color:#e6db74">&#39;delete&#39;</span>]
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    (<span style="color:#e6db74">&#39;/flavors/</span><span style="color:#e6db74">{id}</span><span style="color:#e6db74">/action&#39;</span>, {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;POST&#39;</span>: [flavor_controller, <span style="color:#e6db74">&#39;action&#39;</span>]
+</span></span><span style="display:flex;"><span>    }),
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">APIRouterV21</span>(base_wsgi<span style="color:#f92672">.</span>Router):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, custom_routes<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span>__init__()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> path, methods <span style="color:#f92672">in</span> ROUTE_LIST <span style="color:#f92672">+</span> custom_routes:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># register route to mapper</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># ...</span>
+</span></span></code></pre></div><p>Now with that knowledge, you can run this script locally to see the generated path-method mappings:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> nova.api.openstack <span style="color:#f92672">import</span> compute
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> oslo_config <span style="color:#f92672">import</span> cfg
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> nova.tests <span style="color:#f92672">import</span> fixtures
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>CONF <span style="color:#f92672">=</span> cfg<span style="color:#f92672">.</span>CONF
+</span></span><span style="display:flex;"><span>fixtures<span style="color:#f92672">.</span>ConfFixture(CONF)<span style="color:#f92672">.</span>setUp()
+</span></span><span style="display:flex;"><span>fixtures<span style="color:#f92672">.</span>RPCFixture(<span style="color:#e6db74">&#39;nova.test&#39;</span>)<span style="color:#f92672">.</span>setUp()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>router <span style="color:#f92672">=</span> compute<span style="color:#f92672">.</span>APIRouterV21()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> route <span style="color:#f92672">in</span> router<span style="color:#f92672">.</span>map<span style="color:#f92672">.</span>matchlist:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;controller&#39;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> route<span style="color:#f92672">.</span>defaults:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    controller <span style="color:#f92672">=</span> route<span style="color:#f92672">.</span>defaults[<span style="color:#e6db74">&#39;controller&#39;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> controller<span style="color:#f92672">.</span>wsgi_actions <span style="color:#f92672">==</span> {}:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> action, method <span style="color:#f92672">in</span> controller<span style="color:#f92672">.</span>wsgi_actions<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;  action: </span><span style="color:#e6db74">{</span>action<span style="color:#e6db74">}</span><span style="color:#e6db74">, method: </span><span style="color:#e6db74">{</span>method<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;version_select&#39;</span> <span style="color:#f92672">in</span> str(method):
+</span></span><span style="display:flex;"><span>            count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;useless versioned method count: </span><span style="color:#e6db74">{</span>count<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span></code></pre></div><p>All that this is doing is configuring enough config-related fixtures to allow us to create an <code>APIRouterV21</code> instance so
+that we can iterate through the path-controller mappings it has. If you run this, you&rsquo;ll see a whole load of output
+finishing in this:</p>
+<pre tabindex="0"><code>useless versioned method count: 288
+</code></pre><p>This is a count of the number of actions that resolve to <code>version_select</code> methods. <code>version_select</code> methods are not the
+&ldquo;real&rdquo; method and are instead wrappers around the real methods (potentially plural, depending on amount of
+microversioned revisions) that allow us to handle API versioning. This wrapper methods are useless to us in the OpenAPI
+work  because we need to get attributes of the real methods - namely, some private attributes we&rsquo;re using to store the
+schema used for a given method. The way to find the &ldquo;real&rdquo; method is to look at the <code>versioned_methods</code> attribute of a
+Controller, which contains a mapping of method name to real methods. If you change the above for loop you can see this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> route <span style="color:#f92672">in</span> router<span style="color:#f92672">.</span>map<span style="color:#f92672">.</span>matchlist:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;controller&#39;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> route<span style="color:#f92672">.</span>defaults:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    controller <span style="color:#f92672">=</span> route<span style="color:#f92672">.</span>defaults[<span style="color:#e6db74">&#39;controller&#39;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> controller<span style="color:#f92672">.</span>wsgi_actions <span style="color:#f92672">==</span> {}:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> action, method <span style="color:#f92672">in</span> controller<span style="color:#f92672">.</span>wsgi_actions<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>        method_name <span style="color:#f92672">=</span> controller<span style="color:#f92672">.</span>controller<span style="color:#f92672">.</span>wsgi_actions<span style="color:#f92672">.</span>get(action)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> method_name:
+</span></span><span style="display:flex;"><span>            versioned_methods <span style="color:#f92672">=</span> getattr(
+</span></span><span style="display:flex;"><span>                controller<span style="color:#f92672">.</span>controller, <span style="color:#e6db74">&#39;versioned_methods&#39;</span>, {}
+</span></span><span style="display:flex;"><span>            )<span style="color:#f92672">.</span>get(method_name)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> versioned_methods:
+</span></span><span style="display:flex;"><span>                method <span style="color:#f92672">=</span> versioned_methods[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>func
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;  action: </span><span style="color:#e6db74">{</span>action<span style="color:#e6db74">}</span><span style="color:#e6db74">, method: </span><span style="color:#e6db74">{</span>method<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;version_select&#39;</span> <span style="color:#f92672">in</span> str(method):
+</span></span><span style="display:flex;"><span>            count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;useless versioned method count: </span><span style="color:#e6db74">{</span>count<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span></code></pre></div><p>Now if you run this, you&rsquo;ll get a reduced count:</p>
+<pre tabindex="0"><code>useless versioned method count: 224
+</code></pre><p>However, it&rsquo;s still not 0. This is because we&rsquo;re not able to resolve to all &ldquo;real&rdquo; methods using only the &ldquo;main&rdquo;
+controller alone. To do that, we need the <code>versioned_methods</code> attribute of the sub-controllers also, or to use the case
+of the controllers we gave at the start, the <code>versioned_methods</code> attribute of both the <code>FlavorsController</code> controller
+and the <code>FlavorActionController</code> controller. However, we currently have no reference to <code>FlavorActionController</code> (or any
+other sub controller) so we can&rsquo;t do this.</p>
+<p>A <a href="https://review.opendev.org/c/openstack/nova/+/915732/">patch I&rsquo;ve proposed</a> fixes this so that we store the reference to <code>FlavorActionController</code> (and any other
+sub-controller) under <code>Resource.sub_controllers</code>, thus giving us a mechanism to retrieve <code>versioned_methods</code> attributes
+(and any other attribute we might need later) from these sub-controller. With this patch applied, we can change the for
+loop further:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> route <span style="color:#f92672">in</span> router<span style="color:#f92672">.</span>map<span style="color:#f92672">.</span>matchlist:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;controller&#39;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> route<span style="color:#f92672">.</span>defaults:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    controller <span style="color:#f92672">=</span> route<span style="color:#f92672">.</span>defaults[<span style="color:#e6db74">&#39;controller&#39;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> controller<span style="color:#f92672">.</span>wsgi_actions <span style="color:#f92672">==</span> {}:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> action, method <span style="color:#f92672">in</span> controller<span style="color:#f92672">.</span>wsgi_actions<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>        main_controller <span style="color:#f92672">=</span> controller<span style="color:#f92672">.</span>controller
+</span></span><span style="display:flex;"><span>        method_name <span style="color:#f92672">=</span> main_controller<span style="color:#f92672">.</span>wsgi_actions<span style="color:#f92672">.</span>get(action)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> method_name:
+</span></span><span style="display:flex;"><span>            versioned_methods <span style="color:#f92672">=</span> getattr(
+</span></span><span style="display:flex;"><span>                main_controller, <span style="color:#e6db74">&#39;versioned_methods&#39;</span>, {}
+</span></span><span style="display:flex;"><span>            )<span style="color:#f92672">.</span>get(method_name)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> versioned_methods:
+</span></span><span style="display:flex;"><span>                method <span style="color:#f92672">=</span> versioned_methods[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>func
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> sub_controller <span style="color:#f92672">in</span> controller<span style="color:#f92672">.</span>sub_controllers:
+</span></span><span style="display:flex;"><span>            method_name <span style="color:#f92672">=</span> sub_controller<span style="color:#f92672">.</span>wsgi_actions<span style="color:#f92672">.</span>get(action)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> method_name:
+</span></span><span style="display:flex;"><span>                versioned_methods <span style="color:#f92672">=</span> getattr(
+</span></span><span style="display:flex;"><span>                    sub_controller, <span style="color:#e6db74">&#39;versioned_methods&#39;</span>, {}
+</span></span><span style="display:flex;"><span>                )<span style="color:#f92672">.</span>get(method_name)
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> versioned_methods:
+</span></span><span style="display:flex;"><span>                    method <span style="color:#f92672">=</span> versioned_methods[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>func
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;  action: </span><span style="color:#e6db74">{</span>action<span style="color:#e6db74">}</span><span style="color:#e6db74">, method: </span><span style="color:#e6db74">{</span>method<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;version_select&#39;</span> <span style="color:#f92672">in</span> str(method):
+</span></span><span style="display:flex;"><span>            count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;useless versioned method count: </span><span style="color:#e6db74">{</span>count<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span></code></pre></div><p>With this done, we finally get a 0 count:</p>
+<pre tabindex="0"><code>useless versioned method count: 0
+</code></pre><p>With this done, we&rsquo;re now able to inspect elements of the various controller methods. We&rsquo;re using this in the OpenAPI
+effort to associate a schema with a method so <a href="https://review.opendev.org/c/openstack/nova/+/915735/">we can ensure all API methods have schemas</a>.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/python">#python</a>
+    
+    <a class="category" href="https://that.guru/categories/wsgi">#wsgi</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2024 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

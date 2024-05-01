@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>random on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/random/</link>
+    <description>Recent content in random on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Mon, 20 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/random/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Issues pairing Beats Studio Buds</title>
+      <link>https://that.guru/blog/beats-studio-buds-pairing/</link>
+      <pubDate>Mon, 20 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/beats-studio-buds-pairing/</guid>
+      <description>&lt;p&gt;I recently had an issue pairing a set of &lt;a href=&#34;https://www.beatsbydre.com/earbuds/studio-buds&#34;&gt;Beats Studio Buds&lt;/a&gt; to my
+laptop. The Apple website suggests that pairing the headphones &lt;a href=&#34;https://support.apple.com/en-us/HT212254&#34;&gt;was as simple
+as pressing the system button until the LED started flashing white&lt;/a&gt;.
+However, this wasn&amp;rsquo;t happening. Instead, I was seeing three red LED flashes
+each time I opened the case and pressing the button did nothing. Attempting to
+reset the headphones &lt;a href=&#34;https://support.apple.com/en-us/HT212505&#34;&gt;by holding the system button for 15 seconds&lt;/a&gt;
+didn&amp;rsquo;t help either. After 30+ minutes of messing with various bluetooth
+headphones, I realized the issue was neither the Linux Bluetooth stack (for
+once!) or a defective button in the case: I simply needed to charge the case.
+Three red LED flashes indicates a dead case battery. Having put the case
+charging (yay, USB C), things paired just fine. TIL.&lt;/p&gt;
+&lt;p&gt;Leaving this here since Google wasn&amp;rsquo;t all that helpful when I tried looking for
+similar issues.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Upgrading DD-WRT to OpenWRT on the TP-Link TL-WR1043ND</title>
+      <link>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</link>
+      <pubDate>Tue, 02 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</guid>
+      <description>&lt;p&gt;I had an old &lt;a href=&#34;https://www.tp-link.com/uk/home-networking/wifi-router/tl-wr1043nd/&#34;&gt;TP-Link TL-WR1043ND&lt;/a&gt; that was running DD-WRT firmware from
+2013. Needless to say, this was pretty ancient and probably should be remedied
+but, unfortunately, I&amp;rsquo;d been unable to figure out how to do this via the web
+UI. It turns this can&amp;rsquo;t actually be done and instead you need to use a
+terminal. The below are my notes from doing just this.&lt;/p&gt;
+&lt;p&gt;First, you need to download the original firmware and strip the bootloader from
+it. You can source these firmwares from the TP-Link site but unfortunately,
+things aren&amp;rsquo;t as simple as that:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If you want to revert back to stock TP-link firmware from custom firmware,
+most of the time you can not flash the TP-Link firmware directly from the
+official TP-Link website.&lt;/p&gt;
+&lt;p&gt;The reason for this is that most of the downloadable firmware from the
+TP-Link website contains a so called bootloader section in front of the
+actual firmware.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Thankfully, a kind individual on the internet has done this work for us and you
+can download the firmware with the bootloader stripped from
+&lt;a href=&#34;https://www.friedzombie.com/tplink-stripped-firmware/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Once downloaded, you need to flash this firmware. To do that, you need SSH
+access. Login in to the router and go to the &amp;ldquo;Services&amp;rdquo; tab. Once there, scroll
+down and enable SSH access. After that, go to the &amp;ldquo;Administration&amp;rdquo; and toggle
+the radio button for &amp;ldquo;SSH Managment&amp;rdquo;. Reboot the router.&lt;/p&gt;
+&lt;p&gt;After reboot, extract and transfer the stripped firmware to the router:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ unzip TL-WR1043ND-V1-stripped.zip
+$ cd TL-WR1043ND-V1-stripped
+$ scp TL-WR1043ND-V1-FW0.0.3-stripped.bin root@192.168.1.1:/tmp
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;(use your admin password to authenticate).&lt;/p&gt;
+&lt;p&gt;Once this has been uploaded, SSH into the device to perform the restore:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ ssh root@192.168.1.1
+$ cd /tmp
+$ mtd -r write TL-WR1043ND-V1-FW0.0.3-stripped.bin linux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After the restore is complete, you can download the new firmware for the device
+from &lt;a href=&#34;http://downloads.openwrt.org/releases/18.06.2/targets/ar71xx/generic/&#34;&gt;openwrt.org&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ wget http://downloads.openwrt.org/releases/18.06.2/targets/ar71xx/generic/openwrt-ar71xx-generic-tl-wr1043nd-v1-squashfs-factory.bin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Upload this through the web UI.&lt;/p&gt;
+&lt;h2 id=&#34;bonus-restoring-to-stock-from-openwrt&#34;&gt;Bonus: Restoring to stock from OpenWRT&lt;/h2&gt;
+&lt;p&gt;This is pretty simple too. Follow the above but instead of flashing to &lt;code&gt;linux&lt;/code&gt;,
+flash to &lt;code&gt;firmware&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ mtd -r write TL-WR1043ND-V1-FW0.0.3-stripped.bin firmware
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;resources&#34;&gt;Resources&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://ediy.com.my/index.php/blog/item/9-tp-link-tl-wr1043nd-resotre-from-dd-wrt-to-original-firmware&#34;&gt;http://ediy.com.my/index.php/blog/item/9-tp-link-tl-wr1043nd-resotre-from-dd-wrt-to-original-firmware&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.friedzombie.com/tplink-stripped-firmware/&#34;&gt;https://www.friedzombie.com/tplink-stripped-firmware/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://forum.openwrt.org/t/solved-re-installing-the-original-tp-link-firmware-a-second-time/9249/5&#34;&gt;https://forum.openwrt.org/t/solved-re-installing-the-original-tp-link-firmware-a-second-time/9249/5&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>How Are Datacenters Physically Wired?</title>
+      <link>https://that.guru/blog/how-are-datacenters-physically-wired/</link>
+      <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/how-are-datacenters-physically-wired/</guid>
+      <description>&lt;p&gt;I sent this question to my team in Intel some time ago.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I gave a run down on SDN, NFV and all things Open to the OpenStack new
+hires today. One of the questions that came out of this concerned the
+physical wiring of server room or datacenter using SDN. Does anyone
+have any info on how n servers in a datacenter would be physically
+connected (where n &amp;gt;= 100, for example)? In case it matters, I&amp;rsquo;m
+picturing either a mesh network (high efficiency, high complexity) or
+a hierarchical network of increasingly large-bandwidth switches and
+routers (low efficiency, low complexity), but I&amp;rsquo;m only guessing here.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://ie.linkedin.com/in/robin-giller-1174193b&#34;&gt;Robin Giller&lt;/a&gt; started with an excellent introduction:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I believe that &amp;ldquo;leaf and spine&amp;rdquo; is the current topology of choice,
+moving away from the &amp;ldquo;fat tree&amp;rdquo; architecture of the past when one
+inbound request needed to be routed to one server, who would compute
+and send data back up to the core and out. Leaf and spine is more
+efficient when you&amp;rsquo;ve got lots of east-west traffic. There&amp;rsquo;s an
+explanation of both in the link below, and loads more available - just search
+for leaf and spine.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf&#34;&gt;http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;While the always helpful &lt;a href=&#34;https://ie.linkedin.com/in/sean-mooney-7a842429&#34;&gt;Sean Mooney&lt;/a&gt; provided that little bit
+of additional info:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;To expand on that, I believe it is leaf spine at the pod level (~5-10 racks
+of servers) with spine switches interconnected in a mesh.&lt;/p&gt;
+&lt;p&gt;So each spine switch will be connected to leaf top-of-rack switches and then
+interconnected with other spine switches to form a core mesh network.&lt;/p&gt;
+&lt;p&gt;There is also work in OpenStack around Hierarchical Port Binding to allow
+different overlay technologies to be used at the spine and leaf layers.
+&lt;a href=&#34;https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding&#34;&gt;https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;With Hierarchical Port Binding you can use VLANs between server and leaf
+level and VXLAN or other more scalable/computationally expensive overlays at
+the leaf/spine level.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Interesting stuff.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Hello, World!</title>
+      <link>https://that.guru/blog/hello-world/</link>
+      <pubDate>Sat, 25 Jun 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/hello-world/</guid>
+      <description>&lt;p&gt;This is my new, &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo-powered&lt;/a&gt; blog. I have a backlog of articles to
+publish, so expect to see lots of material going up here in the next few weeks.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

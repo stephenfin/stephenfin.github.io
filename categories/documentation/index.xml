@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>documentation on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/documentation/</link>
+    <description>Recent content in documentation on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/documentation/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Lion, A Head, and A Dash of YAML</title>
+      <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</link>
+      <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</guid>
+      <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt;, was a repeat of a talk I&amp;rsquo;d
+previously given at &lt;a href=&#34;https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/&#34;&gt;FOSDEM 2018&lt;/a&gt;. Once again, this talk provided a quick
+dive into the somewhat complicated world of Sphinx extensions.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If you&amp;rsquo;ve read documentation for a Python library, you&amp;rsquo;ve almost certainly
+seen the end product of a docutils or Sphinx-powered documentation toolchain.
+Sphinx builds upon docutils and together, they provide the tool of choice for
+a majority of projects across the Python ecosystem.&lt;/p&gt;
+&lt;p&gt;One of the great advantages of both tools is their inherent customisability
+and extensibility: not only can you customise the output of the tools, be
+that HTML, LaTeX or something else, but you can also write extensions that
+allow you to do things up to and including automatically generating
+documentation for you.&lt;/p&gt;
+&lt;p&gt;In this presentation, which is part talk, part workshop, we&amp;rsquo;ll look at the
+basics for building and using your own extension for these tools, with the
+goal of solving the kinds of issues that have been seen in large Python-first
+communities like OpenStack. Some prior Python experience will be necessary,
+but no Sphinx or docutils experience is assumed.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a494e97bf79a480ba7d4ea9e728d734a&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>Working With Documentation, The Openstack Way</title>
+      <link>https://that.guru/talks/working-with-documentation-the-openstack-way/</link>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/working-with-documentation-the-openstack-way/</guid>
+      <description>&lt;p&gt;This talk was co-presented with &lt;a href=&#34;https://twitter.com/dewsday/&#34;&gt;Alex Settle&lt;/a&gt; at the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;Denver OpenStack
+Summit&lt;/a&gt; in April 2019. It serves as a brief history of documentation within
+OpenStack along with a how-to on contributing to documentation today.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Back in the old days, OpenStack&amp;rsquo;s documentation was managed by a central team
+and written in the unspeakable horror that is DocBook. Things have changed a
+lot since then, with documentation now spread out across multiple projects
+and Sphinx the documentation tool du jour. This presents a lot of
+opportunities for people, be they long-term contributors or novices, to make
+a real impact to OpenStack&amp;rsquo;s documentation. In this talk, we detail how one
+can get started contributing in this area, be it through writing your own
+guides, using Sphinx to automatically generate docs or simply fixing a typo.
+Viva la documentation!&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;OpenStack Summit&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;49008e093b0a465d95b1b36297a89f5c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>Who Needs pandoc When You Have Sphinx?</title>
+      <link>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</link>
+      <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</guid>
+      <description>&lt;p&gt;This was a talk I gave at &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM 2019&lt;/a&gt;. In this talk, subtitled &amp;ldquo;An
+exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I
+explored some of the less well known aspects of both Sphinx and docutils.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Using Sphinx doesn&amp;rsquo;t necessarily mean using reStructuredText for input and
+HTML for output. We explore Sphinx&amp;rsquo;s newfound support for Markdown as well as
+it&amp;rsquo;s broad range output formats available, before moving onto an overview of
+how you can develop your parser and builder extensions.&lt;/p&gt;
+&lt;p&gt;Sphinx is the documentation tool of choice for an increasing amount of
+projects, both inside and outside Python. Thanks to the success of platforms
+like Read the Docs, building documentation with this toolkit has never been
+easier. Most people associate Sphinx with the reStructuredText syntax
+provided by docutils, and typically output documents to HTML and,
+occasionally, PDF. However, Sphinx is capable of so much more. Since Sphinx
+1.8, it is possible to use source documents written in the CommonMark syntax,
+while the amount of builders provided both in-tree and out-of-tree continue
+to grow.&lt;/p&gt;
+&lt;p&gt;Through this talk, we explore how one can build their documentation using
+Sphinx and Markdown source documents. We detail the variety of builders
+available as part of the standard Sphinx installation and as third-party
+extensions, including some basic configuration tips for the more commonly
+useful ones like man pages and LaTeX/PDF. Finally, we provide a high-level
+overview on how you can go about writing your own extensions to parse other
+plain-text documentation formats and output in additional documentation
+format. The latter of these will touch on docutils, a foundational component
+of Sphinx, so one can understand the intermediate documentation model it
+provides.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Full information is available on the &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7922a6d0b2c4e6a81cf63d6bba906ae&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>A Lion, A Head, and A Dash of YAML</title>
+      <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</link>
+      <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</guid>
+      <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM 2018&lt;/a&gt;, provided a quick dive into the
+somewhat complicated world of Sphinx extensions. Sphinx is an incredibly
+powerful tool but, surprisingly for a documentation, suffers from poor quality
+documentation. This talk aimed to fill in some of the blanks for users that
+aren&amp;rsquo;t so familiar with the tool and its inner workings.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The Sphinx documentation tool provides tremendous extensibility and theming
+options; options which are massively underutilized. We demonstrate how you
+can go about writing your own extensions and themes for Sphinx and ultimately
+how you treat your docs like code.&lt;/p&gt;
+&lt;p&gt;If you work in open source, then it&amp;rsquo;s increasingly likely that you&amp;rsquo;ve come
+across the Sphinx documentation tool. Originally written by and for the
+Python community, the past few years have seen an increasingly rapid adoption
+by non-Python projects. Recent adopters of Sphinx include the Linux kernel,
+Open vSwitch and the Dataplane Development Kit (DPDK), while other projects
+such as QEMU are preparing plans to migrate. Meanwhile, the Python ecosystem
+itself has only grown in strength and communities such as OpenStack have
+adopted the tool and have made extensive use of it.&lt;/p&gt;
+&lt;p&gt;Unfortunately, despite the widespread adoption and existence of multiple
+extensions, Sphinx is not always a very well understood tool. Extensions
+provide a pathway to greater functionality, for example, automatically
+generating documentation or generating docs in different output formats.
+Themes, meanwhile, provide a way to give a consistent, project-focused feel
+to your docs. The OpenStack community makes significant use of these
+extensibility features, which allow us to solve a number of problems in an
+automated manner.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;How can I avoid documenting a command line application twice: once in code
+and once in my docs?&lt;/li&gt;
+&lt;li&gt;How can I take a large dataset and automatically convert this into multiple
+human-readable documents?&lt;/li&gt;
+&lt;li&gt;How can I move documents about without breaking links?&lt;/li&gt;
+&lt;li&gt;How can I automatically spell-check my documents?&lt;/li&gt;
+&lt;li&gt;How can I style my docs to match my project website?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Through this talk we will demonstrate how each of the above problems, and how
+many more, can be solved in an easy and automated manner through the power of
+Sphinx extensions and themes. We also demonstrate how you can share your
+extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;07094f5da49e4430b308685cc82080ff&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>Building PDFs for OpenStack documentation</title>
+      <link>https://that.guru/blog/create-pdfs-for-openstack/</link>
+      <pubDate>Wed, 06 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation
+various of &lt;a href=&#34;https://docs.openstack.org/&#34;&gt;various OpenStack projects&lt;/a&gt;. However, OpenStack uses Sphinx
+across the board and Sphinx, being the awesome tool that it is, supports many
+other output formats. In this instance, I was interested in &lt;em&gt;PDF&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Sphinx doesn&amp;rsquo;t actually provide a native PDF builder (&lt;a href=&#34;http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.latex.LaTeXBuilder&#34;&gt;although other packages
+do&lt;/a&gt;). Instead, you have to generate LaTeX sources and then generate a PDF for
+this. This means you need to have a pretty well fleshed out TeX installation.
+As such, the first step is to install the dependencies.&lt;/p&gt;
+&lt;h2 id=&#34;install-dependencies&#34;&gt;Install dependencies&lt;/h2&gt;
+&lt;p&gt;We need a number of packages to build the LaTeX sources and convert them into a
+PDF. I&amp;rsquo;m using Fedora 27 which means package names may need to be adjusted
+accordingly. Do note, however, that these names should work equally well on RHEL
+and RHEL derivatives like CentOS).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;texlive&lt;/code&gt; (TeX Live)&lt;/p&gt;
+&lt;p&gt;Per the description of this package in the Fedora repos.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The TeX Live software distribution offers a complete TeX system for a
+variety of Unix, Macintosh, Windows and other platforms. It encompasses
+programs for editing, typesetting, previewing and printing of TeX
+documents in many different languages, and a large collection of TeX
+macros and font libraries.&lt;/p&gt;
+&lt;p&gt;The distribution includes extensive general documentation about TeX, as
+well as the documentation for the included software packages.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This is the basic thing we need to actually build LaTeX documents and
+convert them to PDF. The package itself includes multiple other
+dependencies, either because they are necessary for a minimal install or
+they form a standard library of sorts. I&amp;rsquo;m not sure which.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;latexmk&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Per the description of this package in the Fedora repos.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;latexmk is a perl script for running LaTeX the correct number of times to
+resolve cross references, etc.; it also runs auxiliary programs (bibtex,
+makeindex if necessary, and dvips and/or a previewer as requested).  It
+has a number of other useful capabilities, for example to start a
+previewer and then run latex whenever the source files are updated, so
+that the previewer gives an up-to-date view of the document.  The script
+runs on both UNIX and MS-WINDOWS (95, ME, XP, etc).  This script is a
+corrected and improved version of the original version of latexmk.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This is a tool that Sphinx uses, via some makefiles it includes with the
+built sources to ease converting the built LaTeX sources into PDFs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You also need a variety of other packages which aren&amp;rsquo;t included as part of the
+&lt;code&gt;texlive&lt;/code&gt; installation. The base Sphinx template has the following requirements.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;texlive-fncychap&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-titlesec&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-tabulary&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-framed&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-wrapfig&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-upquote&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-capt-of&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;texlive-needspace&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In addition, &lt;code&gt;openstackdocstheme&lt;/code&gt;, the theme used for all official OpenStack
+projects, provides a LaTeX template with the following dependencies.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;texlive-polyglossia&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;I built this list manually by running &lt;code&gt;make&lt;/code&gt; and then installing whatever
+dependency &lt;code&gt;latexmk&lt;/code&gt; complained about. There&amp;rsquo;s probably easier ways to do this,
+such as installing a larger package but I&amp;rsquo;m not aware of it at this time.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Installation of all the above.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ sudo dnf install texlive latexmk texlive-fncychap texlive-titlesec \
+    texlive-tabulary texlive-framed texlive-wrapfig texlive-upquote \
+    texlive-capt-of texlive-needspace texlive-polyglossia
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;get-some-documentation&#34;&gt;Get some documentation&lt;/h2&gt;
+&lt;p&gt;I didn&amp;rsquo;t have specific project in mind, so I&amp;rsquo;ve decided to build the project
+documentation for the &lt;code&gt;openstackdocstheme&lt;/code&gt; project. As mentioned previously,
+this project provides &lt;a href=&#34;https://github.com/openstack/openstackdocstheme&#34;&gt;the theme used for all Official OpenStack projects&lt;/a&gt;.
+Given that this is the base for most projects&amp;rsquo; documentation, it figures that
+it contains all the necessary configuration to build PDFs. If, however, you are
+planning to build docs for some other project, you should ensure that this is
+project is &lt;a href=&#34;https://docs.openstack.org/openstackdocstheme/latest/&#34;&gt;configured correctly for PDF builds&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;To begin, clone the repo locally.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/openstack/openstackdocstheme
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Once cloned, create a virtual environment and install the dependencies.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ virtualenv .venv
+$ source .venv
+$ pip install -e .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In the case of &lt;code&gt;openstackdocstheme&lt;/code&gt;, Sphinx isn&amp;rsquo;t installed by default.
+Let&amp;rsquo;s install that too.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ pip install Sphinx
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;build-the-docs&#34;&gt;Build the docs&lt;/h2&gt;
+&lt;p&gt;Now that we have both our dependencies and source documentation in place, it&amp;rsquo;s
+time to actually build some PDFs. Sphinx actually provides a number of helpful
+targets in the Makefile generated by &lt;code&gt;sphinx-quickstart&lt;/code&gt;. However, OpenStack
+projects don&amp;rsquo;t tend to use these so we&amp;rsquo;re going to take the (still exceedingly
+simple) two-step process. Firstly, build the LaTeX sources. Seeing as this is a
+Python project, we&amp;rsquo;re going to use the &lt;a href=&#34;http://www.sphinx-doc.org/en/stable/setuptools.html&#34;&gt;setuptools integration&lt;/a&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ python setup.py build_sphinx -b latex
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;All OpenStack projects place their documentation source and builds in
+&lt;code&gt;doc/source&lt;/code&gt; and &lt;code&gt;doc/build&lt;/code&gt; respectively. The above command should generate a
+number of files in &lt;code&gt;doc/build/latex&lt;/code&gt; including a very helpful makefile. We&amp;rsquo;re
+going to use that now to complete the process of generating a PDF.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ make -C doc/build/latex
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This should emit a &lt;strong&gt;lot&lt;/strong&gt; of text, followed by something that looks like this.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Output written on os-doc-demo.pdf (23 pages).
+Transcript written on os-doc-demo.log.
+=== TeX engine is &#39;XeTeX&#39;
+Latexmk: Index file &#39;os-doc-demo.idx&#39; was written
+Latexmk: Log file says output to &#39;os-doc-demo.pdf&#39;
+Latexmk: All targets (os-doc-demo.pdf) are up-to-date
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Once complete, you can find your compiled PDF in the same build directory (in
+this case, &lt;code&gt;doc/build/latex/os-doc-demo.pdf&lt;/code&gt;)&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

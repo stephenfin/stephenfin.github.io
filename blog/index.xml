@@ -6,7 +6,234 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 22 Aug 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 01 May 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Routers in Openstack</title>
+      <link>https://that.guru/blog/routers-in-openstack/</link>
+      <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/routers-in-openstack/</guid>
+      <description>&lt;p&gt;In the Dalamation (2024.2) cycle, we&amp;rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As
+part of this effort, I&amp;rsquo;ve had to learn more than I would like to know about how various services&amp;rsquo; API machinery works.
+The below is a quick summary of how the mapping of URLs (or rather, paths) to API controller methods works in Nova (and
+Cinder, Manila and other projects that have copied or inherited Nova&amp;rsquo;s patterns). This is very much inside baseball and
+probably not useful outside of OpenStack, since we&amp;rsquo;re using older libraries - namely &lt;a href=&#34;https://pypi.org/project/Routes/&#34;&gt;Routes&lt;/a&gt;, &lt;a href=&#34;https://pypi.org/project/Paste/&#34;&gt;Paste&lt;/a&gt;,
+and &lt;a href=&#34;https://pypi.org/project/WebOb/&#34;&gt;WebOb&lt;/a&gt; - that have been mostly superseded by new libraries like Flask, Falcon, or Starlette. Still, maybe
+it&amp;rsquo;s useful for someone.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The main entry point for routing in Nova is the &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py#L846-L884&#34;&gt;&lt;code&gt;APIRouterV21&lt;/code&gt;&lt;/a&gt; class. &lt;code&gt;APIRouterV21&lt;/code&gt; provides mappings
+of URLs (or rather, URL paths) to methods of &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L378&#34;&gt;&lt;code&gt;Resource&lt;/code&gt;&lt;/a&gt; objects. A &lt;code&gt;Resource&lt;/code&gt; object is a wrapper around
+some &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L750&#34;&gt;&lt;code&gt;Controller&lt;/code&gt;&lt;/a&gt; objects: a main controller and zero or more sub-controllers. If you look at
+&lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py&#34;&gt;&lt;code&gt;nova/api/openstack/compute/routes.py&lt;/code&gt;&lt;/a&gt; you&amp;rsquo;ll see a whole load of &lt;code&gt;functools.partial&lt;/code&gt; calls where we
+create &lt;code&gt;Resource&lt;/code&gt; objects via calls to &lt;code&gt;_create_controller&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;flavor_controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; functools&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;partial(_create_controller,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    flavors&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;FlavorsController,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    [
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        flavor_access&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;FlavorActionController
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here, &lt;code&gt;flavors.FlavorsController&lt;/code&gt; is the &amp;ldquo;main&amp;rdquo; controller and &lt;code&gt;flavor_access.FlavorActionController&lt;/code&gt; is a &amp;ldquo;sub&amp;rdquo; (or
+&amp;ldquo;action&amp;rdquo;/&amp;ldquo;child&amp;rdquo;) controller. The sub-controller extends the main controller by adding new APIs or actions and to the
+best of my knowledge it is legacy from the days where we had API extensions.&lt;/p&gt;
+&lt;p&gt;These wrapped controllers are then mapped to paths latter in the same file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ROUTE_LIST &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    (&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/flavors/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{id}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;, {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;show&amp;#39;&lt;/span&gt;],
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;PUT&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;update&amp;#39;&lt;/span&gt;],
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;DELETE&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;delete&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    (&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/flavors/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{id}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/action&amp;#39;&lt;/span&gt;, {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;action&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;APIRouterV21&lt;/span&gt;(base_wsgi&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Router):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, custom_routes&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        super()&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; path, methods &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; ROUTE_LIST &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; custom_routes:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# register route to mapper&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now with that knowledge, you can run this script locally to see the generated path-method mappings:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.api.openstack &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; compute
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; oslo_config &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; cfg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.tests &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; fixtures
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;CONF &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; cfg&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CONF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fixtures&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ConfFixture(CONF)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;setUp()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fixtures&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RPCFixture(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nova.test&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;setUp()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;router &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; compute&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;APIRouterV21()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; {}:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; action, method &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;items():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  action: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;action&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;, method: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;method&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;version_select&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; str(method):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            count &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All that this is doing is configuring enough config-related fixtures to allow us to create an &lt;code&gt;APIRouterV21&lt;/code&gt; instance so
+that we can iterate through the path-controller mappings it has. If you run this, you&amp;rsquo;ll see a whole load of output
+finishing in this:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 288
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is a count of the number of actions that resolve to &lt;code&gt;version_select&lt;/code&gt; methods. &lt;code&gt;version_select&lt;/code&gt; methods are not the
+&amp;ldquo;real&amp;rdquo; method and are instead wrappers around the real methods (potentially plural, depending on amount of
+microversioned revisions) that allow us to handle API versioning. This wrapper methods are useless to us in the OpenAPI
+work  because we need to get attributes of the real methods - namely, some private attributes we&amp;rsquo;re using to store the
+schema used for a given method. The way to find the &amp;ldquo;real&amp;rdquo; method is to look at the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of a
+Controller, which contains a mapping of method name to real methods. If you change the above for loop you can see this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; {}:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; action, method &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;items():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        method_name &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; method_name:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            versioned_methods &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getattr(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;versioned_methods&amp;#39;&lt;/span&gt;, {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            )&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(method_name)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; versioned_methods:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                method &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; versioned_methods[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;func
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  action: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;action&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;, method: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;method&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;version_select&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; str(method):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            count &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now if you run this, you&amp;rsquo;ll get a reduced count:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 224
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, it&amp;rsquo;s still not 0. This is because we&amp;rsquo;re not able to resolve to all &amp;ldquo;real&amp;rdquo; methods using only the &amp;ldquo;main&amp;rdquo;
+controller alone. To do that, we need the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of the sub-controllers also, or to use the case
+of the controllers we gave at the start, the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of both the &lt;code&gt;FlavorsController&lt;/code&gt; controller
+and the &lt;code&gt;FlavorActionController&lt;/code&gt; controller. However, we currently have no reference to &lt;code&gt;FlavorActionController&lt;/code&gt; (or any
+other sub controller) so we can&amp;rsquo;t do this.&lt;/p&gt;
+&lt;p&gt;A &lt;a href=&#34;https://review.opendev.org/c/openstack/nova/+/915732/&#34;&gt;patch I&amp;rsquo;ve proposed&lt;/a&gt; fixes this so that we store the reference to &lt;code&gt;FlavorActionController&lt;/code&gt; (and any other
+sub-controller) under &lt;code&gt;Resource.sub_controllers&lt;/code&gt;, thus giving us a mechanism to retrieve &lt;code&gt;versioned_methods&lt;/code&gt; attributes
+(and any other attribute we might need later) from these sub-controller. With this patch applied, we can change the for
+loop further:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; {}:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; action, method &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;items():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        main_controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;controller
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        method_name &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; main_controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; method_name:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            versioned_methods &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getattr(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                main_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;versioned_methods&amp;#39;&lt;/span&gt;, {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            )&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(method_name)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; versioned_methods:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                method &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; versioned_methods[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;func
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; sub_controller &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;sub_controllers:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            method_name &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; sub_controller&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;wsgi_actions&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; method_name:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                versioned_methods &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getattr(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    sub_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;versioned_methods&amp;#39;&lt;/span&gt;, {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                )&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(method_name)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; versioned_methods:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    method &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; versioned_methods[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;func
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;  action: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;action&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;, method: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;method&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;version_select&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; str(method):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            count &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;useless versioned method count: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;count&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With this done, we finally get a 0 count:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;useless versioned method count: 0
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With this done, we&amp;rsquo;re now able to inspect elements of the various controller methods. We&amp;rsquo;re using this in the OpenAPI
+effort to associate a schema with a method so &lt;a href=&#34;https://review.opendev.org/c/openstack/nova/+/915735/&#34;&gt;we can ensure all API methods have schemas&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Debugging Failed OpenShift-on-OpenStack Deployments</title>
+      <link>https://that.guru/blog/debugging-failed-openshift-openstack-deployments/</link>
+      <pubDate>Mon, 22 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/debugging-failed-openshift-openstack-deployments/</guid>
+      <description>&lt;p&gt;I deploy OpenShift-on-OpenStack quite regularly these days. Some times these deployments fail and the most common
+failure I usually see is a timeout during bootstrapping.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ openshift-install --log-level debug create cluster
+DEBUG OpenShift Installer 4.15.10
+DEBUG Built from commit 24a827900e76d8f9c79122307415b47a4921bbd7
+DEBUG Fetching Metadata...
+...
+DEBUG Reusing previously-fetched Install Config
+INFO Skipping VM console logs gather: no gather methods registered for &amp;#34;openstack&amp;#34;
+INFO Pulling debug logs from the bootstrap machine
+DEBUG Using SSH_AUTH_SOCK /run/user/1000/keyring/ssh to connect to an existing agent
+ERROR Attempted to gather debug logs after installation failure: failed to connect to the bootstrap machine: dial tcp 10.0.212.9:22: connect: connection timed out
+ERROR Attempted to gather ClusterOperator status after installation failure: listing ClusterOperator objects: Get &amp;#34;https://api.stephenfin.shiftstack-demo.com:6443/apis/config.openshift.io/v1/clusteroperators&amp;#34;: dial tcp 10.0.214.50:6443: i/o timeout
+ERROR Bootstrap failed to complete: timed out waiting for the condition
+ERROR Failed to wait for bootstrapping to complete. This error usually happens when there is a problem with control plane hosts that prevents the control plane operators from creating the control plane.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You&amp;rsquo;ve a couple of tools that you can use to validate this. The first of these is to check the serial console.
+This will highlight the more egregious issues with your deployment. You can do this with:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack console url show stephenfin-5ps6d-bootstrap  &lt;span style=&#34;color:#75715e&#34;&gt;# replace with your own bootstrap server&amp;#39;s name&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If this doesn&amp;rsquo;t show anything weird then the next step is to log in to the server and check the status of the &lt;code&gt;bootkube&lt;/code&gt;
+service. As is custom with OpenStack, to SSH into a machine you need (a) a floating IP and (b) a security group (or more
+accurately a security group rule) that allows SSH access. The Installer automatically assigns a floating IP to the
+bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &amp;ldquo;allow SSH&amp;rdquo; security group lying
+around and if so, you can use that now:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  &lt;span style=&#34;color:#75715e&#34;&gt;# replace with your own server, SG names&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you don&amp;rsquo;t have such a group, creating one is easy. The following ought to do the trick:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group create allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group rule create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --protocol tcp --dst-port &lt;span style=&#34;color:#ae81ff&#34;&gt;22&lt;/span&gt; --remote-ip 0.0.0.0/0 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group rule create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --protocol icmp --remote-ip 0.0.0.0/0 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve allowed SSH traffic you can SSH into the machine.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;core&lt;/code&gt; is the default username for Red Hat CoreOS.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;From here you can follow the directions given in the MOTD and check the &lt;code&gt;bootkube&lt;/code&gt; service first:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ journalctl -b -f -u release-image.service -u bootkube.service
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In my case it appeared the issue was the lack of access to the master nodes:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;s the base image from which all OpenShift Container Platform images inherit.)
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Check if API and API-Int URLs are reachable during bootstrap
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Checking if api.stephenfin.shiftstack-demo.com of type API_URL reachable
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to reach API_URL&amp;#39;s https endpoint at https://api.stephenfin.shiftstack-demo.com:6443/version
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to validate. https://api.stephenfin.shiftstack-demo.com:6443/version is currently unreachable.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Checking if api-int.stephenfin.shiftstack-demo.com of type API_INT_URL reachable
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to reach API_INT_URL&amp;#39;s https endpoint at https://api-int.stephenfin.shiftstack-demo.com:6443/version
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to validate. https://api-int.stephenfin.shiftstack-demo.com:6443/version is currently unreachable.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: bootkube.service complete
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Deactivated successfully.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Consumed 1min 2.337s CPU time.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The same steps apply for debugging issues with master or worker nodes: add a floating IP, allow SSH access, then SSH
+into the machine.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add floating ip stephenfin-5ps6d-master-0 10.0.214.101
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add security group stephenfin-5ps6d-master-0 allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server ssh stephenfin-5ps6d-master-0 -- -l core
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
     <item>
       <title>Availability Zones in Openstack and Openshift (Part 1)</title>
       <link>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/</link>
@@ -1704,7 +1931,7 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; decided
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MigrationScript)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MigrationScript)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_migration_script_ops&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    op &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MigrationScript(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        new_rev_id(),
@@ -1721,7 +1948,7 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; op
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ModifyTableOps)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ModifyTableOps)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_modify_table_ops&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    op &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ModifyTableOps(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        directive&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;table_name, 
@@ -1732,10 +1959,10 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; op
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddConstraintOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateIndexOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateTableOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddColumnOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddConstraintOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateIndexOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateTableOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddColumnOp)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_expands&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; phase &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;expand&amp;#39;&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; directive
@@ -1743,10 +1970,10 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropConstraintOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropIndexOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropTableOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropColumnOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropConstraintOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropIndexOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropTableOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropColumnOp)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_contracts&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; phase &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;contract&amp;#39;&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; directive
@@ -1754,7 +1981,7 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AlterColumnOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AlterColumnOp)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_alter_column&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    is_expand &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; phase &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;expand&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; is_expand &lt;span style=&#34;color:#f92672&#34;&gt;and&lt;/span&gt; directive&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;modify_nullable &lt;span style=&#34;color:#f92672&#34;&gt;is&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;:
@@ -1787,7 +2014,7 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; decided
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Hopefully this should be mostly self-explanatory. &lt;code&gt;process_revision_directives&lt;/code&gt; is initial &amp;ldquo;entry point&amp;rdquo; and all it does is overwrites the provided list of directives with our modified set. &lt;code&gt;_assign_directives&lt;/code&gt;, on the other hand, does the bulk heavy lifting. It&amp;rsquo;s responsible for iterating through the generated directives calling the dispatcher for each phase that we&amp;rsquo;re examining.&lt;/p&gt;
 &lt;p&gt;Next, we look to look at the dispatchers themselves. For each type of operation, we need to write a separate dispatcher. The top-level operation is the generation of the migration script itself a.k.a. the &lt;a href=&#34;https://alembic.sqlalchemy.org/en/latest/api/operations.html#alembic.operations.ops.MigrationScript&#34;&gt;&lt;code&gt;MigrationScript&lt;/code&gt; operation&lt;/a&gt;. Let&amp;rsquo;s look at this first.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MigrationScript)
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MigrationScript)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_migration_script_ops&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    op &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MigrationScript(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        new_rev_id(),
@@ -1804,7 +2031,7 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; op
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Again, hopefully there&amp;rsquo;s nothing too complicated. This dispatcher generates a migration script container a filtered list of upgrade directives (and no downgrade directives). This filtered list is filtered by phase, and we also specify a &lt;em&gt;head&lt;/em&gt; that corresponds to the phase (&lt;code&gt;expand@head&lt;/code&gt; for the &lt;em&gt;expand&lt;/em&gt; phase).&lt;/p&gt;
 &lt;p&gt;Moving on, in addition to the &lt;code&gt;MigrationScript&lt;/code&gt; operation, we have one other &amp;ldquo;meta&amp;rdquo; operation to concern ourselves with: &lt;code&gt;ModifyTableOps&lt;/code&gt;. Fortunately, this isn&amp;rsquo;t too complicated. We basically ensure that all operations against a table are filtered by phase as we&amp;rsquo;d expect:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ModifyTableOps)
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ModifyTableOps)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_modify_table_ops&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    op &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ModifyTableOps(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        directive&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;table_name, 
@@ -1814,27 +2041,27 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; op&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_empty():
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; op
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now for the first &amp;ldquo;real&amp;rdquo; operations: the &lt;em&gt;expand&lt;/em&gt; operations. These are &lt;code&gt;AddConstraintOp&lt;/code&gt;, &lt;code&gt;CreateIndexOp&lt;/code&gt;, &lt;code&gt;CreateTableOp&lt;/code&gt;, and &lt;code&gt;AddColumnOp&lt;/code&gt;. Let&amp;rsquo;s look at the dispatcher for these.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddConstraintOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateIndexOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateTableOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddColumnOp)
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddConstraintOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateIndexOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;CreateTableOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AddColumnOp)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_expands&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; phase &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;expand&amp;#39;&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; directive
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Simply put, if we&amp;rsquo;re in &lt;em&gt;expand&lt;/em&gt; phase and encounter one of these operations, proceed as normal. If we&amp;rsquo;re in the &lt;em&gt;contract&lt;/em&gt; phase, skip it. As you&amp;rsquo;d imagine, the dispatcher for the &lt;em&gt;contract&lt;/em&gt; options - &lt;code&gt;DropConstraintOp&lt;/code&gt;, &lt;code&gt;DropIndexOp&lt;/code&gt;, &lt;code&gt;DropTableOp&lt;/code&gt;, and &lt;code&gt;DropColumnOp&lt;/code&gt; - works pretty similarly:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropConstraintOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropIndexOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropTableOp)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropColumnOp)
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropConstraintOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropIndexOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropTableOp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;DropColumnOp)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_contracts&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; phase &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;contract&amp;#39;&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; directive
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With the plain old create and destroy operations out of the way, we only have to take care of the remaining &amp;ldquo;modify&amp;rdquo; or &amp;ldquo;alter&amp;rdquo; operations. This consists of modifications to columns a.k.a. &lt;code&gt;AlterColumnOp&lt;/code&gt;. The &lt;code&gt;AlterColumnOp&lt;/code&gt; dispatcher is trickier that the others, so pay attention here:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dispatch_for(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AlterColumnOp)
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@_ec_dispatcher.dispatch_for&lt;/span&gt;(ops&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AlterColumnOp)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_alter_column&lt;/span&gt;(context, directive, phase):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    is_expand &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; phase &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;expand&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; is_expand &lt;span style=&#34;color:#f92672&#34;&gt;and&lt;/span&gt; directive&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;modify_nullable &lt;span style=&#34;color:#f92672&#34;&gt;is&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;:
@@ -1985,8 +2212,7 @@ mailing lists threads are helpful:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack@lists.launchpad.net/msg09237.html&#34;&gt;Quota classes&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack-dev@lists.openstack.org/msg124494.html&#34;&gt;Does ANYONE at all use the quota class functionality in Nova?&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
+&lt;/ul&gt;&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;quota-usage&#34;&gt;Quota usage&lt;/h2&gt;
@@ -3121,8 +3347,7 @@ cloud/infrastructure dependent and this is simply the OpenStack name. It is
 defined as an attribute on the &lt;code&gt;cluster&lt;/code&gt; infrastructure resource.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ oc get infrastructure/cluster -o jsonpath=&amp;quot;{.spec.cloudConfig.name}&amp;quot;
 cloud-provider-config
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;If the both lookup fails, we error out. However, this is unlikely since the
@@ -3158,8 +3383,7 @@ ccm-trusted-ca
 cloud-conf
 kube-root-ca.crt
 openshift-service-ca.crt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;This can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L96-L100&#34;&gt;here&lt;/a&gt;.
@@ -3282,364 +3506,6 @@ environment variable or &lt;code&gt;placement_api_version&lt;/code&gt; option in
 want to use any API microversion other than 1.0. Hopefully we&amp;rsquo;ll eventually get
 Placement fully integrated into &lt;code&gt;openstacksdk&lt;/code&gt; and auto-negotiation will be a
 thing.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Add Another Network to ZNC</title>
-      <link>https://that.guru/blog/add-another-network-to-znc/</link>
-      <pubDate>Tue, 08 Mar 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/add-another-network-to-znc/</guid>
-      <description>&lt;p&gt;ZNC allows you to connect to multiple networks (in fact, it&amp;rsquo;s one of the
-benefits it touts on &lt;a href=&#34;https://wiki.znc.in/ZNC#Main_Features&#34;&gt;the wiki&lt;/a&gt;). It distinguishes between networks and
-servers (a network can have multiple servers), so this can be slightly
-confusing the first time you have to do it. The below is a quick summary of the
-steps that are necessary to add a new network to your ZNC instance, in this
-instance, &lt;a href=&#34;https://libera.chat/&#34;&gt;Libera&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Let&amp;rsquo;s say you&amp;rsquo;re already connected to a network, and let&amp;rsquo;s say that network is
-&lt;a href=&#34;https://www.oftc.net/&#34;&gt;OFTC&lt;/a&gt;. You can verify this using following commands:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/znc ListNetworks
-/znc ListServers
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;ListNetworks&lt;/code&gt; command will list this networks available to you.&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/znc ListNetworks
-+--------------+--------+----------------------+-----------------------------------+----------+
-| Network      | On IRC | IRC Server           | IRC User                          | Channels |
-+--------------+--------+----------------------+-----------------------------------+----------+
-| oftc         | Yes    | weber.oftc.net       | stephenfin!~stephenfi@example.com | 9        |
-+--------------+--------+----------------------+-----------------------------------+----------+
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;ListServers&lt;/code&gt; command will list the servers configured for this network.&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/znc ListServers
-+---------------+------+-----+----------+
-| Host          | Port | SSL | Password |
-+---------------+------+-----+----------+
-| irc.oftc.net* | 6697 | SSL |          |
-+---------------+------+-----+----------+
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now if you want to connect to another network, you can do so by adding a new
-network followed by adding a new server on this network. As noted previously,
-we&amp;rsquo;re going to configure a connection to Libera. First, we&amp;rsquo;d create the new
-network.&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/znc AddNetwork libera
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we&amp;rsquo;d switch to this network:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/znc JumpNetwork libera
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can add the server:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/znc AddServer irc.libera.chat +6697
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we can connect to the channels as usual:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;/join #libera
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To switch between networks, you&amp;rsquo;ll need to use the &lt;code&gt;JumpNetwork&lt;/code&gt; command we
-used above. Alternatively, you can connect to ZNC multiple times by adding the
-&lt;code&gt;/{network}&lt;/code&gt; suffix to your username. For example, if you were previously
-connecting using the username &lt;code&gt;foo&lt;/code&gt;, you&amp;rsquo;d add another network that would
-connect using e.g. &lt;code&gt;foo/libera&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;More information the ZNC command can be found &lt;a href=&#34;https://wiki.znc.in/Using_commands&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Use Pktgen-DPDK to send traffic between two Openstack VMs</title>
-      <link>https://that.guru/blog/pktgen-between-two-openstack-guests/</link>
-      <pubDate>Thu, 18 Nov 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/pktgen-between-two-openstack-guests/</guid>
-      <description>&lt;p&gt;As part of my new OpenShift-flavoured responsibilities, I&amp;rsquo;ve been trying to get
-DPDK-based applications running successfully on OpenShift-on-OpenStack. A
-pre-requisite step to this was getting DPDK configured on the host. With this
-done, I figured I&amp;rsquo;d investigate using an actual DPDK application in the guests.
-I&amp;rsquo;d done this before, though it&amp;rsquo;s been a while, and I did eventually get there.
-There were a few wrong turns along the way though, so I&amp;rsquo;ve documented the steps
-I finally settled on here in case they&amp;rsquo;re helpful to anyone else.&lt;/p&gt;
-&lt;h2 id=&#34;cloud-configuration&#34;&gt;Cloud configuration&lt;/h2&gt;
-&lt;p&gt;We&amp;rsquo;re going to be using OpenStack to provision our guests, so we obviously need
-an OpenStack cloud to point to. Given that we&amp;rsquo;re using DPDK in the guests, we
-also need to ensure that OVS-DPDK is used on the host(s). You can use a
-pre-existing cloud if you&amp;rsquo;re sure it provides the latter, but I decided to use
-&lt;a href=&#34;https://github.com/shiftstack/dev-install&#34;&gt;&lt;code&gt;dev-install&lt;/code&gt;&lt;/a&gt; along with a modified version of the sample &lt;a href=&#34;https://github.com/shiftstack/dev-install/blob/main/example-overrides/local-overrides-osp16-2-with-dpdk.yaml&#34;&gt;OVS-DPDK
-configuration file&lt;/a&gt; to install a small, TripleO Standalone-based OpenStack
-deployment on a borrowed server.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can verify the OVS on the host is using DPDK using the following commands:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ovs-vsctl --no-wait get Open_vSwitch . dpdk_initialized
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;true
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ovs-vsctl --no-wait get Open_vSwitch . dpdk_version
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;DPDK 20.11.1&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is discussed further in the OVS documentation.&lt;/p&gt;
-&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;Once you have you cloud selected, you need to ensure you have appropriate
-networks and an appropriate image and flavor. &lt;code&gt;dev-install&lt;/code&gt; provides most of
-these for you, but can create them manually using the below commands.&lt;/p&gt;
-&lt;p&gt;First, the image. We&amp;rsquo;re going to use CentOS 8 Stream:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ wget https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack image create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --disk-format qcow2 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --public &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --file CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    centos8-stream
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next, the flavor. This is a pretty standard flavor except that we need to use
-pinned CPUs and enable hugepages:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack flavor create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --vcpu &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --ram &lt;span style=&#34;color:#ae81ff&#34;&gt;8192&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --property hw:cpu_policy&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;dedicated&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --property hw:mem_page_size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;large&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    m1.large.nfv
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You might also need to create a suitable network. &lt;code&gt;dev-install&lt;/code&gt; configures a
-&lt;code&gt;hostonly&lt;/code&gt; provider network. If using another method, you need to create your
-own provider network. Adding this is an exercise left to the reader. Once done,
-we need to create a tenant network that we&amp;rsquo;ll use to configure additional
-ports. Create this, along with a router:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack network create internal_net
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack subnet create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --network internal_net &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --subnet-range 192.168.200.0/24 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    internal_subnet
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack router create router_a
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack router set --external-gateway hostonly router_a
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack router add subnet router_a internal_subnet
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you need some way to access the guest. Create and upload a keypair:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ssh-keygen
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack keypair create --public ~/.ssh/id_rsa.pub my-key
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;initial-server-setup&#34;&gt;Initial server setup&lt;/h2&gt;
-&lt;p&gt;We&amp;rsquo;re going to create two servers: &lt;code&gt;guest-tx&lt;/code&gt; and &lt;code&gt;guest-rx&lt;/code&gt;. These are
-effectively identical save for the configuration we&amp;rsquo;ll eventually pass to
-Pktgen-DPDK. Create the servers:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --image centos8-stream &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --flavor m1.large.nfv &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --network internal_net &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --key-name my-key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --wait &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    guest-tx
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --image centos8-stream &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --flavor m1.large.nfv &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --network internal_net &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --key-name my-key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --wait &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    guest-rx
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Create two floating IPs and attach them to the server so we can SSH into the machine:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ tx_fip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack floating ip create hostonly-dpdk -f value -c name | tr -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ rx_fip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack floating ip create hostonly-dpdk -f value -c name | tr -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add floating ip guest-tx $tx_fip
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add floating ip guest-rx $rx_fip
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You&amp;rsquo;ll also need to add security groups to enable SSH and potentially ICMP
-(for ping) access. If you deployed with &lt;code&gt;dev-install&lt;/code&gt; like I did, then these
-will already be present. If you use another mechanism then you can create
-these security groups like so:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group create --description allow_ssh allow_ssh
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group rule create --protocol tcp --dst-port &lt;span style=&#34;color:#ae81ff&#34;&gt;22&lt;/span&gt; allow_ssh
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group create --description allow_ping allow_ping
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group rule create --protocol icmp allow_ping
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can then add these security groups to the servers:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-tx allow_ssh
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-tx allow_ping
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-rx allow_ssh
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-rx allow_ping
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You should now be able to SSH into the instances:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server ssh --login centos guest-tx
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;attach-dpdk-interfaces&#34;&gt;Attach DPDK interfaces&lt;/h2&gt;
-&lt;p&gt;With the initial server configuration out of the way, we can move onto
-configuring the interfaces we will use for our DPDK application. It&amp;rsquo;s necessary
-to use secondary interfaces since we&amp;rsquo;re going to be binding these interfaces
-to the &lt;code&gt;vfio-pci&lt;/code&gt; driver. The second we do this, the devices will no longer
-be usable by the kernel network stack which means, among other things, we
-cannot use SSH on this interface. With that said, there&amp;rsquo;s not going to be
-anything special about these interfaces: every interface attached to the
-instance will be &lt;code&gt;vhostuser&lt;/code&gt; interface. We can confirm this by inspecting
-the single interface currently attached to the instance:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo podman exec -it nova_libvirt virsh dumpxml &lt;span style=&#34;color:#ae81ff&#34;&gt;14&lt;/span&gt; | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/domain/devices/interface&amp;#39;&lt;/span&gt; -
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re executing this in the &lt;code&gt;nova_libvirt&lt;/code&gt; container because this is how
-TripleO Standalone, and thus &lt;code&gt;dev-intall&lt;/code&gt;, deploys libvirt.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;This will yield something like the following:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;interface&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;vhostuser&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;mac&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;address=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fa:16:3e:97:3d:11&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;source&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;unix&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;path=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/lib/vhost_sockets/vhub20e827c-4a&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mode=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;server&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;vhub20e827c-4a &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;model&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;virtio&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;driver&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;rx_queue_size=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1024&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tx_queue_size=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1024&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;alias&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;net0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;address&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pci&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;domain=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x0000&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bus=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x00&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;slot=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x03&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;function=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/interface&amp;gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that bit out of the way, we can now add our additional network interface
-to each instance:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack port create --network internal_net dpdk-port-tx
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack port create --network internal_net dpdk-port-rx
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We&amp;rsquo;ll save the IP and MAC addresses for these interfaces: these will be useful
-later:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ tx_dpdk_ip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-tx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.fixed_ips[0].ip_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ rx_dpdk_ip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-rx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.fixed_ips[0].ip_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ tx_dpdk_mac&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-tx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.mac_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ rx_dpdk_mac&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-rx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.mac_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now add them to the servers:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add port guest-tx dpdk-port-tx
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add port guest-rx dpdk-port-rx
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can verify that these interfaces are of type &lt;code&gt;vhostuser&lt;/code&gt; again, if you like.&lt;/p&gt;
-&lt;h2 id=&#34;compile-pktgen-dpdk&#34;&gt;Compile Pktgen-DPDK&lt;/h2&gt;
-&lt;p&gt;We now have our servers effectively configured from an &amp;ldquo;infrastructure&amp;rdquo;
-perspective. Going forward, everything will be done inside the guests. The
-first of these steps is to compile Pktgen-DPDK. This is necessary because
-while DPDK itself is packaged for CentOS, Pktgen-DPDK is not. We&amp;rsquo;re going
-to demonstrate the steps to run for one intance. You should then repeat these
-on the second instance.&lt;/p&gt;
-&lt;p&gt;First, let&amp;rsquo;s SSH into the machine:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server ssh guest-tx --login centos
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Install the dependencies. These are numerous:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo dnf config-manager --set-enabled powertools
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo dnf groupinstall -y &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Development Tools&amp;#39;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo dnf install -y numactl-devel libpcap-devel meson driverctl
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ python3 -m pip install --user pyelftools  &lt;span style=&#34;color:#75715e&#34;&gt;# avoid requiring EPEL&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now, let&amp;rsquo;s clone and build DPDK. We could use the &lt;code&gt;dpdk&lt;/code&gt; and &lt;code&gt;dpdk-devel&lt;/code&gt;
-packages provided by CentOS but these are pretty old. If you decide to go
-this route, don&amp;rsquo;t forget to checkout a tag in the Pktgen-DPDK repo
-corresponding to the correct DPDK release in the environment.&lt;/p&gt;
-&lt;p&gt;You can build DPDK like so:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git clone https://github.com/dpdk/dpdk
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ cd dpdk
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git checkout v21.11rc3  &lt;span style=&#34;color:#75715e&#34;&gt;# use v21.11 if it&amp;#39;s been released&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ meson build
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ninja -C build
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ninja -C build install
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;You&amp;rsquo;ll note that I&amp;rsquo;m using a fixed version of DPDK. As this post ages, you
-may wish to use a newer version of DPDK. If you do, you should also update the
-tag checked out for Pktgen-DPDK below.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;With DPDK build, let&amp;rsquo;s do the same for Pktgen-DPDK:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git clone https://github.com/pktgen/Pktgen-DPDK
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ cd Pktgen-DPDK
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git checkout pktgen-21.11.0
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ PKG_CONFIG_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/usr/local/lib64/pkgconfig meson build
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ninja -C build
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ninja -C build install
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, restart the instance to propogate all these changes:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo reboot
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;configure-environment&#34;&gt;Configure environment&lt;/h2&gt;
-&lt;p&gt;Now that our applications are ready to go, we need to configure our
-environment. There are a two parts to this: enabling hugepages and configuring
-our annointed interfaces to use the &lt;code&gt;vfio-pci&lt;/code&gt; driver. Once again, these steps
-should be done on both instances.&lt;/p&gt;
-&lt;p&gt;We&amp;rsquo;re going to use root for most of these commands since it&amp;rsquo;s easier than
-working with pipes and sudo. Become root and configure the hugepages:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo su
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 1024 &amp;gt; /proc/sys/vm/nr_hugepages&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now the trickier job of rebinding our interfaces to use the &lt;code&gt;vfio-pci&lt;/code&gt; driver.
-We&amp;rsquo;ve got two interfaces in both instances: the primary interface that we&amp;rsquo;re
-SSHing through, and the second interface that we&amp;rsquo;re going to use for our DPDK
-application. We can verify this using a combination of &lt;code&gt;ip&lt;/code&gt; and &lt;code&gt;lspci&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ip link&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci | grep Ethernet&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should return something akin to the following:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ip link&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;1: lo: &amp;lt;LOOPBACK,UP,LOWER_UP&amp;gt; mtu &lt;span style=&#34;color:#ae81ff&#34;&gt;65536&lt;/span&gt; qdisc noqueue state UNKNOWN mode DEFAULT group default qlen &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;2: eth0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span style=&#34;color:#ae81ff&#34;&gt;1442&lt;/span&gt; qdisc fq_codel state UP mode DEFAULT group default qlen &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    link/ether fa:16:3e:97:3d:11 brd ff:ff:ff:ff:ff:ff
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3: eth1: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span style=&#34;color:#ae81ff&#34;&gt;1442&lt;/span&gt; qdisc fq_codel state UP mode DEFAULT group default qlen &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    link/ether fa:16:3e:5b:af:eb brd ff:ff:ff:ff:ff:ff
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci | grep Ethernet&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In this instance, our device has been assigned the address &lt;code&gt;00:07.0&lt;/code&gt;. We can
-inspect the driver currently in use using &lt;code&gt;lspci&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci -s 00:07.0 -v&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Subsystem: Red Hat, Inc. Device &lt;span style=&#34;color:#ae81ff&#34;&gt;0001&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Physical Slot: &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Flags: bus master, fast devsel, latency 0, IRQ &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        I/O ports at &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;32&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Memory at c0040000 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;32-bit, non-prefetchable&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;4K&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Memory at &lt;span style=&#34;color:#ae81ff&#34;&gt;240000000&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;64-bit, prefetchable&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;16K&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Expansion ROM at c0000000 &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;virtual&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;disabled&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;256K&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;98&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; MSI-X: Enable+ Count&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; Masked-
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;84&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: &amp;lt;unknown&amp;gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;70&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: Notify
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;60&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: DeviceCfg
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;50&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: ISR
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;40&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: CommonCfg
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Kernel driver in use: virtio-pci
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We&amp;rsquo;re using &lt;code&gt;virtio-pci&lt;/code&gt;, but we need to be using &lt;code&gt;vfio-pci&lt;/code&gt;. Let&amp;rsquo;s
-load that driver and then rebind the interface to the driver using the
-&lt;code&gt;driverctl&lt;/code&gt; utility we used earlier:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# modprobe vfio enable_unsafe_noiommu_mode=1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# cat /sys/module/vfio/parameters/enable_unsafe_noiommu_mode&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Y
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# modprobe vfio-pci&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# driverctl -v set-override 0000:00:07.0 vfio-pci&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You could also do the binding manually using sysfs. First you need to get the PCI
-vendor and product ID:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci -s 00:07.0 -n&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 0200: 1af4:1000
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In this instance, it&amp;rsquo;s &lt;code&gt;1af4:1000&lt;/code&gt;. We&amp;rsquo;ll use this now:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 0000:00:07.0 &amp;gt; /sys/bus/pci/devices/0000:00:07.0/driver/unbind&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 0000:00:08.0 &amp;gt; /sys/bus/pci/devices/0000:00:08.0/driver/unbind&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 1af4 1000 &amp;gt; /sys/bus/pci/drivers/vfio-pci/new_id&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;If you inspect the device again, you should see that it&amp;rsquo;s now bound to the
-&lt;code&gt;vfio-pci&lt;/code&gt; driver.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;run-applications&#34;&gt;Run applications&lt;/h2&gt;
-&lt;p&gt;The final step: running the applications we built and installed earlier.
-The &lt;code&gt;pktgen&lt;/code&gt; application requires a small bit of configuration. Forunately
-everything we already have everything we need. Back on the host, run the
-following, which will create a configuration file using the MAC and IP
-address information we stored earlier:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF &amp;gt; pktgen.pkt
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;stop 0
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 rate 0.1
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 ttl 10
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 proto udp
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 dport 8000
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 src mac ${tx_dpdk_mac}
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 dst mac ${rx_dpdk_mac}
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 src ip ${tx_dpdk_ip}/32
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 dst ip ${rx_dpdk_ip}
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 size 64
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can now copy this to the &lt;code&gt;guest-tx&lt;/code&gt; instance:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ scp pktgen.pkt centos@&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;tx_fip&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:/home/centos
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On the &lt;code&gt;guest-rx&lt;/code&gt; instance, simply run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;LD_LIBRARY_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; -- -P -m &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;2.0&amp;#39;&lt;/span&gt; -T
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then on the &lt;code&gt;guest-tx&lt;/code&gt; instance, run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;LD_LIBRARY_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; -- -P -m &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;2.0&amp;#39;&lt;/span&gt; -T -f pktgen.pkt
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In the interactive prompt that appears, type &lt;code&gt;start&lt;/code&gt;. You should see packets
-start flowing and being received by the &lt;code&gt;pktgen&lt;/code&gt; instance running on
-&lt;code&gt;guest-rx&lt;/code&gt;. You can stop this process by typing &lt;code&gt;stop&lt;/code&gt; or simply &lt;code&gt;quit&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.redhat.com/en/blog/hands-vhost-user-warm-welcome-dpdk&#34;&gt;https://www.redhat.com/en/blog/hands-vhost-user-warm-welcome-dpdk&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/vhost-user-net-testing.md&#34;&gt;https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/vhost-user-net-testing.md&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://blog.scottlowe.org/2017/02/16/correlating-ovs-guest-domain-interfaces/&#34;&gt;https://blog.scottlowe.org/2017/02/16/correlating-ovs-guest-domain-interfaces/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html&#34;&gt;https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://access.redhat.com/solutions/3243661&#34;&gt;https://access.redhat.com/solutions/3243661&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     

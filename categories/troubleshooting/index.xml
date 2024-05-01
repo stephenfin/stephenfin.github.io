@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>troubleshooting on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/troubleshooting/</link>
+    <description>Recent content in troubleshooting on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Mon, 22 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/troubleshooting/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Debugging Failed OpenShift-on-OpenStack Deployments</title>
+      <link>https://that.guru/blog/debugging-failed-openshift-openstack-deployments/</link>
+      <pubDate>Mon, 22 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/debugging-failed-openshift-openstack-deployments/</guid>
+      <description>&lt;p&gt;I deploy OpenShift-on-OpenStack quite regularly these days. Some times these deployments fail and the most common
+failure I usually see is a timeout during bootstrapping.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ openshift-install --log-level debug create cluster
+DEBUG OpenShift Installer 4.15.10
+DEBUG Built from commit 24a827900e76d8f9c79122307415b47a4921bbd7
+DEBUG Fetching Metadata...
+...
+DEBUG Reusing previously-fetched Install Config
+INFO Skipping VM console logs gather: no gather methods registered for &amp;#34;openstack&amp;#34;
+INFO Pulling debug logs from the bootstrap machine
+DEBUG Using SSH_AUTH_SOCK /run/user/1000/keyring/ssh to connect to an existing agent
+ERROR Attempted to gather debug logs after installation failure: failed to connect to the bootstrap machine: dial tcp 10.0.212.9:22: connect: connection timed out
+ERROR Attempted to gather ClusterOperator status after installation failure: listing ClusterOperator objects: Get &amp;#34;https://api.stephenfin.shiftstack-demo.com:6443/apis/config.openshift.io/v1/clusteroperators&amp;#34;: dial tcp 10.0.214.50:6443: i/o timeout
+ERROR Bootstrap failed to complete: timed out waiting for the condition
+ERROR Failed to wait for bootstrapping to complete. This error usually happens when there is a problem with control plane hosts that prevents the control plane operators from creating the control plane.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You&amp;rsquo;ve a couple of tools that you can use to validate this. The first of these is to check the serial console.
+This will highlight the more egregious issues with your deployment. You can do this with:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack console url show stephenfin-5ps6d-bootstrap  &lt;span style=&#34;color:#75715e&#34;&gt;# replace with your own bootstrap server&amp;#39;s name&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If this doesn&amp;rsquo;t show anything weird then the next step is to log in to the server and check the status of the &lt;code&gt;bootkube&lt;/code&gt;
+service. As is custom with OpenStack, to SSH into a machine you need (a) a floating IP and (b) a security group (or more
+accurately a security group rule) that allows SSH access. The Installer automatically assigns a floating IP to the
+bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &amp;ldquo;allow SSH&amp;rdquo; security group lying
+around and if so, you can use that now:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  &lt;span style=&#34;color:#75715e&#34;&gt;# replace with your own server, SG names&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you don&amp;rsquo;t have such a group, creating one is easy. The following ought to do the trick:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group create allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group rule create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --protocol tcp --dst-port &lt;span style=&#34;color:#ae81ff&#34;&gt;22&lt;/span&gt; --remote-ip 0.0.0.0/0 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group rule create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --protocol icmp --remote-ip 0.0.0.0/0 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Once you&amp;rsquo;ve allowed SSH traffic you can SSH into the machine.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;core&lt;/code&gt; is the default username for Red Hat CoreOS.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;From here you can follow the directions given in the MOTD and check the &lt;code&gt;bootkube&lt;/code&gt; service first:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ journalctl -b -f -u release-image.service -u bootkube.service
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In my case it appeared the issue was the lack of access to the master nodes:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;s the base image from which all OpenShift Container Platform images inherit.)
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Check if API and API-Int URLs are reachable during bootstrap
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Checking if api.stephenfin.shiftstack-demo.com of type API_URL reachable
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to reach API_URL&amp;#39;s https endpoint at https://api.stephenfin.shiftstack-demo.com:6443/version
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to validate. https://api.stephenfin.shiftstack-demo.com:6443/version is currently unreachable.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Checking if api-int.stephenfin.shiftstack-demo.com of type API_INT_URL reachable
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to reach API_INT_URL&amp;#39;s https endpoint at https://api-int.stephenfin.shiftstack-demo.com:6443/version
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Unable to validate. https://api-int.stephenfin.shiftstack-demo.com:6443/version is currently unreachable.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: bootkube.service complete
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Deactivated successfully.
+Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Consumed 1min 2.337s CPU time.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The same steps apply for debugging issues with master or worker nodes: add a floating IP, allow SSH access, then SSH
+into the machine.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add floating ip stephenfin-5ps6d-master-0 10.0.214.101
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add security group stephenfin-5ps6d-master-0 allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server ssh stephenfin-5ps6d-master-0 -- -l core
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

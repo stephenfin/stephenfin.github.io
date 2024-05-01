@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>howto on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/howto/</link>
+    <description>Recent content in howto on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Fri, 15 Jul 2016 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/howto/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GNU Autotest</title>
+      <link>https://that.guru/blog/gnu-autotest/</link>
+      <pubDate>Fri, 15 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/gnu-autotest/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://www.gnu.org/software/autoconf/manual/autoconf-2.67/html_node/Using-Autotest.html#Using-Autotest&#34;&gt;GNU Autotest&lt;/a&gt; is a test framework that, together with supporting
+scripts and unit test files, can unit test an application. Autotest is part of
+the &lt;a href=&#34;http://www.gnu.org/savannah-checkouts/gnu/automake/manual/html_node/Autotools-Introduction.html&#34;&gt;Autotools&lt;/a&gt; library, a.k.a. the &lt;a href=&#34;http://en.wikipedia.org/wiki/GNU_build_system&#34;&gt;GNU Build System&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The Autotest scripts execute unit tests by making shell-like calls to
+utilities, Python scripts and C unit test applications, and comparing their
+return values (exit code, stdout and stderr) to predefined values. To do this,
+Autotest defines a number of &lt;a href=&#34;http://en.wikipedia.org/wiki/M4_(computer_language)http://en.wikipedia.org/wiki/M4_(computer_language)&#34;&gt;M4&lt;/a&gt;  macros, such as &lt;code&gt;AT_INIT&lt;/code&gt; and
+&lt;code&gt;AT_CLEANUP&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;An example of a test is given below. This test is from the &lt;a href=&#34;http://wiki.ir.intel.com/sw/index.php/OVS&#34;&gt;Open vSwitch&lt;/a&gt;
+project, and tests the resubmit action in the datapath.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;AT_SETUP([ofproto-dpif - resubmit])
+OVS_VSWITCHD_START
+AT_DATA([flows.txt], [dnl
+table=0 in_port=1 priority=1000 icmp actions=output(10),resubmit(2),\
+output(19),resubmit(3),output(21)
+table=0 in_port=2 priority=1500 icmp actions=output(11),resubmit(,1),\
+output(16),resubmit(2,1),output(18)
+table=0 in_port=3 priority=2000 icmp actions=output(20)
+table=1 in_port=1 priority=1000 icmp actions=output(12),resubmit(4,1),\
+output(13),resubmit(3),output(15)
+table=1 in_port=2 priority=1500 icmp actions=output(17),resubmit(,2)
+table=1 in_port=3 priority=1500 icmp actions=output(14),resubmit(,2)
+])
+AT_CHECK([ovs-ofctl add-flows br0 flows.txt])
+AT_CHECK([ovs-appctl ofproto/trace br0 &#39;in_port(1),eth(src=50:54:00:00:00:05,\
+dst=50:54:00:00:00:07),eth_type(0x0800),ipv4(src=192.168.0.1,dst=192.168.0.2,\
+proto=1,tos=0,ttl=128,frag=no),icmp(type=8,code=0)&#39;], [0], [stdout])
+AT_CHECK([tail -1 stdout], [0],
+  [Datapath actions: 10,11,12,13,14,15,16,17,18,19,20,21
+])
+OVS_VSWITCHD_STOP
+AT_CLEANUP
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;macros&#34;&gt;Macros&lt;/h2&gt;
+&lt;h3 id=&#34;m4-macros&#34;&gt;m4 macros&lt;/h3&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h3 id=&#34;autotest-macros&#34;&gt;Autotest macros&lt;/h3&gt;
+&lt;p&gt;Autotest macros are just predefined M4 macros. There are a number of them,
+including:&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h3 id=&#34;additional-macros&#34;&gt;Additional macros&lt;/h3&gt;
+&lt;p&gt;There are many additional macros available to use. For a list of these, it&amp;rsquo;s
+probably best to check out the official &lt;a href=&#34;http://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Writing-Testsuites.html#Writing-Testsuites&#34;&gt;GNU Autotest Manual&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;writing-a-sample-test&#34;&gt;Writing a sample test&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;&amp;hellip;to learn and not to do is really not to learn. To know and not to do is
+really not to know.&amp;rdquo;, Stephen R. Covey&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The best way to learn this stuff is to &lt;em&gt;do it&lt;/em&gt;. As such, we&amp;rsquo;re going to write a
+sample test script that will explain the basic functionality of the Autotest
+framework.&lt;/p&gt;
+&lt;h3 id=&#34;what-we-want-to-achieve&#34;&gt;What we want to achieve&lt;/h3&gt;
+&lt;p&gt;We want to test the &lt;code&gt;cat&lt;/code&gt; application. As with most shell applications, this
+application provides an awful lot of functionality. We&amp;rsquo;re going to test only a
+small subset of it&amp;rsquo;s functionality, and ignore all the other options and the
+flags available to us. As such, we want to check that the following features
+work as expected:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;cat&lt;/code&gt; prints an error message for a non-existing file&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cat&lt;/code&gt; prints nothing for an empty, existing file&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;cat&lt;/code&gt; prints some output for a non-empty, existing file&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;initial-setup&#34;&gt;Initial setup&lt;/h3&gt;
+&lt;p&gt;The first thing we should do is declare our own macro to place tests in. This
+will act as a &lt;em&gt;function&lt;/em&gt; of sorts and allow us to call the tests at once or
+from another file (plus it acts as a container to illustrate the difference in
+different files). To do this, add the following code in a file called
+&lt;code&gt;mytest.at&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;m4_define([MYTEST_CHECK_CAT], [])
+
+MYTEST_CHECK_CAT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This works pretty straight-forwardly. When typed, the keyword
+&lt;code&gt;MYTEST_CHECK_CAT&lt;/code&gt; on the bottom line will be replaced with the lines in the
+second parameter of the macro (currently none). Obviously, in order to make
+this useful, we need something in the second parameter like so:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;m4_define([MYTEST_CHECK_CAT], [
+  AT_BANNER([])
+  AT_SETUP([])
+  AT_CHECK([], [], [], [])
+  AT_CLEANUP
+])
+
+MYTEST_CHECK_CAT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Replace the text in &lt;code&gt;mytest.at&lt;/code&gt; with the above code. You&amp;rsquo;ll notice we&amp;rsquo;ve placed
+four new lines in the previous empty second parameter. As described above,
+these lines are what will be used in place of the keyword defined by the second
+parameter. The actual lines in question are merely empty Autotest Macros, as
+seen above. These must be used with values, as seen in the next section.&lt;/p&gt;
+&lt;h3 id=&#34;the-test&#34;&gt;The test&lt;/h3&gt;
+&lt;p&gt;The only test we&amp;rsquo;re writing here is for the following assertion:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;cat prints an error message for a non-existing file&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This test should just about do it:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;m4_define([MYTEST_CHECK_CAT], [
+  AT_BANNER([cat simple unit tests])
+  AT_SETUP([execute cat with non-existing file])
+  AT_CHECK([cat /dev/nulls], [ignore], [], [&amp;quot;cat: /dev/nulls: No such file or directory&amp;quot;])
+  AT_CLEANUP
+])
+
+MYTEST_CHECK_CAT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Each of the lines work as follow:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;AT_BANNER([cat simple unit tests])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This merely describes some test that should be printed before the tests are
+executed. This is useful for providing a title to a group of tests and hence
+enforcing separation between them.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;AT_SETUP([execute cat with non-existing file])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This describes the name of test in question. Most likely this is a brief
+description of the test.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;AT_CHECK([cat /dev/nulls], [ignore], [], [&amp;quot;cat: /dev/nulls: No such file or directory&amp;quot;])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is the real juicy part. The first parameter describes what operation to
+run. In this case, we&amp;rsquo;re running cat on a non-existent file (note the &lt;code&gt;s&lt;/code&gt; in
+&lt;code&gt;/dev/nulls&lt;/code&gt;). The second parameter describes the expected status. I&amp;rsquo;m not
+entirely sure what the status could be, so I&amp;rsquo;ll ignore it. The third parameter
+describes the stdout. This application should output to stderr rather than
+stdout in the case of an error, so leave it empty. Finally the last parameter
+describes the stderr. This is what the application should output on calling
+this command and we ensure this is so.&lt;/p&gt;
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap up&lt;/h2&gt;
+&lt;p&gt;It isn&amp;rsquo;t possible to run this test as-is, because we&amp;rsquo;re missing a lot of
+configuration stuff (like the &lt;code&gt;AT_INIT&lt;/code&gt;). However, if you&amp;rsquo;re writing your own
+tests, you&amp;rsquo;re most likely plugging into an existing test framework. The
+specifics of this will change from project to project but someone on the
+project&amp;rsquo;s team should be able to advise you on the specifics of integration.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

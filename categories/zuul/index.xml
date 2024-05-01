@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>zuul on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/zuul/</link>
+    <description>Recent content in zuul on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Tue, 14 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/zuul/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Reproducing DevStack-based OSC Gate Jobs Locally</title>
+      <link>https://that.guru/blog/reproducing-devstack-gate-jobs-locally/</link>
+      <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/reproducing-devstack-gate-jobs-locally/</guid>
+      <description>&lt;p&gt;The &lt;code&gt;python-openstackclient&lt;/code&gt; project provides two types of tests: &lt;a href=&#34;https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/unit&#34;&gt;unit
+tests&lt;/a&gt; with mocked server responses and &lt;a href=&#34;https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/functional&#34;&gt;functional
+tests&lt;/a&gt; that require a real server deployed. The latter expect a
+specific DevStack-based deployment and attempts to run these tests against a
+&amp;ldquo;standard&amp;rdquo; DevStack deployment with minimal configuration or a deployment
+created by another tool with result in a lot of test failures.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;==============================
+Failed 48 tests - output below:
+==============================
+
+setUpClass (openstackclient.tests.functional.network.v2.test_network_meter_rule.TestMeterRule)
+----------------------------------------------------------------------------------------------
+
+Captured traceback:
+~~~~~~~~~~~~~~~~~~~
+    Traceback (most recent call last):
+
+      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/network/v2/test_network_meter_rule.py&amp;#34;, line 34, in setUpClass
+    json_output = json.loads(cls.openstack(
+
+      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 74, in openstack
+    return execute(
+
+      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 41, in execute
+    raise exceptions.CommandFailed(
+
+    tempest.lib.exceptions.CommandFailed: Command &amp;#39;openstack --os-cloud=devstack-admin network meter create -f json 82c6e512857e40d78e86b9db54c66e73&amp;#39; returned non-zero exit status 1.
+stdout:
+
+stderr:
+b&amp;#39;ResourceNotFound: 404: Client Error for url: http://140.211.166.52:9696/v2.0/metering/metering-labels, The resource could not be found.\n&amp;#39;
+
+
+openstackclient.tests.functional.network.v2.test_network_qos_rule.NetworkQosRuleTestsBandwidthLimit.test_qos_rule_create_delete
+-------------------------------------------------------------------------------------------------------------------------------
+
+Captured traceback:
+~~~~~~~~~~~~~~~~~~~
+    Traceback (most recent call last):
+
+      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/network/v2/test_network_qos_rule.py&amp;#34;, line 161, in setUp
+    self.openstack(
+
+      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 74, in openstack
+    return execute(
+
+      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 41, in execute
+    raise exceptions.CommandFailed(
+
+    tempest.lib.exceptions.CommandFailed: Command &amp;#39;openstack --os-cloud=devstack-admin network qos policy create qos_policy_178299ca49d544bb9d5c145ee4c71d80&amp;#39; returned non-zero exit status 1.
+stdout:
+
+stderr:
+b&amp;#39;ResourceNotFound: 404: Client Error for url: http://140.211.166.52:9696/v2.0/qos/policies, The resource could not be found.\n&amp;#39;
+
+
+openstackclient.tests.functional.network.v2.test_network_qos_rule.NetworkQosRuleTestsBandwidthLimit.test_qos_rule_list
+----------------------------------------------------------------------------------------------------------------------
+
+...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But how does one actually configure their system appropriately. Docs are
+non-existent but we know that the CI works so clearly that&amp;rsquo;s a good starting
+place. As you&amp;rsquo;ll likely know if you&amp;rsquo;re reading this, the OpenStack community
+uses &lt;a href=&#34;https://zuul-ci.org/&#34;&gt;Zuul&lt;/a&gt; for testing. You can see the zuul job configuration for
+projects in either a &lt;code&gt;.zuul.yaml&lt;/code&gt; file or in various YAML files in a &lt;code&gt;.zuul.d&lt;/code&gt;
+directory, both of which can be found in the root directory of the project.
+&lt;em&gt;python-openstackclient&lt;/em&gt; uses the former, which you can see
+&lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/master/.zuul.yaml&#34;&gt;here&lt;/a&gt;. Looking at that, we can see the definition for the
+&lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L80-L114&#34;&gt;&lt;code&gt;osc-functional- devstack&lt;/code&gt; job&lt;/a&gt;, which inherits from
+the &lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L40-L78&#34;&gt;&lt;code&gt;osc-functional-devstack-base&lt;/code&gt; job&lt;/a&gt;, which
+in turns inherits from the &lt;a href=&#34;https://github.com/openstack/devstack/blob/8eede1fc3/.zuul.yaml#L822-L836&#34;&gt;&lt;code&gt;devstack-tox-functional&lt;/code&gt;
+job&lt;/a&gt; and so on&amp;hellip;&lt;/p&gt;
+&lt;p&gt;Looking at the &lt;code&gt;osc-functional-devstack&lt;/code&gt; job, we can see that it enables the
+neutron DevStack plugin and sets a couple of neutron-related feature flags and
+some other misc attributes in DevStack via the &lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L87-L113&#34;&gt;&lt;code&gt;devstack_plugins&lt;/code&gt;
+&lt;code&gt;devstack_services&lt;/code&gt;, and &lt;code&gt;devstack_localrc&lt;/code&gt; job variables,
+respectively&lt;/a&gt;. You can see the documentation for these
+variables &lt;a href=&#34;https://docs.openstack.org/devstack/latest/zuul_roles.html&#34;&gt;in the DevStack docs&lt;/a&gt; and
+you can use the codesearch.o.o service to figure out what enabling each of these
+services or specifying those extra config variables will do, like &lt;a href=&#34;https://codesearch.opendev.org/?q=neutron-conntrack-helper&amp;amp;i=nope&amp;amp;literal=nope&amp;amp;files=&amp;amp;excludeFiles=&amp;amp;repos=&#34;&gt;this
+one&lt;/a&gt;. If you want to see the definition of the Ansible role
+that these variables are being passed to, &lt;a href=&#34;https://github.com/openstack/devstack/blob/8eede1fc3/roles/write-devstack-local-conf/library/devstack_local_conf.py&#34;&gt;you can look at that
+too&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you read through all the docs, you&amp;rsquo;ll eventually come to the conclusion that
+to get this to work locally, you&amp;rsquo;re going to need to add the following to your
+&lt;code&gt;local.conf&lt;/code&gt; when deploying DevStack:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;# Plugin configuration
+enable_plugin neutron https://opendev.org/openstack/neutron
+
+# Service configuration
+## Disable OVN services
+disable_service br-ex-tcpdump
+disable_service br-int-flows
+disable_service ovn-controller
+disable_service ovn-northd
+disable_service ovs-vswitchd
+disable_service ovsdb-server
+disable_service q-ovn-metadata-agent
+
+## Neutron services
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+enable_service neutron-network-segment-range
+enable_service neutron-segments
+enable_service q-metering
+enable_service q-qos
+enable_service neutron-tag-ports-during-bulk-creation
+enable_service neutron-conntrack-helper
+
+# Misc configuration
+Q_AGENT=openvswitch
+Q_ML2_TENANT_NETWORK_TYPE=vxlan
+Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Add this to your otherwise uncomplicated &lt;code&gt;local.conf&lt;/code&gt; and in theory things
+should just work (TM). There might be more to it but hopefully there&amp;rsquo;s enough
+here for folks to figure out how to debug things if so.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

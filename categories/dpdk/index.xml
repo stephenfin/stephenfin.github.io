@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>dpdk on Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/categories/dpdk/</link>
+    <description>Recent content in dpdk on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Thu, 18 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/dpdk/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Use Pktgen-DPDK to send traffic between two Openstack VMs</title>
+      <link>https://that.guru/blog/pktgen-between-two-openstack-guests/</link>
+      <pubDate>Thu, 18 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/pktgen-between-two-openstack-guests/</guid>
+      <description>&lt;p&gt;As part of my new OpenShift-flavoured responsibilities, I&amp;rsquo;ve been trying to get
+DPDK-based applications running successfully on OpenShift-on-OpenStack. A
+pre-requisite step to this was getting DPDK configured on the host. With this
+done, I figured I&amp;rsquo;d investigate using an actual DPDK application in the guests.
+I&amp;rsquo;d done this before, though it&amp;rsquo;s been a while, and I did eventually get there.
+There were a few wrong turns along the way though, so I&amp;rsquo;ve documented the steps
+I finally settled on here in case they&amp;rsquo;re helpful to anyone else.&lt;/p&gt;
+&lt;h2 id=&#34;cloud-configuration&#34;&gt;Cloud configuration&lt;/h2&gt;
+&lt;p&gt;We&amp;rsquo;re going to be using OpenStack to provision our guests, so we obviously need
+an OpenStack cloud to point to. Given that we&amp;rsquo;re using DPDK in the guests, we
+also need to ensure that OVS-DPDK is used on the host(s). You can use a
+pre-existing cloud if you&amp;rsquo;re sure it provides the latter, but I decided to use
+&lt;a href=&#34;https://github.com/shiftstack/dev-install&#34;&gt;&lt;code&gt;dev-install&lt;/code&gt;&lt;/a&gt; along with a modified version of the sample &lt;a href=&#34;https://github.com/shiftstack/dev-install/blob/main/example-overrides/local-overrides-osp16-2-with-dpdk.yaml&#34;&gt;OVS-DPDK
+configuration file&lt;/a&gt; to install a small, TripleO Standalone-based OpenStack
+deployment on a borrowed server.&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can verify the OVS on the host is using DPDK using the following commands:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ovs-vsctl --no-wait get Open_vSwitch . dpdk_initialized
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;true
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ovs-vsctl --no-wait get Open_vSwitch . dpdk_version
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;DPDK 20.11.1&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is discussed further in the OVS documentation.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Once you have you cloud selected, you need to ensure you have appropriate
+networks and an appropriate image and flavor. &lt;code&gt;dev-install&lt;/code&gt; provides most of
+these for you, but can create them manually using the below commands.&lt;/p&gt;
+&lt;p&gt;First, the image. We&amp;rsquo;re going to use CentOS 8 Stream:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ wget https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack image create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --disk-format qcow2 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --public &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --file CentOS-Stream-GenericCloud-8-20210210.0.x86_64.qcow2 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    centos8-stream
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next, the flavor. This is a pretty standard flavor except that we need to use
+pinned CPUs and enable hugepages:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack flavor create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --vcpu &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --ram &lt;span style=&#34;color:#ae81ff&#34;&gt;8192&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --property hw:cpu_policy&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;dedicated&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --property hw:mem_page_size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;large&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    m1.large.nfv
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You might also need to create a suitable network. &lt;code&gt;dev-install&lt;/code&gt; configures a
+&lt;code&gt;hostonly&lt;/code&gt; provider network. If using another method, you need to create your
+own provider network. Adding this is an exercise left to the reader. Once done,
+we need to create a tenant network that we&amp;rsquo;ll use to configure additional
+ports. Create this, along with a router:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack network create internal_net
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack subnet create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --network internal_net &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --subnet-range 192.168.200.0/24 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    internal_subnet
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack router create router_a
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack router set --external-gateway hostonly router_a
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack router add subnet router_a internal_subnet
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you need some way to access the guest. Create and upload a keypair:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ssh-keygen
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack keypair create --public ~/.ssh/id_rsa.pub my-key
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;initial-server-setup&#34;&gt;Initial server setup&lt;/h2&gt;
+&lt;p&gt;We&amp;rsquo;re going to create two servers: &lt;code&gt;guest-tx&lt;/code&gt; and &lt;code&gt;guest-rx&lt;/code&gt;. These are
+effectively identical save for the configuration we&amp;rsquo;ll eventually pass to
+Pktgen-DPDK. Create the servers:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --image centos8-stream &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --flavor m1.large.nfv &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --network internal_net &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --key-name my-key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --wait &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    guest-tx
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --image centos8-stream &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --flavor m1.large.nfv &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --network internal_net &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --key-name my-key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --wait &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    guest-rx
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Create two floating IPs and attach them to the server so we can SSH into the machine:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ tx_fip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack floating ip create hostonly-dpdk -f value -c name | tr -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ rx_fip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack floating ip create hostonly-dpdk -f value -c name | tr -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add floating ip guest-tx $tx_fip
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add floating ip guest-rx $rx_fip
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You&amp;rsquo;ll also need to add security groups to enable SSH and potentially ICMP
+(for ping) access. If you deployed with &lt;code&gt;dev-install&lt;/code&gt; like I did, then these
+will already be present. If you use another mechanism then you can create
+these security groups like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group create --description allow_ssh allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group rule create --protocol tcp --dst-port &lt;span style=&#34;color:#ae81ff&#34;&gt;22&lt;/span&gt; allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group create --description allow_ping allow_ping
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack security group rule create --protocol icmp allow_ping
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can then add these security groups to the servers:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-tx allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-tx allow_ping
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-rx allow_ssh
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add security group guest-rx allow_ping
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You should now be able to SSH into the instances:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server ssh --login centos guest-tx
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;attach-dpdk-interfaces&#34;&gt;Attach DPDK interfaces&lt;/h2&gt;
+&lt;p&gt;With the initial server configuration out of the way, we can move onto
+configuring the interfaces we will use for our DPDK application. It&amp;rsquo;s necessary
+to use secondary interfaces since we&amp;rsquo;re going to be binding these interfaces
+to the &lt;code&gt;vfio-pci&lt;/code&gt; driver. The second we do this, the devices will no longer
+be usable by the kernel network stack which means, among other things, we
+cannot use SSH on this interface. With that said, there&amp;rsquo;s not going to be
+anything special about these interfaces: every interface attached to the
+instance will be &lt;code&gt;vhostuser&lt;/code&gt; interface. We can confirm this by inspecting
+the single interface currently attached to the instance:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo podman exec -it nova_libvirt virsh dumpxml &lt;span style=&#34;color:#ae81ff&#34;&gt;14&lt;/span&gt; | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/domain/devices/interface&amp;#39;&lt;/span&gt; -
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re executing this in the &lt;code&gt;nova_libvirt&lt;/code&gt; container because this is how
+TripleO Standalone, and thus &lt;code&gt;dev-intall&lt;/code&gt;, deploys libvirt.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;This will yield something like the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;interface&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;vhostuser&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;mac&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;address=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fa:16:3e:97:3d:11&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;source&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;unix&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;path=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/lib/vhost_sockets/vhub20e827c-4a&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;mode=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;server&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;target&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;dev=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;vhub20e827c-4a &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;model&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;virtio&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;driver&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;rx_queue_size=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1024&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;tx_queue_size=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1024&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;alias&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;net0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;address&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;pci&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;domain=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x0000&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;bus=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x00&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;slot=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x03&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;function=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0x0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/interface&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that bit out of the way, we can now add our additional network interface
+to each instance:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack port create --network internal_net dpdk-port-tx
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack port create --network internal_net dpdk-port-rx
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We&amp;rsquo;ll save the IP and MAC addresses for these interfaces: these will be useful
+later:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ tx_dpdk_ip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-tx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.fixed_ips[0].ip_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ rx_dpdk_ip&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-rx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.fixed_ips[0].ip_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ tx_dpdk_mac&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-tx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.mac_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ rx_dpdk_mac&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack port show -f json dpdk-port-rx | jq -r &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.mac_address&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now add them to the servers:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add port guest-tx dpdk-port-tx
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server add port guest-rx dpdk-port-rx
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can verify that these interfaces are of type &lt;code&gt;vhostuser&lt;/code&gt; again, if you like.&lt;/p&gt;
+&lt;h2 id=&#34;compile-pktgen-dpdk&#34;&gt;Compile Pktgen-DPDK&lt;/h2&gt;
+&lt;p&gt;We now have our servers effectively configured from an &amp;ldquo;infrastructure&amp;rdquo;
+perspective. Going forward, everything will be done inside the guests. The
+first of these steps is to compile Pktgen-DPDK. This is necessary because
+while DPDK itself is packaged for CentOS, Pktgen-DPDK is not. We&amp;rsquo;re going
+to demonstrate the steps to run for one intance. You should then repeat these
+on the second instance.&lt;/p&gt;
+&lt;p&gt;First, let&amp;rsquo;s SSH into the machine:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ openstack server ssh guest-tx --login centos
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Install the dependencies. These are numerous:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo dnf config-manager --set-enabled powertools
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo dnf groupinstall -y &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Development Tools&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo dnf install -y numactl-devel libpcap-devel meson driverctl
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ python3 -m pip install --user pyelftools  &lt;span style=&#34;color:#75715e&#34;&gt;# avoid requiring EPEL&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now, let&amp;rsquo;s clone and build DPDK. We could use the &lt;code&gt;dpdk&lt;/code&gt; and &lt;code&gt;dpdk-devel&lt;/code&gt;
+packages provided by CentOS but these are pretty old. If you decide to go
+this route, don&amp;rsquo;t forget to checkout a tag in the Pktgen-DPDK repo
+corresponding to the correct DPDK release in the environment.&lt;/p&gt;
+&lt;p&gt;You can build DPDK like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git clone https://github.com/dpdk/dpdk
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ cd dpdk
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git checkout v21.11rc3  &lt;span style=&#34;color:#75715e&#34;&gt;# use v21.11 if it&amp;#39;s been released&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ meson build
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ninja -C build
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ninja -C build install
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;You&amp;rsquo;ll note that I&amp;rsquo;m using a fixed version of DPDK. As this post ages, you
+may wish to use a newer version of DPDK. If you do, you should also update the
+tag checked out for Pktgen-DPDK below.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;With DPDK build, let&amp;rsquo;s do the same for Pktgen-DPDK:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git clone https://github.com/pktgen/Pktgen-DPDK
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ cd Pktgen-DPDK
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ git checkout pktgen-21.11.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ PKG_CONFIG_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/usr/local/lib64/pkgconfig meson build
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ninja -C build
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ninja -C build install
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, restart the instance to propogate all these changes:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo reboot
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;configure-environment&#34;&gt;Configure environment&lt;/h2&gt;
+&lt;p&gt;Now that our applications are ready to go, we need to configure our
+environment. There are a two parts to this: enabling hugepages and configuring
+our annointed interfaces to use the &lt;code&gt;vfio-pci&lt;/code&gt; driver. Once again, these steps
+should be done on both instances.&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;re going to use root for most of these commands since it&amp;rsquo;s easier than
+working with pipes and sudo. Become root and configure the hugepages:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo su
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 1024 &amp;gt; /proc/sys/vm/nr_hugepages&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now the trickier job of rebinding our interfaces to use the &lt;code&gt;vfio-pci&lt;/code&gt; driver.
+We&amp;rsquo;ve got two interfaces in both instances: the primary interface that we&amp;rsquo;re
+SSHing through, and the second interface that we&amp;rsquo;re going to use for our DPDK
+application. We can verify this using a combination of &lt;code&gt;ip&lt;/code&gt; and &lt;code&gt;lspci&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ip link&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci | grep Ethernet&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should return something akin to the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ip link&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;1: lo: &amp;lt;LOOPBACK,UP,LOWER_UP&amp;gt; mtu &lt;span style=&#34;color:#ae81ff&#34;&gt;65536&lt;/span&gt; qdisc noqueue state UNKNOWN mode DEFAULT group default qlen &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;2: eth0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span style=&#34;color:#ae81ff&#34;&gt;1442&lt;/span&gt; qdisc fq_codel state UP mode DEFAULT group default qlen &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    link/ether fa:16:3e:97:3d:11 brd ff:ff:ff:ff:ff:ff
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3: eth1: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span style=&#34;color:#ae81ff&#34;&gt;1442&lt;/span&gt; qdisc fq_codel state UP mode DEFAULT group default qlen &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    link/ether fa:16:3e:5b:af:eb brd ff:ff:ff:ff:ff:ff
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci | grep Ethernet&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In this instance, our device has been assigned the address &lt;code&gt;00:07.0&lt;/code&gt;. We can
+inspect the driver currently in use using &lt;code&gt;lspci&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci -s 00:07.0 -v&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 Ethernet controller: Red Hat, Inc. Virtio network device
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Subsystem: Red Hat, Inc. Device &lt;span style=&#34;color:#ae81ff&#34;&gt;0001&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Physical Slot: &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Flags: bus master, fast devsel, latency 0, IRQ &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        I/O ports at &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;32&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Memory at c0040000 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;32-bit, non-prefetchable&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;4K&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Memory at &lt;span style=&#34;color:#ae81ff&#34;&gt;240000000&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;64-bit, prefetchable&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;16K&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Expansion ROM at c0000000 &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;virtual&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;disabled&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;256K&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;98&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; MSI-X: Enable+ Count&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; Masked-
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;84&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: &amp;lt;unknown&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;70&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: Notify
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;60&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: DeviceCfg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;50&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: ISR
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Capabilities: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;40&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; Vendor Specific Information: VirtIO: CommonCfg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Kernel driver in use: virtio-pci
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We&amp;rsquo;re using &lt;code&gt;virtio-pci&lt;/code&gt;, but we need to be using &lt;code&gt;vfio-pci&lt;/code&gt;. Let&amp;rsquo;s
+load that driver and then rebind the interface to the driver using the
+&lt;code&gt;driverctl&lt;/code&gt; utility we used earlier:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# modprobe vfio enable_unsafe_noiommu_mode=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# cat /sys/module/vfio/parameters/enable_unsafe_noiommu_mode&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Y
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# modprobe vfio-pci&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# driverctl -v set-override 0000:00:07.0 vfio-pci&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You could also do the binding manually using sysfs. First you need to get the PCI
+vendor and product ID:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci -s 00:07.0 -n&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 0200: 1af4:1000
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In this instance, it&amp;rsquo;s &lt;code&gt;1af4:1000&lt;/code&gt;. We&amp;rsquo;ll use this now:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 0000:00:07.0 &amp;gt; /sys/bus/pci/devices/0000:00:07.0/driver/unbind&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 0000:00:08.0 &amp;gt; /sys/bus/pci/devices/0000:00:08.0/driver/unbind&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# echo 1af4 1000 &amp;gt; /sys/bus/pci/drivers/vfio-pci/new_id&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;If you inspect the device again, you should see that it&amp;rsquo;s now bound to the
+&lt;code&gt;vfio-pci&lt;/code&gt; driver.&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;run-applications&#34;&gt;Run applications&lt;/h2&gt;
+&lt;p&gt;The final step: running the applications we built and installed earlier.
+The &lt;code&gt;pktgen&lt;/code&gt; application requires a small bit of configuration. Forunately
+everything we already have everything we need. Back on the host, run the
+following, which will create a configuration file using the MAC and IP
+address information we stored earlier:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt; EOF &amp;gt; pktgen.pkt
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;stop 0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 rate 0.1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 ttl 10
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 proto udp
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 dport 8000
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 src mac ${tx_dpdk_mac}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 dst mac ${rx_dpdk_mac}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 src ip ${tx_dpdk_ip}/32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 dst ip ${rx_dpdk_ip}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;set 0 size 64
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can now copy this to the &lt;code&gt;guest-tx&lt;/code&gt; instance:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ scp pktgen.pkt centos@&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;tx_fip&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:/home/centos
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On the &lt;code&gt;guest-rx&lt;/code&gt; instance, simply run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;LD_LIBRARY_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; -- -P -m &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;2.0&amp;#39;&lt;/span&gt; -T
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then on the &lt;code&gt;guest-tx&lt;/code&gt; instance, run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;LD_LIBRARY_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/usr/local/lib64 /usr/local/bin/pktgen -l 1-3 -n &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; -- -P -m &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;2.0&amp;#39;&lt;/span&gt; -T -f pktgen.pkt
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In the interactive prompt that appears, type &lt;code&gt;start&lt;/code&gt;. You should see packets
+start flowing and being received by the &lt;code&gt;pktgen&lt;/code&gt; instance running on
+&lt;code&gt;guest-rx&lt;/code&gt;. You can stop this process by typing &lt;code&gt;stop&lt;/code&gt; or simply &lt;code&gt;quit&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;references&#34;&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.redhat.com/en/blog/hands-vhost-user-warm-welcome-dpdk&#34;&gt;https://www.redhat.com/en/blog/hands-vhost-user-warm-welcome-dpdk&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/vhost-user-net-testing.md&#34;&gt;https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/vhost-user-net-testing.md&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.scottlowe.org/2017/02/16/correlating-ovs-guest-domain-interfaces/&#34;&gt;https://blog.scottlowe.org/2017/02/16/correlating-ovs-guest-domain-interfaces/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html&#34;&gt;https://toonk.io/building-a-high-performance-linux-based-traffic-generator-with-dpdk/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://access.redhat.com/solutions/3243661&#34;&gt;https://access.redhat.com/solutions/3243661&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Accelerating Your Cloud With DPDK</title>
+      <link>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</link>
+      <pubDate>Tue, 24 May 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</guid>
+      <description>&lt;p&gt;This was a webinar I presented on behalf of my team in Intel. It was
+essentially a status report on the state of OVS with DPDK integration in
+OpenStack.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Recent versions of Open vSwitch (OVS) provide an accelerated datapath based
+on the Data Plane Development Kit (DPDK) libraries. This acceleration
+benefits many users, but it is vital for meeting the high performance, high
+determinism requirements of NFV workloads. Open vSwitch (OVS) is the most
+widely deployed switching solution for OpenStack deployments [1], and Intel
+has been working to bring the benefits of OVS with DPDK to OpenStack.&lt;/p&gt;
+&lt;p&gt;In this talk, we explore the work that has been done and the work that is
+still ongoing to bring the benefits of OVS with DPDK to OpenStack. We detail
+how users can benefit from these changes, and impact they can expect to see.
+Finally, we detail how users can get started exploring these changes
+themselves.&lt;/p&gt;
+&lt;p&gt;[1] &lt;a href=&#34;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&#34;&gt;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;4dd4f9d543c840b9b4c9b6c81d0774ef&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+  </channel>
+</rss>

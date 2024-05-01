@@ -648,7 +648,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">yield</span> decided
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>MigrationScript)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>MigrationScript)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_migration_script_ops</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    op <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>MigrationScript(
 </span></span><span style="display:flex;"><span>        new_rev_id(),
@@ -665,7 +665,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> op
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>ModifyTableOps)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>ModifyTableOps)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_modify_table_ops</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    op <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>ModifyTableOps(
 </span></span><span style="display:flex;"><span>        directive<span style="color:#f92672">.</span>table_name, 
@@ -676,10 +676,10 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> op
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>AddConstraintOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>CreateIndexOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>CreateTableOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>AddColumnOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddConstraintOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>CreateIndexOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>CreateTableOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_expands</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;expand&#39;</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> directive
@@ -687,10 +687,10 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropConstraintOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropIndexOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropTableOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropColumnOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropConstraintOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropIndexOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropTableOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_contracts</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;contract&#39;</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> directive
@@ -698,7 +698,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>AlterColumnOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AlterColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_alter_column</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    is_expand <span style="color:#f92672">=</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;expand&#39;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> is_expand <span style="color:#f92672">and</span> directive<span style="color:#f92672">.</span>modify_nullable <span style="color:#f92672">is</span> <span style="color:#66d9ef">True</span>:
@@ -731,7 +731,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">yield</span> decided
 </span></span></code></pre></div><p>Hopefully this should be mostly self-explanatory. <code>process_revision_directives</code> is initial &ldquo;entry point&rdquo; and all it does is overwrites the provided list of directives with our modified set. <code>_assign_directives</code>, on the other hand, does the bulk heavy lifting. It&rsquo;s responsible for iterating through the generated directives calling the dispatcher for each phase that we&rsquo;re examining.</p>
 <p>Next, we look to look at the dispatchers themselves. For each type of operation, we need to write a separate dispatcher. The top-level operation is the generation of the migration script itself a.k.a. the <a href="https://alembic.sqlalchemy.org/en/latest/api/operations.html#alembic.operations.ops.MigrationScript"><code>MigrationScript</code> operation</a>. Let&rsquo;s look at this first.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>MigrationScript)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>MigrationScript)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_migration_script_ops</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    op <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>MigrationScript(
 </span></span><span style="display:flex;"><span>        new_rev_id(),
@@ -748,7 +748,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> op
 </span></span></code></pre></div><p>Again, hopefully there&rsquo;s nothing too complicated. This dispatcher generates a migration script container a filtered list of upgrade directives (and no downgrade directives). This filtered list is filtered by phase, and we also specify a <em>head</em> that corresponds to the phase (<code>expand@head</code> for the <em>expand</em> phase).</p>
 <p>Moving on, in addition to the <code>MigrationScript</code> operation, we have one other &ldquo;meta&rdquo; operation to concern ourselves with: <code>ModifyTableOps</code>. Fortunately, this isn&rsquo;t too complicated. We basically ensure that all operations against a table are filtered by phase as we&rsquo;d expect:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>ModifyTableOps)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>ModifyTableOps)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_modify_table_ops</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    op <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>ModifyTableOps(
 </span></span><span style="display:flex;"><span>        directive<span style="color:#f92672">.</span>table_name, 
@@ -758,27 +758,27 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> op<span style="color:#f92672">.</span>is_empty():
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> op
 </span></span></code></pre></div><p>Now for the first &ldquo;real&rdquo; operations: the <em>expand</em> operations. These are <code>AddConstraintOp</code>, <code>CreateIndexOp</code>, <code>CreateTableOp</code>, and <code>AddColumnOp</code>. Let&rsquo;s look at the dispatcher for these.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>AddConstraintOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>CreateIndexOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>CreateTableOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>AddColumnOp)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddConstraintOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>CreateIndexOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>CreateTableOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_expands</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;expand&#39;</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> directive
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
 </span></span></code></pre></div><p>Simply put, if we&rsquo;re in <em>expand</em> phase and encounter one of these operations, proceed as normal. If we&rsquo;re in the <em>contract</em> phase, skip it. As you&rsquo;d imagine, the dispatcher for the <em>contract</em> options - <code>DropConstraintOp</code>, <code>DropIndexOp</code>, <code>DropTableOp</code>, and <code>DropColumnOp</code> - works pretty similarly:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropConstraintOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropIndexOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropTableOp)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>DropColumnOp)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropConstraintOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropIndexOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropTableOp)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_contracts</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;contract&#39;</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> directive
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
 </span></span></code></pre></div><p>With the plain old create and destroy operations out of the way, we only have to take care of the remaining &ldquo;modify&rdquo; or &ldquo;alter&rdquo; operations. This consists of modifications to columns a.k.a. <code>AlterColumnOp</code>. The <code>AlterColumnOp</code> dispatcher is trickier that the others, so pay attention here:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher</span><span style="color:#f92672">.</span>dispatch_for(ops<span style="color:#f92672">.</span>AlterColumnOp)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AlterColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_alter_column</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    is_expand <span style="color:#f92672">=</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;expand&#39;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> is_expand <span style="color:#f92672">and</span> directive<span style="color:#f92672">.</span>modify_nullable <span style="color:#f92672">is</span> <span style="color:#66d9ef">True</span>:
@@ -864,7 +864,7 @@ services in larger deployments are common to most distributed services.</p>
 
   <div class="disqus">
     <div id="disqus_thread"></div>
-<script type="application/javascript">
+<script>
     window.disqus_config = function () {
     
     
@@ -901,7 +901,7 @@ services in larger deployments are common to most distributed services.</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2023 Stephen Finucane</p>
+    <p>&copy; 2024 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
@@ -921,7 +921,7 @@ services in larger deployments are common to most distributed services.</p>
 
 
 
-<script type="application/javascript">
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
