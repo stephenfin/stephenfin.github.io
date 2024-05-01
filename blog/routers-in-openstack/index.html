@@ -94,10 +94,10 @@ and <a href="https://pypi.org/project/WebOb/">WebOb</a> - that have been mostly 
 it&rsquo;s useful for someone.</p>
 <hr>
 <p>The main entry point for routing in Nova is the <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py#L846-L884"><code>APIRouterV21</code></a> class. <code>APIRouterV21</code> provides mappings
-of URLs (or rather, URL paths) to methods of <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L378"><code>Resource</code></a> objects. A <code>Resource</code> object is a wrapper around
-some <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L750"><code>Controller</code></a> objects: a main controller and zero or more sub-controllers. If you look at
-<a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py"><code>nova/api/openstack/compute/routes.py</code></a> you&rsquo;ll see a whole load of <code>functools.partial</code> calls where we
-create <code>Resource</code> objects via calls to <code>_create_controller</code>:</p>
+of URLs (or rather, URL paths) to methods of <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L378"><code>Resource</code></a> objects using <code>routes.middleware.RoutesMiddleware</code>
+as the ultimate dispatcher. A <code>Resource</code> object is a wrapper around some <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L750"><code>Controller</code></a> objects: a main
+controller and zero or more sub-controllers. If you look at <a href="https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py"><code>nova/api/openstack/compute/routes.py</code></a> you&rsquo;ll
+see a whole load of <code>functools.partial</code> calls where we create <code>Resource</code> objects via calls to <code>_create_controller</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>flavor_controller <span style="color:#f92672">=</span> functools<span style="color:#f92672">.</span>partial(_create_controller,
 </span></span><span style="display:flex;"><span>    flavors<span style="color:#f92672">.</span>FlavorsController,
 </span></span><span style="display:flex;"><span>    [
