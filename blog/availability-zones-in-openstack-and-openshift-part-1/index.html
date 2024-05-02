@@ -137,8 +137,8 @@ must ensure Nova is configured to allow attaching volumes in other AZs (more of 
 	<div class="admonition-content">The last case above isn&rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
 storage AZ for a given compute host. To be fair, such an API would likely be a rather difficult thing to do, given
 multiple backends are a thing to be considered. It would be effectively impossible to do automatically, meaning there
-would still be initial manual configuration required. The closest analog we have for his today is the [Volume Type AZ
-feature][volume-type-az], which allows you to indicate the AZs that can be used when creating a volume with a given
+would still be initial manual configuration required. The closest analog we have for his today is the <a href="https://docs.openstack.org/cinder/2023.1/admin/availability-zone-type.html">Volume Type AZ
+feature</a>, which allows you to indicate the AZs that can be used when creating a volume with a given
 volume type (so that e.g. a particular block storage backend that is only available to one rack can&rsquo;t be requested by
 volumes hosted by block storage services running on another rack). As the docs for that indicate, this configuration is
 entirely deployment specific and therefore totally manual.</div>
@@ -202,7 +202,7 @@ single volume AZ.</p>
 <h2 id="usage">Usage</h2>
 <p>This isn&rsquo;t really the point of this article, but you can use AZs when creating resources using OpenStackClient. For
 example, when creating an instance (or &ldquo;server&rdquo;):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack server create --availibility-zone compute-az1 ...
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack server create --availability-zone compute-az1 ...
 </span></span></code></pre></div><p>Likewise, when creating a volume:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
 </span></span></code></pre></div><p>Or when creating a volume backup:</p>
