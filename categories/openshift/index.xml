@@ -6,7 +6,307 @@
     <description>Recent content in openshift on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Mon, 22 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openshift/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 03 May 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openshift/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Availability Zones in Openstack and Openshift (Part 2)</title>
+      <link>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2/</link>
+      <pubDate>Fri, 03 May 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2/</guid>
+      <description>&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is part two of two. If you&amp;rsquo;re looking for part one, you can find it
+&lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&amp;rsquo;ve decided it
+might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the
+second part of two. &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1&#34;&gt;The first part&lt;/a&gt; provided some background on what AZs are and how you can configure them,
+while this part will examine how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API
+Provider, the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.&lt;/p&gt;
+&lt;h2 id=&#34;the-line-up&#34;&gt;The line up&lt;/h2&gt;
+&lt;p&gt;There&amp;rsquo;s a couple of OpenStack-specific components we need to be aware of in a typical OpenShift-on-OpenStack (a.k.a.
+ShiftStack) deployment. My former colleague Michał Dulko &lt;a href=&#34;https://dulek.github.io/2022/07/14/capo-mapo-cloud-provider.html&#34;&gt;provided a good overview of many of these on his
+blog&lt;/a&gt; but to (re-)summarise, you&amp;rsquo;ve got:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cloud Provider OpenStack (CPO)&lt;/li&gt;
+&lt;li&gt;Machine API Provider OpenStack (MAPO)&lt;/li&gt;
+&lt;li&gt;Cluster API Provider OpenStack (CAPO)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In addition to these three components, there are two others to consider:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cinder CSI Driver&lt;/li&gt;
+&lt;li&gt;Manila CSI Driver&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Today we&amp;rsquo;re going to take a look at three of these five components - CPO, MAPO, and the Cinder CSI Driver - and explore
+how availability zones - both Compute and Block Storage - impact them.&lt;/p&gt;
+&lt;h2 id=&#34;cloud-provider-openstack&#34;&gt;Cloud Provider OpenStack&lt;/h2&gt;
+&lt;p&gt;In contrast to a favoured programming language of mine 🐍, Kubernetes operates on very much batteries &lt;em&gt;not&lt;/em&gt; included
+model. It does not provide out-of-the-box support for such important things as block storage, networking, or ingress. To
+resolve this, you normally run Kubernetes on top of another platform - be that AWS, vSphere, GCE, or in our case
+OpenStack - and add additional components that provide integration between your Kubernetes cluster and said platform and
+its APIs. The cloud-provider interface provides one part of the integration puzzle here, managing the lifecycle of
+&lt;code&gt;Node&lt;/code&gt;s (including their removal from the cluster if the underlying instance is deleted), &lt;code&gt;Service&lt;/code&gt;s of type
+&lt;code&gt;LoadBalancer&lt;/code&gt;, and routes.&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;If you&amp;rsquo;re interested, &lt;a href=&#34;https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5&#34;&gt;this blog from Mikael Johansson&lt;/a&gt; provides a far more thorough overview of this
+component.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;The OpenStack CCM uses Compute AZ information for the underlying instance to label the corresponding &lt;code&gt;Node&lt;/code&gt;. It sets two
+labels, the &lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesiozone&#34;&gt;&lt;code&gt;topology.kubernetes.io/zone&lt;/code&gt;&lt;/a&gt; label and the legacy
+&lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesiozone&#34;&gt;&lt;code&gt;failure-domain.beta.kubernetes.io/zone&lt;/code&gt;&lt;/a&gt; label. You can see this if you retrieve the labels
+for a &lt;code&gt;Node&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get Node -o jsonpath&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{.items[*].metadata.labels}&amp;#39;&lt;/span&gt; | jq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beta.kubernetes.io/arch&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;amd64&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beta.kubernetes.io/instance-type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ci.m1.xlarge&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beta.kubernetes.io/os&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;linux&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;failure-domain.beta.kubernetes.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;failure-domain.beta.kubernetes.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;,  &lt;span style=&#34;color:#75715e&#34;&gt;# &amp;lt;--- !!! here !!!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kubernetes.io/arch&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;amd64&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kubernetes.io/hostname&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;stephenfin-5ps6d-master-0&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kubernetes.io/os&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;linux&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node-role.kubernetes.io/control-plane&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node-role.kubernetes.io/master&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node.kubernetes.io/instance-type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ci.m1.xlarge&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node.openshift.io/os_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rhcos&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.cinder.csi.openstack.org/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.kubernetes.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.kubernetes.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# &amp;lt;--- !!! and here !!!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;It also sets two corresponding labels - the &lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesioregion&#34;&gt;&lt;code&gt;topology.kubernetes.io/region&lt;/code&gt;&lt;/a&gt; label and the legacy
+&lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesioregion&#34;&gt;&lt;code&gt;failure-domain.beta.kubernetes.io/region&lt;/code&gt;&lt;/a&gt; label - but these are sourced from
+Keystone-related information.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;To fetch the AZ information, OpenStack CCM queries the Nova API. You can see that happening
+&lt;a href=&#34;https://github.com/openshift/cloud-provider-openstack/blob/release-4.15/pkg/openstack/openstack.go#L411-L463&#34;&gt;here&lt;/a&gt;,
+and publishes this information via the &lt;code&gt;GetZoneByProviderID&lt;/code&gt; and &lt;code&gt;GetZoneByName&lt;/code&gt; functions, which form part of the
+&lt;a href=&#34;https://github.com/kubernetes/cloud-provider/blob/v0.30.0/cloud.go#L281-L289&#34;&gt;cloud-provider API&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Because the labels are defined on &lt;code&gt;Node&lt;/code&gt;s, they are useful for controlling the scheduling of pods, allowing users to
+spread pods across multiple AZs. This is discussed in more details in the Kubernetes docs, in &lt;a href=&#34;https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/&#34;&gt;Assigning Pods to
+Nodes&lt;/a&gt; and &lt;a href=&#34;https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/&#34;&gt;Pod Topology Spread
+Constraints&lt;/a&gt; for example. They&amp;rsquo;re
+also used for other topology-related features, such as &lt;a href=&#34;https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/&#34;&gt;Topology Aware
+Routing&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;With regards to configuring these labels, there&amp;rsquo;s currently nothing to stop you modifying the labels in place. You
+shouldn&amp;rsquo;t do this, however, since it doesn&amp;rsquo;t change the AZ of the underlying instance and pretty much kills whatever
+advantage the topology feature has. If you want to change the AZ of the &lt;code&gt;Node&lt;/code&gt; then you&amp;rsquo;ll need to either migrate it (an
+operation that comes with its own issues) or recreate it.&lt;/p&gt;
+&lt;h2 id=&#34;machine-api-provider-openstack&#34;&gt;Machine API Provider OpenStack&lt;/h2&gt;
+&lt;p&gt;The Machine API Provider OpenStack, or MAPO, is a Machine API provider for the OpenStack platform. The Machine API
+allows you to scale up or scale down your cluster based on workload policies or other preferences and functions quite
+similarly to the Cluster API, albeit with a different API. You can create &lt;code&gt;Machine&lt;/code&gt;s manually, but its more common to
+instead create or modify &lt;code&gt;MachineSet&lt;/code&gt;s (for workers) or &lt;code&gt;ControlPlaneMachineSet&lt;/code&gt;s (for masters). You can find more
+information about the Machine API in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/index.html&#34;&gt;OpenShift
+documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Like OpenStack CCM, MAPO uses AZ information to label resources - this time setting the &lt;code&gt;machine.openshift.io/zone&lt;/code&gt;
+label on &lt;code&gt;Machine&lt;/code&gt; resources:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -A Machine -o jsonpath&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{.items[*].metadata.labels}&amp;#39;&lt;/span&gt; | jq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/cluster-api-cluster&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;stephenfin-5ps6d&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/cluster-api-machine-role&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;master&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/cluster-api-machine-type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;master&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/instance-type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ci.m1.xlarge&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# &amp;lt;-- !!! here !!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;It also sets an additional related labels - the &lt;code&gt;machine.openshift.io/region&lt;/code&gt; label - but this is sourced from Keystone
+information.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Also like OpenStack CCM, MAPO sources this AZ information from the Nova API, as you can see
+&lt;a href=&#34;https://github.com/openshift/machine-api-provider-openstack/blob/release-4.15/pkg/machine/actuator.go#L226&#34;&gt;here&lt;/a&gt;
+(&lt;code&gt;instanceStatus&lt;/code&gt; is a thin wrapper around a &lt;code&gt;ServerExt&lt;/code&gt; resource used by Gophercloud). They&amp;rsquo;re also editable but again,
+editing them won&amp;rsquo;t actually change the AZ on the underlying instance and you&amp;rsquo;ll need to make changes elsewhere to do
+this. However, unlike with &lt;code&gt;Node&lt;/code&gt;s, you can configure the AZ of a new or existing &lt;code&gt;Machine&lt;/code&gt; or &lt;code&gt;MachineSet&lt;/code&gt; /
+&lt;code&gt;ControlPlaneMachineSet&lt;/code&gt; as part of the object definition and &lt;em&gt;this&lt;/em&gt; change will get reflected in the labels, both of
+the &lt;code&gt;Machine&lt;/code&gt; and of the &lt;code&gt;Node&lt;/code&gt;. For example, to define a AZ when creating a new &lt;code&gt;MachineSet&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;machine.openshift.io/v1beta1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;kind&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;MachineSet&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;&amp;lt;infrastructure_id&amp;gt;-&amp;lt;role&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;namespace&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;openshift-machine-api&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;spec&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;template&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;spec&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;providerSpec&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;value&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;nova-az0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;rootVolume&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder-az0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is described in more details in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-osp.html&#34;&gt;OpenShift
+documentation&lt;/a&gt;.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;Alternatively, to define one for a &lt;code&gt;ControlPlaneMachineSet&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;machine.openshift.io/v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;kind&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ControlPlaneMachineSet&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cluster&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;namespace&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;openshift-machine-api&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;spec&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;template&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;machines_v1beta1_machine_openshift_io&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;failureDomains&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;platform&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;OpenStack&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;openstack&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        - &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;nova-az0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;rootVolume&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder-az0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        - &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;nova-az1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;rootVolume&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder-az1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        - &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;nova-az2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;rootVolume&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder-az2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is described in more detail in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/control_plane_machine_management/cpmso-configuration.html#cpmso-sample-yaml-openstack_cpmso-configuration&#34;&gt;OpenShift
+documentation&lt;/a&gt;.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;cinder-csi-driver&#34;&gt;Cinder CSI Driver&lt;/h2&gt;
+&lt;p&gt;The last component we&amp;rsquo;re going to look at here is the Cinder CSI Driver. The Container Storage Interface (CSI) defines a
+standardised way to expose arbitrary block and file storage systems to Kubernetes workloads, allowing us to plug in
+storage backends for various cloud platforms or networked storage solutions like NFS or SMB. As you might suspect, the
+Cinder CSI Driver allows us to plug in storage from the OpenStack Block Storage service, Cinder, and to create
+&lt;code&gt;PersistentVolume&lt;/code&gt;s or &lt;code&gt;PersistentVolumeClaim&lt;/code&gt;s that correspond to Cinder volumes.&lt;/p&gt;
+&lt;p&gt;Once again, the Cinder CSI driver uses AZ information to label resources and once again it&amp;rsquo;s the &lt;code&gt;Node&lt;/code&gt;s that get the
+resulting label. The Cinder CSI driver sets a single label on a node, the &lt;code&gt;topology.cinder.csi.openstack.org/zone&lt;/code&gt;
+label:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get Node -o jsonpath&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{.items[*].metadata.labels}&amp;#39;&lt;/span&gt; | jq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beta.kubernetes.io/arch&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;amd64&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beta.kubernetes.io/instance-type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ci.m1.xlarge&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beta.kubernetes.io/os&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;linux&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;failure-domain.beta.kubernetes.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;failure-domain.beta.kubernetes.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kubernetes.io/arch&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;amd64&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kubernetes.io/hostname&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;stephenfin-5ps6d-master-0&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;kubernetes.io/os&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;linux&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node-role.kubernetes.io/control-plane&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node-role.kubernetes.io/master&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node.kubernetes.io/instance-type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ci.m1.xlarge&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;node.openshift.io/os_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rhcos&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.cinder.csi.openstack.org/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;,    &lt;span style=&#34;color:#75715e&#34;&gt;# &amp;lt;--- !!! here !!!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.kubernetes.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.kubernetes.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Unlike the other two components we&amp;rsquo;ve talked about though, the Cinder CSI Driver doesn&amp;rsquo;t fetch AZ information from the
+API. Instead, it fetches it from the Metadata API, as you can see
+&lt;a href=&#34;https://github.com/openshift/cloud-provider-openstack/blob/release-4.15/pkg/csi/cinder/nodeserver.go#L465-L469&#34;&gt;here&lt;/a&gt;.
+That &lt;code&gt;NodeGetInfo&lt;/code&gt; function forms part of the CSI spec and is used by &lt;code&gt;kubelet&lt;/code&gt;, as detailed in the &lt;a href=&#34;https://kubernetes-csi.github.io/docs/node-driver-registrar.html&#34;&gt;Kubernetes
+documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Now this use of the Metadata service is somewhat of an usual choice: the Metadata service is provided by Nova and the AZ
+information it exposes is the AZ of the instance (derived from the host the instance is scheduled to). It&amp;rsquo;s therefore a
+Compute AZ so why is being used for a storage-related component? The answer is that we&amp;rsquo;re using it because there&amp;rsquo;s
+nothing else to use: as described in &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1&#34;&gt;part 1&lt;/a&gt;, OpenStack doesn&amp;rsquo;t provide any mechanism to associate compute
+hosts with storage AZs outside of using the same naming scheme across both compute and block storage AZs. In my
+experience, this loose coupling is a very frequent source of bugs. To use the topology feature (which we&amp;rsquo;ll go into more
+detail on shortly), you really need to have a common set of AZs for both the Compute and Block Storage services. Until
+OCP 4.15, the OpenStack Cinder CSI Driver Operator (i.e. the operator that deploys and manages the lifecycle of the
+Cinder CSI Driver in an OpenShift deployment) assumed this to be the case and always enabled the topology feature. This
+has &lt;a href=&#34;https://github.com/openshift/openstack-cinder-csi-driver-operator/pull/127&#34;&gt;since changed&lt;/a&gt; but if you&amp;rsquo;re running an
+older release then you&amp;rsquo;re likely to encounter this issue if e.g. using multiple Nova AZs and single Cinder AZ.&lt;/p&gt;
+&lt;p&gt;Making things even more complicated, migration of the Nova instance corresponding to a &lt;code&gt;Node&lt;/code&gt; can result in an instance
+moving between AZs, assuming the Nova instance in question was not created in a specific AZ initially. The CSI driver
+will detect this change and will attempt to update the labels on the &lt;code&gt;Node&lt;/code&gt;, resulting in the following rather nasty
+error that will require manual intervention to solve.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;Received NotifyRegistrationStatus call: &amp;amp;RegistrationStatus{PluginRegistered:false,Error:RegisterPlugin error -- plugin registration failed with err: error updating Node object with CSI driver node info: error updating node: timed out waiting for the condition; caused by: detected topology value collision: driver reported &amp;#34;topology.cinder.csi.openstack.org/zone&amp;#34;:&amp;#34;nova&amp;#34; but existing label is &amp;#34;topology.cinder.csi.openstack.org/zone&amp;#34;:&amp;#34;nova-az3&amp;#34;,}
+Registration process failed with error: RegisterPlugin error -- plugin registration failed with err: error updating Node object with CSI driver node info: error updating node: timed out waiting for the condition; caused by: detected topology value collision: driver reported &amp;#34;topology.cinder.csi.openstack.org/zone&amp;#34;:&amp;#34;nova&amp;#34; but existing label is &amp;#34;topology.cinder.csi.openstack.org/zone&amp;#34;:&amp;#34;nova-az3&amp;#34;, restarting registration container.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, assuming we know about these issues and work to avoid them, how does one actually use the topology features
+provided by the Cinder CSI driver? There are actually two ways. The first is to configure a topology-aware
+&lt;code&gt;StorageClass&lt;/code&gt; and use this for a &lt;code&gt;PersistentVolumeClaim&lt;/code&gt;, as seen in the &lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/blob/v1.29.0/examples/cinder-csi-plugin/topology/example.yaml&#34;&gt;examples for the Cinder CSI
+Driver&lt;/a&gt;.
+For example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;storage.k8s.io/v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;kind&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;StorageClass&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;topology-aware-standard&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;provisioner&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder.csi.openstack.org&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;volumeBindingMode&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;WaitForFirstConsumer&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;allowedTopologies&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;matchLabelExpressions&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  - &lt;span style=&#34;color:#f92672&#34;&gt;key&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;topology.cinder.csi.openstack.org/zone&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;values&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#ae81ff&#34;&gt;az1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;kind&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;PersistentVolumeClaim&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;demo-pvc-with-az&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;spec&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;accessModes&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  - &lt;span style=&#34;color:#ae81ff&#34;&gt;ReadWriteOnce&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;resources&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;requests&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;storage&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1Gi&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;storageClassName&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;topology-aware-standard&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;By using this storage class, we ensure that the Cinder volume created for the PVC will request an availability zone of
+&lt;code&gt;az1&lt;/code&gt;. This is the standard mechanism promoted by Kubernetes and is also supported by other non-OpenStack CSI drivers
+that provide topology support.&lt;/p&gt;
+&lt;p&gt;The other mechanism is to specify a Cinder CSI driver-specific parameter, &lt;code&gt;availability&lt;/code&gt;, when creating the storage
+class. This is effectively a legacy option that pre-dates topology support in CSI but it&amp;rsquo;s still available:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;storage.k8s.io/v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;kind&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;StorageClass&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;legacy-az&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;provisioner&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder.csi.openstack.org&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;volumeBindingMode&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;WaitForFirstConsumer&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;parameters&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;availability&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;az1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;apiVersion&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;kind&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;PersistentVolumeClaim&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;metadata&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;demo-pvc-with-az&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;spec&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;accessModes&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  - &lt;span style=&#34;color:#ae81ff&#34;&gt;ReadWriteOnce&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;resources&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;requests&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;storage&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1Gi&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;storageClassName&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;legacy-az&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With regards to configuring these labels there&amp;rsquo;s currently nothing to stop you modifying the labels in place, just like
+the labels OpenStack CCM sets on &lt;code&gt;Node&lt;/code&gt;s, and like that you don&amp;rsquo;t really want to do this since the Cinder CSI driver
+effectively owns them. The only time you may wish to do this is if you&amp;rsquo;ve migrated your Nova instance and hit the issue
+described above. In this case, you can opt to manually relabel the &lt;code&gt;Node&lt;/code&gt;, taking care to drain any workload from it
+first to avoid topology mismatches.&lt;/p&gt;
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap up&lt;/h2&gt;
+&lt;p&gt;As so concludes this two part series looking at Availability Zones in OpenStack and OpenShift. As you&amp;rsquo;ve hopefully
+ascertained, they can be a very useful feature, particularly in larger deployments, but there are more than a few
+potential banana skins to be aware of when you start using them for storage. By way of recommendations, I would suggest
+either using a single common AZ for you deployment (you can stick to the default of &lt;code&gt;nova&lt;/code&gt;) or a common set of AZs
+across both the compute and block storage hosts. If you insist on sticking with divergent sets of AZs, you should
+disable the topology feature and rely on the legacy &lt;code&gt;availability&lt;/code&gt; parameter of the &lt;code&gt;StorageClass&lt;/code&gt; instead.&lt;/p&gt;
+&lt;p&gt;I hope this has been useful to someone. If you spot any mistakes or identify things that I should have covered but
+didn&amp;rsquo;t, feel free to send me an email and I&amp;rsquo;ll try get things sorted.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Debugging Failed OpenShift-on-OpenStack Deployments</title>
       <link>https://that.guru/blog/debugging-failed-openshift-openstack-deployments/</link>
@@ -87,11 +387,24 @@ into the machine.&lt;/p&gt;
       <pubDate>Tue, 22 Aug 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/</guid>
-      <description>&lt;p&gt;After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&amp;rsquo;ve decided it
+      <description>&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This is part one of two. If you&amp;rsquo;re looking for part two, you can find it
+&lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;This post has been updated since publication to add additional information about implicit and explicit AZs.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;p&gt;After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&amp;rsquo;ve decided it
 might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the
-first of two parts. This part provides some background on what AZs are and how you can configure them, while the second
-part examines how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API Provider, the
-OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.&lt;/p&gt;
+first of two parts. This part provides some background on what AZs are and how you can configure them, while the &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;second
+part&lt;/a&gt; examines how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API Provider,
+the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.&lt;/p&gt;
 &lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
 &lt;p&gt;Both the Compute (Nova) and Block Storage (Cinder) services in OpenStack support the concept of Availability Zones (AZs)
 and the envisioned use cases is very similar for both. Quoting from the &lt;a href=&#34;https://docs.openstack.org/nova/latest/admin/availability-zones.html&#34;&gt;Nova documentation&lt;/a&gt;:&lt;/p&gt;
@@ -105,14 +418,77 @@ whatever benefits there are are entirely down to how the deployment is designed 
 something you&amp;rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
 experience I&amp;rsquo;ve seen AZs used to demarcate both compute and block storage nodes existing on different racks or in
 different datacenters.&lt;/p&gt;
-&lt;h2 id=&#34;implementation&#34;&gt;Implementation&lt;/h2&gt;
-&lt;p&gt;As you might expect, Nova&amp;rsquo;s AZs are an attribute of the compute hosts (hosts running the &lt;code&gt;nova-compute&lt;/code&gt; service), while
-Cinder&amp;rsquo;s are an attribute of the block storage hosts (hosts running the &lt;code&gt;cinder-volume&lt;/code&gt; service). In a &lt;a href=&#34;https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index&#34;&gt;Hyperconverged
-Infrastructure (HCI)&lt;/a&gt; deployment, where compute and block storage services run side-by-side on hyperconverged
-hosts, the compute hosts &lt;em&gt;are&lt;/em&gt; the block storage hosts and this is meaningless difference. In a non-HCI deployment, this
-is unlikely to be the case but this hasn&amp;rsquo;t prevented people and applications from frequently munging the two types of
-AZ, as we will see later. Because this conflation of different AZ types can happen, the general expectation we would
-have is that one of the following is true:&lt;/p&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;The Networking (Neutron) service also has the concept of Availability Zones. However, I&amp;rsquo;m not at all familiar with how
+these work and they&amp;rsquo;re not something I&amp;rsquo;ve ever used. As a result, I&amp;rsquo;m not going to cover them here.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;configuring-azs-for-hosts&#34;&gt;Configuring AZs for hosts&lt;/h2&gt;
+&lt;p&gt;As you might expect, Cinder AZ&amp;rsquo;s are an attribute of the block storage hosts (i.e. hosts running the &lt;code&gt;cinder-volume&lt;/code&gt;
+service). As discussed &lt;a href=&#34;#configuration&#34;&gt;later&lt;/a&gt;, you can configure a host&amp;rsquo;s AZ by setting the &lt;code&gt;[DEFAULT] storage_availability_zone&lt;/code&gt; configuration option in &lt;code&gt;cinder.conf&lt;/code&gt;. By comparison, Nova&amp;rsquo;s AZs are not typically configured
+via &lt;code&gt;nova.conf&lt;/code&gt; but are actually attributes of host aggregates and can be configured by setting the &lt;code&gt;availability_zone&lt;/code&gt;
+metadata key of an aggregate. If a compute host (i.e. a host running the &lt;code&gt;nova-compute&lt;/code&gt; service) belongs to a host
+aggregate with the AZ metadata key set then the host will inherit the AZ of that host aggregate. It&amp;rsquo;s only when a host
+doesn&amp;rsquo;t belong to a host aggregate - or none of the host aggregates it belongs to have AZ metadata set - that this
+information will be sourced from elsewhere, namely the &lt;code&gt;[DEFAULT] default_availability_zone&lt;/code&gt; config option described
+&lt;a href=&#34;#configuration&#34;&gt;below&lt;/a&gt;. Unlike Cinder&amp;rsquo;s config option, this is not intended to differ by host and should be set to the
+same value across all compute nodes. Nova will prevent you adding a host to more than one aggregate with AZ metadata set
+since a host can only belong to one AZ.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate create --zone nova-az1 foo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate create --zone nova-az2 bar
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate add host foo stephenfin-devstack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate add host bar stephenfin-devstack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ConflictException: 409: Client Error &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; url: http://10.0.109.204/compute/v2.1/os-aggregates/13/action, Cannot add host to aggregate 13. Reason: One or more hosts already in availability zone&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;s&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nova-az1&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In addition, if a host has instances on it, the Nova will also prevent you from modifying the AZ metadata of an
+aggregate it already belongs to - since this would break the AZ constraint placed on any of the existing instances:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack server show test-server -f value -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;nova-az1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;stephenfin-devstack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate show foo -f value -c availability_zone -c hosts
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;nova-az1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stephenfin-devstack&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate set --zone nova-az2 foo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;BadRequestException: 400: Client Error &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; url: http://10.0.109.204/compute/v2.1/os-aggregates/12, Cannot update aggregate 12. Reason: One or more hosts contain instances in this zone.
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;It should also prevent you from adding/removing a host to/from an aggregate when instances are present but this doesn&amp;rsquo;t
+currently happen. This is filed as &lt;a href=&#34;https://bugs.launchpad.net/nova/+bug/1907775&#34;&gt;bug #1907775&lt;/a&gt; and has not yet been
+resolved.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;h2 id=&#34;requesting-azs-for-resources-servers-volumes-volume-backups-&#34;&gt;Requesting AZs for resources (servers, volumes, volume backups, &amp;hellip;)&lt;/h2&gt;
+&lt;p&gt;Nova allows you to specify an AZ when creating an instance (or &amp;ldquo;server&amp;rdquo;, in OpenStackClient parlance), while Cinder
+allows you to specify them when creating a volume, a volume backup, a volume group, or (volume groups&amp;rsquo; deprecated
+predecessor) a consistency group. For example, to create an instance (or &amp;ldquo;server&amp;rdquo;) with an explicit compute AZ:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack server create --availability-zone compute-az1 ...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Likewise, to create a volume and volume backup with an explicit block storage AZ:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack volume create --availability-zone volume-az1 ...
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack volume backup create --availability-zone volume-az2 ...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, you&amp;rsquo;ll note that these resource types will always have AZ information associated with them, even when an AZ
+wasn&amp;rsquo;t specifically requested during creation. This is because, in the absence of specific AZ information, both services
+will default to setting the AZ of the resource to the AZ of the host that the resource was created on. Put another way,
+if I create instance &lt;code&gt;my-server&lt;/code&gt; with no AZ information and it ends up on host &lt;code&gt;my-host&lt;/code&gt;, then &lt;code&gt;my-server&lt;/code&gt; will inherit
+the AZ of &lt;code&gt;my-host&lt;/code&gt;. Block storage resources work in the same way, meaning volume &lt;code&gt;my-volume&lt;/code&gt; will inherit the AZ of the
+host it is scheduled to. As a result, there has historically been no way for an end-user to tell if an AZ was explicitly
+requested when creating a server or not. In fact, the only way they will find out is if they try to move the server
+since Nova will insist of moving the instance to another host within the same AZ (this wouldn&amp;rsquo;t happen for a server that
+wasn&amp;rsquo;t explicitly created in an AZ). As we&amp;rsquo;ll touch on in &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;part 2&lt;/a&gt;, this has been rather frustrating from an
+OpenShift or Kubernetes perspective since Kubernetes&amp;rsquo; topology feature is a hard requirement and it does not like us
+changes the AZ-related labels of &lt;code&gt;Node&lt;/code&gt; or &lt;code&gt;Machine&lt;/code&gt; objects, which can happen when you migrate the underlying server
+and the server picks up the AZ of the new host. Fortunately, the 2024.1 (Caracal) release of OpenStack introduced a new
+field to the &lt;code&gt;GET /servers/{serverID}&lt;/code&gt; response called &lt;code&gt;pinned_availability_zone&lt;/code&gt; which will show the AZ requested
+during initial instance creation, if set and it&amp;rsquo;s just a matter of time before we&amp;rsquo;re able to start consuming this in the
+various OpenShift and Kubernetes components.&lt;/p&gt;
+&lt;h2 id=&#34;combining-nova-and-cinders-az-features&#34;&gt;Combining Nova and Cinder&amp;rsquo;s AZ features&lt;/h2&gt;
+&lt;p&gt;Finally, it&amp;rsquo;s worth exploring the interplay of the Nova and Cinder AZ features since this will be particularly relevant
+in &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;part 2&lt;/a&gt;. In a &lt;a href=&#34;https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index&#34;&gt;Hyperconverged Infrastructure (HCI)&lt;/a&gt; deployment, where compute and block storage
+services run side-by-side on hyperconverged hosts, the compute hosts &lt;em&gt;are&lt;/em&gt; the block storage hosts and there is no
+difference between the AZs. In a non-HCI deployment, this is unlikely to be the case but this hasn&amp;rsquo;t prevented people
+and applications from frequently munging the two types of AZ, as we will see later. Because this conflation of different
+AZ types can happen, the general expectation we would have is that one of the following is true:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;em&gt;There is only a single compute AZ, a single block storage and they have the same name.&lt;/em&gt; This is the default
@@ -146,14 +522,15 @@ volumes hosted by block storage services running on another rack). As the docs f
 entirely deployment specific and therefore totally manual.&lt;/div&gt;
 &lt;/aside&gt;
 
-&lt;p&gt;Finally, a compute AZ can be specified be when creating an instance (or &amp;ldquo;server&amp;rdquo;, in OpenStackClient parlance), while a
-block storage AZ can be requested when creating volumes, volume backups, volume groups, and volume groups&amp;rsquo; deprecated
-predecessor, consistency groups. An instance that is not explicitly assigned an AZ during creation (e.g. &lt;code&gt;server create&lt;/code&gt;) will be assigned the AZ of the host that it is eventually scheduled to. This is also the case when creating
-volume or related resources. However, while nova will always reject requests with invalid AZs, cinder allows you to
-configure a fallback to a default value.&lt;/p&gt;
-&lt;h2 id=&#34;configuration&#34;&gt;Configuration&lt;/h2&gt;
+&lt;h2 id=&#34;wrap-up&#34;&gt;Wrap up&lt;/h2&gt;
+&lt;p&gt;That concludes part 1 of this OpenShift-centric examination of OpenStack Availability Zones. In this part we focused
+almost exclusively on OpenStack itself, looking at what AZs are, how they&amp;rsquo;re configured and used, and the various issues
+people are likely to encounter along the way, but in &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;part 2&lt;/a&gt; we&amp;rsquo;re going to turn our focus to how OpenStack AZs
+are consumed and represented by OpenShift components when an OpenShift cluster is deployed on an OpenStack cloud. Stay
+tuned!&lt;/p&gt;
+&lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
+&lt;h3 id=&#34;configuration&#34;&gt;Configuration&lt;/h3&gt;
 &lt;p&gt;Since this feature exists across two services, there are two sets of configuration options to be concerned with.&lt;/p&gt;
-&lt;h3 id=&#34;nova&#34;&gt;Nova&lt;/h3&gt;
 &lt;p&gt;As of the 2023.1 (Antelope) release, Nova has three relevant configuration options:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -179,7 +556,6 @@ be identical.&lt;/p&gt;
 &lt;/ul&gt;
 &lt;p&gt;There is also the &lt;code&gt;[DEFAULT] internal_service_availability_zone&lt;/code&gt; configuration option, but this has no real impact for
 end-users.&lt;/p&gt;
-&lt;h3 id=&#34;cinder&#34;&gt;Cinder&lt;/h3&gt;
 &lt;p&gt;As of the 2023.1 (Antelope) release, Cinder has four relevant configuration options:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -201,19 +577,21 @@ to be honest &lt;code&gt;true&lt;/code&gt; is probably a sensible value for conf
 single volume AZ.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;usage&#34;&gt;Usage&lt;/h2&gt;
-&lt;p&gt;This isn&amp;rsquo;t really the point of this article, but you can use AZs when creating resources using OpenStackClient. For
-example, when creating an instance (or &amp;ldquo;server&amp;rdquo;):&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack server create --availability-zone compute-az1 ...
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Likewise, when creating a volume:&lt;/p&gt;
+&lt;h3 id=&#34;usage&#34;&gt;Usage&lt;/h3&gt;
+&lt;p&gt;Again, since this feature exists across two services, there are two sets of resource types to be concerned with.&lt;/p&gt;
+&lt;p&gt;To configure the AZ of a compute host, you configure AZ information for a host aggregate and then add the host to this
+aggregate.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate create --zone nova-az1 foo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate add host foo stephenfin-devstack
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once this is done, you can request the AZ when creating an instance (or &amp;ldquo;server&amp;rdquo;):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack server create --availability-zone nova-az1 ...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On the other hand, the AZ of a storage host is configured via config and there&amp;rsquo;s no API method to configure it. You can
+use it when creating a volume just like creating a server though:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack volume create --availability-zone volume-az1 ...
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Or when creating a volume backup:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack volume backup create --availability-zone volume-az2 ...
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Other API libraries like gophercloud also expose these attributes and allow them to be configured, but we won&amp;rsquo;t go into
 that here.&lt;/p&gt;
-&lt;h2 id=&#34;next-steps&#34;&gt;Next Steps&lt;/h2&gt;
-&lt;p&gt;In the next post, I&amp;rsquo;ll detail how all of these pieces play into various OpenStack-specific components of OpenShift and
-Kubernetes.&lt;/p&gt;
 </description>
     </item>
     

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Availability Zones in Openstack and Openshift (Part 2) | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/m49HAhhL1fE/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Availability Zones in Openstack and Openshift (Part 2)</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2024-05-03T00:00:00Z'>May 3, 2024</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>10 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <aside class="admonition note">
+	
+	
+	<div class="admonition-content">This is part two of two. If you&rsquo;re looking for part one, you can find it
+<a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">here</a>.</div>
+</aside>
+
+<p>After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
+might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the
+second part of two. <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">The first part</a> provided some background on what AZs are and how you can configure them,
+while this part will examine how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API
+Provider, the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.</p>
+<h2 id="the-line-up">The line up</h2>
+<p>There&rsquo;s a couple of OpenStack-specific components we need to be aware of in a typical OpenShift-on-OpenStack (a.k.a.
+ShiftStack) deployment. My former colleague Michał Dulko <a href="https://dulek.github.io/2022/07/14/capo-mapo-cloud-provider.html">provided a good overview of many of these on his
+blog</a> but to (re-)summarise, you&rsquo;ve got:</p>
+<ul>
+<li>Cloud Provider OpenStack (CPO)</li>
+<li>Machine API Provider OpenStack (MAPO)</li>
+<li>Cluster API Provider OpenStack (CAPO)</li>
+</ul>
+<p>In addition to these three components, there are two others to consider:</p>
+<ul>
+<li>Cinder CSI Driver</li>
+<li>Manila CSI Driver</li>
+</ul>
+<p>Today we&rsquo;re going to take a look at three of these five components - CPO, MAPO, and the Cinder CSI Driver - and explore
+how availability zones - both Compute and Block Storage - impact them.</p>
+<h2 id="cloud-provider-openstack">Cloud Provider OpenStack</h2>
+<p>In contrast to a favoured programming language of mine 🐍, Kubernetes operates on very much batteries <em>not</em> included
+model. It does not provide out-of-the-box support for such important things as block storage, networking, or ingress. To
+resolve this, you normally run Kubernetes on top of another platform - be that AWS, vSphere, GCE, or in our case
+OpenStack - and add additional components that provide integration between your Kubernetes cluster and said platform and
+its APIs. The cloud-provider interface provides one part of the integration puzzle here, managing the lifecycle of
+<code>Node</code>s (including their removal from the cluster if the underlying instance is deleted), <code>Service</code>s of type
+<code>LoadBalancer</code>, and routes.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">If you&rsquo;re interested, <a href="https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5">this blog from Mikael Johansson</a> provides a far more thorough overview of this
+component.</div>
+</aside>
+
+<p>The OpenStack CCM uses Compute AZ information for the underlying instance to label the corresponding <code>Node</code>. It sets two
+labels, the <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesiozone"><code>topology.kubernetes.io/zone</code></a> label and the legacy
+<a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesiozone"><code>failure-domain.beta.kubernetes.io/zone</code></a> label. You can see this if you retrieve the labels
+for a <code>Node</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get Node -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/arch&#34;</span>: <span style="color:#e6db74">&#34;amd64&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/os&#34;</span>: <span style="color:#e6db74">&#34;linux&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;failure-domain.beta.kubernetes.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;failure-domain.beta.kubernetes.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>,  <span style="color:#75715e"># &lt;--- !!! here !!!</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;kubernetes.io/arch&#34;</span>: <span style="color:#e6db74">&#34;amd64&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;kubernetes.io/hostname&#34;</span>: <span style="color:#e6db74">&#34;stephenfin-5ps6d-master-0&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;kubernetes.io/os&#34;</span>: <span style="color:#e6db74">&#34;linux&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node-role.kubernetes.io/control-plane&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node-role.kubernetes.io/master&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node.kubernetes.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node.openshift.io/os_id&#34;</span>: <span style="color:#e6db74">&#34;rhcos&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.cinder.csi.openstack.org/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.kubernetes.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.kubernetes.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>    <span style="color:#75715e"># &lt;--- !!! and here !!!</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">It also sets two corresponding labels - the <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesioregion"><code>topology.kubernetes.io/region</code></a> label and the legacy
+<a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesioregion"><code>failure-domain.beta.kubernetes.io/region</code></a> label - but these are sourced from
+Keystone-related information.</div>
+</aside>
+
+<p>To fetch the AZ information, OpenStack CCM queries the Nova API. You can see that happening
+<a href="https://github.com/openshift/cloud-provider-openstack/blob/release-4.15/pkg/openstack/openstack.go#L411-L463">here</a>,
+and publishes this information via the <code>GetZoneByProviderID</code> and <code>GetZoneByName</code> functions, which form part of the
+<a href="https://github.com/kubernetes/cloud-provider/blob/v0.30.0/cloud.go#L281-L289">cloud-provider API</a>.</p>
+<p>Because the labels are defined on <code>Node</code>s, they are useful for controlling the scheduling of pods, allowing users to
+spread pods across multiple AZs. This is discussed in more details in the Kubernetes docs, in <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/">Assigning Pods to
+Nodes</a> and <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/">Pod Topology Spread
+Constraints</a> for example. They&rsquo;re
+also used for other topology-related features, such as <a href="https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/">Topology Aware
+Routing</a>.</p>
+<p>With regards to configuring these labels, there&rsquo;s currently nothing to stop you modifying the labels in place. You
+shouldn&rsquo;t do this, however, since it doesn&rsquo;t change the AZ of the underlying instance and pretty much kills whatever
+advantage the topology feature has. If you want to change the AZ of the <code>Node</code> then you&rsquo;ll need to either migrate it (an
+operation that comes with its own issues) or recreate it.</p>
+<h2 id="machine-api-provider-openstack">Machine API Provider OpenStack</h2>
+<p>The Machine API Provider OpenStack, or MAPO, is a Machine API provider for the OpenStack platform. The Machine API
+allows you to scale up or scale down your cluster based on workload policies or other preferences and functions quite
+similarly to the Cluster API, albeit with a different API. You can create <code>Machine</code>s manually, but its more common to
+instead create or modify <code>MachineSet</code>s (for workers) or <code>ControlPlaneMachineSet</code>s (for masters). You can find more
+information about the Machine API in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/index.html">OpenShift
+documentation</a>.</p>
+<p>Like OpenStack CCM, MAPO uses AZ information to label resources - this time setting the <code>machine.openshift.io/zone</code>
+label on <code>Machine</code> resources:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get -A Machine -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/cluster-api-cluster&#34;</span>: <span style="color:#e6db74">&#34;stephenfin-5ps6d&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/cluster-api-machine-role&#34;</span>: <span style="color:#e6db74">&#34;master&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/cluster-api-machine-type&#34;</span>: <span style="color:#e6db74">&#34;master&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>  <span style="color:#75715e"># &lt;-- !!! here !!</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">It also sets an additional related labels - the <code>machine.openshift.io/region</code> label - but this is sourced from Keystone
+information.</div>
+</aside>
+
+<p>Also like OpenStack CCM, MAPO sources this AZ information from the Nova API, as you can see
+<a href="https://github.com/openshift/machine-api-provider-openstack/blob/release-4.15/pkg/machine/actuator.go#L226">here</a>
+(<code>instanceStatus</code> is a thin wrapper around a <code>ServerExt</code> resource used by Gophercloud). They&rsquo;re also editable but again,
+editing them won&rsquo;t actually change the AZ on the underlying instance and you&rsquo;ll need to make changes elsewhere to do
+this. However, unlike with <code>Node</code>s, you can configure the AZ of a new or existing <code>Machine</code> or <code>MachineSet</code> /
+<code>ControlPlaneMachineSet</code> as part of the object definition and <em>this</em> change will get reflected in the labels, both of
+the <code>Machine</code> and of the <code>Node</code>. For example, to define a AZ when creating a new <code>MachineSet</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">machine.openshift.io/v1beta1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">MachineSet</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">&lt;infrastructure_id&gt;-&lt;role&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">openshift-machine-api</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">providerSpec</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">value</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">nova-az0</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">rootVolume</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">cinder-az0</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">This is described in more details in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-osp.html">OpenShift
+documentation</a>.</div>
+</aside>
+
+<p>Alternatively, to define one for a <code>ControlPlaneMachineSet</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">machine.openshift.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ControlPlaneMachineSet</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">cluster</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">openshift-machine-api</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">machines_v1beta1_machine_openshift_io</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">failureDomains</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">platform</span>: <span style="color:#ae81ff">OpenStack</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">openstack</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">nova-az0</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">rootVolume</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">cinder-az0</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">nova-az1</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">rootVolume</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">cinder-az1</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">nova-az2</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">rootVolume</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">cinder-az2</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">This is described in more detail in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/control_plane_machine_management/cpmso-configuration.html#cpmso-sample-yaml-openstack_cpmso-configuration">OpenShift
+documentation</a>.</div>
+</aside>
+
+<h2 id="cinder-csi-driver">Cinder CSI Driver</h2>
+<p>The last component we&rsquo;re going to look at here is the Cinder CSI Driver. The Container Storage Interface (CSI) defines a
+standardised way to expose arbitrary block and file storage systems to Kubernetes workloads, allowing us to plug in
+storage backends for various cloud platforms or networked storage solutions like NFS or SMB. As you might suspect, the
+Cinder CSI Driver allows us to plug in storage from the OpenStack Block Storage service, Cinder, and to create
+<code>PersistentVolume</code>s or <code>PersistentVolumeClaim</code>s that correspond to Cinder volumes.</p>
+<p>Once again, the Cinder CSI driver uses AZ information to label resources and once again it&rsquo;s the <code>Node</code>s that get the
+resulting label. The Cinder CSI driver sets a single label on a node, the <code>topology.cinder.csi.openstack.org/zone</code>
+label:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get Node -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/arch&#34;</span>: <span style="color:#e6db74">&#34;amd64&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/os&#34;</span>: <span style="color:#e6db74">&#34;linux&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;failure-domain.beta.kubernetes.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;failure-domain.beta.kubernetes.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;kubernetes.io/arch&#34;</span>: <span style="color:#e6db74">&#34;amd64&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;kubernetes.io/hostname&#34;</span>: <span style="color:#e6db74">&#34;stephenfin-5ps6d-master-0&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;kubernetes.io/os&#34;</span>: <span style="color:#e6db74">&#34;linux&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node-role.kubernetes.io/control-plane&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node-role.kubernetes.io/master&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node.kubernetes.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;node.openshift.io/os_id&#34;</span>: <span style="color:#e6db74">&#34;rhcos&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.cinder.csi.openstack.org/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>,    <span style="color:#75715e"># &lt;--- !!! here !!!</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.kubernetes.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.kubernetes.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Unlike the other two components we&rsquo;ve talked about though, the Cinder CSI Driver doesn&rsquo;t fetch AZ information from the
+API. Instead, it fetches it from the Metadata API, as you can see
+<a href="https://github.com/openshift/cloud-provider-openstack/blob/release-4.15/pkg/csi/cinder/nodeserver.go#L465-L469">here</a>.
+That <code>NodeGetInfo</code> function forms part of the CSI spec and is used by <code>kubelet</code>, as detailed in the <a href="https://kubernetes-csi.github.io/docs/node-driver-registrar.html">Kubernetes
+documentation</a>.</p>
+<p>Now this use of the Metadata service is somewhat of an usual choice: the Metadata service is provided by Nova and the AZ
+information it exposes is the AZ of the instance (derived from the host the instance is scheduled to). It&rsquo;s therefore a
+Compute AZ so why is being used for a storage-related component? The answer is that we&rsquo;re using it because there&rsquo;s
+nothing else to use: as described in <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">part 1</a>, OpenStack doesn&rsquo;t provide any mechanism to associate compute
+hosts with storage AZs outside of using the same naming scheme across both compute and block storage AZs. In my
+experience, this loose coupling is a very frequent source of bugs. To use the topology feature (which we&rsquo;ll go into more
+detail on shortly), you really need to have a common set of AZs for both the Compute and Block Storage services. Until
+OCP 4.15, the OpenStack Cinder CSI Driver Operator (i.e. the operator that deploys and manages the lifecycle of the
+Cinder CSI Driver in an OpenShift deployment) assumed this to be the case and always enabled the topology feature. This
+has <a href="https://github.com/openshift/openstack-cinder-csi-driver-operator/pull/127">since changed</a> but if you&rsquo;re running an
+older release then you&rsquo;re likely to encounter this issue if e.g. using multiple Nova AZs and single Cinder AZ.</p>
+<p>Making things even more complicated, migration of the Nova instance corresponding to a <code>Node</code> can result in an instance
+moving between AZs, assuming the Nova instance in question was not created in a specific AZ initially. The CSI driver
+will detect this change and will attempt to update the labels on the <code>Node</code>, resulting in the following rather nasty
+error that will require manual intervention to solve.</p>
+<pre tabindex="0"><code>Received NotifyRegistrationStatus call: &amp;RegistrationStatus{PluginRegistered:false,Error:RegisterPlugin error -- plugin registration failed with err: error updating Node object with CSI driver node info: error updating node: timed out waiting for the condition; caused by: detected topology value collision: driver reported &#34;topology.cinder.csi.openstack.org/zone&#34;:&#34;nova&#34; but existing label is &#34;topology.cinder.csi.openstack.org/zone&#34;:&#34;nova-az3&#34;,}
+Registration process failed with error: RegisterPlugin error -- plugin registration failed with err: error updating Node object with CSI driver node info: error updating node: timed out waiting for the condition; caused by: detected topology value collision: driver reported &#34;topology.cinder.csi.openstack.org/zone&#34;:&#34;nova&#34; but existing label is &#34;topology.cinder.csi.openstack.org/zone&#34;:&#34;nova-az3&#34;, restarting registration container.
+</code></pre><p>However, assuming we know about these issues and work to avoid them, how does one actually use the topology features
+provided by the Cinder CSI driver? There are actually two ways. The first is to configure a topology-aware
+<code>StorageClass</code> and use this for a <code>PersistentVolumeClaim</code>, as seen in the <a href="https://github.com/kubernetes/cloud-provider-openstack/blob/v1.29.0/examples/cinder-csi-plugin/topology/example.yaml">examples for the Cinder CSI
+Driver</a>.
+For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">topology-aware-standard</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">provisioner</span>: <span style="color:#ae81ff">cinder.csi.openstack.org</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">volumeBindingMode</span>: <span style="color:#ae81ff">WaitForFirstConsumer</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">allowedTopologies</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">matchLabelExpressions</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">key</span>: <span style="color:#ae81ff">topology.cinder.csi.openstack.org/zone</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">values</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">az1</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">PersistentVolumeClaim</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">demo-pvc-with-az</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">accessModes</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">ReadWriteOnce</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">storage</span>: <span style="color:#ae81ff">1Gi</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">storageClassName</span>: <span style="color:#ae81ff">topology-aware-standard</span>
+</span></span></code></pre></div><p>By using this storage class, we ensure that the Cinder volume created for the PVC will request an availability zone of
+<code>az1</code>. This is the standard mechanism promoted by Kubernetes and is also supported by other non-OpenStack CSI drivers
+that provide topology support.</p>
+<p>The other mechanism is to specify a Cinder CSI driver-specific parameter, <code>availability</code>, when creating the storage
+class. This is effectively a legacy option that pre-dates topology support in CSI but it&rsquo;s still available:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">legacy-az</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">provisioner</span>: <span style="color:#ae81ff">cinder.csi.openstack.org</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">volumeBindingMode</span>: <span style="color:#ae81ff">WaitForFirstConsumer</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">parameters</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">availability</span>: <span style="color:#ae81ff">az1</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">PersistentVolumeClaim</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">demo-pvc-with-az</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">accessModes</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">ReadWriteOnce</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">storage</span>: <span style="color:#ae81ff">1Gi</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">storageClassName</span>: <span style="color:#ae81ff">legacy-az</span>
+</span></span></code></pre></div><p>With regards to configuring these labels there&rsquo;s currently nothing to stop you modifying the labels in place, just like
+the labels OpenStack CCM sets on <code>Node</code>s, and like that you don&rsquo;t really want to do this since the Cinder CSI driver
+effectively owns them. The only time you may wish to do this is if you&rsquo;ve migrated your Nova instance and hit the issue
+described above. In this case, you can opt to manually relabel the <code>Node</code>, taking care to drain any workload from it
+first to avoid topology mismatches.</p>
+<h2 id="wrap-up">Wrap up</h2>
+<p>As so concludes this two part series looking at Availability Zones in OpenStack and OpenShift. As you&rsquo;ve hopefully
+ascertained, they can be a very useful feature, particularly in larger deployments, but there are more than a few
+potential banana skins to be aware of when you start using them for storage. By way of recommendations, I would suggest
+either using a single common AZ for you deployment (you can stick to the default of <code>nova</code>) or a common set of AZs
+across both the compute and block storage hosts. If you insist on sticking with divergent sets of AZs, you should
+disable the topology feature and rely on the legacy <code>availability</code> parameter of the <code>StorageClass</code> instead.</p>
+<p>I hope this has been useful to someone. If you spot any mistakes or identify things that I should have covered but
+didn&rsquo;t, feel free to send me an email and I&rsquo;ll try get things sorted.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/openshift">#openshift</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2024 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

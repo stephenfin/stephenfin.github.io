@@ -79,17 +79,30 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2023-08-22T00:00:00Z'>Aug 22, 2023</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>7 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>11 min read</span>
       </div>
     </div>
   </div>
 
   <article>
-    <p>After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
+    <aside class="admonition note">
+	
+	
+	<div class="admonition-content">This is part one of two. If you&rsquo;re looking for part two, you can find it
+<a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2">here</a>.</div>
+</aside>
+
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">This post has been updated since publication to add additional information about implicit and explicit AZs.</div>
+</aside>
+
+<p>After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
 might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the
-first of two parts. This part provides some background on what AZs are and how you can configure them, while the second
-part examines how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API Provider, the
-OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.</p>
+first of two parts. This part provides some background on what AZs are and how you can configure them, while the <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2">second
+part</a> examines how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API Provider,
+the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.</p>
 <h2 id="background">Background</h2>
 <p>Both the Compute (Nova) and Block Storage (Cinder) services in OpenStack support the concept of Availability Zones (AZs)
 and the envisioned use cases is very similar for both. Quoting from the <a href="https://docs.openstack.org/nova/latest/admin/availability-zones.html">Nova documentation</a>:</p>
@@ -103,14 +116,77 @@ whatever benefits there are are entirely down to how the deployment is designed 
 something you&rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
 experience I&rsquo;ve seen AZs used to demarcate both compute and block storage nodes existing on different racks or in
 different datacenters.</p>
-<h2 id="implementation">Implementation</h2>
-<p>As you might expect, Nova&rsquo;s AZs are an attribute of the compute hosts (hosts running the <code>nova-compute</code> service), while
-Cinder&rsquo;s are an attribute of the block storage hosts (hosts running the <code>cinder-volume</code> service). In a <a href="https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index">Hyperconverged
-Infrastructure (HCI)</a> deployment, where compute and block storage services run side-by-side on hyperconverged
-hosts, the compute hosts <em>are</em> the block storage hosts and this is meaningless difference. In a non-HCI deployment, this
-is unlikely to be the case but this hasn&rsquo;t prevented people and applications from frequently munging the two types of
-AZ, as we will see later. Because this conflation of different AZ types can happen, the general expectation we would
-have is that one of the following is true:</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">The Networking (Neutron) service also has the concept of Availability Zones. However, I&rsquo;m not at all familiar with how
+these work and they&rsquo;re not something I&rsquo;ve ever used. As a result, I&rsquo;m not going to cover them here.</div>
+</aside>
+
+<h2 id="configuring-azs-for-hosts">Configuring AZs for hosts</h2>
+<p>As you might expect, Cinder AZ&rsquo;s are an attribute of the block storage hosts (i.e. hosts running the <code>cinder-volume</code>
+service). As discussed <a href="#configuration">later</a>, you can configure a host&rsquo;s AZ by setting the <code>[DEFAULT] storage_availability_zone</code> configuration option in <code>cinder.conf</code>. By comparison, Nova&rsquo;s AZs are not typically configured
+via <code>nova.conf</code> but are actually attributes of host aggregates and can be configured by setting the <code>availability_zone</code>
+metadata key of an aggregate. If a compute host (i.e. a host running the <code>nova-compute</code> service) belongs to a host
+aggregate with the AZ metadata key set then the host will inherit the AZ of that host aggregate. It&rsquo;s only when a host
+doesn&rsquo;t belong to a host aggregate - or none of the host aggregates it belongs to have AZ metadata set - that this
+information will be sourced from elsewhere, namely the <code>[DEFAULT] default_availability_zone</code> config option described
+<a href="#configuration">below</a>. Unlike Cinder&rsquo;s config option, this is not intended to differ by host and should be set to the
+same value across all compute nodes. Nova will prevent you adding a host to more than one aggregate with AZ metadata set
+since a host can only belong to one AZ.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az1 foo
+</span></span><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az2 bar
+</span></span><span style="display:flex;"><span>❯ openstack aggregate add host foo stephenfin-devstack
+</span></span><span style="display:flex;"><span>❯ openstack aggregate add host bar stephenfin-devstack
+</span></span><span style="display:flex;"><span>ConflictException: 409: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.109.204/compute/v2.1/os-aggregates/13/action, Cannot add host to aggregate 13. Reason: One or more hosts already in availability zone<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;nova-az1&#39;</span><span style="color:#f92672">]</span>.
+</span></span></code></pre></div><p>In addition, if a host has instances on it, the Nova will also prevent you from modifying the AZ metadata of an
+aggregate it already belongs to - since this would break the AZ constraint placed on any of the existing instances:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server show test-server -f value -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host
+</span></span><span style="display:flex;"><span>nova-az1
+</span></span><span style="display:flex;"><span>stephenfin-devstack
+</span></span><span style="display:flex;"><span>❯ openstack aggregate show foo -f value -c availability_zone -c hosts
+</span></span><span style="display:flex;"><span>nova-az1
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#e6db74">&#39;stephenfin-devstack&#39;</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>❯ openstack aggregate set --zone nova-az2 foo
+</span></span><span style="display:flex;"><span>BadRequestException: 400: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.109.204/compute/v2.1/os-aggregates/12, Cannot update aggregate 12. Reason: One or more hosts contain instances in this zone.
+</span></span></code></pre></div><aside class="admonition note">
+	
+	
+	<div class="admonition-content">It should also prevent you from adding/removing a host to/from an aggregate when instances are present but this doesn&rsquo;t
+currently happen. This is filed as <a href="https://bugs.launchpad.net/nova/+bug/1907775">bug #1907775</a> and has not yet been
+resolved.</div>
+</aside>
+
+<h2 id="requesting-azs-for-resources-servers-volumes-volume-backups-">Requesting AZs for resources (servers, volumes, volume backups, &hellip;)</h2>
+<p>Nova allows you to specify an AZ when creating an instance (or &ldquo;server&rdquo;, in OpenStackClient parlance), while Cinder
+allows you to specify them when creating a volume, a volume backup, a volume group, or (volume groups&rsquo; deprecated
+predecessor) a consistency group. For example, to create an instance (or &ldquo;server&rdquo;) with an explicit compute AZ:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>openstack server create --availability-zone compute-az1 ...
+</span></span></code></pre></div><p>Likewise, to create a volume and volume backup with an explicit block storage AZ:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
+</span></span><span style="display:flex;"><span>openstack volume backup create --availability-zone volume-az2 ...
+</span></span></code></pre></div><p>However, you&rsquo;ll note that these resource types will always have AZ information associated with them, even when an AZ
+wasn&rsquo;t specifically requested during creation. This is because, in the absence of specific AZ information, both services
+will default to setting the AZ of the resource to the AZ of the host that the resource was created on. Put another way,
+if I create instance <code>my-server</code> with no AZ information and it ends up on host <code>my-host</code>, then <code>my-server</code> will inherit
+the AZ of <code>my-host</code>. Block storage resources work in the same way, meaning volume <code>my-volume</code> will inherit the AZ of the
+host it is scheduled to. As a result, there has historically been no way for an end-user to tell if an AZ was explicitly
+requested when creating a server or not. In fact, the only way they will find out is if they try to move the server
+since Nova will insist of moving the instance to another host within the same AZ (this wouldn&rsquo;t happen for a server that
+wasn&rsquo;t explicitly created in an AZ). As we&rsquo;ll touch on in <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2">part 2</a>, this has been rather frustrating from an
+OpenShift or Kubernetes perspective since Kubernetes&rsquo; topology feature is a hard requirement and it does not like us
+changes the AZ-related labels of <code>Node</code> or <code>Machine</code> objects, which can happen when you migrate the underlying server
+and the server picks up the AZ of the new host. Fortunately, the 2024.1 (Caracal) release of OpenStack introduced a new
+field to the <code>GET /servers/{serverID}</code> response called <code>pinned_availability_zone</code> which will show the AZ requested
+during initial instance creation, if set and it&rsquo;s just a matter of time before we&rsquo;re able to start consuming this in the
+various OpenShift and Kubernetes components.</p>
+<h2 id="combining-nova-and-cinders-az-features">Combining Nova and Cinder&rsquo;s AZ features</h2>
+<p>Finally, it&rsquo;s worth exploring the interplay of the Nova and Cinder AZ features since this will be particularly relevant
+in <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2">part 2</a>. In a <a href="https://access.redhat.com/documentation/en-us/red_hat_openstack_platform/16.2/html-single/hyperconverged_infrastructure_guide/index">Hyperconverged Infrastructure (HCI)</a> deployment, where compute and block storage
+services run side-by-side on hyperconverged hosts, the compute hosts <em>are</em> the block storage hosts and there is no
+difference between the AZs. In a non-HCI deployment, this is unlikely to be the case but this hasn&rsquo;t prevented people
+and applications from frequently munging the two types of AZ, as we will see later. Because this conflation of different
+AZ types can happen, the general expectation we would have is that one of the following is true:</p>
 <ol>
 <li>
 <p><em>There is only a single compute AZ, a single block storage and they have the same name.</em> This is the default
@@ -144,14 +220,15 @@ volumes hosted by block storage services running on another rack). As the docs f
 entirely deployment specific and therefore totally manual.</div>
 </aside>
 
-<p>Finally, a compute AZ can be specified be when creating an instance (or &ldquo;server&rdquo;, in OpenStackClient parlance), while a
-block storage AZ can be requested when creating volumes, volume backups, volume groups, and volume groups&rsquo; deprecated
-predecessor, consistency groups. An instance that is not explicitly assigned an AZ during creation (e.g. <code>server create</code>) will be assigned the AZ of the host that it is eventually scheduled to. This is also the case when creating
-volume or related resources. However, while nova will always reject requests with invalid AZs, cinder allows you to
-configure a fallback to a default value.</p>
-<h2 id="configuration">Configuration</h2>
+<h2 id="wrap-up">Wrap up</h2>
+<p>That concludes part 1 of this OpenShift-centric examination of OpenStack Availability Zones. In this part we focused
+almost exclusively on OpenStack itself, looking at what AZs are, how they&rsquo;re configured and used, and the various issues
+people are likely to encounter along the way, but in <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2">part 2</a> we&rsquo;re going to turn our focus to how OpenStack AZs
+are consumed and represented by OpenShift components when an OpenShift cluster is deployed on an OpenStack cloud. Stay
+tuned!</p>
+<h2 id="reference">Reference</h2>
+<h3 id="configuration">Configuration</h3>
 <p>Since this feature exists across two services, there are two sets of configuration options to be concerned with.</p>
-<h3 id="nova">Nova</h3>
 <p>As of the 2023.1 (Antelope) release, Nova has three relevant configuration options:</p>
 <ul>
 <li>
@@ -177,7 +254,6 @@ be identical.</p>
 </ul>
 <p>There is also the <code>[DEFAULT] internal_service_availability_zone</code> configuration option, but this has no real impact for
 end-users.</p>
-<h3 id="cinder">Cinder</h3>
 <p>As of the 2023.1 (Antelope) release, Cinder has four relevant configuration options:</p>
 <ul>
 <li>
@@ -199,19 +275,21 @@ to be honest <code>true</code> is probably a sensible value for configurations w
 single volume AZ.</p>
 </li>
 </ul>
-<h2 id="usage">Usage</h2>
-<p>This isn&rsquo;t really the point of this article, but you can use AZs when creating resources using OpenStackClient. For
-example, when creating an instance (or &ldquo;server&rdquo;):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack server create --availability-zone compute-az1 ...
-</span></span></code></pre></div><p>Likewise, when creating a volume:</p>
+<h3 id="usage">Usage</h3>
+<p>Again, since this feature exists across two services, there are two sets of resource types to be concerned with.</p>
+<p>To configure the AZ of a compute host, you configure AZ information for a host aggregate and then add the host to this
+aggregate.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az1 foo
+</span></span><span style="display:flex;"><span>❯ openstack aggregate add host foo stephenfin-devstack
+</span></span></code></pre></div><p>Once this is done, you can request the AZ when creating an instance (or &ldquo;server&rdquo;):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server create --availability-zone nova-az1 ...
+</span></span></code></pre></div><p>On the other hand, the AZ of a storage host is configured via config and there&rsquo;s no API method to configure it. You can
+use it when creating a volume just like creating a server though:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
 </span></span></code></pre></div><p>Or when creating a volume backup:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume backup create --availability-zone volume-az2 ...
 </span></span></code></pre></div><p>Other API libraries like gophercloud also expose these attributes and allow them to be configured, but we won&rsquo;t go into
 that here.</p>
-<h2 id="next-steps">Next Steps</h2>
-<p>In the next post, I&rsquo;ll detail how all of these pieces play into various OpenStack-specific components of OpenShift and
-Kubernetes.</p>
 
   </article>
 
