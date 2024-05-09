@@ -300,8 +300,10 @@ first to avoid topology mismatches.&lt;/p&gt;
 ascertained, they can be a very useful feature, particularly in larger deployments, but there are more than a few
 potential banana skins to be aware of when you start using them for storage. By way of recommendations, I would suggest
 either using a single common AZ for you deployment (you can stick to the default of &lt;code&gt;nova&lt;/code&gt;) or a common set of AZs
-across both the compute and block storage hosts. If you insist on sticking with divergent sets of AZs, you should
-disable the topology feature and rely on the legacy &lt;code&gt;availability&lt;/code&gt; parameter of the &lt;code&gt;StorageClass&lt;/code&gt; instead.&lt;/p&gt;
+across both the compute and block storage hosts (e.g. in a two-AZ deployment, you could use &lt;code&gt;az0&lt;/code&gt; and &lt;code&gt;az1&lt;/code&gt; for both
+compute and block storage AZs, rather than &lt;code&gt;nova-az0&lt;/code&gt; and &lt;code&gt;nova-az1&lt;/code&gt; for compute AZs and &lt;code&gt;cinder-az0&lt;/code&gt; and &lt;code&gt;cinder-az1&lt;/code&gt;
+for block storage AZs). If you insist on sticking with divergent sets of AZs, you should disable the topology feature
+and rely on the legacy &lt;code&gt;availability&lt;/code&gt; parameter of the &lt;code&gt;StorageClass&lt;/code&gt; instead.&lt;/p&gt;
 &lt;p&gt;I hope this has been useful to someone. If you spot any mistakes or identify things that I should have covered but
 didn&amp;rsquo;t, feel free to send me an email and I&amp;rsquo;ll try get things sorted.&lt;/p&gt;
 </description>

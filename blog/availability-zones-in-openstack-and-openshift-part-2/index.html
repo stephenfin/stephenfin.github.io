@@ -372,8 +372,10 @@ first to avoid topology mismatches.</p>
 ascertained, they can be a very useful feature, particularly in larger deployments, but there are more than a few
 potential banana skins to be aware of when you start using them for storage. By way of recommendations, I would suggest
 either using a single common AZ for you deployment (you can stick to the default of <code>nova</code>) or a common set of AZs
-across both the compute and block storage hosts. If you insist on sticking with divergent sets of AZs, you should
-disable the topology feature and rely on the legacy <code>availability</code> parameter of the <code>StorageClass</code> instead.</p>
+across both the compute and block storage hosts (e.g. in a two-AZ deployment, you could use <code>az0</code> and <code>az1</code> for both
+compute and block storage AZs, rather than <code>nova-az0</code> and <code>nova-az1</code> for compute AZs and <code>cinder-az0</code> and <code>cinder-az1</code>
+for block storage AZs). If you insist on sticking with divergent sets of AZs, you should disable the topology feature
+and rely on the legacy <code>availability</code> parameter of the <code>StorageClass</code> instead.</p>
 <p>I hope this has been useful to someone. If you spot any mistakes or identify things that I should have covered but
 didn&rsquo;t, feel free to send me an email and I&rsquo;ll try get things sorted.</p>
 
