@@ -6,11 +6,11 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 21 Aug 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 22 Aug 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Block Storage in OpenStack</title>
       <link>https://that.guru/blog/block-devices-in-openstack/</link>
-      <pubDate>Wed, 21 Aug 2024 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 22 Aug 2024 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/block-devices-in-openstack/</guid>
       <description>&lt;p&gt;It&amp;rsquo;s an often overlooked fact that OpenStack has two wholly different mechanisms for provisioning block devices for
