@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Block Storage in OpenStack | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://source.unsplash.com/Q9y3LRuuxmg/1920x1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Block Storage in OpenStack</h1>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2024-08-21T00:00:00Z'>Aug 21, 2024</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>18 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>It&rsquo;s an often overlooked fact that OpenStack has two wholly different mechanisms for provisioning block devices for
+instances. While most people are aware of the Block Storage service, Cinder, not everyone is aware of or gives much
+thought to the various types of block devices or <em>&ldquo;ephemeral&rdquo;</em> storage that the Compute service, Nova, is able to
+provide. This article serves to provide a high-level overview and comparison of these two different mechanisms,
+including examples of how you can use them and some hopefully (interesting) asides.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">This article focuses on exclusively on block devices, ignoring the other types of storage available in OpenStack such as
+objects (provided by Swift) or shareable filesystems (provided by Manila). Covering those will have to be left for
+another day.</div>
+</aside>
+
+<h2 id="types-of-block-storage">Types of block storage</h2>
+<p>Broadly speaking, OpenStack has two types of storage: <em>ephemeral</em> storage and <em>persistent</em> storage. Ephemeral storage is
+storage associated with an individual instance and whose lifecycle follows that of the instance itself. Persistent
+storage, on the other hand, can persist after an instance is deleted and may be re-attached to other instances (or in
+some cases even attached to multiple instances at the same time).</p>
+<p>Focusing on block storage in particular, ephemeral block storage is provided and managed by Nova, while persistent block
+storage is provided and managed by Cinder. When and where you can use either type of storage depends on the type of disk
+you want to create, something we&rsquo;ll get onto in a moment.</p>
+<p>Both Nova and Cinder provide a level of configurability about where or how the underlying data for the block devices are
+stored. For Nova, this is determined by the virt driver in use, the value of the <code>[compute] use_cow_images</code>
+configuration option, and optionally one or more virt driver-specific configuration options. If using the libvirt driver
+then the <code>[compute] use_cow_image</code>, <code>[compute] force_raw_images</code>, <code>[libvirt] images_types</code> and <code>[DEFAULT] instances_path</code> options are all relevant. In a default DevStack deployment, block devices will be stored as <code>qcow2</code>
+image files in <code>/opt/stack/data/nova/instances</code>, but you can also choose to store the images in Ceph (<code>[libvirt] images_types = rdb</code>), LVM (<code>[libvirt] images_types = lvm</code> and <code>[libvirt] images_volume_group</code> set to a relevant volume
+group (VG), flat files (<code>[libvirt] images_types = flat</code>), or elsewhere. It&rsquo;s also possible that your deployment tooling
+will map the directory indicated by <code>[DEFAULT] instances_path</code> to a network-attached filesystem.</p>
+<p>By comparison, Cinder is designed to be pluggable and supports a wide variety of drivers, which can be found
+<a href="https://docs.openstack.org/cinder/latest/reference/support-matrix.html#driver-support-matrix">here</a>. Cinder supports backends like LVM and Ceph, as well as a large variety of other proprietary and
+open source backends. Covering all of those is yet another topic worthy of a dedicated post so, suffice to say, it&rsquo;s
+<em>configurable</em>.</p>
+<h2 id="types-of-disk">Types of disk</h2>
+<p>Moving swiftly on, let&rsquo;s look at the types of disk supported in OpenStack. Disks are in many way a synonym for block
+devices, but there are some nuances that we will touch on. First up, root disks.</p>
+<h3 id="root-disks">Root disks</h3>
+<p>This is the one most people will be familiar with and it&rsquo;s the only disk that&rsquo;s absolutely required. As the name would
+suggest, the root disk is where <code>/</code> is mounted. By default, the root disk will be provisioned by Nova (meaning
+<code>destination_type=local</code> - more on this in a bit) and its size will be configured in GB using the <code>disk</code> property of the
+flavor used to create the instance. For example, by looking at the <code>m1.small</code> flavor on a local DevStack deployment I
+can see <code>disk</code> set to <code>20</code> or 20GB:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.small -f value -c disk
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">20</span>
+</span></span></code></pre></div><p>If we create a instance using this flavor (and no other block device-related configuration, obviously), we will get a
+root disk that is 20GB in size.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>We can confirm this by SSH&rsquo;ing into the machine:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server add floating ip test-server <span style="color:#e6db74">${</span>FIP<span style="color:#e6db74">}</span>
+</span></span><span style="display:flex;"><span>❯ openstack server ssh test-server -- -l cirros
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ lsblk
+</span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+</span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> disk
+</span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> part /
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 252:15   <span style="color:#ae81ff">0</span>   8M  <span style="color:#ae81ff">0</span> part
+</span></span></code></pre></div><p>We can also opt to use a Cinder volume for the root volume. If you&rsquo;re using OpenStackClient (OSC), this can be
+accomplished using the <code>--boot-from-volume</code> option.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --boot-from-volume <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>When you do this, Nova will create the volume for you by proxying the request through to Cinder. You can confirm this
+using the <code>openstack volume list</code> command:</p>
+<pre tabindex="0"><code>❯ openstack volume list
++--------------------------------------+------+--------+------+--------------------------------------+
+| ID                                   | Name | Status | Size | Attached to                          |
++--------------------------------------+------+--------+------+--------------------------------------+
+| 68584677-0d53-4c52-8d1c-5600c96768a1 |      | in-use |    5 | Attached to test-server on /dev/vda  |
++--------------------------------------+------+--------+------+--------------------------------------+
+</code></pre><p>And, like above, you can confirm the disk size in the guest:</p>
+<pre tabindex="0"><code>$ lsblk
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+vda     252:0    0   5G  0 disk
+|-vda1  252:1    0   5G  0 part /
+`-vda15 252:15   0   8M  0 part
+</code></pre><aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>It&rsquo;s probably useful to note that, by default, volumes attached to an instance are not automatically removed when the
+instance is deleted. This is either or a pro or a con, depending on how you look at it. On the positive side, this
+allows you to re-attach the disk to a new instance (more on this later). On the negative side, this means you can end up
+with a whole load of stale volumes sitting around, taking up space on your Ceph cluster (or whatever you&rsquo;re using). To
+work around this, you can modify the <code>delete_on_termination</code> attribute of the volume attachment:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server volume list test-server
+</span></span><span style="display:flex;"><span>+----------+--------------------------------------+--------------------------------------+------+------------------------+--------------------------------------+--------------------------------------+
+</span></span><span style="display:flex;"><span>| Device   | Server ID                            | Volume ID                            | Tag  | Delete On Termination? | Attachment ID                        | BlockDeviceMapping UUID              |
+</span></span><span style="display:flex;"><span>+----------+--------------------------------------+--------------------------------------+------+------------------------+--------------------------------------+--------------------------------------+
+</span></span><span style="display:flex;"><span>| /dev/vda | 339acd3a-41e3-45b9-8dbf-1d7dcc1bd8bc | 1bd2c131-7961-4eeb-84ff-4990917bb9b8 | None | False                  | 819c7472-b14f-4867-b894-b68758c6d398 | c69ba987-e66a-4381-8c8a-ceff5f652f0e |
+</span></span><span style="display:flex;"><span>+----------+--------------------------------------+--------------------------------------+------+------------------------+--------------------------------------+--------------------------------------+
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>❯ openstack server volume set --delete-on-termination 339acd3a-41e3-45b9-8dbf-1d7dcc1bd8bc 1bd2c131-7961-4eeb-84ff-4990917bb9b8
+</span></span></code></pre></div><p>Alternatively, you can set this property when creating the instance. Unfortunately doing this requires using the
+<code>--block-device</code> option to specify the BDM rather than the <code>--boot-from-volume</code> alias. The equivalent of the
+previous command using <code>--boot-from-volume</code> would be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ image_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack image show cirros-0.6.2-x86_64-disk -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>image_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>image,destination_type<span style="color:#f92672">=</span>volume,delete_on_termination<span style="color:#f92672">=</span>true,boot_index<span style="color:#f92672">=</span>0,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div></div>
+</aside>
+
+<h3 id="ephemeral-disks">Ephemeral disks</h3>
+<p>Ephemeral disks are so called because they are associated with a single instance and only exist for the lifetime of that
+instance. Therefore, as you may guess, these disks can only be provided by Nova. Like root disks, the size of the
+ephemeral disk is configured in GB via a flavor property, <code>OS-FLV-EXT-DATA:ephemeral</code>. None of the flavors provided in a
+default DevStack install provide for ephemeral storage, so to demonstrate this we need to create our own flavor which
+we&rsquo;re going to call <code>m1.ephemeral</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor create --id <span style="color:#ae81ff">99</span> --vcpus <span style="color:#ae81ff">1</span> --ram <span style="color:#ae81ff">512</span> --disk <span style="color:#ae81ff">20</span> --ephemeral <span style="color:#ae81ff">10</span> m1.ephemeral
+</span></span></code></pre></div><p>Once created, we can look at the flavor and ensure that the <code>OS-FLV-EXT-DATA:ephemeral</code> property has been set to the
+relevant size (in this case, <code>10</code> or 10GB):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.ephemeral -f value -c <span style="color:#e6db74">&#39;OS-FLV-EXT-DATA:ephemeral&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">10</span>
+</span></span></code></pre></div><p>If we create a instance using this flavor, we will get a root disk that is 20GB in size <strong>and</strong> a new, additional disk
+that is 10GB in size:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>Once again, we can confirm this by SSH&rsquo;ing into the machine:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
+</span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+</span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> disk
+</span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> part /
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 252:15   <span style="color:#ae81ff">0</span>   8M  <span style="color:#ae81ff">0</span> part
+</span></span><span style="display:flex;"><span>vdb     252:16   <span style="color:#ae81ff">0</span>  10G  <span style="color:#ae81ff">0</span> disk /mnt
+</span></span></code></pre></div><p>You&rsquo;ll note that the disk is already mounted for us. This isn&rsquo;t actually an OpenStack doing this for us. Rather, it&rsquo;s
+part of <code>cloud-init</code>, which is included in the Cirros images. If you were using an image that didn&rsquo;t include
+<code>cloud-init</code> or were to attach multiple ephemeral disks, you&rsquo;d need to handle this mounting yourself.</p>
+<p>You may also note that there&rsquo;s an <code>--ephemeral</code> option available for the <code>openstack server create</code> command. This option
+allows you to change both the layout of the ephemeral storage and the filesystem used on them. For example, say that
+instead of having a single 10GB disk, I wanted to have an 8GB disk formatted as ext4 and a 2GB disk formatted as XFS, I
+could invoke OSC like so:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ephemeral size<span style="color:#f92672">=</span>8,format<span style="color:#f92672">=</span>ext4 --ephemeral size<span style="color:#f92672">=</span>2,format<span style="color:#f92672">=</span>xfs <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>We can see that these are available in the machine using <code>lsblk</code> again and confirm their filesystem types using <code>blkid</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
+</span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+</span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> disk
+</span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> part /
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 252:15   <span style="color:#ae81ff">0</span>   8M  <span style="color:#ae81ff">0</span> part
+</span></span><span style="display:flex;"><span>vdb     252:16   <span style="color:#ae81ff">0</span>   8G  <span style="color:#ae81ff">0</span> disk /mnt
+</span></span><span style="display:flex;"><span>vdc     252:32   <span style="color:#ae81ff">0</span>   2G  <span style="color:#ae81ff">0</span> disk
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ blkid
+</span></span><span style="display:flex;"><span>/dev/vdb: LABEL<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ephemeral0&#34;</span> UUID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;a34015c1-be25-4757-8d17-cc82285b12b2&#34;</span> BLOCK_SIZE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;4096&#34;</span> TYPE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ext4&#34;</span>
+</span></span><span style="display:flex;"><span>/dev/vdc: LABEL<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ephemeral1&#34;</span> UUID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0cf5d85b-0357-44fc-9549-6f71720af8ba&#34;</span> BLOCK_SIZE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;512&#34;</span> TYPE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;xfs&#34;</span>
+</span></span><span style="display:flex;"><span>/dev/vda15: SEC_TYPE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;msdos&#34;</span> UUID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;AE31-5342&#34;</span> BLOCK_SIZE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;512&#34;</span> TYPE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;vfat&#34;</span> PARTUUID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;05ecb6a9-6cb3-4697-b819-25c6cee5bd9a&#34;</span>
+</span></span><span style="display:flex;"><span>/dev/vda1: LABEL<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;cirros-rootfs&#34;</span> UUID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;f1511162-06fb-4482-9dab-9a0c76633fb2&#34;</span> BLOCK_SIZE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;4096&#34;</span> TYPE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ext3&#34;</span> PARTUUID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;df2f017d-edcc-4371-81c7-fcfa0c5c1b09&#34;</span>
+</span></span></code></pre></div><p>When configuring ephemeral disks this way, the total size of all disks does not have to add up to the size indicted by
+the flavor&rsquo;s <code>OS-FLV-EXT-DATA:ephemeral</code> property (meaning you could choose only to configure e.g. the 2GB volume above)
+but it cannot exceed the size indicated in the flavor. For example, if I repeated the above command but using single
+20GB disk (i.e. 10GB larger than the 10GB value specified for the <code>m1.ephemeral</code> flavor we created previously), the
+request will fail:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ephemeral size<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span><span style="display:flex;"><span>BadRequestException: 400: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.108.50/compute/v2.1/servers, Ephemeral disks requested are
+</span></span><span style="display:flex;"><span>larger than the instance type allows. If no size is given in one block device mapping, flavor ephemeral size will be
+</span></span><span style="display:flex;"><span>used.
+</span></span></code></pre></div><p>Finally, as we noted at the top, ephemeral disks can only be provisioned by Nova. If you attempt to create an ephemeral
+disk using <code>destination_type=remote</code>, what you have is no longer an ephemeral disk (in the OpenStack sense of the term)
+but rather a volume. Which is a nice segue to&hellip;</p>
+<h3 id="volumes">Volumes</h3>
+<p>Volumes are not a disk type but rather the name given to the primary resource type provided by Cinder. As noted
+previously, a Cinder volume can be used as the backing device for the root disk, but it can also be used to provide
+additional disks to the instance. For example, say we wanted to use a standard Nova-provisioned block devices for our
+root disk but attach two additional volumes provisioned by Cinder, we could run:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ vol_b_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-b -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_a_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_b_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>We can examine these in the guest:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
+</span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+</span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> disk
+</span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> part /
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 252:15   <span style="color:#ae81ff">0</span>   8M  <span style="color:#ae81ff">0</span> part
+</span></span><span style="display:flex;"><span>vdb     252:16   <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> disk
+</span></span><span style="display:flex;"><span>vdc     252:32   <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> disk
+</span></span></code></pre></div><p>Instead of pre-creating the volume with Cinder, we could also let Nova do this for us. This avoids an extra call to
+Cinder (at least from us - Nova simply makes the call on our behalf), at the expense of some fine grained configuration
+for the flavor. We could modify the above command like so:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>Unlike the block devices provisioned by Nova, it&rsquo;s also possible to attach additional block devices to an existing
+instance:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-c
+</span></span><span style="display:flex;"><span>❯ openstack server add volume test-server test-volume-c
+</span></span></code></pre></div><p>Likewise, you can remove devices as long as they&rsquo;re not used for the root disk:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server remove volume test-server test-volume-c
+</span></span></code></pre></div><p>Finally, Cinder volumes can be attached to multiple instances at the same time. As discussed in the <a href="https://docs.openstack.org/cinder/latest/admin/volume-multiattach.html">Cinder
+documentation</a>, this requires the use of a clustered or multi-attach creation of a special <em>volume type</em>
+with the <code>multiattach</code> property set to <code>&lt;is&gt; True</code>. Fortunately, the reference LVM driver configured by default in a
+DevStack deployment supports this, so we can demo creating the volume type, volume, and instances:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack volume type create --multiattach multiattach
+</span></span><span style="display:flex;"><span>❯ vol_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> --type multiattach test-volume -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server-a
+</span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server-b
+</span></span></code></pre></div><p>If we log in to these two instances and mount the volume (after partitioning and formatting it), we&rsquo;ll be able to create
+a file in one and see it appear in the other:</p>
+<pre tabindex="0"><code>❯ openstack server ssh test-server-a -- -l cirros
+
+# create partitions using fdisk since parted is not available in cirros images
+$ sudo fdisk /dev/vdb
+$ sudo mkfs.ext4 /dev/vdb1
+
+$ lsblk
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+vda     252:0    0  20G  0 disk
+|-vda1  252:1    0  20G  0 part /
+`-vda15 252:15   0   8M  0 part
+vdb     252:16   0   5G  0 disk
+`-vdb1  252:17   0   5G  0 part
+$ mkdir test
+$ sudo mount /dev/vdb1 test
+$ sudo touch test/foo
+$ exit
+
+❯ openstack server ssh test-server-b -- -l cirros
+
+$ mkdir test
+$ sudo mount /dev/vdb1 test  # you may need to reboot to pick up the changes to this disk for this to work
+$ ls test
+$ ls disk/
+foo
+</code></pre><aside class="admonition note">
+	
+	
+	<div class="admonition-content"><p>If <code>parted</code> was available in the Cirros image used, we could avoid the interactive use of <code>fdisk</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo parted /dev/vdb mklabel gpt
+</span></span><span style="display:flex;"><span>$ sudo parted /dev/vdb mkpart primary ext4 0% 100%
+</span></span><span style="display:flex;"><span>$ sudo parted /dev/vdc print
+</span></span></code></pre></div></div>
+</aside>
+
+<h3 id="swap-disks">Swap disks</h3>
+<p>The final type of disk is the swap disk. Swap disks are very like ephemeral disks, in that they&rsquo;re exclusively managed
+by Nova and configured via a flavor property called <code>swap</code>. Unlike the <code>disk</code> and <code>OS-FLV-EXT-DATA:ephemeral</code> properties
+though, the <code>swap</code> property is a size in MB, not GB. Once again, the default DevStack configuration does not include
+flavors with swap enabled so we need to configure these ourselves. Lets do that, creating a flavor called <code>m1.swap</code> with
+2048 MB of swap:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor create --id <span style="color:#ae81ff">98</span> --vcpus <span style="color:#ae81ff">1</span> --ram <span style="color:#ae81ff">512</span> --disk <span style="color:#ae81ff">20</span> --swap <span style="color:#ae81ff">2048</span> m1.swap
+</span></span></code></pre></div><p>Once created, we can look at the flavor and ensure that the <code>swap</code> property has been set to the relevant size (in this
+case, <code>1024</code> or 1024MB):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.swap -f value -c <span style="color:#e6db74">&#39;swap&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1024</span>
+</span></span></code></pre></div><p>If we create a instance using this flavor, we will get a root disk that is 20GB in size <strong>and</strong> a additional disk
+that is 1024MB in size and formatted as a swap disk:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>Inspecting the guest itself, we see the disk present and that it has an fstype of <code>swap</code>, as expected:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo lsblk -f
+</span></span><span style="display:flex;"><span>NAME    FSTYPE FSVER LABEL         UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+</span></span><span style="display:flex;"><span>vda
+</span></span><span style="display:flex;"><span>|-vda1  ext3         cirros-rootfs f1511162-06fb-4482-9dab-9a0c76633fb2   18.4G     0% /
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 vfat                       AE31-5342
+</span></span><span style="display:flex;"><span>vdb     swap                       6f7adada-a19f-47e1-915c-20570535a619
+</span></span><span style="display:flex;"><span>$ cat /proc/meminfo | grep -i swap
+</span></span><span style="display:flex;"><span>SwapCached:            <span style="color:#ae81ff">0</span> kB
+</span></span><span style="display:flex;"><span>SwapTotal:             <span style="color:#ae81ff">0</span> kB
+</span></span><span style="display:flex;"><span>SwapFree:              <span style="color:#ae81ff">0</span> kB
+</span></span></code></pre></div><p>However, unlike ephemeral disks, <code>cloud-init</code> does not mount this additional disk for us. If you want that, you&rsquo;ll need
+to do so manually:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo swapon /dev/vdb
+</span></span><span style="display:flex;"><span>$ sudo lsblk -f
+</span></span><span style="display:flex;"><span>NAME    FSTYPE FSVER LABEL         UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+</span></span><span style="display:flex;"><span>vda
+</span></span><span style="display:flex;"><span>|-vda1  ext3         cirros-rootfs f1511162-06fb-4482-9dab-9a0c76633fb2   18.4G     0% /
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 vfat                       AE31-5342
+</span></span><span style="display:flex;"><span>vdb     swap                       6f7adada-a19f-47e1-915c-20570535a619
+</span></span><span style="display:flex;"><span>$ cat /proc/meminfo | grep -i swap
+</span></span><span style="display:flex;"><span>SwapCached:            <span style="color:#ae81ff">0</span> kB
+</span></span><span style="display:flex;"><span>SwapTotal:       <span style="color:#ae81ff">1048572</span> kB
+</span></span><span style="display:flex;"><span>SwapFree:        <span style="color:#ae81ff">1048572</span> kB
+</span></span></code></pre></div><p>Like ephemeral disk, there&rsquo;s also a <code>--swap</code> option for the <code>openstack server create</code> command that you can use to
+override the default swap size. Once again you cannot exceed the total size given in the flavor, but you also can&rsquo;t
+specify the option multiple times to divide the swap into different disks. For example, if we wanted to configure a
+smaller swap disk size of, say, 512MB, we could do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --swap <span style="color:#ae81ff">512</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>Attempting to use something larger than the size indicated in the <code>swap</code> property of the flavor will result in an error:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --swap <span style="color:#ae81ff">2048</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span><span style="display:flex;"><span>BadRequestException: 400: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.108.50/compute/v2.1/servers, Swap drive requested is larger
+</span></span><span style="display:flex;"><span>than instance type allows.
+</span></span></code></pre></div><h2 id="block-device-mappings-bdms">Block Device Mappings (BDMs)</h2>
+<p>Finally, we get to the final piece of the block storage puzzle: Block Device Mappings, or BDMs. BDMs are how Nova
+describes mapping of block devices to instances. BDMs are specified during instance creation using the
+<code>block_device_mapping_v2</code> field and are objects with a number of well known fields.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">The term &ldquo;BDM&rdquo; can also be used to refer to the (Python) objects used internally in Nova to manage mappings. If you&rsquo;re
+interested in a deeper dive into this particular topic, my colleague Lee Yarwood wrote a good overview a few years ago
+which you can find <a href="https://blog.yarwood.me.uk/2021/01/20/openstack_nova_bdm/">here</a>.</div>
+</aside>
+
+<p>Both the <a href="https://docs.openstack.org/nova/latest/user/block-device-mapping.html">Nova user docs</a> and the <a href="https://docs.openstack.org/api-ref/compute/?expanded=create-server-detail#create-server">Nova API Reference docs</a> provide a good overview of these
+fields, but there are a few in particular worth discussing here in light of the above.</p>
+<ul>
+<li>
+<p><code>destination_type</code></p>
+<p>This field, which has been referenced earlier in this article, determines what service manages the block devices and
+therefore where the block device resides. This value can either be <code>local</code> (meaning managed by Nova) or <code>remote</code>
+(managed by Cinder).</p>
+</li>
+<li>
+<p><code>source_type</code></p>
+<p>This indicates the source of the block devices. This value can one of <code>blank</code>, <code>image</code>, <code>snapshot</code>, or <code>volume</code>, and
+the docs describe all of these in detail. We&rsquo;ll explore some different use cases for these shortly.</p>
+</li>
+<li>
+<p><code>boot_index</code></p>
+<p>This is an integer value that indicates the order that the VM will use when attempting to boot from disks. When
+attaching a volume as a root disk (i.e. boot from volume), you will use a <code>boot_index</code> of <code>0</code> to indicate that the
+guest OS should boot from that volume from.</p>
+</li>
+</ul>
+<p>With that knowledge in hand, we can look at a few of the examples previously from the perspective of the BDMs used
+during instance creation. We&rsquo;ll do this using the <code>openstack server create</code> command with the <code>--debug</code> flag, which
+allows us to see the raw requests and responses issued to the server.</p>
+<p>First, let&rsquo;s look a root disks. If we create a &ldquo;standard&rdquo; instance using a local root disk, then the
+<code>block_device_mapping_v2</code> field can be (and, if using OSC, will be) empty:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --debug <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This is because Nova automatically creates the BDM for us, making it unnecessary to specify. If we want to use boot from
+volume instead, placing our root disk on a volume, we will need to specify a BDM:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --boot-from-volume <span style="color:#ae81ff">5</span> --debug <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>: [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;image&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;volume_size&#34;</span>: <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>(<code>9acb21b3-0516-459a-9b0a-6357e66ff74a</code> is the ID of the <code>cirros-0.6.2-x86_64-disk</code> image we created the server with,
+and it&rsquo;s passed via the <code>uuid</code> field of the BDM rather than via the <code>imageRef</code> field)</p>
+<p>Next, let&rsquo;s look at ephemeral disks. As with root disks, you can simply use a relevant flavor and omit the
+<code>block_device_mapping_v2</code> field and Nova will automatically do the right thing. If you wanted to divide the ephemeral
+disk into multiple devices though, you&rsquo;d use a different variation of this field. For example, our prior example of an
+8GB ext4 ephemeral disk and a 2GB XFS disk would look like so:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ephemeral size<span style="color:#f92672">=</span>8,format<span style="color:#f92672">=</span>ext4 --ephemeral size<span style="color:#f92672">=</span>2,format<span style="color:#f92672">=</span>xfs <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;99&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>: [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;image&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">-1</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;blank&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;volume_size&#34;</span>: <span style="color:#e6db74">&#34;8&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;guest_format&#34;</span>: <span style="color:#e6db74">&#34;ext4&#34;</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">-1</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;blank&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;volume_size&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;guest_format&#34;</span>: <span style="color:#e6db74">&#34;xfs&#34;</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Yes, things are starting to get lengthy&hellip;</p>
+<p>We&rsquo;ll skip over volumes for a moment and move onto swap volumes. Yet again, if you don&rsquo;t want to do anything bar use the
+swap configured in the flavor then you can omit the <code>block_device_mapping_v2</code> field, but you&rsquo;ll need to specify it if
+you wish to use a different size:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --swap <span style="color:#ae81ff">512</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;98&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>: [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;image&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">-1</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;blank&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;guest_format&#34;</span>: <span style="color:#e6db74">&#34;swap&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;volume_size&#34;</span>: <span style="color:#ae81ff">512</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And finally there are volumes. As discussed above, there are huge variety of combinations available here and we&rsquo;re only
+going to look at a few of those we previously discussed. Firstly, let&rsquo;s look at our example of using two precreated
+volumes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ vol_b_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-b -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_a_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_b_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>:
+</span></span><span style="display:flex;"><span>        [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;image&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;668d9851-b878-4fe5-a244-67585c963a09&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;ed7c9976-9fe6-4ada-93cb-4e60bc2a0a05&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And now compare this to our example of letting Nova create the volumes for us:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>:
+</span></span><span style="display:flex;"><span>        [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;boot_index&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;image&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;delete_on_termination&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;blank&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;volume_size&#34;</span>: <span style="color:#e6db74">&#34;5&#34;</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;source_type&#34;</span>: <span style="color:#e6db74">&#34;blank&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;destination_type&#34;</span>: <span style="color:#e6db74">&#34;volume&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;volume_size&#34;</span>: <span style="color:#e6db74">&#34;5&#34;</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>There are loads of other combinations available here, from creating volumes from snapshots to tagging created volumes,
+but this should be sufficient to demonstrate the general &ldquo;feel&rdquo; of BDMs.</p>
+<h2 id="final-thoughts">Final thoughts</h2>
+<p>The main takeaway from this article should be that if you want to understand block devices in OpenStack, you&rsquo;d be well
+placed to understand BDMs. While they are terse, they do expose the most important aspects of block devices in
+OpenStack, such as their differing sources and variety of ways that they can be configured. Does that mean that this
+article is written backwards and should open with a piece on BDMs? Probably, but what fun would that be.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2024 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>
