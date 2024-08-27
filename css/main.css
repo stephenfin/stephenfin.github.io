@@ -320,6 +320,17 @@ tr:nth-child(even) {
   color: black;
 }
 
+.header-attrib {
+  font-size: .75rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: .5rem .5rem 0 0;
+  padding: 0 .5rem;
+  color: white;
+  background-color: rgba(0,0,0,.2);
+}
+
 .site-nav {
   display: flex;
   max-width: 1280px;
