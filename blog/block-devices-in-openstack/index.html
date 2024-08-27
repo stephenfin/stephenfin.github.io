@@ -79,7 +79,7 @@
       </div>
       <div class="byline-meta-content">
         <time datetime='2024-08-22T00:00:00Z'>Aug 22, 2024</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>18 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>20 min read</span>
       </div>
     </div>
   </div>
@@ -99,33 +99,48 @@ another day.</div>
 </aside>
 
 <h2 id="types-of-block-storage">Types of block storage</h2>
-<p>Broadly speaking, OpenStack has two types of storage: <em>ephemeral</em> storage and <em>persistent</em> storage. Ephemeral storage is
-storage associated with an individual instance and whose lifecycle follows that of the instance itself. Persistent
-storage, on the other hand, can persist after an instance is deleted and may be re-attached to other instances (or in
-some cases even attached to multiple instances at the same time).</p>
-<p>Focusing on block storage in particular, ephemeral block storage is provided and managed by Nova, while persistent block
-storage is provided and managed by Cinder. When and where you can use either type of storage depends on the type of disk
-you want to create, something we&rsquo;ll get onto in a moment.</p>
-<p>Both Nova and Cinder provide a level of configurability about where or how the underlying data for the block devices are
-stored. For Nova, this is determined by the virt driver in use, the value of the <code>[compute] use_cow_images</code>
-configuration option, and optionally one or more virt driver-specific configuration options. If using the libvirt driver
-then the <code>[compute] use_cow_image</code>, <code>[compute] force_raw_images</code>, <code>[libvirt] images_types</code> and <code>[DEFAULT] instances_path</code> options are all relevant. In a default DevStack deployment, block devices will be stored as <code>qcow2</code>
-image files in <code>/opt/stack/data/nova/instances</code>, but you can also choose to store the images in Ceph (<code>[libvirt] images_types = rdb</code>), LVM (<code>[libvirt] images_types = lvm</code> and <code>[libvirt] images_volume_group</code> set to a relevant volume
-group (VG), flat files (<code>[libvirt] images_types = flat</code>), or elsewhere. It&rsquo;s also possible that your deployment tooling
-will map the directory indicated by <code>[DEFAULT] instances_path</code> to a network-attached filesystem.</p>
-<p>By comparison, Cinder is designed to be pluggable and supports a wide variety of drivers, which can be found
+<p>Broadly speaking, OpenStack has two types of block storage: storage provisioned by Nova, and storage provisioned by
+Cinder. Somewhat confusingly, these are often referred to as <em>ephemeral</em> storage and <em>persistent</em> storage, respectively.
+The origin for these names is likely based on the fact that Nova-provisioned storage is associated with an individual
+instance and has a lifecycle that is tied to the lifecycle instance itself, meaning if you delete the instance then any
+Nova-provisioned storage associated with that instance is also deleted. By comparison, Cinder-provisioned storage can
+&ldquo;persist&rdquo; after an instance is deleted and may be re-attached to other instances (or in some cases even attached to
+multiple instances at the same time).</p>
+<p>When and where you can use either type of storage depends on the type of disk you want to create, something we&rsquo;ll get
+to in a moment. However, to call these storage types ephemeral and persistent invites confusion on multiple fronts.
+Firstly, there is the fact that Nova already has its own separate concept of &ldquo;ephemeral disks&rdquo;, which we cover below.
+More pressingly, calling Nova-provisioned storage ephemeral suggests it is somehow unsafe or unreliable. In reality,
+both Nova and Cinder provide a level of configurability about where or how the underlying data for the block devices are
+stored. Cinder achieves this by being pluggable and supporting a wide variety of drivers, which can be found
 <a href="https://docs.openstack.org/cinder/latest/reference/support-matrix.html#driver-support-matrix">here</a>. Cinder supports backends like LVM and Ceph, as well as a large variety of other proprietary and
-open source backends. Covering all of those is yet another topic worthy of a dedicated post so, suffice to say, it&rsquo;s
-<em>configurable</em>.</p>
+open source backends. For Nova, this is determined by the virt driver in use, the value of the <code>[compute] use_cow_images</code> configuration option, and optionally one or more virt driver-specific configuration options. If using
+the libvirt driver then the following options are all relevant:</p>
+<ul>
+<li><code>[compute] use_cow_image</code>,</li>
+<li><code>[compute] force_raw_images</code>,</li>
+<li><code>[libvirt] images_types</code> (and mechanism-specific options),</li>
+<li>and <code>[DEFAULT] instances_path</code></li>
+</ul>
+<p>In a default DevStack deployment, block devices will be stored as <code>qcow2</code> image files in the path indicated by
+<code>[DEFAULT] instances_path</code>, <code>/opt/stack/data/nova/instances</code>, on the compute host that instance is located on.
+When using this default configuration, a migrated instance will need its block storage files migrated too and if the
+host dies then you will lose any of these Nova-provisioned block devices with it. However, this is only one potential
+configuration: you can also choose to store the images in Ceph (<code>[libvirt] images_types = rdb</code>, with <code>[libvirt] images_rbd_pool</code> and <code>[libvirt] images_rbd_ceph_conf</code> set to relevant options). Alternatively, you can choose to use use
+any of the other local storage mechanisms with a suitable replication or backup strategy, whether that&rsquo;s LVM (<code>[libvirt] images_types = lvm</code> and <code>[libvirt] images_volume_group</code> set to a relevant volume group (VG)) and backups, or one of the
+file-based mechanisms with the directory indicated by <code>[DEFAULT] instances_path</code> placed on a network-attached
+filesystem. Suffice to say that, with correct configuration, your data should never be at risk regardless of where it&rsquo;s
+placed.</p>
 <h2 id="types-of-disk">Types of disk</h2>
-<p>Moving swiftly on, let&rsquo;s look at the types of disk supported in OpenStack. Disks are in many way a synonym for block
-devices, but there are some nuances that we will touch on. First up, root disks.</p>
+<p>Now that we&rsquo;re aware of <em>how</em> the block storage is actually stored, let&rsquo;s look at how these block devices are exposed
+and used in OpenStack. OpenStack typically refers to block devices as either disks or volumes. I don&rsquo;t have a good
+explanation for when you&rsquo;d use one or the other, and my own mental shortcut is to call any block device attached to an
+instance a disk, unless that block device is a non-root device provisioned by Cinder in which case it&rsquo;s a volume. With
+that clarified (🙃), let&rsquo;s take a look at the first disk type, root disks.</p>
 <h3 id="root-disks">Root disks</h3>
-<p>This is the one most people will be familiar with and it&rsquo;s the only disk that&rsquo;s absolutely required. As the name would
-suggest, the root disk is where <code>/</code> is mounted. By default, the root disk will be provisioned by Nova (meaning
-<code>destination_type=local</code> - more on this in a bit) and its size will be configured in GB using the <code>disk</code> property of the
-flavor used to create the instance. For example, by looking at the <code>m1.small</code> flavor on a local DevStack deployment I
-can see <code>disk</code> set to <code>20</code> or 20GB:</p>
+<p>This is the one most people will be familiar with and it&rsquo;s the only disk that&rsquo;s absolutely required. As the name
+suggests, the root disk is where <code>/</code> is mounted. By default, the root disk will be provisioned by Nova and its size will
+be configured in GB using the <code>disk</code> property of the flavor used to create the instance. For example, by looking at the
+<code>m1.small</code> flavor on a local DevStack deployment I can see <code>disk</code> set to <code>20</code> or 20GB:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.small -f value -c disk
 </span></span><span style="display:flex;"><span><span style="color:#ae81ff">20</span>
 </span></span></code></pre></div><p>If we create a instance using this flavor (and no other block device-related configuration, obviously), we will get a
@@ -142,8 +157,9 @@ root disk that is 20GB in size.</p>
 </span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> disk
 </span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> part /
 </span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>-vda15 252:15   <span style="color:#ae81ff">0</span>   8M  <span style="color:#ae81ff">0</span> part
-</span></span></code></pre></div><p>We can also opt to use a Cinder volume for the root volume. If you&rsquo;re using OpenStackClient (OSC), this can be
-accomplished using the <code>--boot-from-volume</code> option.</p>
+</span></span></code></pre></div><p>We can also opt to use a Cinder volume for the root disk (which some people will now call a &ldquo;root volume&rdquo; - see previous
+&ldquo;clarification&rdquo; 😅). If you&rsquo;re using OpenStackClient (OSC), this can be accomplished using the <code>--boot-from-volume</code>
+option:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --boot-from-volume <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
@@ -162,14 +178,20 @@ NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
 vda     252:0    0   5G  0 disk
 |-vda1  252:1    0   5G  0 part /
 `-vda15 252:15   0   8M  0 part
-</code></pre><aside class="admonition note">
+</code></pre><p>Finally, you can choose to use an existing volume as the root disk. To do this, use the <code>--volume</code> option:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --volume test-volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></code></pre></div><p>This volume must be bootable, and you would likely use this to re-create a deleted instance using its root volume.</p>
+<aside class="admonition note">
 	
 	
 	<div class="admonition-content"><p>It&rsquo;s probably useful to note that, by default, volumes attached to an instance are not automatically removed when the
 instance is deleted. This is either or a pro or a con, depending on how you look at it. On the positive side, this
 allows you to re-attach the disk to a new instance (more on this later). On the negative side, this means you can end up
-with a whole load of stale volumes sitting around, taking up space on your Ceph cluster (or whatever you&rsquo;re using). To
-work around this, you can modify the <code>delete_on_termination</code> attribute of the volume attachment:</p>
+with a whole load of stale volumes sitting around, taking up space on your Ceph cluster (or whatever backend Cinder is
+using). To work around this, you can modify the <code>delete_on_termination</code> attribute of the volume attachment:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server volume list test-server
 </span></span><span style="display:flex;"><span>+----------+--------------------------------------+--------------------------------------+------+------------------------+--------------------------------------+--------------------------------------+
 </span></span><span style="display:flex;"><span>| Device   | Server ID                            | Volume ID                            | Tag  | Delete On Termination? | Attachment ID                        | BlockDeviceMapping UUID              |
@@ -250,12 +272,13 @@ request will fail:</p>
 </span></span><span style="display:flex;"><span>larger than the instance type allows. If no size is given in one block device mapping, flavor ephemeral size will be
 </span></span><span style="display:flex;"><span>used.
 </span></span></code></pre></div><p>Finally, as we noted at the top, ephemeral disks can only be provisioned by Nova. If you attempt to create an ephemeral
-disk using <code>destination_type=remote</code>, what you have is no longer an ephemeral disk (in the OpenStack sense of the term)
+disk using <code>destination_type=remote</code>, what you have is no longer an ephemeral disk (in the Nova sense of the term)
 but rather a volume. Which is a nice segue to&hellip;</p>
 <h3 id="volumes">Volumes</h3>
 <p>Volumes are not a disk type but rather the name given to the primary resource type provided by Cinder. As noted
 previously, a Cinder volume can be used as the backing device for the root disk, but it can also be used to provide
-additional disks to the instance. For example, say we wanted to use a standard Nova-provisioned block devices for our
+additional disks to the instance (but not ephemeral disks - an ephemeral disk ceases to be an ephemeral disk once it&rsquo;s
+no longer provisioned by Nova). For example, say we wanted to use a standard Nova-provisioned block device for our
 root disk but attach two additional volumes provisioned by Cinder, we could run:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ vol_b_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-b -f value -c id<span style="color:#66d9ef">)</span>
@@ -274,7 +297,7 @@ root disk but attach two additional volumes provisioned by Cinder, we could run:
 </span></span><span style="display:flex;"><span>vdc     252:32   <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> disk
 </span></span></code></pre></div><p>Instead of pre-creating the volume with Cinder, we could also let Nova do this for us. This avoids an extra call to
 Cinder (at least from us - Nova simply makes the call on our behalf), at the expense of some fine grained configuration
-for the flavor. We could modify the above command like so:</p>
+for the volume. We could modify the above command like so:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
