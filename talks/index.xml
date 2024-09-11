@@ -6,7 +6,38 @@
     <description>Recent content in Talks on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Sun, 13 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 11 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Api Contracts: Bringing OpenAPI and Typing to OpenStack</title>
+      <link>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</link>
+      <pubDate>Wed, 11 Sep 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</guid>
+      <description>&lt;p&gt;This talk was delivered during the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia in Suwon&lt;/a&gt; in September 2024. It focused on two efforts
+currently underway in the OpenStack community, one to add OpenAPI schema generation to many services, and another to add
+type annotations to the SDK and OpenStackClient.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;OpenStack&amp;rsquo;s APIs - of both RESTful and Python variety - have evolved organically over time. This has allowed them to
+grow and change as new use cases have arisen (and older ones died away), but this organic growth has resulted in a
+large amount of cruft, weird corner cases and bugs, and generally lots of undefined behaviour, all things commonly
+known as tech debt. While a lot has been done to reduce this tech debt - ranging from low-hanging fruit like improved
+docstrings and better unit test coverage to bigger efforts like the api-ref docs and functional API tests - we know
+from experience that there are a non-trivial number of latent issues just waiting to be triggered. Fortunately, the
+broader tech ecosystem has not stood still since OpenStack was first introduced in the early 2010s. Two technologies
+in particular promise to massively improve how we document and understand our APIs: OpenAPI and Python type
+annotations. OpenAPI promises to provide a machine-readable definition of the various APIs, while Python type
+annotations allow us a way to provide guarantees about type information that were not previously possible in Python.
+In this talk, we will explore the work that has been ongoing to integrate both technologies into projects across
+OpenStack, how you as a user or developer can taking advantage of them, and how you can get involved.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia 2024&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;06a0288d97cf415a944d3d1fd36ab907&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>Zero-Downtime Upgrades With SQLAlchemy and Alembic</title>
       <link>https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</link>

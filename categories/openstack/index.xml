@@ -6,7 +6,38 @@
     <description>Recent content in openstack on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 22 Aug 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 11 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Api Contracts: Bringing OpenAPI and Typing to OpenStack</title>
+      <link>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</link>
+      <pubDate>Wed, 11 Sep 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</guid>
+      <description>&lt;p&gt;This talk was delivered during the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia in Suwon&lt;/a&gt; in September 2024. It focused on two efforts
+currently underway in the OpenStack community, one to add OpenAPI schema generation to many services, and another to add
+type annotations to the SDK and OpenStackClient.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;OpenStack&amp;rsquo;s APIs - of both RESTful and Python variety - have evolved organically over time. This has allowed them to
+grow and change as new use cases have arisen (and older ones died away), but this organic growth has resulted in a
+large amount of cruft, weird corner cases and bugs, and generally lots of undefined behaviour, all things commonly
+known as tech debt. While a lot has been done to reduce this tech debt - ranging from low-hanging fruit like improved
+docstrings and better unit test coverage to bigger efforts like the api-ref docs and functional API tests - we know
+from experience that there are a non-trivial number of latent issues just waiting to be triggered. Fortunately, the
+broader tech ecosystem has not stood still since OpenStack was first introduced in the early 2010s. Two technologies
+in particular promise to massively improve how we document and understand our APIs: OpenAPI and Python type
+annotations. OpenAPI promises to provide a machine-readable definition of the various APIs, while Python type
+annotations allow us a way to provide guarantees about type information that were not previously possible in Python.
+In this talk, we will explore the work that has been ongoing to integrate both technologies into projects across
+OpenStack, how you as a user or developer can taking advantage of them, and how you can get involved.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia 2024&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;06a0288d97cf415a944d3d1fd36ab907&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>Block Storage in OpenStack</title>
       <link>https://that.guru/blog/block-devices-in-openstack/</link>
@@ -2890,226 +2921,6 @@ pyperclip (or even PyQt5) but uninstalling things was enough to get rid of this
 annoying warning.&lt;/p&gt;
 &lt;p&gt;Hopefully Google finds this page in case anyone is similarly frustrated by
 this.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators</title>
-      <link>https://that.guru/blog/user-managed-configuration-in-cccmo/</link>
-      <pubDate>Mon, 09 May 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/user-managed-configuration-in-cccmo/</guid>
-      <description>&lt;p&gt;Recent versions of Kubernetes have begun moving functionality that previously
-existed in the core project out to separate projects. One such set of
-functionality is the cloud provider-specific code, which is now handled by the
-&lt;a href=&#34;https://kubernetes.io/docs/concepts/architecture/cloud-controller/&#34;&gt;Cloud Controller Manager&lt;/a&gt; project. This is well described in the
-&lt;a href=&#34;https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/&#34;&gt;Kubernetes documentation&lt;/a&gt;.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Cloud providers implemented using Cloud Controller Manager may be referred to
-as &lt;em&gt;external&lt;/em&gt; cloud providers (after the argument used to inform &lt;code&gt;kublet&lt;/code&gt; to
-use CCM, &lt;code&gt;--cloud-provider=external&lt;/code&gt;) while the existing in-tree cloud
-providers may be referred to as &lt;em&gt;internal&lt;/em&gt; or &lt;em&gt;legacy&lt;/em&gt; cloud providers. We use
-these terms throughout.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;In the 4.12 release, we hope to switch OpenShift deployments running on
-OpenStack clouds from the legacy OpenStack cloud provider to the external
-OpenStack cloud provider, &lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/openstack-cloud-controller-manager/using-openstack-cloud-controller-manager.md&#34;&gt;OpenStack Cloud Controller Manager (OCCM)&lt;/a&gt;.
-There are a couple of steps needed to make this happen, one of which is taking
-user-provided configuration for the legacy cloud provider and mapping it to
-configuration for the shiny new external cloud provider. This is necessary to
-ensure any user-provided configuration is retained and the upgrade doesn&amp;rsquo;t
-break the deployment. In the case of the OpenStack provider, this configuration
-is INI-style and thankfully quite similar for both the legacy and external
-cloud provider implementations.&lt;/p&gt;
-&lt;p&gt;To handle the migration of configuration in OpenShift deployments, we are
-relying on the &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator&#34;&gt;Cluster Cloud Controller Manager Operator (CCCMO)&lt;/a&gt;. This
-operator is already responsible for managing the lifecycle of CCM on OpenShift
-deployments, including configuration of CCM, so naturally it is a good fit for
-this kind of task. A detailed description of the changes we ultimately made,
-along with motivation for same, can be found &lt;a href=&#34;https://github.com/openshift/enhancements/pull/1009&#34;&gt;in this enhancement&lt;/a&gt;
-(the &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/pull/178&#34;&gt;pull request itself&lt;/a&gt; is probably quite helpful also, if you read Go)
-but I hope to explain them at a high level here since the paradigms used are
-similar to those found in other operators and are being used to manage other
-complex upgrades, such as the switch from in-tree block storage drivers to
-Cluster Storage Interface (CSI) drivers.&lt;/p&gt;
-&lt;h2 id=&#34;how-cccmo-generates-configuration&#34;&gt;How CCCMO generates configuration&lt;/h2&gt;
-&lt;p&gt;The first step in understanding how CCCMO can be used to manage the migration
-of configuration is to examine how CCCMO sources configuration - specifically
-user-provided configuration - and uses this to generate the configuration
-actually used for CCM. Once we understand this, we can decide at what points to
-hook in and customise or translate this user-provided configuration. We can
-also use this model in other operators. Thankfully, in the case of CCCMO this
-sourcing and generation of configuration is pretty simple.&lt;/p&gt;
-&lt;p&gt;Firstly, the operator attempt to retrieve config from the
-&lt;code&gt;openshift-config-managed / kube-cloud-config&lt;/code&gt; config map:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ oc get cm/kube-cloud-config -n openshift-config-managed -o yaml
-apiVersion: v1
-data:
-  cloud.conf: |
-    [Global]
-    secret-name = openstack-credentials
-    secret-namespace = kube-system
-    region = regionOne
-    [LoadBalancer]
-    use-octavia = True
-kind: ConfigMap
-metadata:
-  creationTimestamp: &amp;quot;2022-02-25T17:01:58Z&amp;quot;
-  name: kube-cloud-config
-  namespace: openshift-config-managed
-  resourceVersion: &amp;quot;3853&amp;quot;
-  uid: c23c14b7-66db-431c-a723-59439f946f80
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L63-L68&#34;&gt;here&lt;/a&gt;.
-The reason that it searches for this config map specifically is historical:
-this is the config map generated by the &lt;a href=&#34;https://github.com/openshift/cluster-config-operator&#34;&gt;Cluster Config Operator (CCO)&lt;/a&gt;,
-which is used to configure the legacy cloud provider (among other things). CCO
-manipulates user-provided configuration for some cloud providers (specifically
-AWS and Azure) so I guess the idea here was to avoid re-implementing this
-transformation logic in CCCMO. Everything in the &lt;code&gt;openshift-config-managed&lt;/code&gt;
-namespace is owned by CCO and is not intended to be modified by a user (in
-fact, attempts to modify it will likely be futile and the operator will quickly
-erase those changes).&lt;/p&gt;
-&lt;p&gt;If the lookup of the &lt;code&gt;openshift-config-managed / kube-cloud-config&lt;/code&gt; config map
-fails, we attempt to retrieve configuration from the &lt;code&gt;openshift-config / cloud-provider-config&lt;/code&gt; config map:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ oc get cm/cloud-provider-config -n openshift-config -o yaml
-apiVersion: v1
-data:
-  config: |
-    [Global]
-    secret-name = openstack-credentials
-    secret-namespace = kube-system
-    region = regionOne
-    [LoadBalancer]
-    use-octavia = True
-kind: ConfigMap
-metadata:
-  creationTimestamp: &amp;quot;2022-02-25T17:00:15Z&amp;quot;
-  name: cloud-provider-config
-  namespace: openshift-config
-  resourceVersion: &amp;quot;1802&amp;quot;
-  uid: 45bda3c8-8866-4aea-92be-921502ff2055
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L73-L87&#34;&gt;here&lt;/a&gt;.
-Once again, the reason we use this config map is historical and is based on
-what CCO uses. While things in the &lt;code&gt;openshift-config-managed&lt;/code&gt; namespace are
-not user editable, the &lt;code&gt;openshift-config&lt;/code&gt; namespace is the namespace for
-&amp;ldquo;user-managed&amp;rdquo; configuration or configuration that things like operators are
-not allowed to modify.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The &lt;strong&gt;name&lt;/strong&gt; of this config map (as opposed to the namespace) is actually
-cloud/infrastructure dependent and this is simply the OpenStack name. It is
-defined as an attribute on the &lt;code&gt;cluster&lt;/code&gt; infrastructure resource.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ oc get infrastructure/cluster -o jsonpath=&amp;quot;{.spec.cloudConfig.name}&amp;quot;
-cloud-provider-config
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;If the both lookup fails, we error out. However, this is unlikely since the
-installer should create it as seen
-&lt;a href=&#34;https://github.com/openshift/installer/blob/fd00a659/pkg/asset/manifests/cloudproviderconfig.go#L78-L93&#34;&gt;here&lt;/a&gt;.
-Assuming one of them does exist, we sync whatever we found to the
-&lt;code&gt;openshift-cloud-controller-manager / cloud-conf&lt;/code&gt; config map:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ oc get cm/cloud-conf -n openshift-cloud-controller-manager -o yaml
-apiVersion: v1
-data:
-  cloud.conf: |
-    [Global]
-    secret-name = openstack-credentials
-    secret-namespace = kube-system
-    region = regionOne
-    [LoadBalancer]
-    use-octavia = True
-kind: ConfigMap
-metadata:
-  creationTimestamp: &amp;quot;2022-02-25T17:01:08Z&amp;quot;
-  name: cloud-conf
-  namespace: openshift-cloud-controller-manager
-  resourceVersion: &amp;quot;2519&amp;quot;
-  uid: cbbeedaf-41ed-41c2-9f37-4885732d3677
-&lt;/code&gt;&lt;/pre&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can list all config maps in a namespace like this using:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ oc get cm -n openshift-cloud-controller-manager \
-    -o jsonpath=&#39;{range .items[*]}{.metadata.name}{&amp;quot;\n&amp;quot;}{end}&#39;
-ccm-trusted-ca
-cloud-conf
-kube-root-ca.crt
-openshift-service-ca.crt
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;This can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/pkg/controllers/cloud_config_sync_controller.go#L96-L100&#34;&gt;here&lt;/a&gt;.
-In this instance, the namespace isn&amp;rsquo;t actually locked in. It is possible to
-configure the &lt;code&gt;cluster-controller-manager-operator&lt;/code&gt; binary with a &lt;code&gt;--namespace&lt;/code&gt;
-argument and this option defaults to &lt;code&gt;openshift-cloud-controller-manager&lt;/code&gt;, as
-seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/fde5bd72/cmd/cluster-cloud-controller-manager-operator/main.go#L85-L89&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;how-cccmo-handles-upgrades&#34;&gt;How CCCMO handles upgrades&lt;/h2&gt;
-&lt;p&gt;(for OpenStack clouds on OpenShift 4.11 or later)&lt;/p&gt;
-&lt;p&gt;So now that we understand how CCCMO sources user-provided configuration and
-generates the resulting configuration used by Cloud Controller Manager, it&amp;rsquo;s
-time to examine how we&amp;rsquo;ve decided to handle the migration of configuration for
-legacy cloud providers to configuration suitable for external cloud provides.
-As noted above, previously CCCMO took user-provided configuration from a config
-map in one namespace and copied it to a config map in another namespace. It
-should be pretty obvious that there&amp;rsquo;s no reason this copy has to be a
-straightforward copy: we could modify the input config map before we dump it
-back out. This is of course exactly what we did.&lt;/p&gt;
-&lt;p&gt;Starting with the upcoming OpenShift 4.11 release, CCCMO provides configuration
-&amp;ldquo;transformers&amp;rdquo;. Transformers simply load configuration provided by users, do
-some basic validation, and then transform things by dropping options that are
-no longer relevant, adding options that are now necessary, and renaming or
-modifying options that have changed between the legacy. This idea isn&amp;rsquo;t
-particularly novel - as noted previously, CCO was already doing something very
-similar for AWS and Azure - but it works. Annoyingly these transformers must be
-cloud-specific since the CCM binary used for each cloud provider expects a
-radically different configuration files (in the case of the OpenStack cloud
-provider this is an INI-style configuration file while Azure expects a
-YAML-formatted file). As a result, we have only implemented the OpenStack
-transformer for now. However, in the future we will likely implement additional
-transformers for at least AWS and Azure since as noted previously CCO is
-already doing some transformation here.&lt;/p&gt;
-&lt;p&gt;Specifically, the transformer for OpenStack clouds in CCCMO currently does the
-following:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Drops the &lt;code&gt;[Global] secret-name&lt;/code&gt;, &lt;code&gt;[Global] secret-namespace&lt;/code&gt;, and &lt;code&gt;[Global] kubeconfig-path&lt;/code&gt; options, since these aren&amp;rsquo;t applicable for the external
-cloud provider (the first two are OpenShift-only modifications). This inline
-configuration has been replaced by configuration stored in a &lt;code&gt;clouds.yaml&lt;/code&gt;
-file. Speaking of which&amp;hellip;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Adds the &lt;code&gt;[Global] use-clouds&lt;/code&gt;, &lt;code&gt;[Global] clouds-file&lt;/code&gt;, and &lt;code&gt;[Global] cloud&lt;/code&gt;
-options.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Drops the entire &lt;code&gt;[BlockStorage]&lt;/code&gt; section since external cloud providers are
-no longer responsible for anything storage&amp;rsquo;y (this is now handled by Cluster
-Storage Interface (CSI) drivers, including the Manila CSI driver and Cinder
-CSI driver)&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Adds or sets the &lt;code&gt;[LoadBalancer] use-octavia&lt;/code&gt; and &lt;code&gt;[LoadBalancer] enabled&lt;/code&gt;
-options, depending on the specific deployment configuration (i.e. is Kuryr in
-use?)&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;All of this can be seen &lt;a href=&#34;https://github.com/openshift/cluster-cloud-controller-manager-operator/blob/13a37fe2/pkg/cloud/openstack/openstack.go#L136-L213&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
-&lt;p&gt;Hopefully this helps shine a little light on how CCCMO (and to a lesser degree,
-CCM and CCO) works and operates, at least from a OpenStack perspective. For
-most users, none of the above should matter: the OpenShift documentation
-describes how configuration of the cloud provider, be it internal or external,
-should happen via the &lt;code&gt;openshift-config / cloud-provider-config&lt;/code&gt; config map and
-all of this transformation logic should be effectively invisible. However, when
-things go wrong, it can be helpful to know in which dark corners to look 😄&lt;/p&gt;
 </description>
     </item>
     
