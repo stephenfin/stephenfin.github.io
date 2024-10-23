@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Stephen Finucane (Fin-oo-can)</title>
+    <link>https://that.guru/cookbooks/openshift/</link>
+    <description>Recent content on Stephen Finucane (Fin-oo-can)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-IE</language>
+    <lastBuildDate>Tue, 22 Oct 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/cookbooks/openshift/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cinder CSI Driver</title>
+      <link>https://that.guru/cookbooks/openshift/cinder-csi-driver/</link>
+      <pubDate>Tue, 22 Oct 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/cookbooks/openshift/cinder-csi-driver/</guid>
+      <description>&lt;p&gt;The Cinder CSI Driver, like most CSI Drivers in OpenShift, is managed by the CSI Driver Operator. This document contains
+notes on both Cinder CSI Driver and Cinder CSI Driver Operator.&lt;/p&gt;
+&lt;h2 id=&#34;credentials&#34;&gt;Credentials&lt;/h2&gt;
+&lt;p&gt;Most credentials in OpenShift are managed by the Cloud Credential Operator. The Cinder CSI Driver is no different. The
+root cloud credentials are stored in a secret at &lt;code&gt;kube-system / openstack-credentials&lt;/code&gt;:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;❯ oc get -n kube-system secret openstack-credentials -o yaml | yq &amp;#39;.data&amp;#39;
+clouds.conf: &amp;lt;redacted&amp;gt;
+clouds.yaml: &amp;lt;redacted&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;These are then rolled out to secrets in other namespaces based on &lt;code&gt;CredentialsRequest&lt;/code&gt; CRs. There are many
+&lt;code&gt;CredentialsRequest&lt;/code&gt; CRs in a standard OpenShift Installer-provisioned cluster but the &lt;code&gt;CredentialsRequest&lt;/code&gt; CR for the
+Cinder CSI Driver Operator is stored at &lt;code&gt;openshift-cloud-credential-operator / openshift-cluster-csi-drivers&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n openshift-cloud-credential-operator CredentialsRequest openshift-cluster-csi-drivers -o yaml | yq &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.spec&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;providerSpec:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  apiVersion: cloudcredential.openshift.io/v1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kind: OpenStackProviderSpec
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;secretRef:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  name: openstack-cloud-credentials
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  namespace: openshift-cluster-csi-drivers
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Based on this CR, we can expect the resulting secret to be found in &lt;code&gt;openshift-cluster-csi-drivers / openstack-cloud-credentials&lt;/code&gt;. And indeed, we can see the secret in a deployment:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n openshift-cluster-csi-drivers secret openstack-cloud-credentials -o yaml | yq &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;.data&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;clouds.yaml: &amp;lt;redacted&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Thus, to rotate the credentials for the Cinder CSI Driver Operator, and in turn the Cinder CSI Driver, you should update
+the secret at &lt;code&gt;kube-system / openstack-credentials&lt;/code&gt;. The Cloud Credential Operator will then roll this out and the
+Operator will restart all affected pods (meaning, the &lt;code&gt;openstack-cinder-csi-driver-controller-*&lt;/code&gt; and
+&lt;code&gt;openstack-cinder-csi-driver-node-&lt;/code&gt; pods. The Operator accomplishes this by way of hooks which calculate hashes
+derived from the various secrets and config maps that we care about. These hashes are added as annotations on the
+deployment (for the controller pods) and daemonset (for the node pods), and the operator relies on the fact that any
+changes to a deployment or daemonset will result in new pods being rolled out. You can see these by inspecting the
+resources. For example:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;❯ oc get -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-controller -o yaml | yq &amp;#39;.metadata.annotations | with_entries(select(.key == &amp;#34;operator.openshift.io/dep-*&amp;#34;))&amp;#39;
+operator.openshift.io/dep-2a78a60e2cfb360d9fe72d1859d93b0fdd3bc: Dpyxpw==
+operator.openshift.io/dep-4b51488ec5b742a098d092dfe49449df0986e: J1mZaA==
+operator.openshift.io/dep-12129a17758a4339b718cd8f746bebe59b0e2: PDfUoQ==
+operator.openshift.io/dep-28104e6bcb20f4d44a571c8e2f3f0a1f5a880: ElMHxA==
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;credential-rotation&#34;&gt;Credential rotation&lt;/h3&gt;
+&lt;p&gt;The below script is an example of how to modify the credentials. In this case, we are setting the &lt;code&gt;volume_api_version&lt;/code&gt;
+attribute for the cloud entry, however, there&amp;rsquo;s no reason you could choose to replace the credentials with wholly new
+credentials.&lt;/p&gt;
+&lt;script src=&#34;https://gist.github.com/stephenfin/ba9db5efde185ef5e3d274f61f86db94.js&#34;&gt;&lt;/script&gt;
+
+</description>
+    </item>
+    
+  </channel>
+</rss>

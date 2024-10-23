@@ -2,6 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://that.guru/cookbooks/openshift/</loc>
+    <lastmod>2024-10-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/cookbooks/openshift/cinder-csi-driver/</loc>
+    <lastmod>2024-10-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/cookbooks/</loc>
+    <lastmod>2024-10-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/</loc>
+    <lastmod>2024-10-22T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</loc>
     <lastmod>2024-09-11T00:00:00+00:00</lastmod>
   </url><url>
@@ -12,9 +24,6 @@
     <lastmod>2024-09-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/python/</loc>
-    <lastmod>2024-09-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/</loc>
     <lastmod>2024-09-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/talks/</loc>
@@ -349,6 +358,8 @@
   </url><url>
     <loc>https://that.guru/talks/a-new-patchwork/</loc>
     <lastmod>2016-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/cookbooks/openstack/</loc>
   </url><url>
     <loc>https://that.guru/about/</loc>
   </url>

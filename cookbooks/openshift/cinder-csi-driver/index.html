@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Cinder CSI Driver | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
+  
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://images.unsplash.com/photo-1514413494665-cda1387955dd?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjkxMjd8&ixlib=rb-4.0.3&q=85);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Cinder CSI Driver</h1>
+
+    <span class="header-attrib">
+        Image by <a href="">
+            John Reed
+        </a> / <a href="https://unsplash.com/photos/time-lapse-photography-speed-of-light-qtRFE7MYnHo">Unsplash</a>
+    </span>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/cookbooks">Cookbooks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div>
+    <p>The Cinder CSI Driver, like most CSI Drivers in OpenShift, is managed by the CSI Driver Operator. This document contains
+notes on both Cinder CSI Driver and Cinder CSI Driver Operator.</p>
+<h2 id="credentials">Credentials</h2>
+<p>Most credentials in OpenShift are managed by the Cloud Credential Operator. The Cinder CSI Driver is no different. The
+root cloud credentials are stored in a secret at <code>kube-system / openstack-credentials</code>:</p>
+<pre tabindex="0"><code>❯ oc get -n kube-system secret openstack-credentials -o yaml | yq &#39;.data&#39;
+clouds.conf: &lt;redacted&gt;
+clouds.yaml: &lt;redacted&gt;
+</code></pre><p>These are then rolled out to secrets in other namespaces based on <code>CredentialsRequest</code> CRs. There are many
+<code>CredentialsRequest</code> CRs in a standard OpenShift Installer-provisioned cluster but the <code>CredentialsRequest</code> CR for the
+Cinder CSI Driver Operator is stored at <code>openshift-cloud-credential-operator / openshift-cluster-csi-drivers</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cloud-credential-operator CredentialsRequest openshift-cluster-csi-drivers -o yaml | yq <span style="color:#e6db74">&#39;.spec&#39;</span>
+</span></span><span style="display:flex;"><span>providerSpec:
+</span></span><span style="display:flex;"><span>  apiVersion: cloudcredential.openshift.io/v1
+</span></span><span style="display:flex;"><span>  kind: OpenStackProviderSpec
+</span></span><span style="display:flex;"><span>secretRef:
+</span></span><span style="display:flex;"><span>  name: openstack-cloud-credentials
+</span></span><span style="display:flex;"><span>  namespace: openshift-cluster-csi-drivers
+</span></span></code></pre></div><p>Based on this CR, we can expect the resulting secret to be found in <code>openshift-cluster-csi-drivers / openstack-cloud-credentials</code>. And indeed, we can see the secret in a deployment:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cluster-csi-drivers secret openstack-cloud-credentials -o yaml | yq <span style="color:#e6db74">&#39;.data&#39;</span>
+</span></span><span style="display:flex;"><span>clouds.yaml: &lt;redacted&gt;
+</span></span></code></pre></div><p>Thus, to rotate the credentials for the Cinder CSI Driver Operator, and in turn the Cinder CSI Driver, you should update
+the secret at <code>kube-system / openstack-credentials</code>. The Cloud Credential Operator will then roll this out and the
+Operator will restart all affected pods (meaning, the <code>openstack-cinder-csi-driver-controller-*</code> and
+<code>openstack-cinder-csi-driver-node-</code> pods. The Operator accomplishes this by way of hooks which calculate hashes
+derived from the various secrets and config maps that we care about. These hashes are added as annotations on the
+deployment (for the controller pods) and daemonset (for the node pods), and the operator relies on the fact that any
+changes to a deployment or daemonset will result in new pods being rolled out. You can see these by inspecting the
+resources. For example:</p>
+<pre tabindex="0"><code>❯ oc get -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-controller -o yaml | yq &#39;.metadata.annotations | with_entries(select(.key == &#34;operator.openshift.io/dep-*&#34;))&#39;
+operator.openshift.io/dep-2a78a60e2cfb360d9fe72d1859d93b0fdd3bc: Dpyxpw==
+operator.openshift.io/dep-4b51488ec5b742a098d092dfe49449df0986e: J1mZaA==
+operator.openshift.io/dep-12129a17758a4339b718cd8f746bebe59b0e2: PDfUoQ==
+operator.openshift.io/dep-28104e6bcb20f4d44a571c8e2f3f0a1f5a880: ElMHxA==
+</code></pre><h3 id="credential-rotation">Credential rotation</h3>
+<p>The below script is an example of how to modify the credentials. In this case, we are setting the <code>volume_api_version</code>
+attribute for the cloud entry, however, there&rsquo;s no reason you could choose to replace the credentials with wholly new
+credentials.</p>
+<script src="https://gist.github.com/stephenfin/ba9db5efde185ef5e3d274f61f86db94.js"></script>
+
+
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2024 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-80652159-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+</body>
+</html>

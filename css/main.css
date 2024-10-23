@@ -88,7 +88,7 @@ textarea {
  * Hide visually and from screen readers
  */
 
- .hidden {
+.hidden {
   display: none !important;
 }
 
@@ -248,6 +248,12 @@ article a {
 
 table, th, td {
   border: 1px solid;
+}
+
+.gist table,
+.gist th,
+.gist td {
+  border: 0;
 }
 
 table {
@@ -554,11 +560,49 @@ h2 {
   font-size: 3rem;
 }
 
+/* Grid */
+
+.cookbook-grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.cookbook-section {
+  width: calc(50% - 1rem);
+  margin: .5rem;
+}
+
+.cookbook-header {
+  background-color: black;
+  display: block;
+  padding: .25rem;
+}
+
+.cookbook-header img {
+  display: inline-block;
+  height: 2rem;
+  padding: .5rem;
+  vertical-align: middle;
+  width: 2rem;
+}
+
+.cookbook-header h2 {
+  background-color: none;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.cookbook-section .page-link {
+  border-bottom: 0;
+}
+
 /* ==========================================================================
    Media Queries for Responsive Design.
    ========================================================================== */
 
-@media only screen and (max-width: 450px) {
+@media only screen and (max-width: 768px) {
   h2 {
     padding: .25rem 1rem;
   }
@@ -581,6 +625,7 @@ h2 {
   }
 
   .title {
+    font-size: 1.5rem;
     margin: 1rem;
   }
 
@@ -602,20 +647,13 @@ h2 {
     color: #444;
     border-left: 5px solid black;
   }
-}
 
-@media only screen and (max-width: 768px) {
-  .title {
-    font-size: 1.5rem;
-    padding: .25rem 1rem;
+  .cookbook-grid {
+    display: block;
   }
 
-  .column {
-    padding-bottom: 2rem;
-  }
-
-  .pages-item {
-    margin-bottom: 1rem;
+  .cookbook-section {
+    width: calc(100% - 1rem);
   }
 }
 
