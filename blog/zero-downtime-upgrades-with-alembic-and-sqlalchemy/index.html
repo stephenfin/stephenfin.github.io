@@ -118,9 +118,9 @@ services in larger deployments are common to most distributed services.</p>
 </ul>
 <p>The basic idea behind the expand-migrate-contract migration pattern is to split the schema migrations into two groups: additive changes, which will handle the added data, and contractive/destructive changes, which will handle the removed data. The changed data is an example of a data migration and either the application or another set of migrations handles this. If you&rsquo;re a visual person, you can visualize this like so:</p>
 <figure><img src="https://that.guru/media/zero-downtime-upgrades-with-alembic-and-sqlalchemy-1.png"
-         alt="A minimal real-world example of expand-migrate-contract"/><figcaption>
-            <h4>A visualization of expand-migrate-contract</h4>
-        </figcaption>
+    alt="A minimal real-world example of expand-migrate-contract"><figcaption>
+      <h4>A visualization of expand-migrate-contract</h4>
+    </figcaption>
 </figure>
 
 <p>By applying the expand-contract migration, we can move from an upgrade pattern like this:</p>
@@ -933,20 +933,6 @@ services in larger deployments are common to most distributed services.</p>
 </div>
 
 <script src="https://that.guru/js/highlight.min.js"></script>
-
-
-
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-80652159-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
 
 
 

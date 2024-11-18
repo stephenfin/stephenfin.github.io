@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>metallb on Stephen Finucane (Fin-oo-can)</title>
+    <title>Metallb on Stephen Finucane (Fin-oo-can)</title>
     <link>https://that.guru/categories/metallb/</link>
-    <description>Recent content in metallb on Stephen Finucane (Fin-oo-can)</description>
+    <description>Recent content in Metallb on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <lastBuildDate>Tue, 23 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/metallb/index.xml" rel="self" type="application/rss+xml" />
@@ -30,9 +30,9 @@ mode&lt;/em&gt;. This necessitates things like routers that speak BGP and an Ope
 these routers. These were all discussed in &lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-1&#34;&gt;part one&lt;/a&gt; of this series, and if you followed along with this then
 you will currently have a deployment that looks like this:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
-         alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Our deployment configured&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Image displaying the network topology of VMs in a deployment&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Our deployment configured&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;If this is not the case, you probably want to read that part first. However, assuming it is, we can now proceed with
@@ -297,9 +297,9 @@ balance the control plane.&lt;/p&gt;
 &lt;p&gt;This is the first part of two and focuses on deploying OpenStack, configuring a BGP environment, before deploying an
 OpenShift cluster. The end result should look something like this:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
-         alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Image displaying the network topology of VMs in a deployment&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;This is likely the most involved section to do from scratch owing to the variety and varying complexity of options

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>tips on Stephen Finucane (Fin-oo-can)</title>
+    <title>Tips on Stephen Finucane (Fin-oo-can)</title>
     <link>https://that.guru/categories/tips/</link>
-    <description>Recent content in tips on Stephen Finucane (Fin-oo-can)</description>
+    <description>Recent content in Tips on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <lastBuildDate>Thu, 27 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
@@ -134,22 +134,22 @@ new (to me) &amp;ldquo;Wrap quoted text in replies&amp;rdquo; option available i
 Preferences&amp;rdquo; pane of the &amp;ldquo;Evolution Preferences&amp;rdquo; pane, which accessible via
 &amp;ldquo;Edit &amp;gt; Preferences&amp;rdquo;.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/plain-text-in-evolution-3-38-1.png&#34;
-         alt=&#34;The Composer Preferences Pane&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Composer Preferences&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;The Composer Preferences Pane&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Composer Preferences&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Compare before and after:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/plain-text-in-evolution-3-38-2.png&#34;
-         alt=&#34;Before (with &amp;#39;Wrap quoted text in replies&amp;#39; checked)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Before (with &amp;#39;Wrap quoted text in replies&amp;#39; checked)&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Before (with &amp;#39;Wrap quoted text in replies&amp;#39; checked)&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Before (with &amp;#39;Wrap quoted text in replies&amp;#39; checked)&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/plain-text-in-evolution-3-38-3.png&#34;
-         alt=&#34;After (with &amp;#39;Wrap quoted text in replies&amp;#39; unchecked)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;After (with &amp;#39;Wrap quoted text in replies&amp;#39; unchecked)&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;After (with &amp;#39;Wrap quoted text in replies&amp;#39; unchecked)&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;After (with &amp;#39;Wrap quoted text in replies&amp;#39; unchecked)&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Usable email again!&lt;/p&gt;
@@ -168,7 +168,7 @@ before and eventually identified the issue: a breaking change in 2.7. Below is
 my guide on ensuring &lt;em&gt;tmux&lt;/em&gt; displays a useful title for each window.&lt;/p&gt;
 &lt;p&gt;What I&amp;rsquo;m looking to achieve is a prompt like the following:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/automatically-set-tmux-window-name.png&#34;
-         alt=&#34;tmux prompt&#34;/&gt;
+    alt=&#34;tmux prompt&#34;&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;More specifically, I want &lt;code&gt;$(hostname): $(basename $PWD)&lt;/code&gt;. &lt;em&gt;tmux&lt;/em&gt; provides
@@ -735,9 +735,9 @@ list.&lt;/p&gt;
 &lt;p&gt;To begin, first go to the archive site for your given mailing list. This will
 probably be a Pipermail instance. Once here, identify the archives you require:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/mutt-archives-1.png&#34;
-         alt=&#34;Screenshot of the download button for Pipermail&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Download the archive&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of the download button for Pipermail&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Download the archive&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Once you&amp;rsquo;ve identified this, download and, if necessary, extract the archive:&lt;/p&gt;
@@ -749,9 +749,9 @@ with mutt:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ mutt -f 2016-June.txt
 &lt;/code&gt;&lt;/pre&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/mutt-archives-2.png&#34;
-         alt=&#34;Screenshot of Mutt with archives loaded&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;All patches available in Mutt&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Mutt with archives loaded&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;All patches available in Mutt&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 </description>
@@ -823,15 +823,15 @@ into working some bit normally. You still need to do a bit of work (removing
 the Outlook context header, giving out to people for top-posting (☺), etc.),
 but it&amp;rsquo;s better.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-1.png&#34;
-         alt=&#34;Screenshot of plain text mail before changes&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;A plain text email before&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of plain text mail before changes&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;A plain text email before&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-2.png&#34;
-         alt=&#34;Screenshot of plain text mail after changes&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;...and after&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of plain text mail after changes&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;...and after&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;send-new-emails-using-plain-text&#34;&gt;Send new emails using plain text&lt;/h2&gt;
@@ -841,18 +841,18 @@ from you.&lt;/p&gt;
 &lt;p&gt;You can do this in settings menu (Alt + F, Alt + T). Once here, click on the
 mail tab and change the &amp;ldquo;Compose messages in this format:&amp;rdquo; option.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-3.png&#34;
-         alt=&#34;Screenshot of configuring Outlook to send new emails in plain text&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Send new messages in plain text&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of configuring Outlook to send new emails in plain text&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Send new messages in plain text&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;prefix-and-wrap-replies-correctly&#34;&gt;Prefix and wrap replies correctly&lt;/h2&gt;
 &lt;p&gt;Next up, let&amp;rsquo;s prefix our emails with the &amp;lsquo;&amp;gt; &amp;rsquo; character. Scroll down on the
 same settings dialog and enable this.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-4.png&#34;
-         alt=&#34;Screenshot of configuring Outlook to prefix replies in a plain text email&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Prefix replies to plain text emails&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of configuring Outlook to prefix replies in a plain text email&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Prefix replies to plain text emails&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;We should also disable stripping of extra line breaks and force wrapping of the
@@ -860,9 +860,9 @@ message. For the latter, note that this wrapping is done using Windows&amp;rsquo
 combination, thus, users of non-Windows clients may see an extra newline
 between each line. This isn&amp;rsquo;t configurable, sadly.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-5.png&#34;
-         alt=&#34;Screenshot of configuring Outlook to not strip extra line breaks&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Don&amp;#39;t strip extra line breaks&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of configuring Outlook to not strip extra line breaks&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Don&amp;#39;t strip extra line breaks&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;display-emails-in-monospace-font&#34;&gt;Display emails in monospace font&lt;/h2&gt;
@@ -871,31 +871,31 @@ between each line. This isn&amp;rsquo;t configurable, sadly.&lt;/p&gt;
 Outlook. To do this, select the &amp;ldquo;&lt;em&gt;Stationary and Fonts&amp;hellip;&lt;/em&gt;&amp;rdquo; button in that same
 pane.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-6.png&#34;
-         alt=&#34;Screenshot of configuring Outlook to use monospace font (1)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Open the Stationary and Fonts dialog&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of configuring Outlook to use monospace font (1)&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Open the Stationary and Fonts dialog&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Once here, modify the config for &amp;ldquo;&lt;em&gt;Composing and reading plain text messages&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-7.png&#34;
-         alt=&#34;Screenshot of configuring Outlook to use monospace font (2)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;We&amp;#39;re changing plain text message formating&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of configuring Outlook to use monospace font (2)&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;We&amp;#39;re changing plain text message formating&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Finally, set your desired monospace font.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-8.png&#34;
-         alt=&#34;Screenshot of configuring Outlook to use monospace font (3)&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Open the Stationary and Fonts dialog&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of configuring Outlook to use monospace font (3)&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Open the Stationary and Fonts dialog&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;wrap-up&#34;&gt;Wrap Up&lt;/h2&gt;
 &lt;p&gt;Better plain text emails, for the win.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/sane-outlook-9.png&#34;
-         alt=&#34;Screenshot of plain text email with correctly configured Outlook&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Beautiful, monospace messages&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of plain text email with correctly configured Outlook&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Beautiful, monospace messages&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 </description>
@@ -933,15 +933,15 @@ data center around the world: multiple top-of-the-line Xeon E5s, super-fast
 NVMe SSD storage, the latest Intel NICs (SR-IOV compatible, of course) and
 many, many GBs of RAM.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-1.png&#34;
-         alt=&#34;Screenshot showing output of /proc/meminfo&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;That&amp;#39;s a lot of RAM&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot showing output of /proc/meminfo&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;That&amp;#39;s a lot of RAM&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-2.png&#34;
-         alt=&#34;Screenshot showing output of /proc/cpuinfo&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;One of many cores&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot showing output of /proc/cpuinfo&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;One of many cores&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;environment&#34;&gt;Environment&lt;/h2&gt;
@@ -956,9 +956,9 @@ code or &amp;ldquo;low-hanging-fruit&amp;rdquo; tasks. Finally, where required, 
 tools using the configuration files provided by my &lt;a href=&#34;https://github.com/stephenfin/dotfiles&#34;&gt;dotfiles&lt;/a&gt;
 project.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-3.png&#34;
-         alt=&#34;Screenshot showing OpenStack projects I&amp;#39;ve worked on&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;I work on a lot of projects&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot showing OpenStack projects I&amp;#39;ve worked on&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;I work on a lot of projects&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;tooling&#34;&gt;Tooling&lt;/h2&gt;
@@ -984,9 +984,9 @@ learning curve over their GUI-driven equivalents, but they&amp;rsquo;re all
 battle-tested, incredibly efficient, and work well on pretty much any type of
 network connection.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-4.png&#34;
-         alt=&#34;Screenshot of Vim in tmux&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;I use Vim extensively&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Vim in tmux&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;I use Vim extensively&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Outside of these tools, I also make extensive use of &lt;a href=&#34;https://github.com/openstack-infra/git-review&#34;&gt;git-review&lt;/a&gt;
@@ -999,9 +999,9 @@ of &lt;code&gt;awk&lt;/code&gt; that also takes things like gitignore files into
 to search for function calls etc. I plan to eventually try something like
 &lt;a href=&#34;https://github.com/davidhalter/jedi&#34;&gt;Jedi&lt;/a&gt; but I just haven&amp;rsquo;t got around to this yet.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-5.png&#34;
-         alt=&#34;Screenshot of ag in tmux&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;ag is fast and pretty&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of ag in tmux&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;ag is fast and pretty&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Finally, debugging, where necessary, is possible through &lt;a href=&#34;https://docs.python.org/2/library/pdb.html&#34;&gt;pdb&lt;/a&gt; and the odd
@@ -1036,18 +1036,18 @@ this, I use the PuTTY family of tools. To begin with, I have
 &lt;a href=&#34;https://github.com/FauxFaux/PuTTYTray&#34;&gt;PuTTYTray&lt;/a&gt; installed and pinned to my taskbar to enable quick
 access to some tools in the suite (&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html&#34;&gt;PuTTY, Pageant, PuTTYGen&lt;/a&gt;).&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-6.png&#34;
-         alt=&#34;Screenshot of PuTTYTray&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;PuTTYTray in action&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of PuTTYTray&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;PuTTYTray in action&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;The out-of-the-box experience for PuTTY itself is rather poor, so I rely on the
 &lt;a href=&#34;https://github.com/jblaine/solarized-and-modern-putty&#34;&gt;Solarized Modern PuTTY Defaults project&lt;/a&gt; to bring things into the
 21st century.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/how-i-work-7.png&#34;
-         alt=&#34;Screenshot of PuTTY&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Pretty colours. Not so pretty test results.&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of PuTTY&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Pretty colours. Not so pretty test results.&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;I don&amp;rsquo;t fancy typing in a password each time, so I &lt;a href=&#34;https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-putty-on-digitalocean-droplets-windows-users&#34;&gt;generate SSH keys using

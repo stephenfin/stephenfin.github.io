@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>sqlalchemy on Stephen Finucane (Fin-oo-can)</title>
+    <title>Sqlalchemy on Stephen Finucane (Fin-oo-can)</title>
     <link>https://that.guru/categories/sqlalchemy/</link>
-    <description>Recent content in sqlalchemy on Stephen Finucane (Fin-oo-can)</description>
+    <description>Recent content in Sqlalchemy on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <lastBuildDate>Sun, 13 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/sqlalchemy/index.xml" rel="self" type="application/rss+xml" />
@@ -31,9 +31,9 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/ul&gt;
 &lt;p&gt;The basic idea behind the expand-migrate-contract migration pattern is to split the schema migrations into two groups: additive changes, which will handle the added data, and contractive/destructive changes, which will handle the removed data. The changed data is an example of a data migration and either the application or another set of migrations handles this. If you&amp;rsquo;re a visual person, you can visualize this like so:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/zero-downtime-upgrades-with-alembic-and-sqlalchemy-1.png&#34;
-         alt=&#34;A minimal real-world example of expand-migrate-contract&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;A visualization of expand-migrate-contract&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;A minimal real-world example of expand-migrate-contract&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;A visualization of expand-migrate-contract&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;By applying the expand-contract migration, we can move from an upgrade pattern like this:&lt;/p&gt;

@@ -13,8 +13,74 @@
       <pubDate>Tue, 22 Oct 2024 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/cookbooks/openshift/cinder-csi-driver/</guid>
-      <description>&lt;p&gt;The Cinder CSI Driver, like most CSI Drivers in OpenShift, is managed by the CSI Driver Operator. This document contains
-notes on both Cinder CSI Driver and Cinder CSI Driver Operator.&lt;/p&gt;
+      <description>&lt;p&gt;The Cinder CSI Driver, like most CSI Drivers in OpenShift, is managed by the Cinder CSI Driver Operator. This document
+contains notes on both Cinder CSI Driver and Cinder CSI Driver Operator.&lt;/p&gt;
+&lt;h2 id=&#34;deployment&#34;&gt;Deployment&lt;/h2&gt;
+&lt;p&gt;As noted above, the Cinder CSI Driver is managed by the Cinder CSI Driver Operator. The source for this operator can be
+found in the &lt;a href=&#34;https://github.com/openshift/csi-operator/&#34;&gt;&lt;code&gt;openshift/csi-operator&lt;/code&gt;&lt;/a&gt; repository, though before OCP 4.18 it could be found in the
+&lt;a href=&#34;https://github.com/openshift/openstack-cinder-csi-driver-operator/&#34;&gt;&lt;code&gt;openshift/openstack-cinder-csi-driver-operator&lt;/code&gt;&lt;/a&gt; repository. This operator is
+responsible for deploying the controller pods onto control plane nodes and the driver pods onto worker nodes. It does
+this using a deployment and a daemonset, respectively. It is also responsible for creating necessary service accounts,
+roles, and role bindings, along with default &lt;code&gt;StorageClass&lt;/code&gt; and &lt;code&gt;VolumeSnapshotClass&lt;/code&gt; implementations. In a standalone
+deployment, you can see most of these created in the &lt;code&gt;openshift-cluster-csi-drivers&lt;/code&gt; namespace:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n openshift-cluster-csi-drivers all
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                                          READY   STATUS    RESTARTS        AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/manila-csi-driver-operator-6b9645777-hn4fj                1/1     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;3d18h ago&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;   3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-controller-8554666ccc-ltjqm   10/10   Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-controller-8554666ccc-zglhh   10/10   Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;3d18h ago&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;   3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-node-454fz                    3/3     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-node-b4r6v                    3/3     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-node-cvqt9                    3/3     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-node-l52qd                    3/3     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-node-rl6gx                    3/3     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-node-sssgp                    3/3     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;               3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pod/openstack-cinder-csi-driver-operator-7f4cf55b98-56smx     1/1     Running   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;3d18h ago&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;   3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;S&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;                           AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;service/openstack-cinder-csi-driver-controller-metrics   ClusterIP   172.30.188.107   &amp;lt;none&amp;gt;        443/TCP,444/TCP,445/TCP,446/TCP   3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;daemonset.apps/openstack-cinder-csi-driver-node   &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;       &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;            &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;           kubernetes.io/os&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;linux   3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                                     READY   UP-TO-DATE   AVAILABLE   AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;deployment.apps/manila-csi-driver-operator               1/1     &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;            &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;           3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;deployment.apps/openstack-cinder-csi-driver-controller   2/2     &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;            &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;           3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;deployment.apps/openstack-cinder-csi-driver-operator     1/1     &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;            &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;           3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                                                DESIRED   CURRENT   READY   AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;replicaset.apps/manila-csi-driver-operator-6b9645777                &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;       3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;replicaset.apps/openstack-cinder-csi-driver-controller-8554666ccc   &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;       3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;replicaset.apps/openstack-cinder-csi-driver-operator-7f4cf55b98     &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;         &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;       3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n openshift-cluster-csi-drivers cm
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                            DATA   AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cloud-conf                                      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cloud-provider-config                           &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kube-root-ca.crt                                &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openshift-service-ca.crt                        &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack-cinder-csi-driver-trusted-ca-bundle   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc get -n openshift-cluster-csi-drivers secret
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAME                                                          TYPE                      DATA   AGE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;builder-dockercfg-lzknz                                       kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;default-dockercfg-n2q5s                                       kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;deployer-dockercfg-q4ftf                                      kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;manila-cloud-credentials                                      Opaque                    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;manila-csi-driver-operator-dockercfg-79l7t                    kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack-cinder-csi-driver-controller-metrics-serving-cert   kubernetes.io/tls         &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack-cinder-csi-driver-controller-sa-dockercfg-klpwf     kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack-cinder-csi-driver-node-sa-dockercfg-zst79           kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack-cinder-csi-driver-operator-dockercfg-g659j          kubernetes.io/dockercfg   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack-cloud-credentials                                   Opaque                    &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;      3d18h
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The Cinder CSI Driver Operator is itself managed by another operator, the Cluster Storage Operator. The source for this
+operator can be found in the &lt;a href=&#34;https://github.com/openshift/cluster-storage-operator/&#34;&gt;&lt;code&gt;openshift/cluster-storage-operator&lt;/code&gt;&lt;/a&gt; repository. The Cluster
+Storage Operator is responsible for deploying the pods that run the Cinder CSI Driver Operator binary (via a deployment)
+alongside the necessary service account, roles and role bindings. It also create an appropriate &lt;code&gt;ClusterCSIDriver&lt;/code&gt; CR
+which allows the CSI Driver to report status back up to the CSI Driver Operator.&lt;/p&gt;
+&lt;p&gt;Finally, completing the trifecta, the Cluster Storage Operator is managed by the Cluster Version Operator (CVO). This is
+relatively common: CVO&amp;rsquo;s job is to ensure that all operator are running with the correct version expected for the given
+OCP release (so you don&amp;rsquo;t end up with e.g. a 4.18 version on Cluster Storage Operator running on a 4.16 cluster, or vice
+versa).&lt;/p&gt;
 &lt;h2 id=&#34;credentials&#34;&gt;Credentials&lt;/h2&gt;
 &lt;p&gt;Most credentials in OpenShift are managed by the Cloud Credential Operator. The Cinder CSI Driver is no different. The
 root cloud credentials are stored in a secret at &lt;code&gt;kube-system / openstack-credentials&lt;/code&gt;:&lt;/p&gt;
@@ -53,6 +119,18 @@ attribute for the cloud entry, however, there&amp;rsquo;s no reason you could ch
 credentials.&lt;/p&gt;
 &lt;script src=&#34;https://gist.github.com/stephenfin/ba9db5efde185ef5e3d274f61f86db94.js&#34;&gt;&lt;/script&gt;
 
+&lt;h3 id=&#34;development&#34;&gt;Development&lt;/h3&gt;
+&lt;p&gt;As discussed &lt;a href=&#34;#deployment&#34;&gt;above&lt;/a&gt;, the management of Cinder CSI Driver effectively occurs through three operators: the
+Cinder CSI Driver Operator, the Cluster Storage Operator, and the Cluster Version Operator. As a result, in order to
+work on the Cinder CSI Driver or the operator - at least without building and deploying a custom release image - you
+will need to scale down both the Cluster Version Operator and Cluster Version Operator &lt;em&gt;in that order&lt;/em&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n openshift-cluster-version --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployments/cluster-version-operator
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n openshift-cluster-storage-operator --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployment/cluster-storage-operator
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Failure to do this will result in any changes you make to Cluster Storage Operator-managed resources - such as the
+Cinder CSI Driver Operator deployment - being overridden almost immediately. Once you&amp;rsquo;ve done this, you&amp;rsquo;re free to
+manipulate the Cinder CSI Driver Operator as you see fit. For example, if you are iterating on changes to the Operator
+itself, you can build and publish an image with your changes included and then modify the deployment using e.g. &lt;code&gt;oc edit&lt;/code&gt; to reference this new image. Alternatively, if you are iterating on changes to the Driver, you can scale down the
+Operator also and manipulate the deployments and daemonsets as necessary.&lt;/p&gt;
 </description>
     </item>
     

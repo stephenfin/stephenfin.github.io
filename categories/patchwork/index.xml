@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>patchwork on Stephen Finucane (Fin-oo-can)</title>
+    <title>Patchwork on Stephen Finucane (Fin-oo-can)</title>
     <link>https://that.guru/categories/patchwork/</link>
-    <description>Recent content in patchwork on Stephen Finucane (Fin-oo-can)</description>
+    <description>Recent content in Patchwork on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
     <lastBuildDate>Sun, 12 Feb 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/patchwork/index.xml" rel="self" type="application/rss+xml" />
@@ -97,9 +97,9 @@ This will return an IP address, in my case &lt;code&gt;172.17.0.3&lt;/code&gt;. 
 the Patchwork instance via this address (including port) - for example at
 &lt;code&gt;172.17.0.3:8000&lt;/code&gt; - then store this IP for later.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-1.png&#34;
-         alt=&#34;Screenshot of newly configured Patchwork instance&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;A Patchwork instance fresh out of the oven&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of newly configured Patchwork instance&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;A Patchwork instance fresh out of the oven&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h2 id=&#34;jenkins-1&#34;&gt;Jenkins&lt;/h2&gt;
@@ -126,9 +126,9 @@ something useful. You also need to define two parameters:&lt;/p&gt;
 &lt;p&gt;While we could expand the available parameters to avoid hard-coding variables
 and make the job more flexible, we&amp;rsquo;re going to keep it simple for now.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-2.png&#34;
-         alt=&#34;Screenshot of General configuration&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;General&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of General configuration&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;General&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Next, configure Jenkins to check out the code from the project of choice in the
@@ -140,26 +140,26 @@ use Git and the GitHub repo. For reference, the Patchwork repo URL is:&lt;/p&gt;
 specifier. You should, however, enable the &lt;em&gt;Clean before checkout&lt;/em&gt; behavior, to
 ensure old tests don&amp;rsquo;t corrupt newer tests.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-3.png&#34;
-         alt=&#34;Screenshot of Source Code Management configuration&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Source Code Management&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Source Code Management configuration&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Source Code Management&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;For the &lt;em&gt;Build Triggers&lt;/em&gt; section, we&amp;rsquo;re going to trigger this remotely using
 another script. Simply tick the relevant box and set an &amp;ldquo;authentication token&amp;rdquo;.
 Use &lt;code&gt;hello-world&lt;/code&gt; as a token.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-4.png&#34;
-         alt=&#34;Screenshot of Build Triggers configuration&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Build Triggers&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Build Triggers configuration&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Build Triggers&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;The &lt;em&gt;Build Environment&lt;/em&gt; section can be mostly ignored. Simply enable timestamps
 in the build output.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-5.png&#34;
-         alt=&#34;Screenshot of Build Environment configuration&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Build Environment&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Build Environment configuration&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Build Environment&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Now for the juicy bit: &lt;em&gt;Build&lt;/em&gt;. You&amp;rsquo;ll want to execute four steps:&lt;/p&gt;
@@ -249,18 +249,18 @@ necessary:&lt;/p&gt;
 bear with me: these are baby steps.&lt;/p&gt;
 &lt;p&gt;Once done, you should have something like the following:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-6.png&#34;
-         alt=&#34;Screenshot of Build configuration&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Build&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Build configuration&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Build&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;Finally, the &lt;em&gt;Post-build Actions&lt;/em&gt;. I didn&amp;rsquo;t make use of this section, though
 I&amp;rsquo;m sure the above script could be broken up to make use of this. Some other
 time, perhaps.&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/patchwork-and-ci-in-a-tree-7.png&#34;
-         alt=&#34;Screenshot of Post-build Actions&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Post-build Actions&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Screenshot of Post-build Actions&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Post-build Actions&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;h3 id=&#34;summary-1&#34;&gt;Summary&lt;/h3&gt;

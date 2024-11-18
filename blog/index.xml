@@ -6,7 +6,7 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 22 Aug 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 25 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Block Storage in OpenStack</title>
       <link>https://that.guru/blog/block-devices-in-openstack/</link>
@@ -1554,9 +1554,9 @@ mode&lt;/em&gt;. This necessitates things like routers that speak BGP and an Ope
 these routers. These were all discussed in &lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-1&#34;&gt;part one&lt;/a&gt; of this series, and if you followed along with this then
 you will currently have a deployment that looks like this:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
-         alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Our deployment configured&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Image displaying the network topology of VMs in a deployment&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Our deployment configured&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;If this is not the case, you probably want to read that part first. However, assuming it is, we can now proceed with
@@ -1821,9 +1821,9 @@ balance the control plane.&lt;/p&gt;
 &lt;p&gt;This is the first part of two and focuses on deploying OpenStack, configuring a BGP environment, before deploying an
 OpenShift cluster. The end result should look something like this:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/deploying-metallb-on-openstack-1.png&#34;
-         alt=&#34;Image displaying the network topology of VMs in a deployment&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;Image displaying the network topology of VMs in a deployment&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;Our proposed deployment&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;This is likely the most involved section to do from scratch owing to the variety and varying complexity of options
@@ -2334,9 +2334,9 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/ul&gt;
 &lt;p&gt;The basic idea behind the expand-migrate-contract migration pattern is to split the schema migrations into two groups: additive changes, which will handle the added data, and contractive/destructive changes, which will handle the removed data. The changed data is an example of a data migration and either the application or another set of migrations handles this. If you&amp;rsquo;re a visual person, you can visualize this like so:&lt;/p&gt;
 &lt;figure&gt;&lt;img src=&#34;https://that.guru/media/zero-downtime-upgrades-with-alembic-and-sqlalchemy-1.png&#34;
-         alt=&#34;A minimal real-world example of expand-migrate-contract&#34;/&gt;&lt;figcaption&gt;
-            &lt;h4&gt;A visualization of expand-migrate-contract&lt;/h4&gt;
-        &lt;/figcaption&gt;
+    alt=&#34;A minimal real-world example of expand-migrate-contract&#34;&gt;&lt;figcaption&gt;
+      &lt;h4&gt;A visualization of expand-migrate-contract&lt;/h4&gt;
+    &lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;By applying the expand-contract migration, we can move from an upgrade pattern like this:&lt;/p&gt;
