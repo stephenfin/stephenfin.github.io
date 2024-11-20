@@ -120,17 +120,36 @@ credentials.&lt;/p&gt;
 &lt;script src=&#34;https://gist.github.com/stephenfin/ba9db5efde185ef5e3d274f61f86db94.js&#34;&gt;&lt;/script&gt;
 
 &lt;h3 id=&#34;development&#34;&gt;Development&lt;/h3&gt;
-&lt;p&gt;As discussed &lt;a href=&#34;#deployment&#34;&gt;above&lt;/a&gt;, the management of Cinder CSI Driver effectively occurs through three operators: the
-Cinder CSI Driver Operator, the Cluster Storage Operator, and the Cluster Version Operator. As a result, in order to
-work on the Cinder CSI Driver or the operator - at least without building and deploying a custom release image - you
-will need to scale down both the Cluster Version Operator and Cluster Version Operator &lt;em&gt;in that order&lt;/em&gt;:&lt;/p&gt;
+&lt;p&gt;As discussed &lt;a href=&#34;#deployment&#34;&gt;above&lt;/a&gt;, in a standalone deployment, the management of Cinder CSI Driver effectively occurs
+through three operators: the Cinder CSI Driver Operator, the Cluster Storage Operator, and the Cluster Version Operator.
+As a result, in order to work on the Cinder CSI Driver or the operator - at least without building and deploying a
+custom release image - you will need to scale down both the Cluster Version Operator and Cluster Version Operator &lt;em&gt;in
+that order&lt;/em&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n openshift-cluster-version --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployments/cluster-version-operator
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n openshift-cluster-storage-operator --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployment/cluster-storage-operator
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Failure to do this will result in any changes you make to Cluster Storage Operator-managed resources - such as the
-Cinder CSI Driver Operator deployment - being overridden almost immediately. Once you&amp;rsquo;ve done this, you&amp;rsquo;re free to
-manipulate the Cinder CSI Driver Operator as you see fit. For example, if you are iterating on changes to the Operator
-itself, you can build and publish an image with your changes included and then modify the deployment using e.g. &lt;code&gt;oc edit&lt;/code&gt; to reference this new image. Alternatively, if you are iterating on changes to the Driver, you can scale down the
-Operator also and manipulate the deployments and daemonsets as necessary.&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you are in a Hypershift cluster, the above is mostly still true. However, as Hypershift doesn&amp;rsquo;t have the Cluster
+Version Operator you instead need to scale down two other operators: the Hypershift Operator and the Control Plane
+Operator. Once again, this needs to be done &lt;em&gt;in that order&lt;/em&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n hypershift --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployments/operator
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n clusters-foo --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployments/control-plane-operator
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc scale -n clusters-foo --replicas &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; deployments/cluster-storage-operator
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;where &lt;code&gt;foo&lt;/code&gt; is the name given to your guest cluster.&lt;/p&gt;
+&lt;p&gt;Failure to scale down these operators will result in any changes you make to Cluster Storage Operator-managed resources&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;such as the Cinder CSI Driver Operator deployment - being overridden almost immediately.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Once you&amp;rsquo;ve scaled these down, you&amp;rsquo;re free to manipulate the Cinder CSI Driver Operator as you see fit. For example, if
+you are iterating on changes to the Operator itself, you can build and publish an image with your changes included and
+then modify the deployment using e.g. &lt;code&gt;oc edit&lt;/code&gt; to reference this new image. For example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ podman build -t ghcr.io/&amp;lt;username&amp;gt;/csi-operator-openstack-cinder:latest -f Dockerfile.openstack-cinder
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ podman push ghcr.io/&amp;lt;username&amp;gt;/csi-operator-openstack-cinder:latest
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc edit -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-operator
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ... or for hypershift...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ oc edit -n clusters-foo deployment openstack-cinder-csi-driver-operator
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you are iterating on changes to Cinder CSI Driver itself (or one of the sidecar containers), then you can either set
+the appropriate &lt;code&gt;IMAGE&lt;/code&gt; environment variable in the deployment (e.g. &lt;code&gt;DRIVER_IMAGE&lt;/code&gt;) or scale down the CSI Operator also
+and manipulate the deployments and daemonsets as necessary.&lt;/p&gt;
 </description>
     </item>
     
