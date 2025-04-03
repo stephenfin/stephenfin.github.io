@@ -5,6 +5,9 @@
     <loc>https://that.guru/blog/csi-drivers-and-openstack/</loc>
     <lastmod>2025-04-03T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://that.guru/blog/an-update-on-openapi-in-openstack/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/blog/</loc>
     <lastmod>2025-04-03T00:00:00+00:00</lastmod>
   </url><url>
@@ -12,6 +15,9 @@
     <lastmod>2025-04-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/kubernetes/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openapi/</loc>
     <lastmod>2025-04-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/openshift/</loc>

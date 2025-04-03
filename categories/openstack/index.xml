@@ -8,7 +8,7 @@
     <language>en-IE</language>
     <lastBuildDate>Thu, 03 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>A closer look at the Cinder CSI Driver and the Topology feature</title>
+      <title>A Closer Look at the Cinder CSI Driver and the Topology Feature</title>
       <link>https://that.guru/blog/csi-drivers-and-openstack/</link>
       <pubDate>Thu, 03 Apr 2025 00:00:00 +0000</pubDate>
       
@@ -100,6 +100,189 @@ enabling and disabling the feature gate on the &lt;code&gt;csi-provisioner&lt;/c
 here should future proof both and ensure that, barring major changes to the CSI Spec itself, few other changes will be
 needed for the foreseeable. I would however like to get a better understanding of how the equivalent feature in the
 Manila CSI Driver works, so watch our for a possible post on that topic down the line.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>An Update on OpenAPI in Openstack</title>
+      <link>https://that.guru/blog/an-update-on-openapi-in-openstack/</link>
+      <pubDate>Thu, 03 Apr 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/an-update-on-openapi-in-openstack/</guid>
+      <description>&lt;p&gt;I previously presented on our work to bring OpenAPI to OpenStack as part of the 2024 OpenInfra Summit Asia, the slides
+for which you can find &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;here&lt;/a&gt;. Since that talk, another
+release cycle has come and gone and our work has continued to progress. Below is a summary of the current &amp;ldquo;state of
+play&amp;rdquo; for OpenAPI support in OpenStack and a reminder of our long-term goals in the area.&lt;/p&gt;
+&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;
+&lt;p&gt;The work to add OpenAPI schemas can be broken into two parts: adding schemas to services and writing tooling to consume
+these schemas and generate both documentation and clients.&lt;/p&gt;
+&lt;h3 id=&#34;services&#34;&gt;Services&lt;/h3&gt;
+&lt;p&gt;The tl;dr: of this section is that we are relying on the fact that OpenAPI 3.1 is a superset of JSON Schema Draft
+2020-12 and are adding JSON Schema schemas to as many services as possible. When put this way, it sounds pretty simple
+but as is often the case, the devil is in the detail. OpenStack is made up of multiple independent services maintained
+by different groups of people, and while the Oslo project has helped ensure some level of consistency around things like
+configuration (&lt;code&gt;oslo.conf&lt;/code&gt;), database connectivity (&lt;code&gt;oslo.db&lt;/code&gt;) and messaging (&lt;code&gt;oslo.messaging&lt;/code&gt;), there is huge variance
+in the API frameworks used:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Nova, Cinder, Glance, and Manila use a combination of &lt;a href=&#34;https://pypi.org/project/Routes/&#34;&gt;Routes&lt;/a&gt; (for routing), &lt;a href=&#34;https://pypi.org/project/WebOb/&#34;&gt;WebOb&lt;/a&gt; (for
+request/response models), &lt;a href=&#34;https://pypi.org/project/Paste/&#34;&gt;Paste&lt;/a&gt; (for application dispatch) and &lt;a href=&#34;https://pypi.org/project/PasteDeploy/&#34;&gt;PasteDeploy&lt;/a&gt; (for
+middleware).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Neutron uses the same Routes + WebOb + Paste + PasteDeploy combo used by Nova, Cinder, Glance, and Manila, but with
+the addition of &lt;a href=&#34;https://pypi.org/project/pecan/&#34;&gt;Pecan&lt;/a&gt; in place of the &amp;ldquo;homegrown&amp;rdquo; WSGI frameworks used in those projects.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Keystone uses &lt;a href=&#34;https://pypi.org/project/Flask/&#34;&gt;Flask&lt;/a&gt; and &lt;a href=&#34;https://pypi.org/project/Flask-RESTful/&#34;&gt;Flask-Restful&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Swift uses PasteDeploy (but I admittedly know very little about Swift).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Ironic uses Pecan (which in turn uses WebOb, so you&amp;rsquo;ll see references to this too)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;etc etc&amp;hellip;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Fortunately, despite the wide differences in frameworks, they pretty much all have the same building blocks:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Controllers (or Applications) which are responsible for a given resource and handles calls for same. These are
+typically classes with methods for each HTTP verb that the API supports.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Middleware that inspects and/or modifies requests and responses.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Routers that map a HTTP request to a controller. This is typically implemented as a special type of middleware.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In this model, both parsing of requests and generation of responses happens in the controller methods, which makes this
+a natural place to add validation for same. And there are a few things we want to validate:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;API version (for services that uses &lt;a href=&#34;https://that.guru/blog/api-versioning-in-openstack/&#34;&gt;API microversions&lt;/a&gt;)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Request path and query string parameters&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Request and response bodies&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;By wrapping the controller methods with decorators, we we are able to inspect both the request or response objects,
+comparing them against schemas for same.&lt;/p&gt;
+&lt;h3 id=&#34;tooling&#34;&gt;Tooling&lt;/h3&gt;
+&lt;p&gt;Having schemas in place for all services is of little help if we don&amp;rsquo;t do anything with them. To this end, we want
+tooling that can inspect services and extract their JSON Schema schemas, combining them to produce OpenAPI
+schemas.&lt;/p&gt;
+&lt;p&gt;Once we have these OpenAPI schemas, we can start generating (self-validating) documentation and clients/libraries. For
+the former, OpenAPI will replace the &lt;code&gt;os-api-ref&lt;/code&gt; Sphinx extension currently used across OpenStack. &lt;code&gt;os-api-ref&lt;/code&gt; allows
+us to describe our APIs in reStructuredText and it is a tool that has worked relatively well for us, but the lack of
+machine readability means it&amp;rsquo;s hard to validate against the code. For the latter, we hope to lessen the burden of
+maintaining libraries and clients in multiple languages, as this has proven very challenging to do given the very large
+number of OpenStack APIs in multiple. Once again, OpenAPI is better suited to this challenge than &lt;code&gt;os-api-ref&lt;/code&gt; or
+anything else we have.&lt;/p&gt;
+&lt;h2 id=&#34;current-status-and-future-plans&#34;&gt;Current status and future plans&lt;/h2&gt;
+&lt;h3 id=&#34;nova&#34;&gt;Nova&lt;/h3&gt;
+&lt;p&gt;Nova started from the best position, since it was already using JSON Schema for request validation. However, there were
+a couple of issues to overcome:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The version of JSON Schema used for the schemas, Draft 04, is over 12 years old, meaning the schemas needed migrating
+to Draft 2020-12.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;There were two different mechanisms for API versioning: if-else checks inside the controller methods, plus a decorator
+that relied on the &lt;a href=&#34;https://docs.python.org/3/howto/descriptor.html&#34;&gt;descriptor protocol&lt;/a&gt; to allow us to define
+version-specific controller methods. The latter made inspection of the API router more difficult than necessary and
+had to be replaced.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;While many APIs had request query string and request body schemas, not all of them did.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Most importantly, there were no schemas for response bodies.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Most of these have now been resolved. We have bumped our schemas to Draft 2020-12, we have added all the missing request
+schemas, and we have added response body schemas for a number of resources. The outstanding changes to address the API
+versioning issues and add the remaining response body schemas are all ready and just waiting for review, so with any
+luck we will be able to close this out in the 2025.2 (Flamingo) release. Once this work has merged, the final step will
+be to start generating api-ref documentation from the OpenAPI schemas instead of using the &lt;code&gt;os-api-ref&lt;/code&gt; tool we
+currently use. The patches for Nova can be found &lt;a href=&#34;https://review.opendev.org/q/project:openstack/nova+topic:openapi&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;cinder&#34;&gt;Cinder&lt;/h3&gt;
+&lt;p&gt;Cinder was in a very similar position to Nova thanks to their shared lineage. This means it had the same advantage -
+pre-existing use of JSON Schema for request validation - and the same issues. However, it also had the added issue of
+having a mountain of tech debt mainly related to the support for multiple API versions that Cinder offered until
+relatively recently. This has necessitated a lot of additional cleanup patches to do things like remove the
+&lt;code&gt;cinder.api.v2&lt;/code&gt; module and consolidate everything under &lt;code&gt;cinder.api.v3&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Unfortunately, while the bulk of the changes have been written, none of them have merged. I&amp;rsquo;m hoping we can double down
+on this in 2025.2 (Flamingo) release and start making some progress. The patches for Cinder can be found
+&lt;a href=&#34;https://review.opendev.org/q/project:openstack/nova+topic:openapi&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;keystone&#34;&gt;Keystone&lt;/h3&gt;
+&lt;p&gt;Once again, Keystone had the good fortune of having existing use of JSON Schema for request query string and request
+body validation, but this was done inconsistently and didn&amp;rsquo;t cover response body schemas. Most of the work here has
+focused on adding these missing schemas and making the router easier to inspect by moving validation from inside the
+controller methods to decorators and splitting methods that previously handling multiple endpoints (e.g. &lt;code&gt;GET /foo&lt;/code&gt; and
+&lt;code&gt;GET /foo/123&lt;/code&gt;) into multiple single-purpose methods.&lt;/p&gt;
+&lt;p&gt;Many resources have been fully specced by now but some remain. In addition, there are some decisions to be made
+regarding support for undocumented API options that have been (re)discovered during this work. None of it should be
+insurmountable, however. The patches for Keystone can be found
+&lt;a href=&#34;https://review.opendev.org/q/project:openstack/keystone+topic:openapi&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;manila&#34;&gt;Manila&lt;/h3&gt;
+&lt;p&gt;Yet another service with JSON Schema already in place. Once again, the work here consists of adding missing schemas and
+making the router easier to inspect. A small number of patches have merged here and more are in-flight. The patches for
+Manila can be found &lt;a href=&#34;https://review.opendev.org/q/project:openstack/manila+file:schemas&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;ironic&#34;&gt;Ironic&lt;/h3&gt;
+&lt;p&gt;Ironic hasn&amp;rsquo;t historically used JSON Schema for validation, instead using its own homegrown validation framework and
+taking advantage of some Pecan functionality to maintain API versioning. As a result, there&amp;rsquo;s quite a bit of work needed
+to get schemas into Ironic:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Move API versioning to decorators&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Rework request path, query string and body parameter validation to use JSON Schema schemas (via decorators) instead of
+the homegrown framework&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Add request body parameter validation&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This work is in very early stages, but there are people working on it and there appears to be broad buy-in from the
+Ironic team, so I hope to see significant progress over the course of the 2025.2 (Flamingo) cycle. The patches for
+Ironic can be found &lt;a href=&#34;https://review.opendev.org/q/project:openstack/ironic+topic:openapi&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;other-services-neutron-swift-glance-octavia-&#34;&gt;Other services (Neutron, Swift, Glance, Octavia, &amp;hellip;)&lt;/h3&gt;
+&lt;p&gt;To the best of my knowledge, no work has been started in other projects. Of the &amp;ldquo;core&amp;rdquo; projects, I expect the Glance
+effort to be relatively small since they already have formal schemas (exposed via the API!) for most of their resources.
+Conversely, I expect the Neutron effort to be both large and complicated, given the number and highly dynamic nature of
+Neutron&amp;rsquo;s API, driven by it&amp;rsquo;s extension-based &amp;ldquo;versioning&amp;rdquo; system. I have somehow never worked on Swift and haven&amp;rsquo;t a
+clue about that.&lt;/p&gt;
+&lt;h3 id=&#34;tooling-1&#34;&gt;Tooling&lt;/h3&gt;
+&lt;p&gt;There are two tooling-related efforts ongoing:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;a href=&#34;https://opendev.org/openstack/codegenerator&#34;&gt;codegenerator&lt;/a&gt; project provides a collection of utilities for
+generating OpenAPI schemas and a (Rust-based 🦀) client from these schemas. This tool has continued to evolve over the
+course of the 2025.1 (Epoxy) cycle, and I expect to see more progress as schemas continue to get added to the Nova
+project.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The openstacksdk project provides the primary OpenStack client library, while the python-openstackclient project is
+the primary OpenStack CLI. Both have seen significant work towards typing and removing &amp;ldquo;weirdness&amp;rdquo;, in order to
+prepare them for a future when they can both be at least partially automatically generated by another tool. This
+effort has included work on the dependencies of the projects: keystoneauth for openstacksdk, and cliff and osc-lib for
+python-openstackclient. The end goal is to have a fully-typed code base that includes an openstacksdk &lt;code&gt;Resource&lt;/code&gt; class
+that no longer munges request and response parameters and proxy layers that actually expose the parameters each method
+supports rather than abusing &lt;code&gt;*args&lt;/code&gt; and &lt;code&gt;**kwargs&lt;/code&gt;. It&amp;rsquo;s a huge goal but, again, we are making steady progress here.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;questions&#34;&gt;Questions?&lt;/h2&gt;
+&lt;p&gt;Come discuss these topics in the OpenStack Virtual PTG, running from 07-11 April 2025. More information of the event and
+sessions can be found at &lt;a href=&#34;https://ptg.opendev.org/&#34;&gt;ptg.opendev.org&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2869,38 +3052,6 @@ Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Add this to your otherwise uncomplicated &lt;code&gt;local.conf&lt;/code&gt; and in theory things
 should just work (TM). There might be more to it but hopefully there&amp;rsquo;s enough
 here for folks to figure out how to debug things if so.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Teaching Padawans to Chop Wood and Carry Water in Their Open Source Journey</title>
-      <link>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</link>
-      <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</guid>
-      <description>&lt;p&gt;This talk was delivered during the &lt;a href=&#34;https://www.eventbrite.com/e/openinfra-summit-berlin-2022-tickets-211374997307&#34;&gt;OpenInfra Summit 2022&lt;/a&gt; in Berlin. The
-aim was to provide some background on the mentoring activities happening in the
-OpenStack community and provide some advice for potential mentors and mentees
-on how to get involved in and run a successful mentorship.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Maintainers of most open source projects long for everlasting engagement from
-their contributors. Community-driven projects stand a better chance at this,
-provided the community itself is well-fed with new contributors and fresh
-ideas. Contributors may begin their journey with many motivations, however
-staying and taking on maintenance responsibilities is aided by the
-community&amp;rsquo;s culture and willingness to mentor. We began building engagement
-for the OpenStack Manila community years ago with one-on-one mentoring of new
-contributors. We scouted for interested folk at events, conducted hands-on
-workshops and continuously improved our on-boarding documentation. Our
-methods constantly changed with feedback from mentees. After mentoring nearly
-two dozen Outreachy, GSOC and college interns from across the world, we want
-to share our process and learnings through this presentation.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;More information is available on the &lt;a href=&#34;https://www.eventbrite.com/e/openinfra-summit-berlin-2022-tickets-211374997307&#34;&gt;Eventbrite&lt;/a&gt; website.&lt;/p&gt;
-
-&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;57f85300bf234d328854b04addfac837&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
-
-
 </description>
     </item>
     
