@@ -6,7 +6,103 @@
     <description>Recent content in Kubernetes on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Mon, 09 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 03 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A closer look at the Cinder CSI Driver and the Topology feature</title>
+      <link>https://that.guru/blog/csi-drivers-and-openstack/</link>
+      <pubDate>Thu, 03 Apr 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/csi-drivers-and-openstack/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve recently found myself once again working on the OpenStack Cinder CSI Driver and the Operator that OpenShift uses to
+deploy this. This work has inspired me to improve my knowledge of how the Cinder CSI Driver - and CSI drivers in
+general - work. Below is my current high-level understanding of both as well as a quick summary of changes we are making
+to the Cinder CSI Driver Operator in OpenShift 4.19.&lt;/p&gt;
+&lt;h2 id=&#34;deployment-of-the-cinder-csi-driver&#34;&gt;Deployment of the Cinder CSI Driver&lt;/h2&gt;
+&lt;p&gt;The Cinder CSI Driver Operator deploys the driver itself as two components: a controller component and a per-node
+component, which is the &lt;a href=&#34;https://kubernetes-csi.github.io/docs/deploying.html&#34;&gt;typical deployment model for CSI Drivers&lt;/a&gt;. The controller component is managed
+via a Deployment which you can see &lt;a href=&#34;https://github.com/openshift/csi-operator/blob/release-4.18/assets/overlays/openstack-cinder/generated/standalone/controller.yaml&#34;&gt;here&lt;/a&gt;. It consists of the controller plugin and a number of sidecar
+containers which interface between the controller and the Kubernetes controller manager (&lt;code&gt;kube-controller-manager&lt;/code&gt;) via
+a Unix domain socket and handle different RPC calls. Breaking these down one-by-one:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The controller plugin container (&lt;code&gt;csi-driver&lt;/code&gt;) implements the Controller Service and Identity Service set of RPCs
+described in the &lt;a href=&#34;https://github.com/container-storage-interface/spec/blob/master/spec.md#rpc-interface&#34;&gt;CSI spec&lt;/a&gt;. It is responsible for handling requests by calling the cloud provider&amp;rsquo;s APIs
+(Cinder and Nova, this case).&lt;/p&gt;
+&lt;p&gt;You can find the Cinder CSI implementation of the Controller Service &lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/blob/release-1.32/pkg/csi/cinder/controllerserver.go&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The attacher sidecar container (&lt;code&gt;csi-attacher&lt;/code&gt;) watches for attach and detach calls and calls
+&lt;code&gt;ControllerPublishVolume&lt;/code&gt; and &lt;code&gt;ControllerUnpublishVolume&lt;/code&gt;, respectively. (&lt;a href=&#34;https://github.com/kubernetes-csi/external-attacher&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The provisioner sidecar container (&lt;code&gt;csi-provisioner&lt;/code&gt;) watches for PVC creation and deletion and calls &lt;code&gt;CreateVolume&lt;/code&gt;
+and &lt;code&gt;DeleteVolume&lt;/code&gt;, respectively. (&lt;a href=&#34;https://github.com/kubernetes-csi/external-provisioner&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The snapshotter sidecar container (&lt;code&gt;csi-snapshotter&lt;/code&gt;) does the same as the provisioner but for snapshots, calling
+&lt;code&gt;CreateSnapshot&lt;/code&gt; and &lt;code&gt;DeleteSnapshot&lt;/code&gt;. (&lt;a href=&#34;https://github.com/kubernetes-csi/external-snapshotter&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The resizer sidecar container (&lt;code&gt;csi-resizer&lt;/code&gt;) watches for changes to a PVC and calls &lt;code&gt;ControllerExpandVolume&lt;/code&gt; as
+necessary. (&lt;a href=&#34;https://github.com/kubernetes-csi/external-resizer&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The per-node component, by comparison, is deployed to each node using a DaemonSet. You can see the definition for this
+&lt;a href=&#34;https://github.com/openshift/csi-operator/blob/release-4.18/assets/overlays/openstack-cinder/generated/standalone/node.yaml&#34;&gt;here&lt;/a&gt;. It consists of the node plugin and a single sidecar container:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The node plugin container (&lt;code&gt;csi-driver&lt;/code&gt;) implements the Node Service and Identity Service sets of RPCs described in
+the &lt;a href=&#34;https://github.com/container-storage-interface/spec/blob/master/spec.md#rpc-interface&#34;&gt;CSI spec&lt;/a&gt;. It is responsible for reporting information about the node and for bind mounting volumes
+once they are attached to the host. Specifically, it reports an ID of the node, the maximum number of volumes it
+supports, and topology information. In the case of Cinder, both the ID and topology information are sourced from the
+metadata service, while the volume limit is determined via a configuration option.&lt;/p&gt;
+&lt;p&gt;You can find the Cinder CSI implementation of the Node Service &lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/blob/release-1.32/pkg/csi/cinder/nodeserver.go&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The node-driver-registrar sidecar container (&lt;code&gt;csi-node-driver-registrar&lt;/code&gt;) registers the CSI driver with kubelet,
+allowing kubelet to call &lt;code&gt;NodeGetInfo&lt;/code&gt;, &lt;code&gt;NodeStageVolume&lt;/code&gt;, &lt;code&gt;NodePublishVolume&lt;/code&gt; etc. (&lt;a href=&#34;https://github.com/kubernetes-csi/node-driver-registrar&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;changes-to-topology-auto-configuration&#34;&gt;Changes to topology auto-configuration&lt;/h2&gt;
+&lt;p&gt;Now that we understand the various components that make up the CSI Driver, let&amp;rsquo;s take a look at the changes we&amp;rsquo;ve been
+working on in this area. As I&amp;rsquo;ve &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;previously discussed&lt;/a&gt;, the Cinder CSI Driver has support for
+Availability Zones (or, in CSI parlance, the CSI Topology Feature) and since OpenShift 4.16 or so the Cinder CSI Driver
+Operator has supported auto-configuration of this feature. Without getting too into the weeds, the way this is
+determined is via a simple set comparison: the set of Compute AZs is compared to the set of Block Storage AZs, and if
+the former isn&amp;rsquo;t a subset of the latter (e.g. if there was a Compute AZ called &lt;code&gt;foo&lt;/code&gt; but no equivalent Block Storage AZ
+of the same name) then we determine that the feature should be disabled. Once we&amp;rsquo;ve determined this, we toggle the
+&lt;code&gt;Topology&lt;/code&gt; feature gate of the CSI Provisioner sidecar container, thus ensuring that the &lt;code&gt;AccessibilityRequirements&lt;/code&gt;
+field of the &lt;code&gt;CreateVolumeRequest&lt;/code&gt; struct generated by the provisioner (and fed to the controller plugin) &lt;a href=&#34;https://github.com/kubernetes-csi/external-provisioner/blob/release-5.1/pkg/controller/controller.go#L682-L697&#34;&gt;would not be
+populated&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;However, things change and the Topology feature is now considered mature and is enabled by default. This means it is
+likely that the feature flag will be removed at some point in the not-too-distant future, which in turn means we need to
+find another way to enable and disable topology support from the operator. The solution we&amp;rsquo;ve arrived at is to copy what
+was done in Manila and add support for a new &lt;code&gt;--with-topology&lt;/code&gt; option to both the controller plugin and node plugin
+services. This new option has different effects depending on where it is set:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;For the controller plugin, the option determines whether (a) the calls to Cinder include a requested AZ and (b)
+whether the &lt;code&gt;CreateVolumeResponse&lt;/code&gt; returned by the &lt;code&gt;CreateVolume&lt;/code&gt; call includes topology accessibility information.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;For the node plugin, the option determines whether the node reports (a) the capability (as part of the
+&lt;code&gt;GetPluginCapabilities&lt;/code&gt; RPC) and (b) a topology information (as part of the &lt;code&gt;NodeGetInfo&lt;/code&gt; call).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This work has been implemented in &lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/pull/2743&#34;&gt;kubernetes/cloud-provider-openstack#2743&lt;/a&gt; (with some follow-ups in
+&lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/pull/2862&#34;&gt;kubernetes/cloud-provider-openstack#2862&lt;/a&gt; and &lt;a href=&#34;https://github.com/kubernetes/cloud-provider-openstack/pull/2865&#34;&gt;kubernetes/cloud-provider-openstack#2865&lt;/a&gt;). With
+the new option in place, we&amp;rsquo;ve been able to change how the Operator toggles the Topology feature. Now, instead of
+enabling and disabling the feature gate on the &lt;code&gt;csi-provisioner&lt;/code&gt; container, it can enable and disable the feature on the
+&lt;code&gt;csi-driver&lt;/code&gt; containers in the controller deployment and node daemonsets. &lt;em&gt;That&lt;/em&gt; work has been implemented in
+&lt;a href=&#34;https://github.com/openshift/csi-operator/pull/345&#34;&gt;openshift/csi-operator#345&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;next-steps&#34;&gt;Next steps&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;m hoping this is last time I feel the need to write about the Cinder CSI Driver and its Operator. The work we&amp;rsquo;ve done
+here should future proof both and ensure that, barring major changes to the CSI Spec itself, few other changes will be
+needed for the foreseeable. I would however like to get a better understanding of how the equivalent feature in the
+Manila CSI Driver works, so watch our for a possible post on that topic down the line.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators</title>
       <link>https://that.guru/blog/user-managed-configuration-in-cccmo/</link>

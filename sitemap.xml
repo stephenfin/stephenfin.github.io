@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://that.guru/blog/csi-drivers-and-openstack/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/blog/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/kubernetes/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openshift/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openstack/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/</loc>
+    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/cookbooks/openshift/</loc>
     <lastmod>2024-10-22T00:00:00+00:00</lastmod>
   </url><url>
@@ -11,19 +32,7 @@
     <loc>https://that.guru/cookbooks/</loc>
     <lastmod>2024-10-22T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/</loc>
-    <lastmod>2024-10-22T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/blog/</loc>
-    <lastmod>2024-09-25T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</loc>
-    <lastmod>2024-09-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/</loc>
-    <lastmod>2024-09-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/openstack/</loc>
     <lastmod>2024-09-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/python/</loc>
@@ -36,9 +45,6 @@
     <lastmod>2024-08-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2/</loc>
-    <lastmod>2024-05-03T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/openshift/</loc>
     <lastmod>2024-05-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/routers-in-openstack/</loc>
@@ -144,9 +150,6 @@
     <lastmod>2022-05-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/user-managed-configuration-in-cccmo/</loc>
-    <lastmod>2022-05-09T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/kubernetes/</loc>
     <lastmod>2022-05-09T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/openstackclient-nova-microversions/</loc>
