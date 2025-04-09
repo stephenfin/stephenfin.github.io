@@ -181,22 +181,108 @@ operator.openshift.io/dep-28104e6bcb20f4d44a571c8e2f3f0a1f5a880: ElMHxA==
 <p>The below script is an example of how to modify the credentials. In this case, we are setting the <code>volume_api_version</code>
 attribute for the cloud entry, however, there&rsquo;s no reason you could choose to replace the credentials with wholly new
 credentials.</p>
-<script src="https://gist.github.com/stephenfin/ba9db5efde185ef5e3d274f61f86db94.js"></script>
-
-<h3 id="development">Development</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> subprocess
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sys
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> textwrap
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    out <span style="color:#f92672">=</span> subprocess<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>        [
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;oc&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;get&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-n&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;kube-system&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;secret/openstack-credentials&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-o&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;jsonpath={.data.clouds\.yaml}&#34;</span>,
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        capture_output<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> out<span style="color:#f92672">.</span>returncode <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        print(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;ERROR: Failed to fetch clouds.yaml: out=</span><span style="color:#e6db74">{out.stdout}</span><span style="color:#e6db74">, &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;err=</span><span style="color:#e6db74">{out.stderr}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>            file<span style="color:#f92672">=</span>sys<span style="color:#f92672">.</span>stderr,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    clouds <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64decode(out<span style="color:#f92672">.</span>stdout)<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;utf-8&#39;</span>)<span style="color:#f92672">.</span>strip(<span style="color:#e6db74">&#34;&#39;&#34;</span>)
+</span></span><span style="display:flex;"><span>    data <span style="color:#f92672">=</span> yaml<span style="color:#f92672">.</span>safe_load(clouds)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> list(data) <span style="color:#f92672">!=</span> [<span style="color:#e6db74">&#34;clouds&#34;</span>] <span style="color:#f92672">or</span> list(data[<span style="color:#e6db74">&#34;clouds&#34;</span>]) <span style="color:#f92672">!=</span> [<span style="color:#e6db74">&#34;openstack&#34;</span>]:
+</span></span><span style="display:flex;"><span>        print(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;ERROR: clouds.yaml looks malformed. Expecting a single clouds &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;entry called &#39;openstack&#39;. Got: </span><span style="color:#e6db74">{</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>            file<span style="color:#f92672">=</span>sys<span style="color:#f92672">.</span>stderr,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Before: </span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">{</span>textwrap<span style="color:#f92672">.</span>indent(clouds, <span style="color:#e6db74">&#39;    &#39;</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    data[<span style="color:#e6db74">&#34;clouds&#34;</span>][<span style="color:#e6db74">&#34;openstack&#34;</span>][<span style="color:#e6db74">&#34;volume_api_version&#34;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;3&#34;</span>
+</span></span><span style="display:flex;"><span>    clouds <span style="color:#f92672">=</span> yaml<span style="color:#f92672">.</span>safe_dump(data)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;After: </span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">{</span>textwrap<span style="color:#f92672">.</span>indent(clouds, <span style="color:#e6db74">&#39;    &#39;</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>        user_input <span style="color:#f92672">=</span> input(<span style="color:#e6db74">&#34;Do you wish to continue? (y/n) &#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> user_input<span style="color:#f92672">.</span>strip()<span style="color:#f92672">.</span>lower()<span style="color:#f92672">.</span>startswith(<span style="color:#e6db74">&#34;y&#34;</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> user_input<span style="color:#f92672">.</span>strip()<span style="color:#f92672">.</span>lower()<span style="color:#f92672">.</span>startswith(<span style="color:#e6db74">&#34;n&#34;</span>):
+</span></span><span style="display:flex;"><span>            sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    out <span style="color:#f92672">=</span> subprocess<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>        [
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;oc&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;set&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;data&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-n&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;kube-system&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;secret/openstack-credentials&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;clouds.yaml=</span><span style="color:#e6db74">{</span>clouds<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        capture_output<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> out<span style="color:#f92672">.</span>returncode <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        print(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;ERROR: Failed to update clouds.yaml: out=</span><span style="color:#e6db74">{</span>out<span style="color:#f92672">.</span>stdout<span style="color:#e6db74">}</span><span style="color:#e6db74">, &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;err=</span><span style="color:#e6db74">{</span>out<span style="color:#f92672">.</span>stderr<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>            file<span style="color:#f92672">=</span>sys<span style="color:#f92672">.</span>stderr,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        sys<span style="color:#f92672">.</span>exit(<span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        print(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;SUCCESS: The &#39;kube-system / openstack-credentials&#39; secret has &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;been updated to set &#39;volume_api_version = 3&#39; for the &#39;openstack&#39; &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;cloud. Wait up to 10 minutes for Cloud Credential Operator to &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;roll out the new credentials to all operators and services that &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;require them.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><h3 id="development">Development</h3>
 <p>As discussed <a href="#deployment">above</a>, in a standalone deployment, the management of Cinder CSI Driver effectively occurs
 through three operators: the Cinder CSI Driver Operator, the Cluster Storage Operator, and the Cluster Version Operator.
 As a result, in order to work on the Cinder CSI Driver or the operator - at least without building and deploying a
 custom release image - you will need to scale down both the Cluster Version Operator and Cluster Version Operator <em>in
 that order</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-version --replicas <span style="color:#ae81ff">0</span> deployments/cluster-version-operator
-</span></span><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-storage-operator --replicas <span style="color:#ae81ff">0</span> deployment/cluster-storage-operator
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-version deployment cluster-version-operator --replicas <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-storage-operator deployment cluster-storage-operator --replicas <span style="color:#ae81ff">0</span>
 </span></span></code></pre></div><p>If you are in a Hypershift cluster, the above is mostly still true. However, as Hypershift doesn&rsquo;t have the Cluster
 Version Operator you instead need to scale down two other operators: the Hypershift Operator and the Control Plane
 Operator. Once again, this needs to be done <em>in that order</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n hypershift --replicas <span style="color:#ae81ff">0</span> deployments/operator
-</span></span><span style="display:flex;"><span>❯ oc scale -n clusters-foo --replicas <span style="color:#ae81ff">0</span> deployments/control-plane-operator
-</span></span><span style="display:flex;"><span>❯ oc scale -n clusters-foo --replicas <span style="color:#ae81ff">0</span> deployments/cluster-storage-operator
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n hypershift deployment operator --replicas <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>❯ oc scale -n clusters-foo deployment control-plane-operator --replicas <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>❯ oc scale -n clusters-foo deployment cluster-storage-operator --replicas <span style="color:#ae81ff">0</span>
 </span></span></code></pre></div><p>where <code>foo</code> is the name given to your guest cluster.</p>
 <p>Failure to scale down these operators will result in any changes you make to Cluster Storage Operator-managed resources</p>
 <ul>
@@ -213,8 +299,10 @@ then modify the deployment using e.g. <code>oc edit</code> to reference this new
 </span></span><span style="display:flex;"><span>❯ oc edit -n clusters-foo deployment openstack-cinder-csi-driver-operator
 </span></span></code></pre></div><p>If you are iterating on changes to Cinder CSI Driver itself (or one of the sidecar containers), then you can either set
 the appropriate <code>IMAGE</code> environment variable in the deployment (e.g. <code>DRIVER_IMAGE</code>) or scale down the CSI Operator also
-and manipulate the deployments and daemonsets as necessary.</p>
-
+and manipulate the deployments and daemonsets as necessary. For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-controller --replicas <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-csi-drivers daemonset openstack-cinder-csi-driver-node --replicas <span style="color:#ae81ff">0</span>
+</span></span></code></pre></div>
   </div>
 
     </main>
