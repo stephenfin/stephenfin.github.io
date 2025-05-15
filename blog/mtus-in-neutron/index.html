@@ -8,7 +8,12 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="MTUs in Neutron" />
-  <meta property="og:description" content="I&rsquo;m not overly familiar with neutron but it appears that in the past correctly setting MTU values was easier said than done. This has been massively improved in recent releases, but getting us to this point required a lot of work and, in particular, a lot of changes to the MTU-related configuration options available over the course of Liberty and Newton.&hellip;" />
+  <meta property="og:description" content="I&rsquo;m not overly familiar with neutron but it appears that in the past correctly
+setting MTU values was easier said than done. This has been massively improved
+in recent releases, but getting us to this point required a lot of work and, in
+particular, a lot of changes to the MTU-related configuration options available
+over the course of Liberty and Newton. The below table tries to collect these
+changes in a coherent table.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/mtus-in-neutron/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1551703599-6b3e8379aa8c?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjM4MTd8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />
@@ -107,58 +112,58 @@ particular, a lot of changes to the MTU-related configuration options available
 over the course of Liberty and Newton. The below table tries to collect these
 changes in a coherent table.</p>
 <table>
-<thead>
-<tr>
-<th>Configuration Option</th>
-<th>Version</th>
-<th>Commit</th>
-<th>Comments</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>segment_mtu</code></td>
-<td>Liberty</td>
-<td>-</td>
-<td>-</td>
-</tr>
-<tr>
-<td><code>path_mtu</code></td>
-<td>Liberty</td>
-<td>-</td>
-<td>-</td>
-</tr>
-<tr>
-<td><code>segment_mtu</code></td>
-<td>Mitaka</td>
-<td>b2d0985d</td>
-<td>Default set to 1500</td>
-</tr>
-<tr>
-<td><code>global_physnet_mtu</code></td>
-<td>Mitaka</td>
-<td>ae45cd57</td>
-<td>New name for <code>segment_mtu</code></td>
-</tr>
-<tr>
-<td><code>path_mtu</code></td>
-<td>Mitaka</td>
-<td>7a4633a9</td>
-<td>Default set to 1500</td>
-</tr>
-<tr>
-<td><code>global_physnet_mtu</code></td>
-<td>Newton</td>
-<td>-</td>
-<td>-</td>
-</tr>
-<tr>
-<td><code>path_mtu</code></td>
-<td>Newton</td>
-<td>38531ca5</td>
-<td>Default set to 0</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Configuration Option</th>
+          <th>Version</th>
+          <th>Commit</th>
+          <th>Comments</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>segment_mtu</code></td>
+          <td>Liberty</td>
+          <td>-</td>
+          <td>-</td>
+      </tr>
+      <tr>
+          <td><code>path_mtu</code></td>
+          <td>Liberty</td>
+          <td>-</td>
+          <td>-</td>
+      </tr>
+      <tr>
+          <td><code>segment_mtu</code></td>
+          <td>Mitaka</td>
+          <td>b2d0985d</td>
+          <td>Default set to 1500</td>
+      </tr>
+      <tr>
+          <td><code>global_physnet_mtu</code></td>
+          <td>Mitaka</td>
+          <td>ae45cd57</td>
+          <td>New name for <code>segment_mtu</code></td>
+      </tr>
+      <tr>
+          <td><code>path_mtu</code></td>
+          <td>Mitaka</td>
+          <td>7a4633a9</td>
+          <td>Default set to 1500</td>
+      </tr>
+      <tr>
+          <td><code>global_physnet_mtu</code></td>
+          <td>Newton</td>
+          <td>-</td>
+          <td>-</td>
+      </tr>
+      <tr>
+          <td><code>path_mtu</code></td>
+          <td>Newton</td>
+          <td>38531ca5</td>
+          <td>Default set to 0</td>
+      </tr>
+  </tbody>
 </table>
 <p>These options are described in the docs for both <a href="http://docs.openstack.org/mitaka/networking-guide/config-mtu.html">Mitaka</a> and
 <a href="http://docs.openstack.org/newton/networking-guide/config-mtu.html">Newton</a>.</p>

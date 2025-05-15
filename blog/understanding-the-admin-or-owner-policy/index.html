@@ -8,7 +8,18 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="Understanding the &#39;admin_or_owner&#39; rule in nova policies" />
-  <meta property="og:description" content="The OpenStack Compute service, nova, exposes a rich policy framework that provides the ability to configure what certain types of users are allowed to do across the API.&hellip;" />
+  <meta property="og:description" content="The OpenStack Compute service, nova, exposes a rich policy framework that
+provides the ability to configure what certain types of users are allowed to
+do across the API. The policy defaults are stored in code, allowing us to
+define, for example, who is allowed to create or delete an instance, who can
+configure flavors, and so forth. However, these policies are slightly
+confusing. Take the aforementioned policy defining who can delete a specific
+instance. This is configured using the os_compute_api:servers:delete
+policy and, prior to the 21.0.0 (Ussuri) release, defaulted to the
+admin_or_owner rule. The name of this would suggest that the only person
+that could delete an instance would be an admin or the person that created the
+instance, but a quick test shows this not to be the case. Consider the
+following case, used on a standard DevStack-based installation:&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/understanding-the-admin-or-owner-policy/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1561825618-a26f85c50bf4?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjQ1MDh8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />

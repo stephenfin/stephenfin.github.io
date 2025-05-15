@@ -8,8 +8,17 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="Resolving an annoying PyQt Warning in OpenStackClient" />
-  <meta property="og:description" content="I&rsquo;ve recently been seeing the following warning when running openstack commands locally:
-$ openstack server list -n -f yaml QSocketNotifier: Can only be used with threads started with QThread .&hellip;" />
+  <meta property="og:description" content="I&rsquo;ve recently been seeing the following warning when running openstack
+commands locally:
+$ openstack server list -n -f yaml
+QSocketNotifier: Can only be used with threads started with QThread
+...
+This made no sense: OSC doesn&rsquo;t use Qt so why am I seeing errors related to
+this? I also was only seeing it on one host. What gives? Well it took me a
+while but it turned out this wasn&rsquo;t due to OSC or even one of its direct
+dependencies: it was an indirect dependency, pyperclip. By exporting
+PYTHONPROFILEIMPORTTIME=1, I was able to figure out what import caused the
+error:&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/openstackclient-qt-warning/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1514413494665-cda1387955dd?crop=entropy&amp;cs=srgb&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjkxMjd8&amp;ixlib=rb-4.0.3&amp;q=85" />

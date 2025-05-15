@@ -116,6 +116,13 @@ play&amp;rdquo; for OpenAPI support in OpenStack and a reminder of our long-term
 &lt;aside class=&#34;admonition note&#34;&gt;
 	
 	
+	&lt;div class=&#34;admonition-content&#34;&gt;This information is accurate as of the start of the 2025.2 (Flamingo) cycle. I will attempt to update it over the course
+of this cycle.&lt;/div&gt;
+&lt;/aside&gt;
+
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
 	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-04-15 to better describe the ongoing work in OSC and SDK.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -2563,30 +2570,30 @@ API version. As such, the API version will increase at most once per release.
 You can continue to request older versions.&lt;/p&gt;
 &lt;p&gt;For example, consider the Image (glance) API.&lt;/p&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Release&lt;/th&gt;
-&lt;th&gt;Supported 2.x API versions&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;Grizzly&lt;/td&gt;
-&lt;td&gt;2.0 - 2.1&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Havana&lt;/td&gt;
-&lt;td&gt;2.0 - 2.2&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Kilo&lt;/td&gt;
-&lt;td&gt;2.0 - 2.3&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&amp;hellip;&lt;/td&gt;
-&lt;td&gt;&amp;hellip;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Release&lt;/th&gt;
+          &lt;th&gt;Supported 2.x API versions&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Grizzly&lt;/td&gt;
+          &lt;td&gt;2.0 - 2.1&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Havana&lt;/td&gt;
+          &lt;td&gt;2.0 - 2.2&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Kilo&lt;/td&gt;
+          &lt;td&gt;2.0 - 2.3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&amp;hellip;&lt;/td&gt;
+          &lt;td&gt;&amp;hellip;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 id=&#34;microversions&#34;&gt;Microversions&lt;/h2&gt;
 &lt;p&gt;This is used by multiple services including the Compute service (nova), Block
@@ -2596,30 +2603,30 @@ increase multiple times per release. You can continue to request older
 versions.&lt;/p&gt;
 &lt;p&gt;For example, consider the Compute (nova) API.&lt;/p&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Release&lt;/th&gt;
-&lt;th&gt;Supported 2.x API versions&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;Kilo&lt;/td&gt;
-&lt;td&gt;2.1 - 2.3&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Liberty&lt;/td&gt;
-&lt;td&gt;2.1 - 2.12&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Mitaka&lt;/td&gt;
-&lt;td&gt;2.1 - 2.25&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&amp;hellip;&lt;/td&gt;
-&lt;td&gt;&amp;hellip;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Release&lt;/th&gt;
+          &lt;th&gt;Supported 2.x API versions&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Kilo&lt;/td&gt;
+          &lt;td&gt;2.1 - 2.3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Liberty&lt;/td&gt;
+          &lt;td&gt;2.1 - 2.12&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Mitaka&lt;/td&gt;
+          &lt;td&gt;2.1 - 2.25&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&amp;hellip;&lt;/td&gt;
+          &lt;td&gt;&amp;hellip;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 id=&#34;extensions&#34;&gt;Extensions&lt;/h2&gt;
 &lt;p&gt;This is used by the Networking service (neutron). It’s a versioning scheme that

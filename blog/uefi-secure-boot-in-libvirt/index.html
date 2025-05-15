@@ -8,7 +8,13 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="UEFI Support in Libvirt" />
-  <meta property="og:description" content="Support for UEFI Secure Boot is one of the features planned for the Wallaby release of the OpenStack Compute project, Nova. Nova has supported UEFI for instances via the libvirt virt driver since the Mitaka release (nova 13.&hellip;" />
+  <meta property="og:description" content="Support for UEFI Secure Boot is one of the features planned for the
+Wallaby release of the OpenStack Compute project, Nova.  Nova has supported
+UEFI for instances via the libvirt virt driver since the Mitaka release (nova
+13.0.0) and it is in fact required to boot AArch64 (ARM64) guests,
+however, how this has been implemented leaves a lot to be desired. The
+introduction of Secure Boot functionality has given us the opportunity to clean
+up some of the tech debt around this feature.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/uefi-secure-boot-in-libvirt/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1610337673044-720471f83677?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjM4MTh8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />

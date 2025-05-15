@@ -8,7 +8,16 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="Comparing Nova Database Migrations" />
-  <meta property="og:description" content="One of the goals for the Wallaby release of OpenStack Nova is to compact many of the database migrations that have been slowly building up since the Icehouse release some 6½ years ago.&hellip;" />
+  <meta property="og:description" content="One of the goals for the Wallaby release of OpenStack Nova is to compact
+many of the database migrations that have been slowly building up since the
+Icehouse release some 6½ years ago. We used to do this regularly but stopped
+based on operator feedback suggesting it made upgrades harder than necessary.
+However, things have changed since then and the amount of database migrations
+in each release has slowed considerably. In fact, the latest release, Victoria,
+contained no database migrations whatsoever. This change, coupled with the fact
+that we&rsquo;re still using the effectively dead sqlalchemy-migrate library
+rather than something like alembic means we now have good reason to kick
+off the compaction.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/comparing-nova-db-migrations/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1553413077-190dd305871c?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjQ1MDh8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />

@@ -8,7 +8,13 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="Multipoint VXLAN Tunnels" />
-  <meta property="og:description" content="I recently had to deploy a multi-node OpenStack cluster in Azure. Like most cloud platforms, Azure does not expose L2 networks and implements MAC spoofing protection, preventing VMs from advertising IPs that have not been assigned to them.&hellip;" />
+  <meta property="og:description" content="I recently had to deploy a multi-node OpenStack cluster in Azure. Like most cloud platforms, Azure does not expose L2
+networks and implements MAC spoofing protection, preventing VMs from advertising IPs that have not been assigned to
+them. However, we want a provider network in our deployment in order to provide external network
+connectivity to OpenStack VMs, which meant we needed some kind of L2 network. Enter overlay networks, specifically VXLAN
+network, which will let us provide a virtual L2 domain for our created VMs. We ended up not needing this as we only
+deployed a single networking controller node, but it was an interesting exercise all the same. I&rsquo;ve documented the steps
+I needed to take to get this functioning below.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/multipoint-vxlan-tunnels/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1591711584791-455de896b1e9?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjQ4NzZ8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 <head>
-	<meta name="generator" content="Hugo 0.126.2">
+	<meta name="generator" content="Hugo 0.142.0">
   <meta charset="utf-8">
   <title>Stephen Finucane (Fin-oo-can) | that.guru</title>
   <meta name="description" content="">
@@ -93,7 +93,10 @@
             <a class="page-link" href="https://that.guru/blog/an-update-on-openapi-in-openstack/">An Update on OpenAPI in Openstack</a>
           </div>
           <div class="page-summary">
-            <p>I previously presented on our work to bring OpenAPI to OpenStack as part of the 2024 OpenInfra Summit Asia, the slides for which you can find here.&hellip;</p>
+            <p><p>I previously presented on our work to bring OpenAPI to OpenStack as part of the 2024 OpenInfra Summit Asia, the slides
+for which you can find <a href="https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/">here</a>. Since that talk, another
+release cycle has come and gone and our work has continued to progress. Below is a summary of the current &ldquo;state of
+play&rdquo; for OpenAPI support in OpenStack and a reminder of our long-term goals in the area.</p>&hellip;</p>
           </div>
         </li>
         
@@ -105,7 +108,10 @@
             <a class="page-link" href="https://that.guru/blog/csi-drivers-and-openstack/">A Closer Look at the Cinder CSI Driver and the Topology Feature</a>
           </div>
           <div class="page-summary">
-            <p>I&rsquo;ve recently found myself once again working on the OpenStack Cinder CSI Driver and the Operator that OpenShift uses to deploy this. This work has inspired me to improve my knowledge of how the Cinder CSI Driver - and CSI drivers in general - work.&hellip;</p>
+            <p><p>I&rsquo;ve recently found myself once again working on the OpenStack Cinder CSI Driver and the Operator that OpenShift uses to
+deploy this. This work has inspired me to improve my knowledge of how the Cinder CSI Driver - and CSI drivers in
+general - work. Below is my current high-level understanding of both as well as a quick summary of changes we are making
+to the Cinder CSI Driver Operator in OpenShift 4.19.</p>&hellip;</p>
           </div>
         </li>
         
@@ -117,7 +123,11 @@
             <a class="page-link" href="https://that.guru/blog/block-devices-in-openstack/">Block Storage in OpenStack</a>
           </div>
           <div class="page-summary">
-            <p>It&rsquo;s an often overlooked fact that OpenStack has two wholly different mechanisms for provisioning block devices for instances. While most people are aware of the Block Storage service, Cinder, not everyone is aware of or gives much thought to the various types of block devices or &ldquo;ephemeral&rdquo; storage that the Compute service, Nova, is able to provide.&hellip;</p>
+            <p><p>It&rsquo;s an often overlooked fact that OpenStack has two wholly different mechanisms for provisioning block devices for
+instances. While most people are aware of the Block Storage service, Cinder, not everyone is aware of or gives much
+thought to the various types of block devices or <em>&ldquo;ephemeral&rdquo;</em> storage that the Compute service, Nova, is able to
+provide. This article serves to provide a high-level overview and comparison of these two different mechanisms,
+including examples of how you can use them and some hopefully (interesting) asides.</p>&hellip;</p>
           </div>
         </li>
         
@@ -129,7 +139,18 @@
             <a class="page-link" href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2/">Availability Zones in Openstack and Openshift (Part 2)</a>
           </div>
           <div class="page-summary">
-            <p>This is part two of two. If you&rsquo;re looking for part one, you can find it here. After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes).&hellip;</p>
+            <p><aside class="admonition note">
+	
+	
+	<div class="admonition-content">This is part two of two. If you&rsquo;re looking for part one, you can find it
+<a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">here</a>.</div>
+</aside>
+
+<p>After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
+might make sense to document the situation with OpenStack AZs on OpenShift (and, by extension, Kubernetes). This is the
+second part of two. <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">The first part</a> provided some background on what AZs are and how you can configure them,
+while this part will examine how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API
+Provider, the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.</p>&hellip;</p>
           </div>
         </li>
         
@@ -141,7 +162,13 @@
             <a class="page-link" href="https://that.guru/blog/routers-in-openstack/">API routing in Openstack</a>
           </div>
           <div class="page-summary">
-            <p>In the Dalamation (2024.2) cycle, we&rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As part of this effort, I&rsquo;ve had to learn more than I would like to know about how various services&rsquo; API machinery works.&hellip;</p>
+            <p><p>In the Dalamation (2024.2) cycle, we&rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As
+part of this effort, I&rsquo;ve had to learn more than I would like to know about how various services&rsquo; API machinery works.
+The below is a quick summary of how the mapping of URLs (or rather, paths) to API controller methods works in Nova (and
+Cinder, Manila and other projects that have copied or inherited Nova&rsquo;s patterns). This is very much inside baseball and
+probably not useful outside of OpenStack, since we&rsquo;re using older libraries - namely <a href="https://pypi.org/project/Routes/">Routes</a>, <a href="https://pypi.org/project/Paste/">Paste</a>,
+and <a href="https://pypi.org/project/WebOb/">WebOb</a> - that have been mostly superseded by new libraries like Flask, Falcon, or Starlette. Still, maybe
+it&rsquo;s useful for someone.</p>&hellip;</p>
           </div>
         </li>
         
@@ -167,7 +194,9 @@
             <a class="page-link" href="https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/">API Contracts: Bringing OpenAPI and Typing to OpenStack</a>
           </div>
           <div class="page-summary">
-            <p>This talk was delivered during the OpenInfra Summit Asia in Suwon in September 2024. It focused on two efforts currently underway in the OpenStack community, one to add OpenAPI schema generation to many services, and another to add type annotations to the SDK and OpenStackClient.&hellip;</p>
+            <p><p>This talk was delivered during the <a href="https://2024.openinfraasia.org/">OpenInfra Summit Asia in Suwon</a> in September 2024. It focused on two efforts
+currently underway in the OpenStack community, one to add OpenAPI schema generation to many services, and another to add
+type annotations to the SDK and OpenStackClient.</p>&hellip;</p>
           </div>
         </li>
         
@@ -179,7 +208,10 @@
             <a class="page-link" href="https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy/">Zero-Downtime Upgrades With SQLAlchemy and Alembic</a>
           </div>
           <div class="page-summary">
-            <p>This talk was delivered at PyCon Ireland 2022. As the name would suggest, I aimed to describe how to implement a database upgrade pattern using SQLAlchemy + Alembic that would allow you to evolve you database schema without incurring downtime.&hellip;</p>
+            <p><p>This talk was delivered at <a href="https://python.ie/pycon-2022/schedule/">PyCon Ireland 2022</a>. As the name would suggest,
+I aimed to describe how to implement a database upgrade pattern using
+SQLAlchemy + Alembic that would allow you to evolve you database schema without
+incurring downtime.</p>&hellip;</p>
           </div>
         </li>
         
@@ -191,7 +223,10 @@
             <a class="page-link" href="https://that.guru/talks/openstack-from-10000ft/">Openstack From 10000ft</a>
           </div>
           <div class="page-summary">
-            <p>This talk was a lightning talk I gave at PyCon Ireland 2022. There&rsquo;s no real abstract.</p>
+            <p><p>This talk was a lightning talk I gave at PyCon Ireland 2022. There&rsquo;s no real
+abstract.</p>
+
+<script async class="speakerdeck-embed" data-id="c7e9c43bd0cb4715b72e9ace211e5370" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script></p>
           </div>
         </li>
         

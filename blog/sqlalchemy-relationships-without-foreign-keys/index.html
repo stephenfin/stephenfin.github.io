@@ -8,7 +8,13 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="SQLAlchemy Relationships Without Foreign Keys (And How to Replace &#39;backref&#39; With &#39;back_populates&#39;)" />
-  <meta property="og:description" content="When implementing relationships in SQLAlchemy models, you will generally need to cross-reference one model from another, ideally in a bidirectional manner. Historically, the mechanism to do this has been the relationship.&hellip;" />
+  <meta property="og:description" content="When implementing relationships in SQLAlchemy models, you will generally need
+to cross-reference one model from another, ideally in a bidirectional manner.
+Historically, the mechanism to do this has been the relationship.backref
+keyword. However, as noted in the SQLAlchemy
+documentation, this keyword should now be considered legacy
+and the relationship.back_populates migration preferred instead. There are a
+couple of reasons for this. Quoting from the docs:&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/sqlalchemy-relationships-without-foreign-keys/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1545987796-200677ee1011?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjM2MDV8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />

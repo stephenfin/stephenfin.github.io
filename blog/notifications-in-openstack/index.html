@@ -8,7 +8,11 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="Listening to notifications in Openstack" />
-  <meta property="og:description" content="Another short one. As mostly anyone that has had to maintain an OpenStack cluster will know, many of the OpenStack services has the ability to report notifications via the message bus.&hellip;" />
+  <meta property="og:description" content="Another short one. As mostly anyone that has had to maintain an OpenStack cluster will know, many of the OpenStack
+services has the ability to report notifications via the message bus. These notifications will be enabled in most
+production deployments but DevStack doesn&rsquo;t enable them by default. Fortunately enabling them is pretty painless. If we
+wanted to enable the notifications in, say, Keystone, we can do so by configuring the following in
+/etc/keystone/keystone.conf:&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/notifications-in-openstack/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1521575107034-e0fa0b594529?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjQ4NzZ8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />

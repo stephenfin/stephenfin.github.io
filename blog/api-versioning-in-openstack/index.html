@@ -8,7 +8,12 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="API Versioning in Openstack" />
-  <meta property="og:description" content="The API versioning schemes in use in OpenStack vary between services and have evolved since the early days of OpenStack. There are two types of API versioning to consider: the major version and the minor version.&hellip;" />
+  <meta property="og:description" content="The API versioning schemes in use in OpenStack vary between services and have
+evolved since the early days of OpenStack. There are two types of API
+versioning to consider: the major version and the minor version. Today,
+most OpenStack services have settled on a single major API version and have
+chosen to evolve the API without bumping the major API version any further.
+There are three API minor versioning schemes in common use.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/api-versioning-in-openstack/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1502570149819-b2260483d302?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjM2MDR8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />
@@ -121,30 +126,30 @@ API version. As such, the API version will increase at most once per release.
 You can continue to request older versions.</p>
 <p>For example, consider the Image (glance) API.</p>
 <table>
-<thead>
-<tr>
-<th>Release</th>
-<th>Supported 2.x API versions</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Grizzly</td>
-<td>2.0 - 2.1</td>
-</tr>
-<tr>
-<td>Havana</td>
-<td>2.0 - 2.2</td>
-</tr>
-<tr>
-<td>Kilo</td>
-<td>2.0 - 2.3</td>
-</tr>
-<tr>
-<td>&hellip;</td>
-<td>&hellip;</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Release</th>
+          <th>Supported 2.x API versions</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Grizzly</td>
+          <td>2.0 - 2.1</td>
+      </tr>
+      <tr>
+          <td>Havana</td>
+          <td>2.0 - 2.2</td>
+      </tr>
+      <tr>
+          <td>Kilo</td>
+          <td>2.0 - 2.3</td>
+      </tr>
+      <tr>
+          <td>&hellip;</td>
+          <td>&hellip;</td>
+      </tr>
+  </tbody>
 </table>
 <h2 id="microversions">Microversions</h2>
 <p>This is used by multiple services including the Compute service (nova), Block
@@ -154,30 +159,30 @@ increase multiple times per release. You can continue to request older
 versions.</p>
 <p>For example, consider the Compute (nova) API.</p>
 <table>
-<thead>
-<tr>
-<th>Release</th>
-<th>Supported 2.x API versions</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Kilo</td>
-<td>2.1 - 2.3</td>
-</tr>
-<tr>
-<td>Liberty</td>
-<td>2.1 - 2.12</td>
-</tr>
-<tr>
-<td>Mitaka</td>
-<td>2.1 - 2.25</td>
-</tr>
-<tr>
-<td>&hellip;</td>
-<td>&hellip;</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Release</th>
+          <th>Supported 2.x API versions</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Kilo</td>
+          <td>2.1 - 2.3</td>
+      </tr>
+      <tr>
+          <td>Liberty</td>
+          <td>2.1 - 2.12</td>
+      </tr>
+      <tr>
+          <td>Mitaka</td>
+          <td>2.1 - 2.25</td>
+      </tr>
+      <tr>
+          <td>&hellip;</td>
+          <td>&hellip;</td>
+      </tr>
+  </tbody>
 </table>
 <h2 id="extensions">Extensions</h2>
 <p>This is used by the Networking service (neutron). It’s a versioning scheme that

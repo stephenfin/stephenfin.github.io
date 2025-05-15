@@ -9,8 +9,15 @@
   
   <meta property="og:title" content="What API microversion does OpenStackClient use?" />
   <meta property="og:description" content="I was recently asked the following question:
-What Nova API microversion does OpenStackClient use when making requests to Nova?
-The answer to this question doesn&rsquo;t currently seem to appear anywhere in the OpenStackClient (OSC) documentation or man pages, so I&rsquo;m going to note it here for posterity.&hellip;" />
+
+What Nova API microversion does OpenStackClient use when making requests to
+Nova?
+
+The answer to this question doesn&rsquo;t currently seem to appear anywhere in the
+OpenStackClient (OSC) documentation or man pages, so I&rsquo;m going to note it here
+for posterity. The unfortunate answer is &ldquo;it depends&rdquo;. More specifically, it
+depends on which library OSC is using internally for the specific command.
+Is it python-novaclient or is it openstacksdk?&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/openstackclient-nova-microversions/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1529078155058-5d716f45d604?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjQ1MDV8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />
