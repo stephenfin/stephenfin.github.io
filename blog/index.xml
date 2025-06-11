@@ -2556,12 +2556,10 @@ implement this yourself if you didn&amp;rsquo;t want to the &lt;code&gt;utils&lt
       <pubDate>Fri, 03 Feb 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/api-versioning-in-openstack/</guid>
-      <description>&lt;p&gt;The API versioning schemes in use in OpenStack vary between services and have
-evolved since the early days of OpenStack. There are two types of API
-versioning to consider: the &lt;em&gt;major&lt;/em&gt; version and the &lt;em&gt;minor&lt;/em&gt; version. Today,
-most OpenStack services have settled on a single &lt;em&gt;major&lt;/em&gt; API version and have
-chosen to evolve the API without bumping the &lt;em&gt;major&lt;/em&gt; API version any further.
-There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.&lt;/p&gt;
+      <description>&lt;p&gt;The API versioning schemes in use in OpenStack vary between services and have evolved since the early days of OpenStack.
+There are two types of API versioning to consider: the &lt;em&gt;major&lt;/em&gt; version and the &lt;em&gt;minor&lt;/em&gt; version. Today, most OpenStack
+services have settled on a single &lt;em&gt;major&lt;/em&gt; API version and have chosen to evolve the API without bumping the &lt;em&gt;major&lt;/em&gt; API
+version any further. There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.&lt;/p&gt;
 &lt;aside class=&#34;admonition note&#34;&gt;
 	
 	
@@ -2570,10 +2568,15 @@ There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.
 duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/div&gt;
 &lt;/aside&gt;
 
+&lt;aside class=&#34;admonition note&#34;&gt;
+	
+	
+	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to better describe the API versioning policies of Glance and Keystone.&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;h2 id=&#34;per-release-versions&#34;&gt;Per-release versions&lt;/h2&gt;
-&lt;p&gt;This is used by the Image service (glance) and Identity service (keystone). All
-changes to the API during a given release cycle are gathered into a single new
-API version. As such, the API version will increase at most once per release.
+&lt;p&gt;This is used by the Image service (glance) and DNS service (designate). All changes to the API during a given release
+cycle are gathered into a single new API version. As such, the API version will increase at most once per release.
 You can continue to request older versions.&lt;/p&gt;
 &lt;p&gt;For example, consider the Image (glance) API.&lt;/p&gt;
 &lt;table&gt;
@@ -2602,12 +2605,19 @@ You can continue to request older versions.&lt;/p&gt;
       &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;p&gt;In theory, this means the API is purely additive and the new version can be used as a signal that an API addition is
+available. Glance takes this a step further and includes or excludes API versions depending on whether an optional
+feature is enabled or not.&lt;/p&gt;
+&lt;h2 id=&#34;single-version&#34;&gt;Single version&lt;/h2&gt;
+&lt;p&gt;This is used by the Identity service (keystone). It is similar to the per-release versions but unlike those, only a
+single API version is exposed. Like those, however, this version can be used as signal that a feature is available.
+Once again, this API schema is really intended to be purely additive, since there&amp;rsquo;s no way to opt into old behavior.
+Keystone, for example, has never removed APIs or made non-additive changes like changing the type of a field or removing
+it.&lt;/p&gt;
 &lt;h2 id=&#34;microversions&#34;&gt;Microversions&lt;/h2&gt;
-&lt;p&gt;This is used by multiple services including the Compute service (nova), Block
-Storage service (cinder), and Shared Filesystem service (manila). Each change
-to the API will result in a new API version. As such, the API version can
-increase multiple times per release. You can continue to request older
-versions.&lt;/p&gt;
+&lt;p&gt;This is used by multiple services including the Compute service (nova), Block Storage service (cinder), and Shared
+Filesystem service (manila). Each change to the API will result in a new API version. As such, the API version can
+increase multiple times per release. You can continue to request older versions.&lt;/p&gt;
 &lt;p&gt;For example, consider the Compute (nova) API.&lt;/p&gt;
 &lt;table&gt;
   &lt;thead&gt;
@@ -2635,13 +2645,14 @@ versions.&lt;/p&gt;
       &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;p&gt;Unlike the previous examples, this API versioning schema allows for practically any change, including changing the type
+of a field, adding and removing new fields, and adding or removing new APIS. If you want the old behavior, you simply
+request an older microversion.&lt;/p&gt;
 &lt;h2 id=&#34;extensions&#34;&gt;Extensions&lt;/h2&gt;
-&lt;p&gt;This is used by the Networking service (neutron). It’s a versioning scheme that
-doesn’t use API versions. Instead, it exposes a list of available extensions.
-An extension can add, remove or modify features and vendor-specific
-functionality to the API. This can include API resources/routes as well as new
-fields in API requests and responses. If you want to depend on a feature added
-by an extension, you should check if the extension is present.&lt;/p&gt;
+&lt;p&gt;This is used by the Networking service (neutron). It&amp;rsquo;s a versioning scheme that doesn&amp;rsquo;t use API versions. Instead, it
+exposes a list of available extensions. An extension can add, remove or modify features and vendor-specific
+functionality to the API. This can include API resources/routes as well as new fields in API requests and responses. If
+you want to depend on a feature added by an extension, you should check if the extension is present.&lt;/p&gt;
 </description>
     </item>
     

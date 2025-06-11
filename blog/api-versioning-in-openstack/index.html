@@ -8,12 +8,10 @@
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
   
   <meta property="og:title" content="API Versioning in Openstack" />
-  <meta property="og:description" content="The API versioning schemes in use in OpenStack vary between services and have
-evolved since the early days of OpenStack. There are two types of API
-versioning to consider: the major version and the minor version. Today,
-most OpenStack services have settled on a single major API version and have
-chosen to evolve the API without bumping the major API version any further.
-There are three API minor versioning schemes in common use.&hellip;" />
+  <meta property="og:description" content="The API versioning schemes in use in OpenStack vary between services and have evolved since the early days of OpenStack.
+There are two types of API versioning to consider: the major version and the minor version. Today, most OpenStack
+services have settled on a single major API version and have chosen to evolve the API without bumping the major API
+version any further. There are three API minor versioning schemes in common use.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/api-versioning-in-openstack/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1502570149819-b2260483d302?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjM2MDR8&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080" />
@@ -99,18 +97,16 @@ There are three API minor versioning schemes in common use.&hellip;" />
       </div>
       <div class="byline-meta-content">
         <time datetime='2023-02-03T00:00:00Z'>Feb 3, 2023</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>3 min read</span>
       </div>
     </div>
   </div>
 
   <article>
-    <p>The API versioning schemes in use in OpenStack vary between services and have
-evolved since the early days of OpenStack. There are two types of API
-versioning to consider: the <em>major</em> version and the <em>minor</em> version. Today,
-most OpenStack services have settled on a single <em>major</em> API version and have
-chosen to evolve the API without bumping the <em>major</em> API version any further.
-There are three API <em>minor</em> versioning schemes in common use.</p>
+    <p>The API versioning schemes in use in OpenStack vary between services and have evolved since the early days of OpenStack.
+There are two types of API versioning to consider: the <em>major</em> version and the <em>minor</em> version. Today, most OpenStack
+services have settled on a single <em>major</em> API version and have chosen to evolve the API without bumping the <em>major</em> API
+version any further. There are three API <em>minor</em> versioning schemes in common use.</p>
 <aside class="admonition note">
 	
 	
@@ -119,10 +115,15 @@ There are three API <em>minor</em> versioning schemes in common use.</p>
 duplicating it here in the hopes that it&rsquo;ll be more discoverable.</div>
 </aside>
 
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">Updated on 2025-06-11 to better describe the API versioning policies of Glance and Keystone.</div>
+</aside>
+
 <h2 id="per-release-versions">Per-release versions</h2>
-<p>This is used by the Image service (glance) and Identity service (keystone). All
-changes to the API during a given release cycle are gathered into a single new
-API version. As such, the API version will increase at most once per release.
+<p>This is used by the Image service (glance) and DNS service (designate). All changes to the API during a given release
+cycle are gathered into a single new API version. As such, the API version will increase at most once per release.
 You can continue to request older versions.</p>
 <p>For example, consider the Image (glance) API.</p>
 <table>
@@ -151,12 +152,19 @@ You can continue to request older versions.</p>
       </tr>
   </tbody>
 </table>
+<p>In theory, this means the API is purely additive and the new version can be used as a signal that an API addition is
+available. Glance takes this a step further and includes or excludes API versions depending on whether an optional
+feature is enabled or not.</p>
+<h2 id="single-version">Single version</h2>
+<p>This is used by the Identity service (keystone). It is similar to the per-release versions but unlike those, only a
+single API version is exposed. Like those, however, this version can be used as signal that a feature is available.
+Once again, this API schema is really intended to be purely additive, since there&rsquo;s no way to opt into old behavior.
+Keystone, for example, has never removed APIs or made non-additive changes like changing the type of a field or removing
+it.</p>
 <h2 id="microversions">Microversions</h2>
-<p>This is used by multiple services including the Compute service (nova), Block
-Storage service (cinder), and Shared Filesystem service (manila). Each change
-to the API will result in a new API version. As such, the API version can
-increase multiple times per release. You can continue to request older
-versions.</p>
+<p>This is used by multiple services including the Compute service (nova), Block Storage service (cinder), and Shared
+Filesystem service (manila). Each change to the API will result in a new API version. As such, the API version can
+increase multiple times per release. You can continue to request older versions.</p>
 <p>For example, consider the Compute (nova) API.</p>
 <table>
   <thead>
@@ -184,13 +192,14 @@ versions.</p>
       </tr>
   </tbody>
 </table>
+<p>Unlike the previous examples, this API versioning schema allows for practically any change, including changing the type
+of a field, adding and removing new fields, and adding or removing new APIS. If you want the old behavior, you simply
+request an older microversion.</p>
 <h2 id="extensions">Extensions</h2>
-<p>This is used by the Networking service (neutron). It’s a versioning scheme that
-doesn’t use API versions. Instead, it exposes a list of available extensions.
-An extension can add, remove or modify features and vendor-specific
-functionality to the API. This can include API resources/routes as well as new
-fields in API requests and responses. If you want to depend on a feature added
-by an extension, you should check if the extension is present.</p>
+<p>This is used by the Networking service (neutron). It&rsquo;s a versioning scheme that doesn&rsquo;t use API versions. Instead, it
+exposes a list of available extensions. An extension can add, remove or modify features and vendor-specific
+functionality to the API. This can include API resources/routes as well as new fields in API requests and responses. If
+you want to depend on a feature added by an extension, you should check if the extension is present.</p>
 
   </article>
 
