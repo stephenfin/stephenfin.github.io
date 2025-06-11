@@ -111,15 +111,22 @@ underlying the <a href="https://registry.terraform.io/providers/terraform-provid
 <a href="https://github.com/openshift/installer">openshift-install</a>, and various OpenStack-specific Kubernetes components, among others.</p>
 <p>In the interests of easing ramp-up for anyone else trying to get started with <em>Gophercloud</em>, here&rsquo;s an simple &ldquo;hello,
 world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em>openstacksdk</em>.</p>
+<aside class="admonition note">
+	
+	
+	<div class="admonition-content">Updated on 2025-06-11 to update examples for Gophercloud v2.</div>
+</aside>
+
 <h2 id="gophercloud-go">Gophercloud (Go)</h2>
 <p>Create a new directory containing a single file, <code>main.go</code>, and add the following to it.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;context&#34;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/gophercloud/gophercloud/openstack/compute/v2/servers&#34;</span>
-</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/gophercloud/utils/openstack/clientconfig&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;github.com/gophercloud/utils/v2/openstack/clientconfig&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
@@ -129,13 +136,13 @@ world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// of generating and passing a &#39;ClientOpts&#39; object but this shows how you _could_ configure things if you so chose.
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// opts.Cloud = &#34;devstack-admin&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">client</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">clientconfig</span>.<span style="color:#a6e22e">NewServiceClient</span>(<span style="color:#e6db74">&#34;compute&#34;</span>, <span style="color:#a6e22e">opts</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">client</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">clientconfig</span>.<span style="color:#a6e22e">NewServiceClient</span>(<span style="color:#e6db74">&#34;compute&#34;</span>, <span style="color:#a6e22e">opts</span>, <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">TODO</span>())
 </span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
 </span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span>
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">pager</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">servers</span>.<span style="color:#a6e22e">List</span>(<span style="color:#a6e22e">client</span>, <span style="color:#66d9ef">nil</span>).<span style="color:#a6e22e">AllPages</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">pager</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">servers</span>.<span style="color:#a6e22e">List</span>(<span style="color:#a6e22e">client</span>, <span style="color:#66d9ef">nil</span>).<span style="color:#a6e22e">AllPages</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">TODO</span>())
 </span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
 </span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
 </span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span>
