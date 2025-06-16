@@ -48,11 +48,28 @@ AT_CLEANUP
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id=&#34;macros&#34;&gt;Macros&lt;/h2&gt;
 &lt;h3 id=&#34;m4-macros&#34;&gt;m4 macros&lt;/h3&gt;
-&lt;!-- raw HTML omitted --&gt;
+&lt;dl&gt;
+  &lt;dt&gt;&lt;code&gt;m4_define([name], [substitution])&lt;/code&gt;&lt;/dt&gt;
+  &lt;dd&gt;Substitutes the word(s) given by name with the text given in substitution&lt;/dd&gt;
+  &lt;dt&gt;&lt;code&gt;m4_if([name], [value], [execution])&lt;/code&gt;&lt;/dt&gt;
+  &lt;dd&gt;If the value of the name variable equals that of the value variable, then
+  execute execution&lt;/dd&gt;
+&lt;/dl&gt;
 &lt;h3 id=&#34;autotest-macros&#34;&gt;Autotest macros&lt;/h3&gt;
 &lt;p&gt;Autotest macros are just predefined M4 macros. There are a number of them,
 including:&lt;/p&gt;
-&lt;!-- raw HTML omitted --&gt;
+&lt;dl&gt;
+  &lt;dt&gt;&lt;code&gt;AT_SETUP(title)&lt;/code&gt;&lt;/dt&gt;
+  &lt;dd&gt;Begin a test group named title. This title is really the identifier of
+  the test group, used in quiet and verbose outputs. It should be short, but
+  descriptive.&lt;/dd&gt;
+  &lt;dt&gt;&lt;code&gt;AT_CHECK(commands, [status = 0], [stdout], [stderr])&lt;/code&gt;&lt;/dt&gt;
+  &lt;dd&gt;Execute a test by performing given shell commands. These commands should
+  normally exit with status, while producing expected stdout and stderr
+  contents.&lt;/dd&gt;
+  &lt;dt&gt;&lt;code&gt;AT_CLEANUP()&lt;/code&gt;&lt;/dt&gt;
+  &lt;dd&gt;End a test group.&lt;/dd&gt;
+&lt;/dl&gt;
 &lt;h3 id=&#34;additional-macros&#34;&gt;Additional macros&lt;/h3&gt;
 &lt;p&gt;There are many additional macros available to use. For a list of these, it&amp;rsquo;s
 probably best to check out the official &lt;a href=&#34;http://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Writing-Testsuites.html#Writing-Testsuites&#34;&gt;GNU Autotest Manual&lt;/a&gt;.&lt;/p&gt;

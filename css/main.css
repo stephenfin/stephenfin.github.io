@@ -518,6 +518,10 @@ h2 {
   content: "\f071";
 }
 
+.admonition-content {
+  font-size: 1.25rem;
+}
+
 /* Categories footer */
 
 .categories {

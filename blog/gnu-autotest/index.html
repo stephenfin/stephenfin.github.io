@@ -96,7 +96,7 @@ the Autotools library, a.k.a. the GNU Build System.&hellip;" />
       </div>
       <div class="byline-meta-content">
         <time datetime='2016-07-15T00:00:00Z'>Jul 15, 2016</time>
-        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>4 min read</span>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
       </div>
     </div>
   </div>
@@ -137,11 +137,28 @@ AT_CLEANUP
 </code></pre>
 <h2 id="macros">Macros</h2>
 <h3 id="m4-macros">m4 macros</h3>
-<!-- raw HTML omitted -->
+<dl>
+  <dt><code>m4_define([name], [substitution])</code></dt>
+  <dd>Substitutes the word(s) given by name with the text given in substitution</dd>
+  <dt><code>m4_if([name], [value], [execution])</code></dt>
+  <dd>If the value of the name variable equals that of the value variable, then
+  execute execution</dd>
+</dl>
 <h3 id="autotest-macros">Autotest macros</h3>
 <p>Autotest macros are just predefined M4 macros. There are a number of them,
 including:</p>
-<!-- raw HTML omitted -->
+<dl>
+  <dt><code>AT_SETUP(title)</code></dt>
+  <dd>Begin a test group named title. This title is really the identifier of
+  the test group, used in quiet and verbose outputs. It should be short, but
+  descriptive.</dd>
+  <dt><code>AT_CHECK(commands, [status = 0], [stdout], [stderr])</code></dt>
+  <dd>Execute a test by performing given shell commands. These commands should
+  normally exit with status, while producing expected stdout and stderr
+  contents.</dd>
+  <dt><code>AT_CLEANUP()</code></dt>
+  <dd>End a test group.</dd>
+</dl>
 <h3 id="additional-macros">Additional macros</h3>
 <p>There are many additional macros available to use. For a list of these, it&rsquo;s
 probably best to check out the official <a href="http://www.gnu.org/software/autoconf/manual/autoconf-2.64/html_node/Writing-Testsuites.html#Writing-Testsuites">GNU Autotest Manual</a>.</p>
