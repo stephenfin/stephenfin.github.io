@@ -202,9 +202,11 @@ header, footer, h1, h2, h3, h4 {
 }
 
 /* TODO: We should set this on 'html' and counter it elsewhere */
+/*
 p, li, table {
   font-size: 1.25rem;
 }
+*/
 
 p {
   margin: 1rem 0;
