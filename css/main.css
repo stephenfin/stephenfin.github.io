@@ -201,13 +201,6 @@ header, footer, h1, h2, h3, h4 {
   font-family: 'Roboto Slab', sans-serif;
 }
 
-/* TODO: We should set this on 'html' and counter it elsewhere */
-/*
-p, li, table {
-  font-size: 1.25rem;
-}
-*/
-
 p {
   margin: 1rem 0;
 }
@@ -518,10 +511,6 @@ h2 {
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
   content: "\f071";
-}
-
-.admonition-content {
-  font-size: 1.25rem;
 }
 
 /* Categories footer */
