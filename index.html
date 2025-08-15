@@ -87,6 +87,24 @@
         
         <li class="pages-item">
           <div class="page-date">
+            <time datetime='2025-08-15T00:00:00Z'>August 15, 2025</time>
+          </div>
+          <div class="page-title">
+            <a class="page-link" href="https://that.guru/blog/glance-tasks-api/">Glance Tasks API</a>
+          </div>
+          <div class="page-summary">
+            <p><p>One the joys (or miseries) of working on OpenStack client tooling is that you get exposed to all the nuances of the
+OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
+means there&rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant <a href="https://specs.openstack.org/openstack/api-sig/">API SIG</a>. I&rsquo;ve
+touched on this before, covering things like the disparity in <a href="https://that.guru/blog/api-versioning-in-openstack/">API versioning</a>, and its been particularly
+notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
+APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
+longer relevant or useful in modern deployments.</p>&hellip;</p>
+          </div>
+        </li>
+        
+        <li class="pages-item">
+          <div class="page-date">
             <time datetime='2025-04-03T00:00:00Z'>April 3, 2025</time>
           </div>
           <div class="page-title">
@@ -151,24 +169,6 @@ might make sense to document the situation with OpenStack AZs on OpenShift (and,
 second part of two. <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">The first part</a> provided some background on what AZs are and how you can configure them,
 while this part will examine how AZs affect OpenShift and Kubernetes components such as the OpenStack Machine API
 Provider, the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.</p>&hellip;</p>
-          </div>
-        </li>
-        
-        <li class="pages-item">
-          <div class="page-date">
-            <time datetime='2024-05-01T00:00:00Z'>May 1, 2024</time>
-          </div>
-          <div class="page-title">
-            <a class="page-link" href="https://that.guru/blog/routers-in-openstack/">API routing in Openstack</a>
-          </div>
-          <div class="page-summary">
-            <p><p>In the Dalamation (2024.2) cycle, we&rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As
-part of this effort, I&rsquo;ve had to learn more than I would like to know about how various services&rsquo; API machinery works.
-The below is a quick summary of how the mapping of URLs (or rather, paths) to API controller methods works in Nova (and
-Cinder, Manila and other projects that have copied or inherited Nova&rsquo;s patterns). This is very much inside baseball and
-probably not useful outside of OpenStack, since we&rsquo;re using older libraries - namely <a href="https://pypi.org/project/Routes/">Routes</a>, <a href="https://pypi.org/project/Paste/">Paste</a>,
-and <a href="https://pypi.org/project/WebOb/">WebOb</a> - that have been mostly superseded by new libraries like Flask, Falcon, or Starlette. Still, maybe
-it&rsquo;s useful for someone.</p>&hellip;</p>
           </div>
         </li>
         

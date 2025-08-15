@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Glance Tasks API | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
+  
+  <meta property="og:title" content="Glance Tasks API" />
+  <meta property="og:description" content="One the joys (or miseries) of working on OpenStack client tooling is that you get exposed to all the nuances of the
+OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
+means there&rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant API SIG. I&rsquo;ve
+touched on this before, covering things like the disparity in API versioning, and its been particularly
+notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
+APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
+longer relevant or useful in modern deployments.&hellip;" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://that.guru/blog/glance-tasks-api/" />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1514413494665-cda1387955dd?crop=entropy&amp;cs=srgb&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjkxMjd8&amp;ixlib=rb-4.0.3&amp;q=85" />
+
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://images.unsplash.com/photo-1514413494665-cda1387955dd?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjkxMjd8&ixlib=rb-4.0.3&q=85);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Glance Tasks API</h1>
+
+    <span class="header-attrib">
+        Image by <a href="">
+            John Reed
+        </a> / <a href="https://unsplash.com/photos/time-lapse-photography-speed-of-light-qtRFE7MYnHo">Unsplash</a>
+    </span>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/cookbooks">Cookbooks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2025-08-15T00:00:00Z'>Aug 15, 2025</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>5 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>One the joys (or miseries) of working on OpenStack client tooling is that you get exposed to all the nuances of the
+OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
+means there&rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant <a href="https://specs.openstack.org/openstack/api-sig/">API SIG</a>. I&rsquo;ve
+touched on this before, covering things like the disparity in <a href="https://that.guru/blog/api-versioning-in-openstack/">API versioning</a>, and its been particularly
+notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
+APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
+longer relevant or useful in modern deployments.</p>
+<p>The Glance Tasks API is an example of one such API. It&rsquo;s a positively ancient API, dating back to the <a href="https://wiki.openstack.org/wiki/Glance-tasks-api">Havana
+release</a> (2013), and has long-since been made redundant by the image import API introduced in the Mitaka
+release (2016). Nonetheless, python-openstackclient (OSC) and openstacksdk (SDK) aim to support all OpenStack APIs, and
+the tasks API, while deprecated, is still present in Glance in the Flamingo release, meaning OSC and SDK should support
+them.</p>
+<p>As always, when adding support for a new API to SDK and OSC, its important that you figure out how that API actually
+works, ideally by playing around with the API using a local DevStack: the OpenStack API docs are good, but they&rsquo;re not
+flawless, and if I had a euro for every time the API docs had said one thing only for the API to behave a different way,
+I wouldn&rsquo;t be stuck doing my own painting. Anywho, adding support for the tasks API is no different and I conducted a
+few tests to prove things out while reviewing some recent patches against both SDK and OSC. Below are my test notes,
+which I&rsquo;m sharing in case anyone else ends up having to do something similar.</p>
+<h2 id="notes">Notes</h2>
+<p>We start by creating a task. Because the tasks API is deprecated and replaced by the image import process, OSC has
+indicated that it won&rsquo;t add support for task creation. Thus, for this one we need to use either glanceclient or <code>curl</code>.
+I used the former, creating a sample task for an existing image. I provided syntactically valid-but-nonsense input since
+I only wanted to test the behavior of the API; I didn&rsquo;t actually need the task to complete:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ glance task-create --type <span style="color:#e6db74">&#34;api_image_import&#34;</span> --input <span style="color:#e6db74">&#39;{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;image_id&#34;: &#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;import_req&#34;: {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;method&#34;: {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &#34;name&#34;: &#34;copy-image&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    },
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;all_stores&#34;: true,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;all_stores_must_succeed&#34;: false
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  },
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;backend&#34;: [
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;fast&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;cheap&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;slow&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;reliable&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;common&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">}&#39;</span>
+</span></span></code></pre></div><p>Once created, I was able to view this task in a few ways. Firstly, by listing all tasks. This is supported by OSC, so I
+used that:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack image task list
+</span></span><span style="display:flex;"><span>+--------------------------------------+------------------+------------+----------------------------------+
+</span></span><span style="display:flex;"><span>| ID                                   | Type             | Status     | Owner                            |
+</span></span><span style="display:flex;"><span>+--------------------------------------+------------------+------------+----------------------------------+
+</span></span><span style="display:flex;"><span>| 546641fe-6a35-4b0e-90d2-b45367fc94b2 | api_image_import | processing | d8dea803f1fe44e2bdf9d9d017750b4e |
+</span></span><span style="display:flex;"><span>+--------------------------------------+------------------+------------+----------------------------------+
+</span></span></code></pre></div><p>or, via <code>curl</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ token<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack token issue -f value -c id<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>❯ curl -s -X GET <span style="color:#e6db74">&#34;http://10.0.111.148/image/v2/tasks&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -H <span style="color:#e6db74">&#34;Accept: application/json&#34;</span>-H <span style="color:#e6db74">&#34;Content-Type: application/json&#34;</span> -H <span style="color:#e6db74">&#34;X-Auth-Token: </span><span style="color:#e6db74">${</span>token<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> | jq
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;tasks&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;api_image_import&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;processing&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;owner&#34;</span>: <span style="color:#e6db74">&#34;d8dea803f1fe44e2bdf9d9d017750b4e&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;created_at&#34;</span>: <span style="color:#e6db74">&#34;2025-08-15T11:32:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;updated_at&#34;</span>: <span style="color:#e6db74">&#34;2025-08-15T11:32:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;self&#34;</span>: <span style="color:#e6db74">&#34;/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;schema&#34;</span>: <span style="color:#e6db74">&#34;/v2/schemas/task&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;first&#34;</span>: <span style="color:#e6db74">&#34;/v2/tasks&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;schema&#34;</span>: <span style="color:#e6db74">&#34;/v2/schemas/tasks&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>I could also inspect the individual task:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack image task show 546641fe-6a35-4b0e-90d2-b45367fc94b2
+</span></span><span style="display:flex;"><span>+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span></span><span style="display:flex;"><span>| Field      | Value                                                                                                                                                                                                                    |
+</span></span><span style="display:flex;"><span>+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span></span><span style="display:flex;"><span>| created_at | 2025-08-15T11:32:10Z                                                                                                                                                                                                     |
+</span></span><span style="display:flex;"><span>| expires_at | None                                                                                                                                                                                                                     |
+</span></span><span style="display:flex;"><span>| id         | 546641fe-6a35-4b0e-90d2-b45367fc94b2                                                                                                                                                                                     |
+</span></span><span style="display:flex;"><span>| input      | <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;image_id&#39;</span>: <span style="color:#e6db74">&#39;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&#39;</span>, <span style="color:#e6db74">&#39;import_req&#39;</span>: <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;method&#39;</span>: <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;name&#39;</span>: <span style="color:#e6db74">&#39;copy-image&#39;</span><span style="color:#f92672">}</span>, <span style="color:#e6db74">&#39;all_stores&#39;</span>: True, <span style="color:#e6db74">&#39;all_stores_must_succeed&#39;</span>: False<span style="color:#f92672">}</span>, <span style="color:#e6db74">&#39;backend&#39;</span>: <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;fast&#39;</span>, <span style="color:#e6db74">&#39;cheap&#39;</span>, <span style="color:#e6db74">&#39;slow&#39;</span>, <span style="color:#e6db74">&#39;reliable&#39;</span>, <span style="color:#e6db74">&#39;common&#39;</span><span style="color:#f92672">]}</span> |
+</span></span><span style="display:flex;"><span>| message    |                                                                                                                                                                                                                          |
+</span></span><span style="display:flex;"><span>| owner_id   | d8dea803f1fe44e2bdf9d9d017750b4e                                                                                                                                                                                         |
+</span></span><span style="display:flex;"><span>| properties |                                                                                                                                                                                                                          |
+</span></span><span style="display:flex;"><span>| result     | None                                                                                                                                                                                                                     |
+</span></span><span style="display:flex;"><span>| status     | processing                                                                                                                                                                                                               |
+</span></span><span style="display:flex;"><span>| type       | api_image_import                                                                                                                                                                                                         |
+</span></span><span style="display:flex;"><span>| updated_at | 2025-08-15T11:32:10Z                                                                                                                                                                                                     |
+</span></span><span style="display:flex;"><span>+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+</span></span></code></pre></div><p>again, via <code>curl</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ curl -s -X GET <span style="color:#e6db74">&#34;http://10.0.111.148/image/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>
+</span></span><span style="display:flex;"><span>    -H <span style="color:#e6db74">&#34;Accept: application/json&#34;</span>-H <span style="color:#e6db74">&#34;Content-Type: application/json&#34;</span> -H <span style="color:#e6db74">&#34;X-Auth-Token: </span><span style="color:#e6db74">${</span>token<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> | jq
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;input&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;image_id&#34;</span>: <span style="color:#e6db74">&#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;import_req&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;method&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;copy-image&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;all_stores&#34;</span>: true,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;all_stores_must_succeed&#34;</span>: false
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;backend&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;fast&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;cheap&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;slow&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;reliable&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;common&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;api_image_import&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;processing&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;owner&#34;</span>: <span style="color:#e6db74">&#34;d8dea803f1fe44e2bdf9d9d017750b4e&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;result&#34;</span>: null,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;created_at&#34;</span>: <span style="color:#e6db74">&#34;2025-08-15T11:32:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;updated_at&#34;</span>: <span style="color:#e6db74">&#34;2025-08-15T11:32:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;self&#34;</span>: <span style="color:#e6db74">&#34;/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;schema&#34;</span>: <span style="color:#e6db74">&#34;/v2/schemas/task&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;image_id&#34;</span>: <span style="color:#e6db74">&#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;request_id&#34;</span>: <span style="color:#e6db74">&#34;req-1918a068-0ce3-4eff-81f5-625e2d0037ae&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;user_id&#34;</span>: <span style="color:#e6db74">&#34;105a84e11f0a421ea814833a5d23f37b&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Finally, I could list tasks associated with the image. For reasons unbeknownst to me, glance opted to implement this
+via a separate, nested API (<code>/images/{imageID}/tasks</code>) rather than a new filter on the existing API
+(<code>/tasks?image_id={imageID}</code>). This is supposedly supported by glanceclient, but attempting to use this command with the
+latest glanceclient version yielded the following error:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ glance image-tasks 8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9
+</span></span><span style="display:flex;"><span>Server does not support image tasks API <span style="color:#f92672">(</span>v2.12<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>This seemed odd since the API <em>should</em> be supported. Sure enough, when I tried with <code>curl</code>, things worked as expected:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ curl -s -X GET <span style="color:#e6db74">&#34;http://10.0.111.148/image/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -H <span style="color:#e6db74">&#34;Accept: application/json&#34;</span>-H <span style="color:#e6db74">&#34;Content-Type: application/json&#34;</span> -H <span style="color:#e6db74">&#34;X-Auth-Token: </span><span style="color:#e6db74">${</span>token<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> | jq
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;input&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;image_id&#34;</span>: <span style="color:#e6db74">&#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;import_req&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;method&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;copy-image&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;all_stores&#34;</span>: true,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;all_stores_must_succeed&#34;</span>: false
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;backend&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;fast&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;cheap&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;slow&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;reliable&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;common&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;api_image_import&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;processing&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;owner&#34;</span>: <span style="color:#e6db74">&#34;d8dea803f1fe44e2bdf9d9d017750b4e&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;result&#34;</span>: null,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;created_at&#34;</span>: <span style="color:#e6db74">&#34;2025-08-15T11:32:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;updated_at&#34;</span>: <span style="color:#e6db74">&#34;2025-08-15T11:32:10Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;self&#34;</span>: <span style="color:#e6db74">&#34;/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;schema&#34;</span>: <span style="color:#e6db74">&#34;/v2/schemas/task&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;image_id&#34;</span>: <span style="color:#e6db74">&#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;request_id&#34;</span>: <span style="color:#e6db74">&#34;req-1918a068-0ce3-4eff-81f5-625e2d0037ae&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;user_id&#34;</span>: <span style="color:#e6db74">&#34;105a84e11f0a421ea814833a5d23f37b&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Clearly a bug report is needed here.</p>
+<p>Finally, task deletion. There isn&rsquo;t a task deletion API. Rather, tasks have an expiry date, after which glance will reap
+the task. You can likely force this with <code>glance-manage</code> but I didn&rsquo;t care enough to do so.</p>
+
+  </article>
+
+  <div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "thatguru" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2025 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+</body>
+</html>

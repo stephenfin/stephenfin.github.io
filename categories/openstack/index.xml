@@ -6,7 +6,180 @@
     <description>Recent content in Openstack on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 03 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 15 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Glance Tasks API</title>
+      <link>https://that.guru/blog/glance-tasks-api/</link>
+      <pubDate>Fri, 15 Aug 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/glance-tasks-api/</guid>
+      <description>&lt;p&gt;One the joys (or miseries) of working on OpenStack client tooling is that you get exposed to all the nuances of the
+OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
+means there&amp;rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant &lt;a href=&#34;https://specs.openstack.org/openstack/api-sig/&#34;&gt;API SIG&lt;/a&gt;. I&amp;rsquo;ve
+touched on this before, covering things like the disparity in &lt;a href=&#34;https://that.guru/blog/api-versioning-in-openstack/&#34;&gt;API versioning&lt;/a&gt;, and its been particularly
+notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
+APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
+longer relevant or useful in modern deployments.&lt;/p&gt;
+&lt;p&gt;The Glance Tasks API is an example of one such API. It&amp;rsquo;s a positively ancient API, dating back to the &lt;a href=&#34;https://wiki.openstack.org/wiki/Glance-tasks-api&#34;&gt;Havana
+release&lt;/a&gt; (2013), and has long-since been made redundant by the image import API introduced in the Mitaka
+release (2016). Nonetheless, python-openstackclient (OSC) and openstacksdk (SDK) aim to support all OpenStack APIs, and
+the tasks API, while deprecated, is still present in Glance in the Flamingo release, meaning OSC and SDK should support
+them.&lt;/p&gt;
+&lt;p&gt;As always, when adding support for a new API to SDK and OSC, its important that you figure out how that API actually
+works, ideally by playing around with the API using a local DevStack: the OpenStack API docs are good, but they&amp;rsquo;re not
+flawless, and if I had a euro for every time the API docs had said one thing only for the API to behave a different way,
+I wouldn&amp;rsquo;t be stuck doing my own painting. Anywho, adding support for the tasks API is no different and I conducted a
+few tests to prove things out while reviewing some recent patches against both SDK and OSC. Below are my test notes,
+which I&amp;rsquo;m sharing in case anyone else ends up having to do something similar.&lt;/p&gt;
+&lt;h2 id=&#34;notes&#34;&gt;Notes&lt;/h2&gt;
+&lt;p&gt;We start by creating a task. Because the tasks API is deprecated and replaced by the image import process, OSC has
+indicated that it won&amp;rsquo;t add support for task creation. Thus, for this one we need to use either glanceclient or &lt;code&gt;curl&lt;/code&gt;.
+I used the former, creating a sample task for an existing image. I provided syntactically valid-but-nonsense input since
+I only wanted to test the behavior of the API; I didn&amp;rsquo;t actually need the task to complete:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ glance task-create --type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;api_image_import&amp;#34;&lt;/span&gt; --input &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  &amp;#34;image_id&amp;#34;: &amp;#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  &amp;#34;import_req&amp;#34;: {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;method&amp;#34;: {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      &amp;#34;name&amp;#34;: &amp;#34;copy-image&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    },
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;all_stores&amp;#34;: true,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;all_stores_must_succeed&amp;#34;: false
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  },
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  &amp;#34;backend&amp;#34;: [
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;fast&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;cheap&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;slow&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;reliable&amp;#34;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;common&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  ]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once created, I was able to view this task in a few ways. Firstly, by listing all tasks. This is supported by OSC, so I
+used that:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack image task list
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+------------------+------------+----------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ID                                   | Type             | Status     | Owner                            |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+------------------+------------+----------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 546641fe-6a35-4b0e-90d2-b45367fc94b2 | api_image_import | processing | d8dea803f1fe44e2bdf9d9d017750b4e |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+--------------------------------------+------------------+------------+----------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or, via &lt;code&gt;curl&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ token&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;openstack token issue -f value -c id&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ curl -s -X GET &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://10.0.111.148/image/v2/tasks&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Accept: application/json&amp;#34;&lt;/span&gt;-H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Content-Type: application/json&amp;#34;&lt;/span&gt; -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;X-Auth-Token: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;token&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; | jq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;tasks&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;api_image_import&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;status&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;processing&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;owner&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;d8dea803f1fe44e2bdf9d9d017750b4e&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;created_at&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2025-08-15T11:32:10Z&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;updated_at&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2025-08-15T11:32:10Z&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;self&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;schema&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/schemas/task&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;first&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/tasks&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;schema&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/schemas/tasks&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I could also inspect the individual task:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack image task show 546641fe-6a35-4b0e-90d2-b45367fc94b2
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Field      | Value                                                                                                                                                                                                                    |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| created_at | 2025-08-15T11:32:10Z                                                                                                                                                                                                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| expires_at | None                                                                                                                                                                                                                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| id         | 546641fe-6a35-4b0e-90d2-b45367fc94b2                                                                                                                                                                                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| input      | &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;image_id&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;import_req&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;method&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;copy-image&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;all_stores&amp;#39;&lt;/span&gt;: True, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;all_stores_must_succeed&amp;#39;&lt;/span&gt;: False&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;backend&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;fast&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;cheap&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;slow&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;reliable&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;common&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;]}&lt;/span&gt; |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| message    |                                                                                                                                                                                                                          |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| owner_id   | d8dea803f1fe44e2bdf9d9d017750b4e                                                                                                                                                                                         |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties |                                                                                                                                                                                                                          |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| result     | None                                                                                                                                                                                                                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| status     | processing                                                                                                                                                                                                               |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| type       | api_image_import                                                                                                                                                                                                         |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| updated_at | 2025-08-15T11:32:10Z                                                                                                                                                                                                     |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;again, via &lt;code&gt;curl&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ curl -s -X GET &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://10.0.111.148/image/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Accept: application/json&amp;#34;&lt;/span&gt;-H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Content-Type: application/json&amp;#34;&lt;/span&gt; -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;X-Auth-Token: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;token&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; | jq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;input&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;image_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;import_req&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;method&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;copy-image&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;all_stores&amp;#34;&lt;/span&gt;: true,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;all_stores_must_succeed&amp;#34;&lt;/span&gt;: false
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;backend&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fast&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cheap&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;slow&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;reliable&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;common&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;api_image_import&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;status&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;processing&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;owner&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;d8dea803f1fe44e2bdf9d9d017750b4e&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;message&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;result&amp;#34;&lt;/span&gt;: null,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;created_at&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2025-08-15T11:32:10Z&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;updated_at&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2025-08-15T11:32:10Z&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;self&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;schema&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/schemas/task&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;image_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;request_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;req-1918a068-0ce3-4eff-81f5-625e2d0037ae&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;user_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;105a84e11f0a421ea814833a5d23f37b&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, I could list tasks associated with the image. For reasons unbeknownst to me, glance opted to implement this
+via a separate, nested API (&lt;code&gt;/images/{imageID}/tasks&lt;/code&gt;) rather than a new filter on the existing API
+(&lt;code&gt;/tasks?image_id={imageID}&lt;/code&gt;). This is supposedly supported by glanceclient, but attempting to use this command with the
+latest glanceclient version yielded the following error:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ glance image-tasks 8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Server does not support image tasks API &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;v2.12&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This seemed odd since the API &lt;em&gt;should&lt;/em&gt; be supported. Sure enough, when I tried with &lt;code&gt;curl&lt;/code&gt;, things worked as expected:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ curl -s -X GET &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://10.0.111.148/image/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Accept: application/json&amp;#34;&lt;/span&gt;-H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Content-Type: application/json&amp;#34;&lt;/span&gt; -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;X-Auth-Token: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;token&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; | jq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;input&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;image_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;import_req&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;method&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;copy-image&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;all_stores&amp;#34;&lt;/span&gt;: true,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;all_stores_must_succeed&amp;#34;&lt;/span&gt;: false
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;backend&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;fast&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cheap&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;slow&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;reliable&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;common&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;type&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;api_image_import&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;status&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;processing&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;owner&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;d8dea803f1fe44e2bdf9d9d017750b4e&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;message&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;result&amp;#34;&lt;/span&gt;: null,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;created_at&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2025-08-15T11:32:10Z&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;updated_at&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2025-08-15T11:32:10Z&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;self&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/tasks/546641fe-6a35-4b0e-90d2-b45367fc94b2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;schema&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/v2/schemas/task&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;image_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;8bd3bebc-8e1b-40fe-a292-1a63a53dcfd9&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;request_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;req-1918a068-0ce3-4eff-81f5-625e2d0037ae&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;user_id&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;105a84e11f0a421ea814833a5d23f37b&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Clearly a bug report is needed here.&lt;/p&gt;
+&lt;p&gt;Finally, task deletion. There isn&amp;rsquo;t a task deletion API. Rather, tasks have an expiry date, after which glance will reap
+the task. You can likely force this with &lt;code&gt;glance-manage&lt;/code&gt; but I didn&amp;rsquo;t care enough to do so.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>A Closer Look at the Cinder CSI Driver and the Topology Feature</title>
       <link>https://that.guru/blog/csi-drivers-and-openstack/</link>
@@ -3038,133 +3211,6 @@ support for an API, such as Cinder dropping support for API v2 in &lt;a href=&#3
 &lt;p&gt;Just ask! You can find us on IRC at
 &lt;a href=&#34;irc://irc.oftc.net/#openstack-sdks&#34;&gt;#openstack-sdks&lt;/a&gt; (OFTC) or via email at
 &lt;a href=&#34;mailto:openstack-discuss@openstack.org&#34;&gt;openstack-discuss@openstack.org&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Reproducing DevStack-based OSC Gate Jobs Locally</title>
-      <link>https://that.guru/blog/reproducing-devstack-gate-jobs-locally/</link>
-      <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/reproducing-devstack-gate-jobs-locally/</guid>
-      <description>&lt;p&gt;The &lt;code&gt;python-openstackclient&lt;/code&gt; project provides two types of tests: &lt;a href=&#34;https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/unit&#34;&gt;unit
-tests&lt;/a&gt; with mocked server responses and &lt;a href=&#34;https://opendev.org/openstack/python-openstackclient/src/branch/master/openstackclient/tests/functional&#34;&gt;functional
-tests&lt;/a&gt; that require a real server deployed. The latter expect a
-specific DevStack-based deployment and attempts to run these tests against a
-&amp;ldquo;standard&amp;rdquo; DevStack deployment with minimal configuration or a deployment
-created by another tool with result in a lot of test failures.&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;==============================
-Failed 48 tests - output below:
-==============================
-
-setUpClass (openstackclient.tests.functional.network.v2.test_network_meter_rule.TestMeterRule)
-----------------------------------------------------------------------------------------------
-
-Captured traceback:
-~~~~~~~~~~~~~~~~~~~
-    Traceback (most recent call last):
-
-      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/network/v2/test_network_meter_rule.py&amp;#34;, line 34, in setUpClass
-    json_output = json.loads(cls.openstack(
-
-      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 74, in openstack
-    return execute(
-
-      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 41, in execute
-    raise exceptions.CommandFailed(
-
-    tempest.lib.exceptions.CommandFailed: Command &amp;#39;openstack --os-cloud=devstack-admin network meter create -f json 82c6e512857e40d78e86b9db54c66e73&amp;#39; returned non-zero exit status 1.
-stdout:
-
-stderr:
-b&amp;#39;ResourceNotFound: 404: Client Error for url: http://140.211.166.52:9696/v2.0/metering/metering-labels, The resource could not be found.\n&amp;#39;
-
-
-openstackclient.tests.functional.network.v2.test_network_qos_rule.NetworkQosRuleTestsBandwidthLimit.test_qos_rule_create_delete
--------------------------------------------------------------------------------------------------------------------------------
-
-Captured traceback:
-~~~~~~~~~~~~~~~~~~~
-    Traceback (most recent call last):
-
-      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/network/v2/test_network_qos_rule.py&amp;#34;, line 161, in setUp
-    self.openstack(
-
-      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 74, in openstack
-    return execute(
-
-      File &amp;#34;/home/fedora/python-openstackclient/openstackclient/tests/functional/base.py&amp;#34;, line 41, in execute
-    raise exceptions.CommandFailed(
-
-    tempest.lib.exceptions.CommandFailed: Command &amp;#39;openstack --os-cloud=devstack-admin network qos policy create qos_policy_178299ca49d544bb9d5c145ee4c71d80&amp;#39; returned non-zero exit status 1.
-stdout:
-
-stderr:
-b&amp;#39;ResourceNotFound: 404: Client Error for url: http://140.211.166.52:9696/v2.0/qos/policies, The resource could not be found.\n&amp;#39;
-
-
-openstackclient.tests.functional.network.v2.test_network_qos_rule.NetworkQosRuleTestsBandwidthLimit.test_qos_rule_list
-----------------------------------------------------------------------------------------------------------------------
-
-...
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But how does one actually configure their system appropriately. Docs are
-non-existent but we know that the CI works so clearly that&amp;rsquo;s a good starting
-place. As you&amp;rsquo;ll likely know if you&amp;rsquo;re reading this, the OpenStack community
-uses &lt;a href=&#34;https://zuul-ci.org/&#34;&gt;Zuul&lt;/a&gt; for testing. You can see the zuul job configuration for
-projects in either a &lt;code&gt;.zuul.yaml&lt;/code&gt; file or in various YAML files in a &lt;code&gt;.zuul.d&lt;/code&gt;
-directory, both of which can be found in the root directory of the project.
-&lt;em&gt;python-openstackclient&lt;/em&gt; uses the former, which you can see
-&lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/master/.zuul.yaml&#34;&gt;here&lt;/a&gt;. Looking at that, we can see the definition for the
-&lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L80-L114&#34;&gt;&lt;code&gt;osc-functional- devstack&lt;/code&gt; job&lt;/a&gt;, which inherits from
-the &lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L40-L78&#34;&gt;&lt;code&gt;osc-functional-devstack-base&lt;/code&gt; job&lt;/a&gt;, which
-in turns inherits from the &lt;a href=&#34;https://github.com/openstack/devstack/blob/8eede1fc3/.zuul.yaml#L822-L836&#34;&gt;&lt;code&gt;devstack-tox-functional&lt;/code&gt;
-job&lt;/a&gt; and so on&amp;hellip;&lt;/p&gt;
-&lt;p&gt;Looking at the &lt;code&gt;osc-functional-devstack&lt;/code&gt; job, we can see that it enables the
-neutron DevStack plugin and sets a couple of neutron-related feature flags and
-some other misc attributes in DevStack via the &lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/ed304992eb/.zuul.yaml#L87-L113&#34;&gt;&lt;code&gt;devstack_plugins&lt;/code&gt;
-&lt;code&gt;devstack_services&lt;/code&gt;, and &lt;code&gt;devstack_localrc&lt;/code&gt; job variables,
-respectively&lt;/a&gt;. You can see the documentation for these
-variables &lt;a href=&#34;https://docs.openstack.org/devstack/latest/zuul_roles.html&#34;&gt;in the DevStack docs&lt;/a&gt; and
-you can use the codesearch.o.o service to figure out what enabling each of these
-services or specifying those extra config variables will do, like &lt;a href=&#34;https://codesearch.opendev.org/?q=neutron-conntrack-helper&amp;amp;i=nope&amp;amp;literal=nope&amp;amp;files=&amp;amp;excludeFiles=&amp;amp;repos=&#34;&gt;this
-one&lt;/a&gt;. If you want to see the definition of the Ansible role
-that these variables are being passed to, &lt;a href=&#34;https://github.com/openstack/devstack/blob/8eede1fc3/roles/write-devstack-local-conf/library/devstack_local_conf.py&#34;&gt;you can look at that
-too&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If you read through all the docs, you&amp;rsquo;ll eventually come to the conclusion that
-to get this to work locally, you&amp;rsquo;re going to need to add the following to your
-&lt;code&gt;local.conf&lt;/code&gt; when deploying DevStack:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;# Plugin configuration
-enable_plugin neutron https://opendev.org/openstack/neutron
-
-# Service configuration
-## Disable OVN services
-disable_service br-ex-tcpdump
-disable_service br-int-flows
-disable_service ovn-controller
-disable_service ovn-northd
-disable_service ovs-vswitchd
-disable_service ovsdb-server
-disable_service q-ovn-metadata-agent
-
-## Neutron services
-enable_service q-agt
-enable_service q-dhcp
-enable_service q-l3
-enable_service q-meta
-enable_service neutron-network-segment-range
-enable_service neutron-segments
-enable_service q-metering
-enable_service q-qos
-enable_service neutron-tag-ports-during-bulk-creation
-enable_service neutron-conntrack-helper
-
-# Misc configuration
-Q_AGENT=openvswitch
-Q_ML2_TENANT_NETWORK_TYPE=vxlan
-Q_ML2_PLUGIN_MECHANISM_DRIVERS=openvswitch
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Add this to your otherwise uncomplicated &lt;code&gt;local.conf&lt;/code&gt; and in theory things
-should just work (TM). There might be more to it but hopefully there&amp;rsquo;s enough
-here for folks to figure out how to debug things if so.&lt;/p&gt;
 </description>
     </item>
     
