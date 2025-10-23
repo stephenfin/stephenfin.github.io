@@ -6,11 +6,11 @@
     <description>Recent content in Openshift on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 23 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openshift/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 18 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openshift/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Manage Your OpenStack Resources From Kubernetes With ORC</title>
       <link>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</link>
-      <pubDate>Thu, 23 Oct 2025 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 18 Oct 2025 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</guid>
       <description>&lt;p&gt;This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
