@@ -2,19 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://that.guru/categories/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/kubernetes/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openshift/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/categories/openstack/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/talks/</loc>
+    <lastmod>2025-10-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://that.guru/talks/steps-down-the-openapi-path/</loc>
+    <lastmod>2025-10-18T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://that.guru/blog/</loc>
     <lastmod>2025-08-15T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/categories/</loc>
-    <lastmod>2025-08-15T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://that.guru/blog/glance-tasks-api/</loc>
-    <lastmod>2025-08-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/openstack/</loc>
-    <lastmod>2025-08-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/</loc>
     <lastmod>2025-08-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/csi-drivers-and-openstack/</loc>
@@ -23,13 +38,7 @@
     <loc>https://that.guru/blog/an-update-on-openapi-in-openstack/</loc>
     <lastmod>2025-04-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://that.guru/categories/kubernetes/</loc>
-    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://that.guru/categories/openapi/</loc>
-    <lastmod>2025-04-03T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/categories/openshift/</loc>
     <lastmod>2025-04-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/cookbooks/openshift/</loc>
@@ -45,9 +54,6 @@
     <lastmod>2024-09-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/categories/python/</loc>
-    <lastmod>2024-09-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://that.guru/talks/</loc>
     <lastmod>2024-09-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://that.guru/blog/block-devices-in-openstack/</loc>

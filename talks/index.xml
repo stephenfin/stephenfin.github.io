@@ -6,7 +6,60 @@
     <description>Recent content in Talks on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 11 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 23 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Manage Your OpenStack Resources From Kubernetes With ORC</title>
+      <link>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</link>
+      <pubDate>Thu, 23 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</guid>
+      <description>&lt;p&gt;This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
+resources using Kubernetes CRDs. It was delivered during &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in October 2025.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Managing OpenStack resources efficiently can be complex, especially when striving for cloud-native agility and GitOps
+workflows. In this talk, we&amp;rsquo;ll introduce the OpenStack Resource Controller (ORC), a powerful solution combining the
+benefits of Kubernetes Custom Resource Definitions (CRDs) and controllers with OpenStack&amp;rsquo;s rich and mature APIs and
+application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;ldquo;raison d&amp;rsquo;être,&amp;rdquo; highlighting how it directly addresses common
+provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
+both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
+management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>Steps Down the OpenAPI Path</title>
+      <link>https://that.guru/talks/steps-down-the-openapi-path/</link>
+      <pubDate>Sat, 18 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/steps-down-the-openapi-path/</guid>
+      <description>&lt;p&gt;This talks was delivered during the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in
+October 2025. It was a continuation of a talk I gave at the &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;previous OpenInfra Summit&lt;/a&gt;
+and focused on the continued development of the OpenAPI effort over the intervening two OpenStack releases.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;OpenStack has been on a journey towards implementing formal OpenAPI v3.1 API specifications for all services for a
+number of releases now. We have many goals - better understanding our APIs, improving our documentation, easing client
+and library development, etc. - and we are finally delivering on many of these. Come learn about the milestones we&amp;rsquo;ve
+reached to date, and the benefits we&amp;rsquo;re already seeing from these efforts, and our plans for the next . We&amp;rsquo;ll talk
+about the complexities of implementing common functionality across services with vastly different APIs and stacks, the
+cool/horrifying things we&amp;rsquo;ve (re)discovered about our APIs, and the oxidation of our clients. We&amp;rsquo;ll also demonstrate
+some of the fruits of our labours and discuss how you, as a user, deployer, or contributor, can get involved in the
+effort.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;7f0c15e3f8554064b4f69db5b5951b27&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>API Contracts: Bringing OpenAPI and Typing to OpenStack</title>
       <link>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</link>
@@ -608,99 +661,6 @@ and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt
 &lt;/blockquote&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;ce06b0e45f1e460b9fc3d5d96e65ab31&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
-
-
-</description>
-    </item>
-    
-    <item>
-      <title>Accelerating Your Cloud With DPDK</title>
-      <link>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</link>
-      <pubDate>Tue, 24 May 2016 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/talks/accelerating-your-cloud-with-dpdk/</guid>
-      <description>&lt;p&gt;This was a webinar I presented on behalf of my team in Intel. It was
-essentially a status report on the state of OVS with DPDK integration in
-OpenStack.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Recent versions of Open vSwitch (OVS) provide an accelerated datapath based
-on the Data Plane Development Kit (DPDK) libraries. This acceleration
-benefits many users, but it is vital for meeting the high performance, high
-determinism requirements of NFV workloads. Open vSwitch (OVS) is the most
-widely deployed switching solution for OpenStack deployments [1], and Intel
-has been working to bring the benefits of OVS with DPDK to OpenStack.&lt;/p&gt;
-&lt;p&gt;In this talk, we explore the work that has been done and the work that is
-still ongoing to bring the benefits of OVS with DPDK to OpenStack. We detail
-how users can benefit from these changes, and impact they can expect to see.
-Finally, we detail how users can get started exploring these changes
-themselves.&lt;/p&gt;
-&lt;p&gt;[1] &lt;a href=&#34;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&#34;&gt;http://superuser.openstack.org/articles/openstack-users-share-how-their-deployments-stack-up&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;4dd4f9d543c840b9b4c9b6c81d0774ef&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
-
-
-</description>
-    </item>
-    
-    <item>
-      <title>A New Patchwork</title>
-      <link>https://that.guru/talks/a-new-patchwork/</link>
-      <pubDate>Sun, 31 Jan 2016 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/talks/a-new-patchwork/</guid>
-      <description>&lt;p&gt;This was my first ever presentation to an audience that wasn&amp;rsquo;t entirely my
-colleagues or fellow students. It was delivered as a lightning talk at &lt;a href=&#34;https://fosdem.org/2016/schedule/event/patchwork/&#34;&gt;FOSDEM
-2016&lt;/a&gt; and focused on the work that had been done to bring &lt;a href=&#34;http://jk.ozlabs.org/projects/patchwork/&#34;&gt;Patchwork&lt;/a&gt;
-up-to-date, after it had languished for a couple of years.&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Mailing lists are the bedrock of many open source software projects, and have
-been so since the early days of the Internet. However, mailing lists can
-struggle to compete with code collaboration tools like Gerrit and Rietveld,
-many of which offer features such as integration with automated testing tools
-and patch tracking. How can such features be integrated into existing,
-mailing list-based projects like the Linux kernel or DPDK? The presenter
-reports on the ongoing work around the widely-deployed &amp;lsquo;patchwork&amp;rsquo; tool to do
-just this.&lt;/p&gt;
-&lt;p&gt;Tracking of patches between development mailing lists and automated testing
-tools can be accomplished using patchwork. patchwork provides a web interface
-for patches submitted to mailing lists and presents them alongside any
-comments. patchwork also supports the tracking of the state of patches, be
-they Accepted, Rejected or Under Review. By design, patchwork is not intended
-to replace mailing lists but rather supplement them: these features are
-entirely optional, but where used can help ease the burden on maintainers by
-removing the need to perform tedious, time-consuming and low-value tasks like
-manual sorting. patchwork is already widely deployed for many projects, and
-instances can be found on kernel.org, dpdk.org and openembedded.org, to name
-but a few. There are also many projects, including Open vSwitch and QEMU,
-that can be found on ozlabs.org, which is maintained by the original author
-of patchwork.&lt;/p&gt;
-&lt;p&gt;This talk outlines the ongoing work to supplement development mailing lists
-with web-based workflows using patchwork. We demonstrate how features such as
-continuous integration support, automated patch and series tracking and a
-vastly expanded API help position the combination of the Mailing List and
-patchwork as a viable, feature-competitive alternative to tools such as
-Gerrit or Rietveld. We also detail some of the complexities of structuring
-the inherently unstructured data found on mailing lists. How do I identify a
-series of patches, for example? How do identify a reply to a patch? How do I
-identify a patch itself?&lt;/p&gt;
-&lt;p&gt;This talk be of particular interest to testers of open source, mailing
-list-based projects such as the Linux kernel, QEMU, DPDK or Open vSwitch.
-These users will be able take advantage of features like support for
-continuous integration servers and series tracking to develop automated,
-distributed testing infrastructures. Communities like OpenStack have shown
-that such infrastructures are critical for delivering software faster while
-reducing risk and maintenance cost. Such an infrastructure is currently being
-developed for the DPDK community, and it is easy to envision a similar
-roll-out for other projects with similar requirements.&lt;/p&gt;
-&lt;p&gt;It will also be of interest to the developers of these projects. These
-developers can already use patchwork as a tool to track patch backlogs,
-maintain personal TODO lists, or just browse submissions via a web UI/XML-RPC
-API. However, the new features provide these users with functionality that
-can help automate even more of the tedious yet necessary overhead tasks.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;83af5ed2a4c646cba0ccba30955807f3&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
 
 
 </description>

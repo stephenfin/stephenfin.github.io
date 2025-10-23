@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Openshift | that.guru</title>
+  <title>Manage Your OpenStack Resources From Kubernetes With ORC | that.guru</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
@@ -22,7 +22,6 @@
   <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
   <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
-  <link rel="alternate" type="application/rss+xml" href="https://that.guru/categories/openshift/index.xml" title="Stephen Finucane (Fin-oo-can)" />
   <style type="text/css">
     .header-wrapper {
       background-image: url(https://images.unsplash.com/photo-1514413494665-cda1387955dd?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3MjQ3NjkxMjd8&ixlib=rb-4.0.3&q=85);
@@ -37,7 +36,7 @@
 
 <div class="header-wrapper">
   <header class="header">
-    <h1 class="title">Categories</h1>
+    <h1 class="title">Manage Your OpenStack Resources From Kubernetes With ORC</h1>
 
     <span class="header-attrib">
         Image by <a href="">
@@ -77,89 +76,52 @@
 <div class="main-wrapper">
   <div class="main-inner">
     <main class="content">
-  
-  <h2>Blog</h2>
-  <ul class="pages-list">
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2025-04-03T00:00:00Z'>April 3</time>
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
       </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/csi-drivers-and-openstack/">A Closer Look at the Cinder CSI Driver and the Topology Feature</a>
+      <div class="byline-meta-content">
+        <span>Presented <time datetime='2025-10-23T00:00:00Z'>Oct 23, 2025</time></span>
       </div>
-    </li>
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2024-05-03T00:00:00Z'>May 3</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2/">Availability Zones in Openstack and Openshift (Part 2)</a>
-      </div>
-    </li>
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2024-04-22T00:00:00Z'>April 22</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/debugging-failed-openshift-openstack-deployments/">Debugging Failed OpenShift-on-OpenStack Deployments</a>
-      </div>
-    </li>
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2023-08-22T00:00:00Z'>August 22</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/">Availability Zones in Openstack and Openshift (Part 1)</a>
-      </div>
-    </li>
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2023-05-23T00:00:00Z'>May 23</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/deploying-metallb-on-openstack-part-2/">Deploying MetalLB with BGP on Openstack (Part 2)</a>
-      </div>
-    </li>
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2023-05-22T00:00:00Z'>May 22</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/deploying-metallb-on-openstack-part-1/">Deploying MetalLB with BGP on Openstack (Part 1)</a>
-      </div>
-    </li>
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2022-05-09T00:00:00Z'>May 9</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/blog/user-managed-configuration-in-cccmo/">Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators</a>
-      </div>
-    </li>
-  
-  </ul>
-  
-  <h2>Talks</h2>
-  <ul class="pages-list">
-  
-    <li class="pages-item">
-      <div class="page-date">
-        <time datetime='2025-10-23T00:00:00Z'>October 23</time>
-      </div>
-      <div class="page-title">
-        <a class="page-link" href="https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/">Manage Your OpenStack Resources From Kubernetes With ORC</a>
-      </div>
-    </li>
-  
-  </ul>
-  
+    </div>
+  </div>
+
+  <article>
+    <p>This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
+resources using Kubernetes CRDs. It was delivered during <a href="https://summit2025.openinfra.org/a/schedule/#">OpenInfra Summit Europe</a> in Paris in October 2025.</p>
+<blockquote>
+<p>Managing OpenStack resources efficiently can be complex, especially when striving for cloud-native agility and GitOps
+workflows. In this talk, we&rsquo;ll introduce the OpenStack Resource Controller (ORC), a powerful solution combining the
+benefits of Kubernetes Custom Resource Definitions (CRDs) and controllers with OpenStack&rsquo;s rich and mature APIs and
+application ecosystem. We&rsquo;ll explore ORC&rsquo;s fundamental &ldquo;raison d&rsquo;être,&rdquo; highlighting how it directly addresses common
+provisioning pain points many developers and operators face. We&rsquo;ll compare ORC against “the competition”, exploring
+both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
+management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
+applications.</p>
+</blockquote>
+<p>More information is available on the <a href="https://summit2025.openinfra.org/a/schedule/#">OpenInfra Summit Europe 2025</a> website.</p>
+
+<script async class="speakerdeck-embed" data-id="fe689fb7df5f470bacc5f701b2ee968c" data-ratio="1.77777777777778" src="//speakerdeck.com/assets/embed.js"></script>
+
+
+
+  </article>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/openshift">#openshift</a>
+    
+    <a class="category" href="https://that.guru/categories/kubernetes">#kubernetes</a>
+    
+  </div>
 
     </main>
   </div>
@@ -178,9 +140,6 @@
       </a>
       <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
         <i class="fab fa-linkedin"></i>
-      </a>
-      <a class="social-link" alt="RSS" href="https://that.guru/categories/openshift/index.xml">
-        <i class="fas fa-rss"></i>
       </a>
       </div>
   </footer>

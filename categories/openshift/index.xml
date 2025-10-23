@@ -6,7 +6,33 @@
     <description>Recent content in Openshift on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Thu, 03 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openshift/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 23 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openshift/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Manage Your OpenStack Resources From Kubernetes With ORC</title>
+      <link>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</link>
+      <pubDate>Thu, 23 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</guid>
+      <description>&lt;p&gt;This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
+resources using Kubernetes CRDs. It was delivered during &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in October 2025.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Managing OpenStack resources efficiently can be complex, especially when striving for cloud-native agility and GitOps
+workflows. In this talk, we&amp;rsquo;ll introduce the OpenStack Resource Controller (ORC), a powerful solution combining the
+benefits of Kubernetes Custom Resource Definitions (CRDs) and controllers with OpenStack&amp;rsquo;s rich and mature APIs and
+application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;ldquo;raison d&amp;rsquo;être,&amp;rdquo; highlighting how it directly addresses common
+provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
+both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
+management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>A Closer Look at the Cinder CSI Driver and the Topology Feature</title>
       <link>https://that.guru/blog/csi-drivers-and-openstack/</link>

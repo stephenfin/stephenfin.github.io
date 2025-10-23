@@ -6,7 +6,60 @@
     <description>Recent content in Openstack on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Fri, 15 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 23 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openstack/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Manage Your OpenStack Resources From Kubernetes With ORC</title>
+      <link>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</link>
+      <pubDate>Thu, 23 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</guid>
+      <description>&lt;p&gt;This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
+resources using Kubernetes CRDs. It was delivered during &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in October 2025.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Managing OpenStack resources efficiently can be complex, especially when striving for cloud-native agility and GitOps
+workflows. In this talk, we&amp;rsquo;ll introduce the OpenStack Resource Controller (ORC), a powerful solution combining the
+benefits of Kubernetes Custom Resource Definitions (CRDs) and controllers with OpenStack&amp;rsquo;s rich and mature APIs and
+application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;ldquo;raison d&amp;rsquo;être,&amp;rdquo; highlighting how it directly addresses common
+provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
+both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
+management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
+    <item>
+      <title>Steps Down the OpenAPI Path</title>
+      <link>https://that.guru/talks/steps-down-the-openapi-path/</link>
+      <pubDate>Sat, 18 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/talks/steps-down-the-openapi-path/</guid>
+      <description>&lt;p&gt;This talks was delivered during the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in
+October 2025. It was a continuation of a talk I gave at the &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;previous OpenInfra Summit&lt;/a&gt;
+and focused on the continued development of the OpenAPI effort over the intervening two OpenStack releases.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;OpenStack has been on a journey towards implementing formal OpenAPI v3.1 API specifications for all services for a
+number of releases now. We have many goals - better understanding our APIs, improving our documentation, easing client
+and library development, etc. - and we are finally delivering on many of these. Come learn about the milestones we&amp;rsquo;ve
+reached to date, and the benefits we&amp;rsquo;re already seeing from these efforts, and our plans for the next . We&amp;rsquo;ll talk
+about the complexities of implementing common functionality across services with vastly different APIs and stacks, the
+cool/horrifying things we&amp;rsquo;ve (re)discovered about our APIs, and the oxidation of our clients. We&amp;rsquo;ll also demonstrate
+some of the fruits of our labours and discuss how you, as a user, deployer, or contributor, can get involved in the
+effort.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
+
+&lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;7f0c15e3f8554064b4f69db5b5951b27&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
+
+
+</description>
+    </item>
+    
     <item>
       <title>Glance Tasks API</title>
       <link>https://that.guru/blog/glance-tasks-api/</link>
@@ -2856,361 +2909,6 @@ abstract.&lt;/p&gt;
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7e9c43bd0cb4715b72e9ace211e5370&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
 
 
-</description>
-    </item>
-    
-    <item>
-      <title>Quotas in OpenStack</title>
-      <link>https://that.guru/blog/quotas-in-openstack/</link>
-      <pubDate>Fri, 07 Oct 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/quotas-in-openstack/</guid>
-      <description>&lt;p&gt;I&amp;rsquo;ve been playing around with quotas in OpenStack again. Every time I do, I
-encounter another strange bit of behavior that catches me out. This time, I&amp;rsquo;ve
-decided to write down these strange things so at least I have a reference to go
-back to at some point in the future. I should probably get these notes into the
-docs for nova, cinder and neutron at some point&amp;hellip;&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This post focuses on the nova (compute), cinder (block storage), and neutron
-(networking) services. There are other OpenStack services that implement quotas
-but I&amp;rsquo;m not overly familiar with their quota models. However, I would suspect
-that what&amp;rsquo;s discussed here &lt;em&gt;should&lt;/em&gt; be broadly applicable.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;project-quotas-and-default-quotas&#34;&gt;Project quotas and default quotas&lt;/h2&gt;
-&lt;p&gt;Quotas are a complicated area with a lot of baggage. Broadly speaking, there
-are two types of quota: default quotas and project-specific quotas. The default
-quotas are applied to projects unless specifically overridden by project
-quotas. In addition, for nova and cinder, there are two types of default quota:
-API-configured default quotas and statically configured default quotas defined
-in config files (so &lt;code&gt;nova.conf&lt;/code&gt; or &lt;code&gt;cinder.conf&lt;/code&gt; respectively). Neutron only
-supports statically configured quotas (&lt;code&gt;neutron.conf&lt;/code&gt;). Project specific quotas
-take precedence over API-configured default quotas (where available), which in
-turn take priority over statically configured default quotas. We can visualize
-this as such:&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;nova:    conf default quotas &amp;lt; API default quotas &amp;lt; project quotas
-cinder:  conf default quotas &amp;lt; API default quotas &amp;lt; project quotas
-neutron: conf default quotas           &amp;lt;            project quotas
-&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;user-specific-quotas&#34;&gt;User-specific quotas&lt;/h2&gt;
-&lt;p&gt;Nova has another type of quota: user-specific quotas. There&amp;rsquo;s only one type of
-user-specific quota in nova - &lt;code&gt;keypairs&lt;/code&gt; and they&amp;rsquo;re not something that nova is
-likely to continue supporting in the long-term. As you&amp;rsquo;d expect, the primary
-difference between between user-specific quotas and project-specific quotas is
-that user-specific quotas are tied to the user instead of the project. This
-means you can specify that user &lt;code&gt;foo&lt;/code&gt; has e.g. a keypair quota of &lt;code&gt;5&lt;/code&gt;, while
-user &lt;code&gt;bar&lt;/code&gt; has a keypair quota of &lt;code&gt;6&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;quota-classes&#34;&gt;Quota classes&lt;/h2&gt;
-&lt;p&gt;Finally, nova and cinder also have the concept of quota classes. The idea
-behind these was to allow for a two-level hierarchy of quotas, where you could
-define different &amp;ldquo;classes&amp;rdquo; of default quota and specific what class a project
-would get. For example, you could have three quota classes - gold, silver and
-bronze - and a project would get assigned to one of these quota classes
-depending on how much the customer was paying. This was seen as an easier
-alternative to setting defaults for each project individually. However,
-actually using quota classes required a separate out-of-tree service that would
-set a &lt;code&gt;quota_class&lt;/code&gt; attribute in the request context. Rackspace apparently had
-one such service called &lt;em&gt;Turnstile&lt;/em&gt; that did this but no one else appears to
-have implemented something like this and efforts to remove the need for an
-external service &lt;a href=&#34;https://bugs.launchpad.net/nova/+bug/969537&#34;&gt;never went
-anywhere&lt;/a&gt;. In effect, this feature
-was never fully implemented and both nova and cinder only support the &lt;code&gt;default&lt;/code&gt;
-quota class while neutron never even tried implementing this. It&amp;rsquo;s an
-irrelevance nowadays.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;For more information on the background of &lt;em&gt;quota classes&lt;/em&gt;, the following
-mailing lists threads are helpful:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack@lists.launchpad.net/msg09237.html&#34;&gt;Quota classes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack-dev@lists.openstack.org/msg124494.html&#34;&gt;Does ANYONE at all use the quota class functionality in Nova?&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;quota-usage&#34;&gt;Quota usage&lt;/h2&gt;
-&lt;p&gt;Obviously applying quotas to projects and users is one thing, but we actually
-need to track that usage somewhere. This also happens at the project level.
-The nova, cinder and neutron projects all track both a &lt;code&gt;reserved&lt;/code&gt; value and an
-&lt;code&gt;in_use&lt;/code&gt; value. In nova&amp;rsquo;s case, the &lt;code&gt;reserved&lt;/code&gt; value was previously used to
-reserve a resource at the API layer (&lt;code&gt;nova-api&lt;/code&gt;) before committing them at the
-compute layer (&lt;code&gt;nova-compute&lt;/code&gt;). Nova moved away from this model in the 16.0.0
-(Pike) release as part of the work to introduce cells v2, and the &lt;code&gt;reserved&lt;/code&gt;
-value will now always be &lt;code&gt;0&lt;/code&gt;. This effort was tracked in the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/pike/implemented/cells-count-resources-to-check-quota-in-api.html&#34;&gt;&lt;em&gt;Count resources
-to check quota in API for cells&lt;/em&gt; spec&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;In the case of nova, much of this information is gleaned either from the
-database or the placement service, depending on configuration. I suspect most
-services use a similar model. This usage information is available to the user
-via various APIs or &lt;em&gt;openstackclient&lt;/em&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;quota-drivers&#34;&gt;Quota drivers&lt;/h2&gt;
-&lt;p&gt;The nova, cinder and neutron projects all have the concept of quota drivers. By
-default, all projects use a DB-based quota driver but both nova and neutron
-offer alternative drivers. I haven&amp;rsquo;t gone into detail on these here since it&amp;rsquo;s
-not entirely relevant to this discussion. You should refer to the
-&lt;a href=&#34;https://docs.openstack.org/nova/latest/configuration/config.html#quota.driver&#34;&gt;nova&lt;/a&gt; and &lt;a href=&#34;https://docs.openstack.org/neutron/latest/configuration/neutron.html#quotas.quota_driver&#34;&gt;neutron&lt;/a&gt; configuration
-documentation for more information if interested though.&lt;/p&gt;
-&lt;h2 id=&#34;how-do-i-use-the-damn-thing&#34;&gt;How do I use the damn thing?&lt;/h2&gt;
-&lt;p&gt;The best way to interact with quotas is using a tool that tries to abstract all
-of the above craziness from you. To this end, I&amp;rsquo;d recommend &lt;em&gt;openstackclient&lt;/em&gt;.
-While OSC has supported quotas for years, recent versions of this (v6.1.0 or
-later) have improved the UX further and contain some important feature
-additions, like the ability to view quota usage for the cinder service.&lt;/p&gt;
-&lt;p&gt;Firstly, let&amp;rsquo;s create a project-specific quota for, say, the number of
-instances.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota set --instances &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; $OS_PROJECT_NAME
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we can inspect those quotas:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota show $OS_PROJECT_NAME
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Resource              | Limit |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| cores                 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| instances             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ram                   | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;43&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes             |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backups               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes_lvmdriver-1   |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes_lvmdriver-1 |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots_lvmdriver-1 |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes___DEFAULT__   |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes___DEFAULT__ |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots___DEFAULT__ |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| groups                |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| networks              |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ports                 |   &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rbac_policies         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| routers               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;21&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnets               |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnet_pools          |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| fixed-ips             |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-file-size    | &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-path-size    |   &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-files        |     &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| key-pairs             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties            |   &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-groups         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-group-members  |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| floating-ips          |    &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroup-rules        |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroups             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backup-gigabytes      |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| per-volume-gigabytes  |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also include usage information if you want:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota show --usage $OS_PROJECT_NAME
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+--------+----------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Resource              | Limit | In Use | Reserved |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+--------+----------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| cores                 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| instances             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ram                   | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |   &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;43&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes             |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backups               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes_lvmdriver-1   |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes_lvmdriver-1 |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots_lvmdriver-1 |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes___DEFAULT__   |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes___DEFAULT__ |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots___DEFAULT__ |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| groups                |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| networks              |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ports                 |   &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rbac_policies         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| routers               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;21&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnets               |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnet_pools          |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| fixed-ips             |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-file-size    | &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-path-size    |   &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-files        |     &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| key-pairs             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties            |   &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-groups         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-group-members  |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| floating-ips          |    &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroup-rules        |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroups             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backup-gigabytes      |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| per-volume-gigabytes  |    -1 |      &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+--------+----------+
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Default quotas are applied to each project unless there are project-specific
-quotas to override them. These can be inspected also:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota show --default
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Resource              | Limit |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| cores                 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| instances             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ram                   | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;43&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes             |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backups               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes_lvmdriver-1   |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes_lvmdriver-1 |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots_lvmdriver-1 |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| volumes___DEFAULT__   |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| gigabytes___DEFAULT__ |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| snapshots___DEFAULT__ |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| groups                |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| networks              |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ports                 |   &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rbac_policies         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| routers               |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnets               |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| subnet_pools          |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| fixed-ips             |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-file-size    | &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-path-size    |   &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| injected-files        |     &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| key-pairs             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| properties            |   &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-groups         |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| server-group-members  |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| floating-ips          |    &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroup-rules        |   &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| secgroups             |    &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| backup-gigabytes      |  &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| per-volume-gigabytes  |    -1 |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+-----------------------+-------+
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can list quotas for multiple projects. Note that when doing this, only the
-projects with project-specific quotas are shown to avoid dumping potentially
-thousands of lines of duplicate, useless info to the terminal.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota list --compute
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Project ID                       | Cores | Fixed IPs | Injected Files | Injected File Content Bytes | Injected File Path Bytes | Instances | Key Pairs | Metadata Items |   Ram | Server Groups | Server Group Members |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| 700a8fa37f154153809be9d1814d8625 |    &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; |        -1 |              &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |                       &lt;span style=&#34;color:#ae81ff&#34;&gt;10240&lt;/span&gt; |                      &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt; |         &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; |        &lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt; |            &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt; | &lt;span style=&#34;color:#ae81ff&#34;&gt;51200&lt;/span&gt; |            &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |                   &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt; |
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you can unset configured quotas:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota delete $OS_PROJECT_NAME
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Many of these commands have additional flags that might be relevant. Pass the
-&lt;code&gt;--help&lt;/code&gt; option to view the help text for the option.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;h2 id=&#34;addendum-unified-limits&#34;&gt;Addendum! Unified limits&lt;/h2&gt;
-&lt;p&gt;If you consider the above rather confusing, you should try to using it in
-real-world environments! The deficiencies with the existing quota model were
-brought up in multiple discussions with operators and end users over the years,
-and the end result of these discussions was a concept known as &lt;em&gt;unified
-limits&lt;/em&gt;. As the name would suggest, the aim of this feature is to provide a
-unified model for maintaining resource limits across multiple services. Good
-&lt;a href=&#34;https://docs.openstack.org/project-team-guide/technical-guides/unified-limits.html&#34;&gt;documentation&lt;/a&gt; exists to describe the benefits of this approach
-over the status quo. Adding support for unified limits requires significant
-effort on the end of the individual projects, and so far only the compute
-project appears to have started down this path, introducing preliminary support
-for unified limits during the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/yoga/implemented/unified-limits-nova.html&#34;&gt;yoga release&lt;/a&gt;. This remains in
-development and I&amp;rsquo;m not sure when we plan to finish it. The above guide will
-probably be useful for some time to come 😅&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Closing the OpenStackClient (and OpenStackSDK) Gaps</title>
-      <link>https://that.guru/blog/closing-openstackclient-gaps/</link>
-      <pubDate>Fri, 29 Jul 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://that.guru/blog/closing-openstackclient-gaps/</guid>
-      <description>&lt;p&gt;The unified OpenStack command-line client project, &lt;code&gt;python-openstackclient&lt;/code&gt;
-(OSC), has been around &lt;a href=&#34;https://github.com/openstack/python-openstackclient/commit/f4b5ef39f6f84e66af532583040c9be7556e9b69&#34;&gt;for over a decade&lt;/a&gt;. As noted in the
-&lt;a href=&#34;https://github.com/openstack/python-openstackclient/blob/master/README.rst&#34;&gt;README&lt;/a&gt;, &amp;ldquo;[t]he primary goal is to provide a unified shell command
-structure and a common language to describe operations in OpenStack.&amp;rdquo; In
-essence, this means OSC should replace the shell command implementations of the
-various project-specific clients, such as &lt;code&gt;python-novaclient&lt;/code&gt; and
-&lt;code&gt;python-glanceclient&lt;/code&gt;. It &lt;em&gt;does not&lt;/em&gt; aim to replace the client library
-implementations (Python binding) of these libraries: that task is handled by
-another project, the unified OpenStack client library, &lt;code&gt;openstacksdk&lt;/code&gt; (SDK).&lt;/p&gt;
-&lt;p&gt;For most high-level &amp;ldquo;simpler&amp;rdquo; OpenStack-related activities, OSC has long been
-&amp;ldquo;good enough&amp;rdquo; as it provided the ability to do CRUD operations on the essential
-resources in a cloud including instances, volumes and images. However, as soon
-as you started trying to use more advanced or less common features, you&amp;rsquo;d run
-into a swathe of feature gaps. These would generally mean having to revert to
-using the legacy project-specific clients like &lt;code&gt;python-novaclient&lt;/code&gt; (e.g. &lt;code&gt;nova foo&lt;/code&gt;) or &lt;code&gt;python-glanceclient&lt;/code&gt; (&lt;code&gt;glance foo&lt;/code&gt;). There were exceptions to this,
-most notably &lt;a href=&#34;https://github.com/openstack/python-neutronclient/commit/3a64a7a166be25d40436fd40c8351a79267bd3c4&#34;&gt;neutronclient&lt;/a&gt;, but ultimately the
-result of this partial switchover was a poor user experience that was more
-confusing than it should have been.&lt;/p&gt;
-&lt;p&gt;Over the course of the past number of cycles (starting with Train), there has
-been a concerted effort to close these gaps and achieve feature parity between
-the shells of the various legacy clients and OSC. As of Yoga, we have
-effectively achieved this for &lt;a href=&#34;https://github.com/openstack/python-novaclient/commit/0fb7190c062a08a3969a71955c014e3a572cdc9e&#34;&gt;nova&lt;/a&gt; and are well on
-our way to doing so for &lt;a href=&#34;https://review.opendev.org/q/topic:cinder-gaps&#34;&gt;cinder&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;I&amp;rsquo;ve put together a little FAQ below that should be helpful in helping people
-understand what has gone into this effort and how you can identify features
-gaps to to be closed.&lt;/p&gt;
-&lt;h2 id=&#34;how-do-we-determine-where-these-gaps-lie&#34;&gt;How do we determine where these gaps lie?&lt;/h2&gt;
-&lt;p&gt;Unfortunately, pretty manually. OSC only aims to implement support for the six
-&amp;ldquo;core&amp;rdquo; services: nova, neutron, keystone, cinder, glance, and swift. We provide
-&lt;a href=&#34;https://github.com/openstack/python-openstackclient/tree/master/doc/source/cli/data&#34;&gt;CSV files&lt;/a&gt; mapping commands found in the legacy clients with their
-OSC equivalents. The first step is looking for obvious gaps in this document,
-by which I mean missing entries for an OSC equivalent to a given legacy client
-command.&lt;/p&gt;
-&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;OSC doesn&amp;rsquo;t aim to provide a 1:1 mapping to the underlying APIs it calls. There
-are also commands or options which are historical baggage and don&amp;rsquo;t need to be
-exposed. This means there are commands that we will never implement. However,
-these should be explicitly called out with &lt;code&gt;WONTFIX&lt;/code&gt; comments rather than left
-blank.&lt;/div&gt;
-&lt;/aside&gt;
-
-&lt;p&gt;The next step is looking for command that should exist in those documents but
-don&amp;rsquo;t. This is pretty easy: just run e.g. &lt;code&gt;nova help&lt;/code&gt;, capture the output, and
-reformat it so that it resembles the CSV file (this would actually be one of
-the few good places where scripting could help!). It&amp;rsquo;s worth noting that many
-of the legacy clients change their help output depending on the API version
-requested so you should run this a couple of times with different API versions.
-For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ OS_COMPUTE_API_VERSION&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;2.88 nova help
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The final and most involved step required is examining individual commands.
-There are two things we&amp;rsquo;re concerned with: missing options and missing
-microversion support. Assessing the first can be achieved similarly to
-identifying missing commands: just run e.g. &lt;code&gt;nova help boot&lt;/code&gt;, capture the
-output and compare the options supported with those supported by the
-equivalent OSC command (&lt;code&gt;openstack server create&lt;/code&gt; in this case). The second
-is a little trickier and usually involves manual inspection of the
-corresponding shell and client library code in the legacy code. You could also
-look at the API reference documentation for the particular service but projects
-like Cinder have large documentation gaps that means the client is a better
-source of truth.&lt;/p&gt;
-&lt;h2 id=&#34;how-do-i-fix-them&#34;&gt;How do I fix them?&lt;/h2&gt;
-&lt;p&gt;Just push a patch. It probably makes sense to push a highly WIP patch first
-since OSC has some design conventions, noted in the &lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/&#34;&gt;contributor
-guide&lt;/a&gt;, which can take some time to get a feel for. There
-are also plenty of existing examples to look for: search for the topics
-&lt;code&gt;cinder-gaps&lt;/code&gt; and &lt;code&gt;nova-gaps&lt;/code&gt; to get an idea.&lt;/p&gt;
-&lt;h2 id=&#34;what-about-non-core-projects&#34;&gt;What about non-&amp;ldquo;core&amp;rdquo; projects?&lt;/h2&gt;
-&lt;p&gt;OSC is built on top of &lt;a href=&#34;https://github.com/openstack/osc-lib&#34;&gt;&lt;code&gt;osc-lib&lt;/code&gt;&lt;/a&gt;, which is in turn built on top of
-&lt;a href=&#34;https://github.com/openstack/cliff&#34;&gt;&lt;code&gt;cliff&lt;/code&gt;&lt;/a&gt;. &lt;code&gt;cliff&lt;/code&gt; is highly extensible and provides a number of hook
-points that allow users to build plugins which can extend an existing CLI tool.
-Projects like &lt;a href=&#34;https://github.com/openstack/python-manilaclient/blob/2c3d29313c18015f73982269401761608b9ece45/setup.cfg#L34-L155&#34;&gt;&lt;code&gt;manila&lt;/code&gt;&lt;/a&gt;, &lt;a href=&#34;https://github.com/openstack/python-ironicclient/blob/489bb43058d446a577377cff5828e98d13c79967/setup.cfg#L29-L127&#34;&gt;&lt;code&gt;ironic&lt;/code&gt;&lt;/a&gt; and
-&lt;a href=&#34;https://github.com/openstack/python-cyborgclient/blob/501d9f3e2c3a161b2ec0ae433d6c8b1f4ae32ea9/setup.cfg#L31-L52&#34;&gt;&lt;code&gt;cyborg&lt;/code&gt;&lt;/a&gt; all provide their own OSC plugins. This is also the
-mechanism that neutron uses to provide &lt;a href=&#34;https://github.com/openstack/python-neutronclient/blob/7467c710f624aee80de8ef487e5b2c0e78143214/setup.cfg#L32-L172&#34;&gt;more advanced commands&lt;/a&gt;.
-Many of these projects never had a legacy client to speak of, so there are
-fewer (if any) gaps to worry about.&lt;/p&gt;
-&lt;h2 id=&#34;what-about-openstacksdk&#34;&gt;What about OpenStackSDK?&lt;/h2&gt;
-&lt;p&gt;We&amp;rsquo;re working on that too and the work has been mostly going on in parallel.
-There has been debate on whether newly added commands should use SDK or the
-legacy client under the hood. I tend to favour using the latter first and
-switching to SDK later since it makes it easier to compare the OSC and legacy
-client shell implementations during development and review. In addition, an OSC
-command can sometimes be the first real-world user of the SDK implementation
-which can highlight bugs. This is particularly an issue for the quirkier, less
-utilized APIs. It would be a shame to get stuck implementing an OSC command due
-to an SDK bug. The sole exception to this is where library clients have removed
-support for an API, such as Cinder dropping support for API v2 in &lt;a href=&#34;https://github.com/openstack/python-cinderclient/commit/cb5235250cc10957b4392764b1dc3a6757784da5&#34;&gt;cinderclient
-9.0.0&lt;/a&gt;. In this case, we&amp;rsquo;ve no choice but to use SDK.&lt;/p&gt;
-&lt;h2 id=&#34;where-can-i-get-more-info--how-can-i-get-involved&#34;&gt;Where can I get more info? / How can I get involved?&lt;/h2&gt;
-&lt;p&gt;Just ask! You can find us on IRC at
-&lt;a href=&#34;irc://irc.oftc.net/#openstack-sdks&#34;&gt;#openstack-sdks&lt;/a&gt; (OFTC) or via email at
-&lt;a href=&#34;mailto:openstack-discuss@openstack.org&#34;&gt;openstack-discuss@openstack.org&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
