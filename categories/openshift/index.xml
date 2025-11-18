@@ -23,8 +23,7 @@ application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;
 provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
 both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
 management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
-applications.&lt;/p&gt;
-&lt;/blockquote&gt;
+applications.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -535,8 +534,7 @@ and the envisioned use cases is very similar for both. Quoting from the &lt;a hr
 &lt;blockquote&gt;
 &lt;p&gt;Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
 infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
-rack), network layout and/or power source.&lt;/p&gt;
-&lt;/blockquote&gt;
+rack), network layout and/or power source.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;The Nova documentation then goes on to specifically note that the AZ feature provides no HA benefit in and of itself -
 whatever benefits there are are entirely down to how the deployment is designed - thus it&amp;rsquo;s really just a way to signal
 something you&amp;rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
@@ -916,8 +914,7 @@ allowed address pair objects, each having an &lt;code&gt;ip_address&lt;/code&gt;
 that the port can use when sending packets if &lt;code&gt;port_security_enabled&lt;/code&gt; is
 &lt;code&gt;true&lt;/code&gt; (see the &lt;code&gt;port-security&lt;/code&gt; extension). Note that while the
 &lt;code&gt;ip_address&lt;/code&gt; is required in each allowed address pair, the &lt;code&gt;mac_address&lt;/code&gt;
-is optional and will be taken from the port if not specified.&lt;/p&gt;
-&lt;/blockquote&gt;
+is optional and will be taken from the port if not specified.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;If you inspect the ports assigned to the master and worker nodes, you&amp;rsquo;ll note that we already have some allowed address
 pairs defined. OpenShift on OpenStack uses this feature to enable load balancing of the ingress and API VIPs and we can
 opt to use it for load balancing of services also. Unfortunately, there is no easy way to create allowed address pairs

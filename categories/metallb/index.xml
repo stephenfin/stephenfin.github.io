@@ -204,8 +204,7 @@ allowed address pair objects, each having an &lt;code&gt;ip_address&lt;/code&gt;
 that the port can use when sending packets if &lt;code&gt;port_security_enabled&lt;/code&gt; is
 &lt;code&gt;true&lt;/code&gt; (see the &lt;code&gt;port-security&lt;/code&gt; extension). Note that while the
 &lt;code&gt;ip_address&lt;/code&gt; is required in each allowed address pair, the &lt;code&gt;mac_address&lt;/code&gt;
-is optional and will be taken from the port if not specified.&lt;/p&gt;
-&lt;/blockquote&gt;
+is optional and will be taken from the port if not specified.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;If you inspect the ports assigned to the master and worker nodes, you&amp;rsquo;ll note that we already have some allowed address
 pairs defined. OpenShift on OpenStack uses this feature to enable load balancing of the ingress and API VIPs and we can
 opt to use it for load balancing of services also. Unfortunately, there is no easy way to create allowed address pairs

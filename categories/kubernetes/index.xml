@@ -23,8 +23,7 @@ application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;
 provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
 both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
 management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
-applications.&lt;/p&gt;
-&lt;/blockquote&gt;
+applications.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;

@@ -45,8 +45,7 @@ through a combination of Patchwork and an off-the-shelf, open source CI
 system. This system will retrieve patches and dependencies, apply and test
 them, and report the results back to both Patchwork and a separate mailing
 list. This configuration demonstrates the best of Patchwork&amp;rsquo;s new features,
-and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;
-&lt;/blockquote&gt;
+and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;&lt;/blockquote&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;ce06b0e45f1e460b9fc3d5d96e65ab31&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
 

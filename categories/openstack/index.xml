@@ -23,8 +23,7 @@ application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;
 provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
 both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
 management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
-applications.&lt;/p&gt;
-&lt;/blockquote&gt;
+applications.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -50,8 +49,7 @@ reached to date, and the benefits we&amp;rsquo;re already seeing from these effo
 about the complexities of implementing common functionality across services with vastly different APIs and stacks, the
 cool/horrifying things we&amp;rsquo;ve (re)discovered about our APIs, and the oxidation of our clients. We&amp;rsquo;ll also demonstrate
 some of the fruits of our labours and discuss how you, as a user, deployer, or contributor, can get involved in the
-effort.&lt;/p&gt;
-&lt;/blockquote&gt;
+effort.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;7f0c15e3f8554064b4f69db5b5951b27&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -70,9 +68,9 @@ effort.&lt;/p&gt;
 OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
 means there&amp;rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant &lt;a href=&#34;https://specs.openstack.org/openstack/api-sig/&#34;&gt;API SIG&lt;/a&gt;. I&amp;rsquo;ve
 touched on this before, covering things like the disparity in &lt;a href=&#34;https://that.guru/blog/api-versioning-in-openstack/&#34;&gt;API versioning&lt;/a&gt;, and its been particularly
-notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
-APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
-longer relevant or useful in modern deployments.&lt;/p&gt;
+notable during work on the &lt;a href=&#34;https://that.guru/blog/an-update-on-openapi-in-openstack/&#34;&gt;OpenAPI effort&lt;/a&gt;. OpenStack is also pretty old (at least in software terms) and most
+service APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are
+no longer relevant or useful in modern deployments.&lt;/p&gt;
 &lt;p&gt;The Glance Tasks API is an example of one such API. It&amp;rsquo;s a positively ancient API, dating back to the &lt;a href=&#34;https://wiki.openstack.org/wiki/Glance-tasks-api&#34;&gt;Havana
 release&lt;/a&gt; (2013), and has long-since been made redundant by the image import API introduced in the Mitaka
 release (2016). Nonetheless, python-openstackclient (OSC) and openstacksdk (SDK) aim to support all OpenStack APIs, and
@@ -582,8 +580,7 @@ in particular promise to massively improve how we document and understand our AP
 annotations. OpenAPI promises to provide a machine-readable definition of the various APIs, while Python type
 annotations allow us a way to provide guarantees about type information that were not previously possible in Python.
 In this talk, we will explore the work that has been ongoing to integrate both technologies into projects across
-OpenStack, how you as a user or developer can taking advantage of them, and how you can get involved.&lt;/p&gt;
-&lt;/blockquote&gt;
+OpenStack, how you as a user or developer can taking advantage of them, and how you can get involved.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia 2024&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;06a0288d97cf415a944d3d1fd36ab907&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -1505,8 +1502,8 @@ best of my knowledge it is legacy from the days where we had API extensions.&lt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;APIRouterV21&lt;/span&gt;(base_wsgi&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Router):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, custom_routes&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;):
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        super()&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;__init__&lt;/span&gt;(self, custom_routes&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        super()&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;__init__&lt;/span&gt;()
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
@@ -1719,8 +1716,7 @@ and the envisioned use cases is very similar for both. Quoting from the &lt;a hr
 &lt;blockquote&gt;
 &lt;p&gt;Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
 infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
-rack), network layout and/or power source.&lt;/p&gt;
-&lt;/blockquote&gt;
+rack), network layout and/or power source.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;The Nova documentation then goes on to specifically note that the AZ feature provides no HA benefit in and of itself -
 whatever benefits there are are entirely down to how the deployment is designed - thus it&amp;rsquo;s really just a way to signal
 something you&amp;rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
@@ -2223,8 +2219,7 @@ allowed address pair objects, each having an &lt;code&gt;ip_address&lt;/code&gt;
 that the port can use when sending packets if &lt;code&gt;port_security_enabled&lt;/code&gt; is
 &lt;code&gt;true&lt;/code&gt; (see the &lt;code&gt;port-security&lt;/code&gt; extension). Note that while the
 &lt;code&gt;ip_address&lt;/code&gt; is required in each allowed address pair, the &lt;code&gt;mac_address&lt;/code&gt;
-is optional and will be taken from the port if not specified.&lt;/p&gt;
-&lt;/blockquote&gt;
+is optional and will be taken from the port if not specified.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;If you inspect the ports assigned to the master and worker nodes, you&amp;rsquo;ll note that we already have some allowed address
 pairs defined. OpenShift on OpenStack uses this feature to enable load balancing of the ingress and API VIPs and we can
 opt to use it for load balancing of services also. Unfortunately, there is no easy way to create allowed address pairs
@@ -2541,8 +2536,7 @@ idea though: there are too many opportunities for dependency updates to break ot
 &lt;p&gt;pipx is a tool to help you install and run end-user applications written in Python. It&amp;rsquo;s roughly similar to macOS&amp;rsquo;s &lt;code&gt;brew&lt;/code&gt;, JavaScript&amp;rsquo;s &lt;code&gt;npx&lt;/code&gt;, and Linux&amp;rsquo;s
 &lt;code&gt;apt&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s closely related to pip. In fact, it uses pip, but is focused on installing and managing Python packages that can be run from the command line directly as
-applications.&lt;/p&gt;
-&lt;/blockquote&gt;
+applications.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;pipx&lt;/code&gt; itself is available in the Fedora repos so if Fedora is you distro of choice then you can install it with &lt;code&gt;dnf&lt;/code&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sudo dnf install pipx
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once that&amp;rsquo;s in place, you can install OSC with &lt;code&gt;pipx&lt;/code&gt;:&lt;/p&gt;
@@ -2641,11 +2635,11 @@ world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;func&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;opts&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; new(&lt;span style=&#34;color:#a6e22e&#34;&gt;clientconfig&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;ClientOpts&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// We could configure the cloud manually but we don&amp;#39;t. Instead we&amp;#39;ll leave it unset causing gophercloud to load the
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// cloud from the &amp;#39;OS_CLOUD&amp;#39; environment variable. We could also simplify this further and pass &amp;#39;nil&amp;#39; below instead
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// of generating and passing a &amp;#39;ClientOpts&amp;#39; object but this shows how you _could_ configure things if you so chose.
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// opts.Cloud = &amp;#34;devstack-admin&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// We could configure the cloud manually but we don&amp;#39;t. Instead we&amp;#39;ll leave it unset causing gophercloud to load the&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// cloud from the &amp;#39;OS_CLOUD&amp;#39; environment variable. We could also simplify this further and pass &amp;#39;nil&amp;#39; below instead&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// of generating and passing a &amp;#39;ClientOpts&amp;#39; object but this shows how you _could_ configure things if you so chose.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// opts.Cloud = &amp;#34;devstack-admin&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;client&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;clientconfig&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;NewServiceClient&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;TODO&lt;/span&gt;(), &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;compute&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;opts&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;nil&lt;/span&gt; {
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#a6e22e&#34;&gt;fmt&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;Println&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt;)
@@ -2714,8 +2708,8 @@ If you wanted to skip &lt;code&gt;utils&lt;/code&gt;, you could rewrite this lik
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;client&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;err&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;:=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;openstack&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;NewComputeV2&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;ctx&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;providerClient&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;eo&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// rest of code here ...
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;// rest of code here ...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -2887,8 +2881,7 @@ you find a seriously capable engine capable of powering all sorts of database
 schema migrations. It can even auto-generate the migration files themselves!&lt;/p&gt;
 &lt;p&gt;In this presentation, we seek to explore some of these advanced features by
 implementing a pattern - the expand-contract pattern - that can allow for near
-zero-downtime database upgrades.&lt;/p&gt;
-&lt;/blockquote&gt;
+zero-downtime database upgrades.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;Python Ireland&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;1114ae54fe09427c98a6cff38c9041f8&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;

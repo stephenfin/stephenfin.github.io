@@ -153,8 +153,7 @@ automatically translate the legacy <code>hw:cpu_policy</code> flavor extra spec 
 <code>hw_cpu_policy</code> image metadata property to <code>PCPU</code> requests, falling back to
 <code>VCPU</code> requests only if no <code>PCPU</code> candidates are found. Refer to the help
 text of the <code>[compute] cpu_dedicated_set</code>, <code>[compute] cpu_shared_set</code> and
-<code>vcpu_pin_set</code> config options for more information.</p>
-</blockquote>
+<code>vcpu_pin_set</code> config options for more information.</p></blockquote>
 <p>We&rsquo;ll explore how this manifests itself in a bit, but before that we should
 look at how one can migrate from an existing pre-Train deployment using
 <code>[DEFAULT] vcpu_pin_set</code> (or not using it, as the case may be) to these new

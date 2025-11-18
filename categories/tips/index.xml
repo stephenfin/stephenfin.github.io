@@ -22,8 +22,7 @@ idea though: there are too many opportunities for dependency updates to break ot
 &lt;p&gt;pipx is a tool to help you install and run end-user applications written in Python. It&amp;rsquo;s roughly similar to macOS&amp;rsquo;s &lt;code&gt;brew&lt;/code&gt;, JavaScript&amp;rsquo;s &lt;code&gt;npx&lt;/code&gt;, and Linux&amp;rsquo;s
 &lt;code&gt;apt&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s closely related to pip. In fact, it uses pip, but is focused on installing and managing Python packages that can be run from the command line directly as
-applications.&lt;/p&gt;
-&lt;/blockquote&gt;
+applications.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;pipx&lt;/code&gt; itself is available in the Fedora repos so if Fedora is you distro of choice then you can install it with &lt;code&gt;dnf&lt;/code&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sudo dnf install pipx
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once that&amp;rsquo;s in place, you can install OSC with &lt;code&gt;pipx&lt;/code&gt;:&lt;/p&gt;
@@ -192,8 +191,7 @@ enabled.&lt;/dd&gt;
 &lt;dt&gt;&lt;strong&gt;status-interval&lt;/strong&gt; &lt;em&gt;interval&lt;/em&gt;&lt;/dt&gt;
 &lt;dd&gt;Update the status line every interval seconds.  By default, updates will
 occur every 15 seconds.  A setting of zero disables redrawing at interval.&lt;/dd&gt;
-&lt;/dl&gt;
-&lt;/blockquote&gt;
+&lt;/dl&gt;&lt;/blockquote&gt;
 &lt;p&gt;We can use a combination of these to configure the status line by adding the
 following to our &lt;code&gt;.tmux.conf&lt;/code&gt; file:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;set-option -g status-interval 1
@@ -214,8 +212,7 @@ variable:&lt;/p&gt;
 &lt;dt&gt;&lt;strong&gt;PROMPT_COMMAND&lt;/strong&gt;&lt;/dt&gt;
 &lt;dd&gt;If set, the value is executed as a command prior to issuing each primary
 prompt.&lt;/dd&gt;
-&lt;/dl&gt;
-&lt;/blockquote&gt;
+&lt;/dl&gt;&lt;/blockquote&gt;
 &lt;p&gt;We can configure this in our &lt;code&gt;.bashrc&lt;/code&gt; file like so:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;case &amp;quot;$TERM&amp;quot; in
 linux|xterm*|rxvt*)
@@ -256,8 +253,7 @@ message:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The calendar backend servicing &amp;ldquo;XXX&amp;rdquo; encountered an error.&lt;/p&gt;
 &lt;p&gt;The reported error was “SQLite error code &amp;lsquo;11&amp;rsquo;: database disk image is
-malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.&lt;/p&gt;
-&lt;/blockquote&gt;
+malformed (statement:SELECT * FROM ECacheObjects WHERE ECacheState!=0)”.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;Just the start I wanted to my Friday morning. Unfortunately the Evolution
 documentation didn&amp;rsquo;t provided any guidelines on fixing a corrupted database and
 the best advice I found, aside from deleting and recreating the account in

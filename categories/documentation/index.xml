@@ -30,8 +30,7 @@ documentation for you.&lt;/p&gt;
 basics for building and using your own extension for these tools, with the
 goal of solving the kinds of issues that have been seen in large Python-first
 communities like OpenStack. Some prior Python experience will be necessary,
-but no Sphinx or docutils experience is assumed.&lt;/p&gt;
-&lt;/blockquote&gt;
+but no Sphinx or docutils experience is assumed.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a494e97bf79a480ba7d4ea9e728d734a&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -58,8 +57,7 @@ opportunities for people, be they long-term contributors or novices, to make
 a real impact to OpenStack&amp;rsquo;s documentation. In this talk, we detail how one
 can get started contributing in this area, be it through writing your own
 guides, using Sphinx to automatically generate docs or simply fixing a typo.
-Viva la documentation!&lt;/p&gt;
-&lt;/blockquote&gt;
+Viva la documentation!&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;OpenStack Summit&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;49008e093b0a465d95b1b36297a89f5c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -100,8 +98,7 @@ overview on how you can go about writing your own extensions to parse other
 plain-text documentation formats and output in additional documentation
 format. The latter of these will touch on docutils, a foundational component
 of Sphinx, so one can understand the intermediate documentation model it
-provides.&lt;/p&gt;
-&lt;/blockquote&gt;
+provides.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;Full information is available on the &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7922a6d0b2c4e6a81cf63d6bba906ae&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -154,8 +151,7 @@ human-readable documents?&lt;/li&gt;
 &lt;p&gt;Through this talk we will demonstrate how each of the above problems, and how
 many more, can be solved in an easy and automated manner through the power of
 Sphinx extensions and themes. We also demonstrate how you can share your
-extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
-&lt;/blockquote&gt;
+extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;07094f5da49e4430b308685cc82080ff&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -194,8 +190,7 @@ programs for editing, typesetting, previewing and printing of TeX
 documents in many different languages, and a large collection of TeX
 macros and font libraries.&lt;/p&gt;
 &lt;p&gt;The distribution includes extensive general documentation about TeX, as
-well as the documentation for the included software packages.&lt;/p&gt;
-&lt;/blockquote&gt;
+well as the documentation for the included software packages.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;This is the basic thing we need to actually build LaTeX documents and
 convert them to PDF. The package itself includes multiple other
 dependencies, either because they are necessary for a minimal install or
@@ -212,8 +207,7 @@ has a number of other useful capabilities, for example to start a
 previewer and then run latex whenever the source files are updated, so
 that the previewer gives an up-to-date view of the document.  The script
 runs on both UNIX and MS-WINDOWS (95, ME, XP, etc).  This script is a
-corrected and improved version of the original version of latexmk.&lt;/p&gt;
-&lt;/blockquote&gt;
+corrected and improved version of the original version of latexmk.&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;This is a tool that Sphinx uses, via some makefiles it includes with the
 built sources to ease converting the built LaTeX sources into PDFs.&lt;/p&gt;
 &lt;/li&gt;

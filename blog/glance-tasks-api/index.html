@@ -12,9 +12,9 @@
 OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
 means there&rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant API SIG. I&rsquo;ve
 touched on this before, covering things like the disparity in API versioning, and its been particularly
-notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
-APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
-longer relevant or useful in modern deployments.&hellip;" />
+notable during work on the OpenAPI effort. OpenStack is also pretty old (at least in software terms) and most
+service APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are
+no longer relevant or useful in modern deployments.&hellip;" />
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://that.guru/blog/glance-tasks-api/" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1611224923853-80b023f02d71?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3NTUyNjA5MTV8&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" />
@@ -110,9 +110,9 @@ longer relevant or useful in modern deployments.&hellip;" />
 OpenStack API tooling. The microservice-like architecture, with projects being managed by often wholly separate teams,
 means there&rsquo;s precious little consistency across APIs, beyond that enforced by the long-dormant <a href="https://specs.openstack.org/openstack/api-sig/">API SIG</a>. I&rsquo;ve
 touched on this before, covering things like the disparity in <a href="https://that.guru/blog/api-versioning-in-openstack/">API versioning</a>, and its been particularly
-notable during work on the [OpenAPI effort]. OpenStack is also pretty old (at least in software terms) and most service
-APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are no
-longer relevant or useful in modern deployments.</p>
+notable during work on the <a href="https://that.guru/blog/an-update-on-openapi-in-openstack/">OpenAPI effort</a>. OpenStack is also pretty old (at least in software terms) and most
+service APIs come with at least a decade of baggage: there is an abundance of APIs that still exist in services but are
+no longer relevant or useful in modern deployments.</p>
 <p>The Glance Tasks API is an example of one such API. It&rsquo;s a positively ancient API, dating back to the <a href="https://wiki.openstack.org/wiki/Glance-tasks-api">Havana
 release</a> (2013), and has long-since been made redundant by the image import API introduced in the Mitaka
 release (2016). Nonetheless, python-openstackclient (OSC) and openstacksdk (SDK) aim to support all OpenStack APIs, and
