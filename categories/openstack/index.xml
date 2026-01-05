@@ -29,6 +29,11 @@ present, the package is considered at least partially typed.&lt;/p&gt;
 in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&lt;/em&gt; the &lt;code&gt;py.typed&lt;/code&gt; file is present, then the library is considered &lt;em&gt;fully&lt;/em&gt; typed.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Last updated January 5, 2026&lt;/div&gt;
+&lt;/aside&gt;
+
 &lt;h2 id=&#34;oslo-libraries&#34;&gt;Oslo libraries&lt;/h2&gt;
 
   
