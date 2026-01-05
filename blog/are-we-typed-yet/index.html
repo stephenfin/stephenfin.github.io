@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Are We Typed Yet? | that.guru</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="og:site_name" content="Stephen Finucane (Fin-oo-can)" />
+  
+  <meta property="og:title" content="Are We Typed Yet?" />
+  <meta property="og:description" content="This is a living document that describes the status of typing in various Python packages in the OpenStack system.
+Currently this document focuses on libraries and clients. While many services have introduced some degree of typing,
+none are complete and they are not intended to be consumed by others, thus they are not documented here.&hellip;" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://that.guru/blog/are-we-typed-yet/" />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1634571768025-2494f42f5dfa?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3NjM0NjY2MjV8&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" />
+
+
+  <link rel="shortcut icon" href="https://that.guru/img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="https://that.guru/icon.png">
+
+  <link rel="stylesheet" href="https://that.guru/css/normalize.css">
+  <link rel="stylesheet" href="https://that.guru/css/main.css">
+  <link rel="preload" href="https://that.guru/css/syntax.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/syntax.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/fontawesome.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/fontawesome.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/solid.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/solid.css"/></noscript>
+  <link rel="preload" href="https://that.guru/css/brands.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://that.guru/css/brands.css"/></noscript>
+  <style type="text/css">
+    .header-wrapper {
+      background-image: url(https://images.unsplash.com/photo-1634571768025-2494f42f5dfa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzODQ4Mzh8MHwxfGFsbHx8fHx8fHx8fDE3NjM0NjY2MjV8&ixlib=rb-4.1.0&q=80&w=1080);
+    }
+  </style>
+</head>
+
+<body>
+<a class="home-button" href="https://that.guru/">
+  <i class="fas fa-home"></i>
+</a>
+
+<div class="header-wrapper">
+  <header class="header">
+    <h1 class="title">Are We Typed Yet?</h1>
+
+    <span class="header-attrib">
+        Image by <a href="https://unsplash.com/@alexzaj">
+            alexzaj
+        </a> / <a href="https://unsplash.com/photos/a-close-up-of-a-number-of-letters-and-numbers-IT3vmbEHNiw">Unsplash</a>
+    </span>
+
+    <nav class="site-nav">
+      <div class="site-nav-left">
+        <ul class="menu" role="menu">
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/blog">Blog</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/talks">Talks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/cookbooks">Cookbooks</a></li>
+          <li role="menuitem" class="menu-item"><a href="https://that.guru/about">About</a></li>
+        </ul>
+      </div>
+      <div class="site-nav-right">
+        <div class="social-links">
+          <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+            <i class="fab fa-github"></i>
+          </a>
+          <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a class="social-link" alt="RSS" href="https://that.guru/blog/index.xml">
+            <i class="fas fa-rss"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+</div>
+
+<div class="main-wrapper">
+  <div class="main-inner">
+    <main class="content">
+  <div class="byline">
+    <div class="byline-avatar">
+      <a href="https://that.guru/about">
+        <img src="https://www.gravatar.com/avatar/8fbd28ad59a1aa317a5ec175b0778359?s=40&d=retro" />
+      </a>
+    </div>
+    <div class="byline-meta">
+      <div>
+        <address class="author"><a rel="author" href="https://that.guru/about">Stephen Finucane</address></a></address>
+      </div>
+      <div class="byline-meta-content">
+        <time datetime='2026-01-05T00:00:00Z'>Jan 5, 2026</time>
+        <span class="byline-reading-time"><span class="bull">&nbsp;•&nbsp;</span>2 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <article>
+    <p>This is a living document that describes the status of typing in various Python packages in the OpenStack system.
+Currently this document focuses on libraries and clients. While many services have introduced some degree of typing,
+none are complete and they are not intended to be consumed by others, thus they are not documented here.</p>
+<p>We determine whether a package is typed or not by looking for two things:</p>
+<ul>
+<li>
+<p>The <code>py.typed</code> file.</p>
+<p>This is what Python itself uses to determine whether to consume type hints from the library. If this file is
+present, the package is considered at least partially typed.</p>
+</li>
+<li>
+<p>Use of <a href="https://mypy.readthedocs.io/en/stable/getting_started.html#strict-mode-and-configuration">mypy&rsquo;s strict mode</a>.</p>
+<p>mypy is currently the only type checker in use across OpenStack projects. If <code>[tool.mypy] strict</code> is set to <code>true</code>
+in a package&rsquo;s <code>pyproject.toml</code> <em>and</em> the <code>py.typed</code> file is present, then the library is considered <em>fully</em> typed.</p>
+</li>
+</ul>
+<h2 id="oslo-libraries">Oslo libraries</h2>
+
+  
+    <table>
+      <thead>
+        <tr>
+          <th>Library</th>
+          <th>Typed?</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/automaton">automaton</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/castellan">castellan</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/debtcollector">debtcollector</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/etcd3gw">etcd3gw</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/futurist">futurist</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/microversion-parse">microversion-parse</a></td>
+          <td>
+            
+              
+                ✅ (since 2.1.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/openstackdocstheme">openstackdocstheme</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/os-api-ref">os-api-ref</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.cache">oslo.cache</a></td>
+          <td>
+            
+              
+                ✅ (unreleased)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.concurrency">oslo.concurrency</a></td>
+          <td>
+            
+              
+                ✅ (unreleased)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.config">oslo.config</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.context">oslo.context</a></td>
+          <td>
+            
+              
+                ✅ (unreleased)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.db">oslo.db</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.i18n">oslo.i18n</a></td>
+          <td>
+            
+              
+                ✅ (since 6.7.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.limit">oslo.limit</a></td>
+          <td>
+            
+              
+                ✅ (since 2.9.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.log">oslo.log</a></td>
+          <td>
+            
+              
+                ✅ (since 8.0.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.messaging">oslo.messaging</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.metrics">oslo.metrics</a></td>
+          <td>
+            
+              
+                ✅ (unreleased)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.middleware">oslo.middleware</a></td>
+          <td>
+            
+              
+                ✅ (since 7.0.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.policy">oslo.policy</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.privsep">oslo.privsep</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.reports">oslo.reports</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.rootwrap">oslo.rootwrap</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.serialization">oslo.serialization</a></td>
+          <td>
+            
+              
+                ✅ (since 5.9.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.service">oslo.service</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.upgradecheck">oslo.upgradecheck</a></td>
+          <td>
+            
+              
+                ✅ (unreleased)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.utils">oslo.utils</a></td>
+          <td>
+            
+              
+                ✅ (since 9.2.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.versionedobjects">oslo.versionedobjects</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslo.vmware">oslo.vmware</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/oslotest">oslotest</a></td>
+          <td>
+            
+              
+                ✅ (unreleased)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/osprofiler">osprofiler</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/sphinx-feature-classification">sphinx-feature-classification</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/stevedore">stevedore</a></td>
+          <td>
+            
+              
+                ✅ (since 5.6.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/taskflow">taskflow</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/tooz">tooz</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/whereto">whereto</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+<aside class="admonition note">
+  <div class="admonition-content"><p>The following libraries have been excluded:</p><ul><li>cookiecutter (a cookiecutter template)</li><li>devstack-plugin-amqp1 (a devstack plugin)</li><li>devstack-plugin-kafka (a devstack plugin)</li><li>openstack-doc-tools (docs-only)</li><li>oslo-cookiecutter (a cookiecutter template)</li><li>oslo-specs (docs-only)</li><li>oslo.tools (deprecated)</li></ul></div>
+</aside>
+    
+  
+
+
+<h2 id="sdks-and-clients">SDKs and Clients</h2>
+
+  
+    <table>
+      <thead>
+        <tr>
+          <th>Library</th>
+          <th>Typed?</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/cliff">cliff</a></td>
+          <td>
+            
+              
+                ✅ (since 4.11.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/openstacksdk">openstacksdk</a></td>
+          <td>
+            
+              
+                ⚠️ (partial, since 0.37.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/os-service-types">os-service-types</a></td>
+          <td>
+            
+              
+                ✅ (since 1.8.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/osc-lib">osc-lib</a></td>
+          <td>
+            
+              
+                ✅ (since 4.2.0)
+              
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td><a href="https://pypi.org/project/python-openstackclient">python-openstackclient</a></td>
+          <td>
+            
+              ❌
+            
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+
+    
+    
+    
+      
+    
+      
+    
+      
+    
+    
+    
+<aside class="admonition note">
+  <div class="admonition-content"><p>The following libraries have been excluded:</p><ul><li>codegenerator (not intended for external consumption)</li><li>openapi (not intended for external consumption)</li><li>os-client-config (deprecated)</li></ul></div>
+</aside>
+    
+  
+
+
+
+  </article>
+
+  <div class="categories">
+    
+    <a class="category" href="https://that.guru/categories/openstack">#openstack</a>
+    
+    <a class="category" href="https://that.guru/categories/python">#python</a>
+    
+  </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="footer-wrapper">
+  <footer>
+    <p>&copy; 2026 Stephen Finucane</p>
+
+    <div class="social-links">
+      <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="social-link" alt="Twitter" href="https://twitter.com/stephenfin">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a class="social-link" alt="LinkedIn" href="https://linkedin.com/stephenfinucane">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      </div>
+  </footer>
+</div>
+
+<script src="https://that.guru/js/highlight.min.js"></script>
+
+
+
+</body>
+</html>

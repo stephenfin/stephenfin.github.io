@@ -6,7 +6,511 @@
     <description>Recent content in Python on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Wed, 11 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/python/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Are We Typed Yet?</title>
+      <link>https://that.guru/blog/are-we-typed-yet/</link>
+      <pubDate>Mon, 05 Jan 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://that.guru/blog/are-we-typed-yet/</guid>
+      <description>&lt;p&gt;This is a living document that describes the status of typing in various Python packages in the OpenStack system.
+Currently this document focuses on libraries and clients. While many services have introduced some degree of typing,
+none are complete and they are not intended to be consumed by others, thus they are not documented here.&lt;/p&gt;
+&lt;p&gt;We determine whether a package is typed or not by looking for two things:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;py.typed&lt;/code&gt; file.&lt;/p&gt;
+&lt;p&gt;This is what Python itself uses to determine whether to consume type hints from the library. If this file is
+present, the package is considered at least partially typed.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use of &lt;a href=&#34;https://mypy.readthedocs.io/en/stable/getting_started.html#strict-mode-and-configuration&#34;&gt;mypy&amp;rsquo;s strict mode&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;mypy is currently the only type checker in use across OpenStack projects. If &lt;code&gt;[tool.mypy] strict&lt;/code&gt; is set to &lt;code&gt;true&lt;/code&gt;
+in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&lt;/em&gt; the &lt;code&gt;py.typed&lt;/code&gt; file is present, then the library is considered &lt;em&gt;fully&lt;/em&gt; typed.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;oslo-libraries&#34;&gt;Oslo libraries&lt;/h2&gt;
+
+  
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th&gt;Library&lt;/th&gt;
+          &lt;th&gt;Typed?&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/automaton&#34;&gt;automaton&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/castellan&#34;&gt;castellan&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/debtcollector&#34;&gt;debtcollector&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/etcd3gw&#34;&gt;etcd3gw&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/futurist&#34;&gt;futurist&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/microversion-parse&#34;&gt;microversion-parse&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 2.1.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/openstackdocstheme&#34;&gt;openstackdocstheme&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/os-api-ref&#34;&gt;os-api-ref&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.cache&#34;&gt;oslo.cache&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (unreleased)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.concurrency&#34;&gt;oslo.concurrency&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (unreleased)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.config&#34;&gt;oslo.config&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.context&#34;&gt;oslo.context&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (unreleased)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.db&#34;&gt;oslo.db&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.i18n&#34;&gt;oslo.i18n&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 6.7.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.limit&#34;&gt;oslo.limit&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 2.9.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.log&#34;&gt;oslo.log&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 8.0.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.messaging&#34;&gt;oslo.messaging&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.metrics&#34;&gt;oslo.metrics&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (unreleased)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.middleware&#34;&gt;oslo.middleware&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 7.0.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.policy&#34;&gt;oslo.policy&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.privsep&#34;&gt;oslo.privsep&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.reports&#34;&gt;oslo.reports&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.rootwrap&#34;&gt;oslo.rootwrap&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.serialization&#34;&gt;oslo.serialization&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 5.9.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.service&#34;&gt;oslo.service&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.upgradecheck&#34;&gt;oslo.upgradecheck&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (unreleased)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.utils&#34;&gt;oslo.utils&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 9.2.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.versionedobjects&#34;&gt;oslo.versionedobjects&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.vmware&#34;&gt;oslo.vmware&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslotest&#34;&gt;oslotest&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (unreleased)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/osprofiler&#34;&gt;osprofiler&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/sphinx-feature-classification&#34;&gt;sphinx-feature-classification&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/stevedore&#34;&gt;stevedore&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 5.6.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/taskflow&#34;&gt;taskflow&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/tooz&#34;&gt;tooz&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/whereto&#34;&gt;whereto&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    
+    
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The following libraries have been excluded:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;cookiecutter (a cookiecutter template)&lt;/li&gt;&lt;li&gt;devstack-plugin-amqp1 (a devstack plugin)&lt;/li&gt;&lt;li&gt;devstack-plugin-kafka (a devstack plugin)&lt;/li&gt;&lt;li&gt;openstack-doc-tools (docs-only)&lt;/li&gt;&lt;li&gt;oslo-cookiecutter (a cookiecutter template)&lt;/li&gt;&lt;li&gt;oslo-specs (docs-only)&lt;/li&gt;&lt;li&gt;oslo.tools (deprecated)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
+&lt;/aside&gt;
+    
+  
+
+
+&lt;h2 id=&#34;sdks-and-clients&#34;&gt;SDKs and Clients&lt;/h2&gt;
+
+  
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th&gt;Library&lt;/th&gt;
+          &lt;th&gt;Typed?&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/cliff&#34;&gt;cliff&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 4.11.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/openstacksdk&#34;&gt;openstacksdk&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ⚠️ (partial, since 0.37.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/os-service-types&#34;&gt;os-service-types&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 1.8.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/osc-lib&#34;&gt;osc-lib&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              
+                ✅ (since 4.2.0)
+              
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+        &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/python-openstackclient&#34;&gt;python-openstackclient&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;
+            
+              ❌
+            
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+
+    
+    
+    
+      
+    
+      
+    
+      
+    
+    
+    
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The following libraries have been excluded:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;codegenerator (not intended for external consumption)&lt;/li&gt;&lt;li&gt;openapi (not intended for external consumption)&lt;/li&gt;&lt;li&gt;os-client-config (deprecated)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
+&lt;/aside&gt;
+    
+  
+
+
+</description>
+    </item>
+    
     <item>
       <title>API Contracts: Bringing OpenAPI and Typing to OpenStack</title>
       <link>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</link>
