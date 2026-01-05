@@ -17,17 +17,15 @@
 for which you can find &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;here&lt;/a&gt;. Since that talk, another
 release cycle has come and gone and our work has continued to progress. Below is a summary of the current &amp;ldquo;state of
 play&amp;rdquo; for OpenAPI support in OpenStack and a reminder of our long-term goals in the area.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This information is accurate as of the start of the 2025.2 (Flamingo) cycle. I will attempt to update it over the course
+  &lt;div class=&#34;admonition-content&#34;&gt;This information is accurate as of the start of the 2025.2 (Flamingo) cycle. I will attempt to update it over the course
 of this cycle.&lt;/div&gt;
 &lt;/aside&gt;
 
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-04-15 to better describe the ongoing work in OSC and SDK.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-04-15 to better describe the ongoing work in OSC and SDK.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;

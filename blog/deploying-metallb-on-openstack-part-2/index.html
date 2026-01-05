@@ -9,9 +9,7 @@
   
   <meta property="og:title" content="Deploying MetalLB with BGP on Openstack (Part 2)" />
   <meta property="og:description" content="
-	
-	
-	This is part two of two. If you&rsquo;re looking for part one, you can find it
+  This is part two of two. If you&rsquo;re looking for part one, you can find it
 here.
 
 
@@ -110,10 +108,9 @@ on installing and configuring MetalLB itself.&hellip;" />
   </div>
 
   <article>
-    <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is part two of two. If you&rsquo;re looking for part one, you can find it
+    
+<aside class="admonition note">
+  <div class="admonition-content">This is part two of two. If you&rsquo;re looking for part one, you can find it
 <a href="https://that.guru/blog/deploying-metallb-on-openstack-part-1">here</a>.</div>
 </aside>
 
@@ -168,10 +165,9 @@ because <em>dev-install</em> deploys Octavia by default and <code>cloud-provider
 default. By setting this, we have the ability to later configure <code>Service</code>s to use MetalLB rather than Octavia.
 Secondly, we are restricting the speakers to run on worker nodes by configuring <code>spec.nodeSelector</code> as there&rsquo;s simply no
 need to run them on the master nodes.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">The choice of <code>metallb.universe.tf/metallb</code> as the <code>spec.loadBalancerClass</code> is totally arbitrary. You can use anything
+  <div class="admonition-content">The choice of <code>metallb.universe.tf/metallb</code> as the <code>spec.loadBalancerClass</code> is totally arbitrary. You can use anything
 label-like here so long as you use the same value later when creating <code>Service</code>s.</div>
 </aside>
 
@@ -280,10 +276,9 @@ of port security for a larger number of ports using <em>openstackclient</em> or 
 </span></span><span style="display:flex;"><span>    openstack port set --no-security-group <span style="color:#e6db74">&#34;</span>$port<span style="color:#e6db74">&#34;</span>
 </span></span><span style="display:flex;"><span>    openstack port set --disable-port-security <span style="color:#e6db74">&#34;</span>$port<span style="color:#e6db74">&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content">I&rsquo;ve used a static list of ports here. You can find this list of ports by filtering on the <code>openshiftClusterID=foo</code> tag,
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content">I&rsquo;ve used a static list of ports here. You can find this list of ports by filtering on the <code>openshiftClusterID=foo</code> tag,
 where <code>foo</code> is the name <code>openshift-installer</code> (or rather, Terraform) assigned to the cluster. Don&rsquo;t forget to skip the
 ingress and API ports!</div>
 </aside>
@@ -301,7 +296,8 @@ allowed address pair objects, each having an <code>ip_address</code> and a
 that the port can use when sending packets if <code>port_security_enabled</code> is
 <code>true</code> (see the <code>port-security</code> extension). Note that while the
 <code>ip_address</code> is required in each allowed address pair, the <code>mac_address</code>
-is optional and will be taken from the port if not specified.</p></blockquote>
+is optional and will be taken from the port if not specified.</p>
+</blockquote>
 <p>If you inspect the ports assigned to the master and worker nodes, you&rsquo;ll note that we already have some allowed address
 pairs defined. OpenShift on OpenStack uses this feature to enable load balancing of the ingress and API VIPs and we can
 opt to use it for load balancing of services also. Unfortunately, there is no easy way to create allowed address pairs
@@ -312,10 +308,9 @@ one example, we can at least try it out.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack port set --allowed-address<span style="color:#f92672">=</span>ip-address<span style="color:#f92672">=</span>192.168.50.1 stephenfin-qfnvm-worker-0-97fkv-0
 </span></span></code></pre></div><p>If you wanted to create multiple services, you would need to create an allowed address pair for each and every IP
 address specified in the <code>IPAddressPool</code>(s).</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">The upcoming Bobcat release of neutron adds a new <code>allowedaddresspairs-atomic</code> extension, which provides new
+  <div class="admonition-content">The upcoming Bobcat release of neutron adds a new <code>allowedaddresspairs-atomic</code> extension, which provides new
 <code>add_allowed_address_pairs</code> and <code>remove_allowed_address_pairs</code> member actions. Once released, you could use this to bulk
 update the allowed-address-pairs in an atomic manner, which would be helpful if you wanted to write a tool to automate
 the configuration of allowed address pairs where there are large numbers of possible IP addresses. You will still have
@@ -381,7 +376,7 @@ configuration (there were a few). For now, I hope this was helpful to someone.</
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

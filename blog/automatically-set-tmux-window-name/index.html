@@ -133,7 +133,8 @@ enabled.</dd>
 <dt><strong>status-interval</strong> <em>interval</em></dt>
 <dd>Update the status line every interval seconds.  By default, updates will
 occur every 15 seconds.  A setting of zero disables redrawing at interval.</dd>
-</dl></blockquote>
+</dl>
+</blockquote>
 <p>We can use a combination of these to configure the status line by adding the
 following to our <code>.tmux.conf</code> file:</p>
 <pre><code>set-option -g status-interval 1
@@ -154,7 +155,8 @@ variable:</p>
 <dt><strong>PROMPT_COMMAND</strong></dt>
 <dd>If set, the value is executed as a command prior to issuing each primary
 prompt.</dd>
-</dl></blockquote>
+</dl>
+</blockquote>
 <p>We can configure this in our <code>.bashrc</code> file like so:</p>
 <pre><code>case &quot;$TERM&quot; in
 linux|xterm*|rxvt*)
@@ -167,10 +169,9 @@ screen*)
   ;;
 esac
 </code></pre>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is actually a little more complicated that necessary but it with ensure
+  <div class="admonition-content">This is actually a little more complicated that necessary but it with ensure
 we get the format requested both when we&rsquo;re using <em>tmux</em> (the latter case)
 and when we are not (the former).</div>
 </aside>
@@ -195,7 +196,7 @@ work around the breaking change mentioned above:</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

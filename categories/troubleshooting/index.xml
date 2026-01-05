@@ -37,10 +37,9 @@ accurately a security group rule) that allows SSH access. The Installer automati
 bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &amp;ldquo;allow SSH&amp;rdquo; security group lying
 around and if so, you can use that now:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  &lt;span style=&#34;color:#75715e&#34;&gt;# replace with your own server, SG names&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you don&amp;rsquo;t have such a group, creating one is easy. The following ought to do the trick:&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you don&amp;rsquo;t have such a group, creating one is easy. The following ought to do the trick:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group create allow_ssh
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group rule create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --protocol tcp --dst-port &lt;span style=&#34;color:#ae81ff&#34;&gt;22&lt;/span&gt; --remote-ip 0.0.0.0/0 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
@@ -53,10 +52,9 @@ around and if so, you can use that now:&lt;/p&gt;
 
 &lt;p&gt;Once you&amp;rsquo;ve allowed SSH traffic you can SSH into the machine.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;core&lt;/code&gt; is the default username for Red Hat CoreOS.&lt;/div&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;core&lt;/code&gt; is the default username for Red Hat CoreOS.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;From here you can follow the directions given in the MOTD and check the &lt;code&gt;bootkube&lt;/code&gt; service first:&lt;/p&gt;

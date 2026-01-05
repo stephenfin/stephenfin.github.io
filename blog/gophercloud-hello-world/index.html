@@ -111,10 +111,9 @@ underlying the <a href="https://registry.terraform.io/providers/terraform-provid
 <a href="https://github.com/openshift/installer">openshift-install</a>, and various OpenStack-specific Kubernetes components, among others.</p>
 <p>In the interests of easing ramp-up for anyone else trying to get started with <em>Gophercloud</em>, here&rsquo;s an simple &ldquo;hello,
 world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em>openstacksdk</em>.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">Updated on 2025-06-11 to update examples for Gophercloud v2.</div>
+  <div class="admonition-content">Updated on 2025-06-11 to update examples for Gophercloud v2.</div>
 </aside>
 
 <h2 id="gophercloud-go">Gophercloud (Go)</h2>
@@ -168,10 +167,9 @@ world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em
 </span></span></code></pre></div><p>This should dump something like the following.</p>
 <pre tabindex="0"><code>servers:
   server 0: id=395b60b4-73be-4ba4-a8a8-fdaa3fce57d5
-</code></pre><aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>This example also makes use of the <a href="https://github.com/gophercloud/utils">gophercloud/utils</a> library, to simplify authentication and the
+</code></pre>
+<aside class="admonition note">
+  <div class="admonition-content"><p>This example also makes use of the <a href="https://github.com/gophercloud/utils">gophercloud/utils</a> library, to simplify authentication and the
 creation of clients. <em>gophercloud</em> itself also provides support for <code>clouds.yaml</code> files, but its slightly more verbose.
 If you wanted to skip <code>utils</code>, you could rewrite this like so:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
@@ -209,10 +207,9 @@ If you wanted to skip <code>utils</code>, you could rewrite this like so:</p>
 </span></span></code></pre></div></div>
 </aside>
 
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
+  <div class="admonition-content"><p>If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
 If doing this, you can rely on the <code>replace</code> directive in <code>go.mod</code> to ensure your local clone of Gophercloud is used.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">replace</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">github</span>.<span style="color:#a6e22e">com</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span><span style="color:#f92672">/</span><span style="color:#a6e22e">v2</span> =&gt; <span style="color:#f92672">/</span><span style="color:#a6e22e">home</span><span style="color:#f92672">/</span><span style="color:#a6e22e">user</span><span style="color:#f92672">/</span><span style="color:#a6e22e">code</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span>
@@ -267,7 +264,7 @@ If doing this, you can rely on the <code>replace</code> directive in <code>go.mo
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

@@ -49,7 +49,8 @@ most of the time you can not flash the TP-Link firmware directly from the
 official TP-Link website.&lt;/p&gt;
 &lt;p&gt;The reason for this is that most of the downloadable firmware from the
 TP-Link website contains a so called bootloader section in front of the
-actual firmware.&lt;/p&gt;&lt;/blockquote&gt;
+actual firmware.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Thankfully, a kind individual on the internet has done this work for us and you
 can download the firmware with the bootloader stripped from
 &lt;a href=&#34;https://www.friedzombie.com/tplink-stripped-firmware/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
@@ -102,7 +103,8 @@ have any info on how n servers in a datacenter would be physically
 connected (where n &amp;gt;= 100, for example)? In case it matters, I&amp;rsquo;m
 picturing either a mesh network (high efficiency, high complexity) or
 a hierarchical network of increasingly large-bandwidth switches and
-routers (low efficiency, low complexity), but I&amp;rsquo;m only guessing here.&lt;/p&gt;&lt;/blockquote&gt;
+routers (low efficiency, low complexity), but I&amp;rsquo;m only guessing here.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;&lt;a href=&#34;https://ie.linkedin.com/in/robin-giller-1174193b&#34;&gt;Robin Giller&lt;/a&gt; started with an excellent introduction:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;I believe that &amp;ldquo;leaf and spine&amp;rdquo; is the current topology of choice,
@@ -112,7 +114,8 @@ and send data back up to the core and out. Leaf and spine is more
 efficient when you&amp;rsquo;ve got lots of east-west traffic. There&amp;rsquo;s an
 explanation of both in the link below, and loads more available - just search
 for leaf and spine.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf&#34;&gt;http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf&#34;&gt;http://searchdatacenter.techtarget.com/feature/Data-center-network-design-moves-from-tree-to-leaf&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;While the always helpful &lt;a href=&#34;https://ie.linkedin.com/in/sean-mooney-7a842429&#34;&gt;Sean Mooney&lt;/a&gt; provided that little bit
 of additional info:&lt;/p&gt;
 &lt;blockquote&gt;
@@ -125,7 +128,8 @@ different overlay technologies to be used at the spine and leaf layers.
 &lt;a href=&#34;https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding&#34;&gt;https://blueprints.launchpad.net/neutron/+spec/ml2-hierarchical-port-binding&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;With Hierarchical Port Binding you can use VLANs between server and leaf
 level and VXLAN or other more scalable/computationally expensive overlays at
-the leaf/spine level.&lt;/p&gt;&lt;/blockquote&gt;
+the leaf/spine level.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Interesting stuff.&lt;/p&gt;
 </description>
     </item>

@@ -125,10 +125,9 @@ accurately a security group rule) that allows SSH access. The Installer automati
 bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &ldquo;allow SSH&rdquo; security group lying
 around and if so, you can use that now:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  <span style="color:#75715e"># replace with your own server, SG names</span>
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>If you don&rsquo;t have such a group, creating one is easy. The following ought to do the trick:</p>
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content"><p>If you don&rsquo;t have such a group, creating one is easy. The following ought to do the trick:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack security group create allow_ssh
 </span></span><span style="display:flex;"><span>$ openstack security group rule create <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --protocol tcp --dst-port <span style="color:#ae81ff">22</span> --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
@@ -141,10 +140,9 @@ around and if so, you can use that now:</p>
 
 <p>Once you&rsquo;ve allowed SSH traffic you can SSH into the machine.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content"><code>core</code> is the default username for Red Hat CoreOS.</div>
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content"><code>core</code> is the default username for Red Hat CoreOS.</div>
 </aside>
 
 <p>From here you can follow the directions given in the MOTD and check the <code>bootkube</code> service first:</p>
@@ -185,7 +183,7 @@ into the machine.</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

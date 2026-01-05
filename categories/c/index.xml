@@ -76,7 +76,8 @@ probably best to check out the official &lt;a href=&#34;http://www.gnu.org/softw
 &lt;h2 id=&#34;writing-a-sample-test&#34;&gt;Writing a sample test&lt;/h2&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&amp;ldquo;&amp;hellip;to learn and not to do is really not to learn. To know and not to do is
-really not to know.&amp;rdquo;, Stephen R. Covey&lt;/p&gt;&lt;/blockquote&gt;
+really not to know.&amp;rdquo;, Stephen R. Covey&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;The best way to learn this stuff is to &lt;em&gt;do it&lt;/em&gt;. As such, we&amp;rsquo;re going to write a
 sample test script that will explain the basic functionality of the Autotest
 framework.&lt;/p&gt;
@@ -122,7 +123,8 @@ seen above. These must be used with values, as seen in the next section.&lt;/p&g
 &lt;h3 id=&#34;the-test&#34;&gt;The test&lt;/h3&gt;
 &lt;p&gt;The only test we&amp;rsquo;re writing here is for the following assertion:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;cat prints an error message for a non-existing file&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;cat prints an error message for a non-existing file&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;This test should just about do it:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;m4_define([MYTEST_CHECK_CAT], [
   AT_BANNER([cat simple unit tests])

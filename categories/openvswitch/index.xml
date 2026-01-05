@@ -28,10 +28,9 @@ pre-existing cloud if you&amp;rsquo;re sure it provides the latter, but I decide
 &lt;a href=&#34;https://github.com/shiftstack/dev-install&#34;&gt;&lt;code&gt;dev-install&lt;/code&gt;&lt;/a&gt; along with a modified version of the sample &lt;a href=&#34;https://github.com/shiftstack/dev-install/blob/main/example-overrides/local-overrides-osp16-2-with-dpdk.yaml&#34;&gt;OVS-DPDK
 configuration file&lt;/a&gt; to install a small, TripleO Standalone-based OpenStack
 deployment on a borrowed server.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can verify the OVS on the host is using DPDK using the following commands:&lt;/p&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can verify the OVS on the host is using DPDK using the following commands:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ovs-vsctl --no-wait get Open_vSwitch . dpdk_initialized
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;true
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ovs-vsctl --no-wait get Open_vSwitch . dpdk_version
@@ -123,10 +122,9 @@ anything special about these interfaces: every interface attached to the
 instance will be &lt;code&gt;vhostuser&lt;/code&gt; interface. We can confirm this by inspecting
 the single interface currently attached to the instance:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;stack@host&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo podman exec -it nova_libvirt virsh dumpxml &lt;span style=&#34;color:#ae81ff&#34;&gt;14&lt;/span&gt; | xmllint --xpath &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/domain/devices/interface&amp;#39;&lt;/span&gt; -
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re executing this in the &lt;code&gt;nova_libvirt&lt;/code&gt; container because this is how
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re executing this in the &lt;code&gt;nova_libvirt&lt;/code&gt; container because this is how
 TripleO Standalone, and thus &lt;code&gt;dev-intall&lt;/code&gt;, deploys libvirt.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -180,10 +178,9 @@ corresponding to the correct DPDK release in the environment.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ meson build
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ ninja -C build
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ninja -C build install
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;You&amp;rsquo;ll note that I&amp;rsquo;m using a fixed version of DPDK. As this post ages, you
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;You&amp;rsquo;ll note that I&amp;rsquo;m using a fixed version of DPDK. As this post ages, you
 may wish to use a newer version of DPDK. If you do, you should also update the
 tag checked out for Pktgen-DPDK below.&lt;/div&gt;
 &lt;/aside&gt;
@@ -197,10 +194,9 @@ tag checked out for Pktgen-DPDK below.&lt;/div&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo ninja -C build install
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, restart the instance to propogate all these changes:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;centos@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;$ sudo reboot
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;configure-environment&#34;&gt;Configure environment&lt;/h2&gt;
@@ -255,10 +251,9 @@ load that driver and then rebind the interface to the driver using the
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Y
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# modprobe vfio-pci&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# driverctl -v set-override 0000:00:07.0 vfio-pci&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You could also do the binding manually using sysfs. First you need to get the PCI
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You could also do the binding manually using sysfs. First you need to get the PCI
 vendor and product ID:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@guest-tx&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# lspci -s 00:07.0 -n&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;00:07.0 0200: 1af4:1000
@@ -271,10 +266,9 @@ vendor and product ID:&lt;/p&gt;
 
 &lt;p&gt;If you inspect the device again, you should see that it&amp;rsquo;s now bound to the
 &lt;code&gt;vfio-pci&lt;/code&gt; driver.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to run the above on both instances, as noted previously.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;run-applications&#34;&gt;Run applications&lt;/h2&gt;

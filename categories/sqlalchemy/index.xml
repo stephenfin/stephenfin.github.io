@@ -352,10 +352,9 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;downgrade&lt;/span&gt;() &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;raise&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Exception&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Irreversible migration&amp;#34;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re using Python to do our data migrations here so this migration would not be able to run in Alembic&amp;rsquo;s &amp;ldquo;offline&amp;rdquo; mode. You&amp;rsquo;d need to rewrite this to use SQL if you wanted this functionality.&lt;/div&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re using Python to do our data migrations here so this migration would not be able to run in Alembic&amp;rsquo;s &amp;ldquo;offline&amp;rdquo; mode. You&amp;rsquo;d need to rewrite this to use SQL if you wanted this functionality.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;While this works, as noted at the outset this approach doesn&amp;rsquo;t work for scaled applications or applications with uptime guarantees: your applications would need to be taken offline while this database schema was applied, which itself is an operation that could take some time. Let&amp;rsquo;s try an expand-contract approach instead. First, we&amp;rsquo;ll do this manually. Instead of having one large migration file, we&amp;rsquo;ll create three separate migration files (or two, if your application is going to take care of data migrations at runtime).&lt;/p&gt;
@@ -453,15 +452,15 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    op&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;drop_column(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;user_account&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;last_name&amp;#39;&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is better. However, it does mean you can&amp;rsquo;t simply run &lt;code&gt;alembic upgrade head&lt;/code&gt; as this would apply all migrations in one go, totally defeating the point. What we want is a way to only apply the &lt;em&gt;expand&lt;/em&gt; migrations initially, waiting to apply the other migrations later once all our services have been updated. This leads us to&amp;hellip;&lt;/p&gt;
 &lt;h2 id=&#34;branches&#34;&gt;Branches&lt;/h2&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;From here on, we&amp;rsquo;re going to take the &lt;em&gt;migrate&lt;/em&gt; phase out of Alembic&amp;rsquo;s hand and do this manually. This would better represent a world when the application(s) would do this work. It also simplifies our examples. However, there&amp;rsquo;s no reason you couldn&amp;rsquo;t have three phases instead of two in your own application.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;From here on, we&amp;rsquo;re going to take the &lt;em&gt;migrate&lt;/em&gt; phase out of Alembic&amp;rsquo;s hand and do this manually. This would better represent a world when the application(s) would do this work. It also simplifies our examples. However, there&amp;rsquo;s no reason you couldn&amp;rsquo;t have three phases instead of two in your own application.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;Per the &lt;a href=&#34;https://alembic.sqlalchemy.org/en/latest/branches.html&#34;&gt;Alembic docs&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;A branch describes a point in a migration stream when two or more versions refer to the same parent migration as their ancestor.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;A branch describes a point in a migration stream when two or more versions refer to the same parent migration as their ancestor.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;They&amp;rsquo;re intended for scenarios where &amp;ldquo;two divergent source trees, both containing Alembic revision files created independently within those source trees, are merged together into one&amp;rdquo;. This could includes things like feature branches, where multiple developers are working on separate features and merge everything back in around the same time. However, we can also use them to separate our &lt;em&gt;expand&lt;/em&gt; migrations from our &lt;em&gt;contract&lt;/em&gt; migrations. Let&amp;rsquo;s look at how we&amp;rsquo;d do that. First the &lt;em&gt;expand&lt;/em&gt; migration:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;--- alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+++ alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
@@ -531,10 +530,9 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ alembic upgrade expand
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ python data-migration.py
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ alembic upgrade contract
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you wanted to add additional migrations to either branch, you can use the &lt;code&gt;--branch-label&lt;/code&gt; and &lt;code&gt;--depends-on&lt;/code&gt; options to set the branch and dependency migration, respectively. For example:&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you wanted to add additional migrations to either branch, you can use the &lt;code&gt;--branch-label&lt;/code&gt; and &lt;code&gt;--depends-on&lt;/code&gt; options to set the branch and dependency migration, respectively. For example:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ alembic revision &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --branch-label expand &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --depends-on 9c36df1b3f62 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
@@ -546,7 +544,8 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;h2 id=&#34;extending-auto-generation-to-support-expand-contract&#34;&gt;Extending auto-generation to support expand-contract&lt;/h2&gt;
 &lt;p&gt;What we need is a hook point to modify the migrations generated by Alembic so that we can separate them into &lt;em&gt;expand&lt;/em&gt; migrations and &lt;em&gt;contract&lt;/em&gt; migrations. To do this, Alembic provides &lt;code&gt;process_revision_directives&lt;/code&gt; attribute to the &lt;code&gt;context.configure&lt;/code&gt; API call found in &lt;code&gt;env.py&lt;/code&gt;. From the &lt;a href=&#34;https://alembic.sqlalchemy.org/en/latest/api/runtime.html#alembic.runtime.environment.EnvironmentContext.configure.params.process_revision_directives&#34;&gt;Alembic docs&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;process_revision_directives&lt;/strong&gt; - a callable function that will be passed a structure representing the end result of an autogenerate or plain “revision” operation, which can be manipulated to affect how the alembic revision command ultimately outputs new revision scripts.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;process_revision_directives&lt;/strong&gt; - a callable function that will be passed a structure representing the end result of an autogenerate or plain “revision” operation, which can be manipulated to affect how the alembic revision command ultimately outputs new revision scripts.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Before we configure that attribute, let&amp;rsquo;s create the callable function itself. To do this, we&amp;rsquo;re going to make use of the &lt;code&gt;alembic.util.Dispatcher&lt;/code&gt; class. This is a class that is normally responsible for generating per-backend SQL statements for each migration operation. Instead of using this to generate SQL statements, we can use it to sift through the operations generated by Alembic so we can split them into two phases. Let&amp;rsquo;s look at how we can do this in practice. Create an new file, &lt;code&gt;alembic_expand_contract_demo/migrations/autogen.py&lt;/code&gt; and dump the following into it. We&amp;rsquo;ll discuss the contents of the file step-by-step in a bit.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# SPDX-License-Identifier: MIT&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
@@ -806,7 +805,8 @@ you find a seriously capable engine capable of powering all sorts of database
 schema migrations. It can even auto-generate the migration files themselves!&lt;/p&gt;
 &lt;p&gt;In this presentation, we seek to explore some of these advanced features by
 implementing a pattern - the expand-contract pattern - that can allow for near
-zero-downtime database upgrades.&lt;/p&gt;&lt;/blockquote&gt;
+zero-downtime database upgrades.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;Python Ireland&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;1114ae54fe09427c98a6cff38c9041f8&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -837,7 +837,8 @@ both ORM mapped classes will include their attributes up front as the class
 is constructed, rather than as a deferred step, and configuration is more
 straightforward as all arguments are explicit. New &lt;a href=&#34;https://peps.python.org/pep-0484/&#34;&gt;&lt;strong&gt;PEP 484&lt;/strong&gt;&lt;/a&gt;
 features in SQLAlchemy 2.0 also take advantage of attributes being explicitly
-present in source code rather than using dynamic attribute generation.&lt;/p&gt;&lt;/blockquote&gt;
+present in source code rather than using dynamic attribute generation.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;The SQLAlchemy docs &lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/backref.html&#34;&gt;include a guide on migrating tables&lt;/a&gt;,
 (as well as a great overview on &lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html&#34;&gt;relationships in
 general&lt;/a&gt;), however, this guide assumes you are using
@@ -943,10 +944,9 @@ the join condition. This necessitates the addition of the &lt;code&gt;primaryjoi
 &lt;code&gt;foreign_keys&lt;/code&gt; keywords to guide SQLAlchemy on resolving these relations.
 Removing these keywords will yield an error message.&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;sqlalchemy.exc.NoForeignKeysError: Can&amp;#39;t find any foreign key relationships between &amp;#39;addresses&amp;#39; and &amp;#39;user&amp;#39;.
-&lt;/code&gt;&lt;/pre&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;An alternative to the &lt;code&gt;foreign_keys&lt;/code&gt; argument is to annotate the join condition
+&lt;/code&gt;&lt;/pre&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;An alternative to the &lt;code&gt;foreign_keys&lt;/code&gt; argument is to annotate the join condition
 with the &lt;code&gt;foreign()&lt;/code&gt; annotation.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;user &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; orm&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;relationship(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;User&amp;#39;&lt;/span&gt;,

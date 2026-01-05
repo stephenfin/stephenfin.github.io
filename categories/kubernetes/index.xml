@@ -23,7 +23,8 @@ application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;
 provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
 both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
 management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
-applications.&lt;/p&gt;&lt;/blockquote&gt;
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -139,10 +140,9 @@ existed in the core project out to separate projects. One such set of
 functionality is the cloud provider-specific code, which is now handled by the
 &lt;a href=&#34;https://kubernetes.io/docs/concepts/architecture/cloud-controller/&#34;&gt;Cloud Controller Manager&lt;/a&gt; project. This is well described in the
 &lt;a href=&#34;https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/&#34;&gt;Kubernetes documentation&lt;/a&gt;.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Cloud providers implemented using Cloud Controller Manager may be referred to
+  &lt;div class=&#34;admonition-content&#34;&gt;Cloud providers implemented using Cloud Controller Manager may be referred to
 as &lt;em&gt;external&lt;/em&gt; cloud providers (after the argument used to inform &lt;code&gt;kublet&lt;/code&gt; to
 use CCM, &lt;code&gt;--cloud-provider=external&lt;/code&gt;) while the existing in-tree cloud
 providers may be referred to as &lt;em&gt;internal&lt;/em&gt; or &lt;em&gt;legacy&lt;/em&gt; cloud providers. We use
@@ -234,10 +234,9 @@ what CCO uses. While things in the &lt;code&gt;openshift-config-managed&lt;/code
 not user editable, the &lt;code&gt;openshift-config&lt;/code&gt; namespace is the namespace for
 &amp;ldquo;user-managed&amp;rdquo; configuration or configuration that things like operators are
 not allowed to modify.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The &lt;strong&gt;name&lt;/strong&gt; of this config map (as opposed to the namespace) is actually
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The &lt;strong&gt;name&lt;/strong&gt; of this config map (as opposed to the namespace) is actually
 cloud/infrastructure dependent and this is simply the OpenStack name. It is
 defined as an attribute on the &lt;code&gt;cluster&lt;/code&gt; infrastructure resource.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ oc get infrastructure/cluster -o jsonpath=&amp;quot;{.spec.cloudConfig.name}&amp;quot;
@@ -268,10 +267,9 @@ metadata:
   resourceVersion: &amp;quot;2519&amp;quot;
   uid: cbbeedaf-41ed-41c2-9f37-4885732d3677
 &lt;/code&gt;&lt;/pre&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can list all config maps in a namespace like this using:&lt;/p&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;You can list all config maps in a namespace like this using:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ oc get cm -n openshift-cloud-controller-manager \
     -o jsonpath=&#39;{range .items[*]}{.metadata.name}{&amp;quot;\n&amp;quot;}{end}&#39;
 ccm-trusted-ca

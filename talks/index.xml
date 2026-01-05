@@ -23,7 +23,8 @@ application ecosystem. We&amp;rsquo;ll explore ORC&amp;rsquo;s fundamental &amp;
 provisioning pain points many developers and operators face. We&amp;rsquo;ll compare ORC against “the competition”, exploring
 both its strengths and weaknesses. Discover its core goals, design philosophy, and how ORC simplifies the declarative
 management of your OpenStack infrastructure, enabling seamless resource orchestration for modern cloud-native
-applications.&lt;/p&gt;&lt;/blockquote&gt;
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;fe689fb7df5f470bacc5f701b2ee968c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -49,7 +50,8 @@ reached to date, and the benefits we&amp;rsquo;re already seeing from these effo
 about the complexities of implementing common functionality across services with vastly different APIs and stacks, the
 cool/horrifying things we&amp;rsquo;ve (re)discovered about our APIs, and the oxidation of our clients. We&amp;rsquo;ll also demonstrate
 some of the fruits of our labours and discuss how you, as a user, deployer, or contributor, can get involved in the
-effort.&lt;/p&gt;&lt;/blockquote&gt;
+effort.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe 2025&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;7f0c15e3f8554064b4f69db5b5951b27&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -79,7 +81,8 @@ in particular promise to massively improve how we document and understand our AP
 annotations. OpenAPI promises to provide a machine-readable definition of the various APIs, while Python type
 annotations allow us a way to provide guarantees about type information that were not previously possible in Python.
 In this talk, we will explore the work that has been ongoing to integrate both technologies into projects across
-OpenStack, how you as a user or developer can taking advantage of them, and how you can get involved.&lt;/p&gt;&lt;/blockquote&gt;
+OpenStack, how you as a user or developer can taking advantage of them, and how you can get involved.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia 2024&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;06a0288d97cf415a944d3d1fd36ab907&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -106,7 +109,8 @@ you find a seriously capable engine capable of powering all sorts of database
 schema migrations. It can even auto-generate the migration files themselves!&lt;/p&gt;
 &lt;p&gt;In this presentation, we seek to explore some of these advanced features by
 implementing a pattern - the expand-contract pattern - that can allow for near
-zero-downtime database upgrades.&lt;/p&gt;&lt;/blockquote&gt;
+zero-downtime database upgrades.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;Python Ireland&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;1114ae54fe09427c98a6cff38c9041f8&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -152,7 +156,8 @@ contributors. We scouted for interested folk at events, conducted hands-on
 workshops and continuously improved our on-boarding documentation. Our
 methods constantly changed with feedback from mentees. After mentoring nearly
 two dozen Outreachy, GSOC and college interns from across the world, we want
-to share our process and learnings through this presentation.&lt;/p&gt;&lt;/blockquote&gt;
+to share our process and learnings through this presentation.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.eventbrite.com/e/openinfra-summit-berlin-2022-tickets-211374997307&#34;&gt;Eventbrite&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;57f85300bf234d328854b04addfac837&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -202,7 +207,8 @@ things, which we&amp;rsquo;re going to cover in this talk.&lt;/p&gt;
 &lt;li&gt;The competition&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Let&amp;rsquo;s see if OpenAPI really is the one API schema to rule them all&amp;hellip;or
-something like that.&lt;/p&gt;&lt;/blockquote&gt;
+something like that.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Meetup&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;3011a7535ab04961b652b60d18d3a180&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -234,7 +240,8 @@ documentation for you.&lt;/p&gt;
 basics for building and using your own extension for these tools, with the
 goal of solving the kinds of issues that have been seen in large Python-first
 communities like OpenStack. Some prior Python experience will be necessary,
-but no Sphinx or docutils experience is assumed.&lt;/p&gt;&lt;/blockquote&gt;
+but no Sphinx or docutils experience is assumed.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a494e97bf79a480ba7d4ea9e728d734a&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -261,7 +268,8 @@ alternatives used in other projects.&lt;/p&gt;
 &lt;p&gt;This talk would mainly be of interest to developers of open source libraries,
 though the same tooling can be used for any Python library or application
 that wishes to maintain stable interfaces and/or document changes in their
-product.&lt;/p&gt;&lt;/blockquote&gt;
+product.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://fosdem.org/2020/schedule/event/python2020_manage_change/&#34;&gt;FOSDEM 2020&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;d1fb37e9f76548b3a404e632653b818e&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -306,7 +314,8 @@ opportunities for people, be they long-term contributors or novices, to make
 a real impact to OpenStack&amp;rsquo;s documentation. In this talk, we detail how one
 can get started contributing in this area, be it through writing your own
 guides, using Sphinx to automatically generate docs or simply fixing a typo.
-Viva la documentation!&lt;/p&gt;&lt;/blockquote&gt;
+Viva la documentation!&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;OpenStack Summit&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;49008e093b0a465d95b1b36297a89f5c&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -336,7 +345,8 @@ alternatives used in other projects.&lt;/p&gt;
 &lt;p&gt;This talk would mainly be of interest to developers of open source libraries,
 though the same tooling can be used for any Python library or application
 that wishes to maintain stable interfaces and/or document changes in their
-product.&lt;/p&gt;&lt;/blockquote&gt;
+product.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://pyconlimerick.github.io/&#34;&gt;PyCon Limerick&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;278610b590f0450dbe0919e09733431b&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -377,7 +387,8 @@ overview on how you can go about writing your own extensions to parse other
 plain-text documentation formats and output in additional documentation
 format. The latter of these will touch on docutils, a foundational component
 of Sphinx, so one can understand the intermediate documentation model it
-provides.&lt;/p&gt;&lt;/blockquote&gt;
+provides.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Full information is available on the &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;c7922a6d0b2c4e6a81cf63d6bba906ae&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -416,7 +427,8 @@ deployment&lt;/li&gt;
 you can use this functionality in your own deployments&lt;/li&gt;
 &lt;li&gt;The work ongoing to continue improving performance in this area and related
 areas&lt;/li&gt;
-&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments&#34;&gt;OpenStack Summit Berlin&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;bafb785670034d3097959099f4549c42&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -468,7 +480,8 @@ about it (*)&lt;/li&gt;
 &lt;li&gt;Why live migration with CPU pinning doesn&amp;rsquo;t work, and what we&amp;rsquo;re doing
 about it (*)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;(*) If we haven&amp;rsquo;t already &lt;em&gt;done&lt;/em&gt; something about it by now&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;(*) If we haven&amp;rsquo;t already &lt;em&gt;done&lt;/em&gt; something about it by now&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/vancouver-2018/summit-schedule/events/20831/the-wonders-of-numa-or-why-your-high-performance-application-doesnt-perform&#34;&gt;OpenStack Summit Vancouver&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;a1fb06c606014e3ca67b79ec9b99b3f0&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -521,7 +534,8 @@ human-readable documents?&lt;/li&gt;
 &lt;p&gt;Through this talk we will demonstrate how each of the above problems, and how
 many more, can be solved in an easy and automated manner through the power of
 Sphinx extensions and themes. We also demonstrate how you can share your
-extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;&lt;/blockquote&gt;
+extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;07094f5da49e4430b308685cc82080ff&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -550,7 +564,8 @@ earlier work to finally make real-time workloads in an OpenStack cloud a
 reality. In this talk, we take a peek under the nova hood to see how this
 feature works and how it ties into earlier work in this area (hint: KVM +
 libvirt do most of the heavy lifting). We then demonstrate why this matters
-and how you can use this feature and others like it in your own applications.&lt;/p&gt;&lt;/blockquote&gt;
+and how you can use this feature and others like it in your own applications.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/vai_keeping_it_realtime/&#34;&gt;FOSDEM&lt;/a&gt; website.&lt;/p&gt;
 &lt;p&gt;(note: I can&amp;rsquo;t find the original cover photo, sadly. If anyone locates the
 source, please let me know)&lt;/p&gt;
@@ -594,7 +609,8 @@ talk.&lt;/p&gt;
 &lt;p&gt;By the end of the talk, we would hope that attendees will have vastly
 expanded their knowledge of OpenStack Nova&amp;rsquo;s NFV/HPC capabilities, and would
 be able to use their knowledge of these capabilities in their own
-applications.&lt;/p&gt;&lt;/blockquote&gt;
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;More information is available on the &lt;a href=&#34;https://www.openstack.org/summit/sydney-2017/summit-schedule/events/19861/keeping-it-real-time&#34;&gt;OpenStack Summit Sydney&lt;/a&gt; website.&lt;/p&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;22e2838c18d845419d8bc45f9dbe235d&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
@@ -641,7 +657,8 @@ through a combination of Patchwork and an off-the-shelf, open source CI
 system. This system will retrieve patches and dependencies, apply and test
 them, and report the results back to both Patchwork and a separate mailing
 list. This configuration demonstrates the best of Patchwork&amp;rsquo;s new features,
-and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;&lt;/blockquote&gt;
+and can be easily extended to cover far more complex testing scenarios.&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;script async class=&#34;speakerdeck-embed&#34; data-id=&#34;ce06b0e45f1e460b9fc3d5d96e65ab31&#34; data-ratio=&#34;1.77777777777778&#34; src=&#34;//speakerdeck.com/assets/embed.js&#34;&gt;&lt;/script&gt;
 

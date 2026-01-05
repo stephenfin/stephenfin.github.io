@@ -20,10 +20,9 @@ underlying the &lt;a href=&#34;https://registry.terraform.io/providers/terraform
 &lt;a href=&#34;https://github.com/openshift/installer&#34;&gt;openshift-install&lt;/a&gt;, and various OpenStack-specific Kubernetes components, among others.&lt;/p&gt;
 &lt;p&gt;In the interests of easing ramp-up for anyone else trying to get started with &lt;em&gt;Gophercloud&lt;/em&gt;, here&amp;rsquo;s an simple &amp;ldquo;hello,
 world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt;/em&gt; and &lt;em&gt;openstacksdk&lt;/em&gt;.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to update examples for Gophercloud v2.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to update examples for Gophercloud v2.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;gophercloud-go&#34;&gt;Gophercloud (Go)&lt;/h2&gt;
@@ -77,10 +76,9 @@ world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should dump something like the following.&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;servers:
   server 0: id=395b60b4-73be-4ba4-a8a8-fdaa3fce57d5
-&lt;/code&gt;&lt;/pre&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;This example also makes use of the &lt;a href=&#34;https://github.com/gophercloud/utils&#34;&gt;gophercloud/utils&lt;/a&gt; library, to simplify authentication and the
+&lt;/code&gt;&lt;/pre&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;This example also makes use of the &lt;a href=&#34;https://github.com/gophercloud/utils&#34;&gt;gophercloud/utils&lt;/a&gt; library, to simplify authentication and the
 creation of clients. &lt;em&gt;gophercloud&lt;/em&gt; itself also provides support for &lt;code&gt;clouds.yaml&lt;/code&gt; files, but its slightly more verbose.
 If you wanted to skip &lt;code&gt;utils&lt;/code&gt;, you could rewrite this like so:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;
@@ -118,10 +116,9 @@ If you wanted to skip &lt;code&gt;utils&lt;/code&gt;, you could rewrite this lik
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;/aside&gt;
 
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
 If doing this, you can rely on the &lt;code&gt;replace&lt;/code&gt; directive in &lt;code&gt;go.mod&lt;/code&gt; to ensure your local clone of Gophercloud is used.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;replace&lt;/span&gt; (
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;github&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;com&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;gophercloud&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;gophercloud&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;v2&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;home&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;user&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;code&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;gophercloud&lt;/span&gt;

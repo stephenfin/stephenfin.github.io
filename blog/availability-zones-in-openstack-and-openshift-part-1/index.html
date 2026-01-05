@@ -9,16 +9,13 @@
   
   <meta property="og:title" content="Availability Zones in Openstack and Openshift (Part 1)" />
   <meta property="og:description" content="
-	
-	
-	This is part one of two. If you&rsquo;re looking for part two, you can find it
+  This is part one of two. If you&rsquo;re looking for part two, you can find it
 here.
 
 
 
-	
-	
-	This post has been updated since publication to add additional information about implicit and explicit AZs.
+
+  This post has been updated since publication to add additional information about implicit and explicit AZs.
 
 
 After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
@@ -117,17 +114,15 @@ the OpenStack Cluster API Provider, and the Cinder and Manila CSI drivers.&helli
   </div>
 
   <article>
-    <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is part one of two. If you&rsquo;re looking for part two, you can find it
+    
+<aside class="admonition note">
+  <div class="admonition-content">This is part one of two. If you&rsquo;re looking for part two, you can find it
 <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2">here</a>.</div>
 </aside>
 
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This post has been updated since publication to add additional information about implicit and explicit AZs.</div>
+  <div class="admonition-content">This post has been updated since publication to add additional information about implicit and explicit AZs.</div>
 </aside>
 
 <p>After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&rsquo;ve decided it
@@ -141,16 +136,16 @@ and the envisioned use cases is very similar for both. Quoting from the <a href=
 <blockquote>
 <p>Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
 infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
-rack), network layout and/or power source.</p></blockquote>
+rack), network layout and/or power source.</p>
+</blockquote>
 <p>The Nova documentation then goes on to specifically note that the AZ feature provides no HA benefit in and of itself -
 whatever benefits there are are entirely down to how the deployment is designed - thus it&rsquo;s really just a way to signal
 something you&rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
 experience I&rsquo;ve seen AZs used to demarcate both compute and block storage nodes existing on different racks or in
 different datacenters.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">The Networking (Neutron) service also has the concept of Availability Zones. However, I&rsquo;m not at all familiar with how
+  <div class="admonition-content">The Networking (Neutron) service also has the concept of Availability Zones. However, I&rsquo;m not at all familiar with how
 these work and they&rsquo;re not something I&rsquo;ve ever used. As a result, I&rsquo;m not going to cover them here.</div>
 </aside>
 
@@ -180,10 +175,9 @@ aggregate it already belongs to - since this would break the AZ constraint place
 </span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#e6db74">&#39;stephenfin-devstack&#39;</span><span style="color:#f92672">]</span>
 </span></span><span style="display:flex;"><span>❯ openstack aggregate set --zone nova-az2 foo
 </span></span><span style="display:flex;"><span>BadRequestException: 400: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.109.204/compute/v2.1/os-aggregates/12, Cannot update aggregate 12. Reason: One or more hosts contain instances in this zone.
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content">It should also prevent you from adding/removing a host to/from an aggregate when instances are present but this doesn&rsquo;t
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content">It should also prevent you from adding/removing a host to/from an aggregate when instances are present but this doesn&rsquo;t
 currently happen. This is filed as <a href="https://bugs.launchpad.net/nova/+bug/1907775">bug #1907775</a> and has not yet been
 resolved.</div>
 </aside>
@@ -238,10 +232,9 @@ must be very careful to explicitly specify a correct AZ when creating volumes an
 must ensure Nova is configured to allow attaching volumes in other AZs (more of this later too).</p>
 </li>
 </ol>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">The last case above isn&rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
+  <div class="admonition-content">The last case above isn&rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
 storage AZ for a given compute host. To be fair, such an API would likely be a rather difficult thing to do, given
 multiple backends are a thing to be considered. It would be effectively impossible to do automatically, meaning there
 would still be initial manual configuration required. The closest analog we have for his today is the <a href="https://docs.openstack.org/cinder/2023.1/admin/availability-zone-type.html">Volume Type AZ
@@ -338,7 +331,7 @@ that here.</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

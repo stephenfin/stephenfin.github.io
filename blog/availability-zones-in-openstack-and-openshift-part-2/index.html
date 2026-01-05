@@ -9,9 +9,7 @@
   
   <meta property="og:title" content="Availability Zones in Openstack and Openshift (Part 2)" />
   <meta property="og:description" content="
-	
-	
-	This is part two of two. If you&rsquo;re looking for part one, you can find it
+  This is part two of two. If you&rsquo;re looking for part one, you can find it
 here.
 
 
@@ -111,10 +109,9 @@ Provider, the OpenStack Cluster API Provider, and the Cinder and Manila CSI driv
   </div>
 
   <article>
-    <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is part two of two. If you&rsquo;re looking for part one, you can find it
+    
+<aside class="admonition note">
+  <div class="admonition-content">This is part two of two. If you&rsquo;re looking for part one, you can find it
 <a href="https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1">here</a>.</div>
 </aside>
 
@@ -147,10 +144,9 @@ OpenStack - and add additional components that provide integration between your 
 its APIs. The cloud-provider interface provides one part of the integration puzzle here, managing the lifecycle of
 <code>Node</code>s (including their removal from the cluster if the underlying instance is deleted), <code>Service</code>s of type
 <code>LoadBalancer</code>, and routes.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">If you&rsquo;re interested, <a href="https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5">this blog from Mikael Johansson</a> provides a far more thorough overview of this
+  <div class="admonition-content">If you&rsquo;re interested, <a href="https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5">this blog from Mikael Johansson</a> provides a far more thorough overview of this
 component.</div>
 </aside>
 
@@ -176,10 +172,9 @@ for a <code>Node</code>:</p>
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.kubernetes.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;topology.kubernetes.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>    <span style="color:#75715e"># &lt;--- !!! and here !!!</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content">It also sets two corresponding labels - the <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesioregion"><code>topology.kubernetes.io/region</code></a> label and the legacy
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content">It also sets two corresponding labels - the <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesioregion"><code>topology.kubernetes.io/region</code></a> label and the legacy
 <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesioregion"><code>failure-domain.beta.kubernetes.io/region</code></a> label - but these are sourced from
 Keystone-related information.</div>
 </aside>
@@ -216,10 +211,9 @@ label on <code>Machine</code> resources:</p>
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/region&#34;</span>: <span style="color:#e6db74">&#34;regionOne&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/zone&#34;</span>: <span style="color:#e6db74">&#34;nova&#34;</span>  <span style="color:#75715e"># &lt;-- !!! here !!</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content">It also sets an additional related labels - the <code>machine.openshift.io/region</code> label - but this is sourced from Keystone
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content">It also sets an additional related labels - the <code>machine.openshift.io/region</code> label - but this is sourced from Keystone
 information.</div>
 </aside>
 
@@ -248,10 +242,9 @@ the <code>Machine</code> and of the <code>Node</code>. For example, to define a 
 </span></span><span style="display:flex;"><span>            <span style="color:#75715e"># ...</span>
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">cinder-az0</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is described in more details in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-osp.html">OpenShift
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content">This is described in more details in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-osp.html">OpenShift
 documentation</a>.</div>
 </aside>
 
@@ -279,10 +272,9 @@ documentation</a>.</div>
 </span></span><span style="display:flex;"><span>          <span style="color:#f92672">rootVolume</span>:
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">availabilityZone</span>: <span style="color:#ae81ff">cinder-az2</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#75715e"># ...</span>
-</span></span></code></pre></div><aside class="admonition note">
-	
-	
-	<div class="admonition-content">This is described in more detail in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/control_plane_machine_management/cpmso-configuration.html#cpmso-sample-yaml-openstack_cpmso-configuration">OpenShift
+</span></span></code></pre></div>
+<aside class="admonition note">
+  <div class="admonition-content">This is described in more detail in the <a href="https://docs.openshift.com/container-platform/4.15/machine_management/control_plane_machine_management/cpmso-configuration.html#cpmso-sample-yaml-openstack_cpmso-configuration">OpenShift
 documentation</a>.</div>
 </aside>
 
@@ -421,7 +413,7 @@ didn&rsquo;t, feel free to send me an email and I&rsquo;ll try get things sorted
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

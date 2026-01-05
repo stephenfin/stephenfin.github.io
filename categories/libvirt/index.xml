@@ -339,7 +339,8 @@ beyond providing the hardware interface (the overhead is minimal)&lt;/p&gt;
 &lt;/ul&gt;
 &lt;p&gt;The disadvantage of the hostdev method is that it isn&amp;rsquo;t possible to emulate
 a different device type. So, the guest operating system must have a driver
-available that matches the hardware type provided by the hypervisor.&lt;/p&gt;&lt;/blockquote&gt;
+available that matches the hardware type provided by the hypervisor.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;As a user, you are likely to encounter the driver issues outlined above when
 using something like CirrOS image deployed by DevStack.&lt;/p&gt;
 &lt;h2 id=&#34;direct&#34;&gt;Direct&lt;/h2&gt;
@@ -358,7 +359,8 @@ e1000 (Intel FastEthernet driver) and the virtio (KVM native) device types,
 although the virtio driver might still require you to inject a driver into a
 Windows operating system. This is useful for prepackaged, virtual machines
 because their configurations are typically static and are looking for
-specific hardware types.&lt;/p&gt;&lt;/blockquote&gt;
+specific hardware types.&lt;/p&gt;
+&lt;/blockquote&gt;
 </description>
     </item>
     

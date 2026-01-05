@@ -109,10 +109,9 @@ existed in the core project out to separate projects. One such set of
 functionality is the cloud provider-specific code, which is now handled by the
 <a href="https://kubernetes.io/docs/concepts/architecture/cloud-controller/">Cloud Controller Manager</a> project. This is well described in the
 <a href="https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/">Kubernetes documentation</a>.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">Cloud providers implemented using Cloud Controller Manager may be referred to
+  <div class="admonition-content">Cloud providers implemented using Cloud Controller Manager may be referred to
 as <em>external</em> cloud providers (after the argument used to inform <code>kublet</code> to
 use CCM, <code>--cloud-provider=external</code>) while the existing in-tree cloud
 providers may be referred to as <em>internal</em> or <em>legacy</em> cloud providers. We use
@@ -204,10 +203,9 @@ what CCO uses. While things in the <code>openshift-config-managed</code> namespa
 not user editable, the <code>openshift-config</code> namespace is the namespace for
 &ldquo;user-managed&rdquo; configuration or configuration that things like operators are
 not allowed to modify.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>The <strong>name</strong> of this config map (as opposed to the namespace) is actually
+  <div class="admonition-content"><p>The <strong>name</strong> of this config map (as opposed to the namespace) is actually
 cloud/infrastructure dependent and this is simply the OpenStack name. It is
 defined as an attribute on the <code>cluster</code> infrastructure resource.</p>
 <pre><code>$ oc get infrastructure/cluster -o jsonpath=&quot;{.spec.cloudConfig.name}&quot;
@@ -238,10 +236,9 @@ metadata:
   resourceVersion: &quot;2519&quot;
   uid: cbbeedaf-41ed-41c2-9f37-4885732d3677
 </code></pre>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>You can list all config maps in a namespace like this using:</p>
+  <div class="admonition-content"><p>You can list all config maps in a namespace like this using:</p>
 <pre><code>$ oc get cm -n openshift-cloud-controller-manager \
     -o jsonpath='{range .items[*]}{.metadata.name}{&quot;\n&quot;}{end}'
 ccm-trusted-ca
@@ -334,7 +331,7 @@ things go wrong, it can be helpful to know in which dark corners to look 😄</p
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

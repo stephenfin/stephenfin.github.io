@@ -109,10 +109,9 @@ instances. While most people are aware of the Block Storage service, Cinder, not
 thought to the various types of block devices or <em>&ldquo;ephemeral&rdquo;</em> storage that the Compute service, Nova, is able to
 provide. This article serves to provide a high-level overview and comparison of these two different mechanisms,
 including examples of how you can use them and some hopefully (interesting) asides.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">This article focuses on exclusively on block devices, ignoring the other types of storage available in OpenStack such as
+  <div class="admonition-content">This article focuses on exclusively on block devices, ignoring the other types of storage available in OpenStack such as
 objects (provided by Swift) or shareable filesystems (provided by Manila). Covering those will have to be left for
 another day.</div>
 </aside>
@@ -203,10 +202,9 @@ vda     252:0    0   5G  0 disk
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --volume test-volume <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
 </span></span></code></pre></div><p>This volume must be bootable, and you would likely use this to re-create a deleted instance using its root volume.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>It&rsquo;s probably useful to note that, by default, volumes attached to an instance are not automatically removed when the
+  <div class="admonition-content"><p>It&rsquo;s probably useful to note that, by default, volumes attached to an instance are not automatically removed when the
 instance is deleted. This is either or a pro or a con, depending on how you look at it. On the positive side, this
 allows you to re-attach the disk to a new instance (more on this later). On the negative side, this means you can end up
 with a whole load of stale volumes sitting around, taking up space on your Ceph cluster (or whatever backend Cinder is
@@ -369,10 +367,9 @@ $ sudo mount /dev/vdb1 test  # you may need to reboot to pick up the changes to 
 $ ls test
 $ ls disk/
 foo
-</code></pre><aside class="admonition note">
-	
-	
-	<div class="admonition-content"><p>If <code>parted</code> was available in the Cirros image used, we could avoid the interactive use of <code>fdisk</code>:</p>
+</code></pre>
+<aside class="admonition note">
+  <div class="admonition-content"><p>If <code>parted</code> was available in the Cirros image used, we could avoid the interactive use of <code>fdisk</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo parted /dev/vdb mklabel gpt
 </span></span><span style="display:flex;"><span>$ sudo parted /dev/vdb mkpart primary ext4 0% 100%
 </span></span><span style="display:flex;"><span>$ sudo parted /dev/vdc print
@@ -438,10 +435,9 @@ smaller swap disk size of, say, 512MB, we could do:</p>
 <p>Finally, we get to the final piece of the block storage puzzle: Block Device Mappings, or BDMs. BDMs are how Nova
 describes mapping of block devices to instances. BDMs are specified during instance creation using the
 <code>block_device_mapping_v2</code> field and are objects with a number of well known fields.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">The term &ldquo;BDM&rdquo; can also be used to refer to the (Python) objects used internally in Nova to manage mappings. If you&rsquo;re
+  <div class="admonition-content">The term &ldquo;BDM&rdquo; can also be used to refer to the (Python) objects used internally in Nova to manage mappings. If you&rsquo;re
 interested in a deeper dive into this particular topic, my colleague Lee Yarwood wrote a good overview a few years ago
 which you can find <a href="https://blog.yarwood.me.uk/2021/01/20/openstack_nova_bdm/">here</a>.</div>
 </aside>
@@ -677,7 +673,7 @@ article is written backwards and should open with a piece on BDMs? Probably, but
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

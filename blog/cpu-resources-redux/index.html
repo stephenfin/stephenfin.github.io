@@ -153,7 +153,8 @@ automatically translate the legacy <code>hw:cpu_policy</code> flavor extra spec 
 <code>hw_cpu_policy</code> image metadata property to <code>PCPU</code> requests, falling back to
 <code>VCPU</code> requests only if no <code>PCPU</code> candidates are found. Refer to the help
 text of the <code>[compute] cpu_dedicated_set</code>, <code>[compute] cpu_shared_set</code> and
-<code>vcpu_pin_set</code> config options for more information.</p></blockquote>
+<code>vcpu_pin_set</code> config options for more information.</p>
+</blockquote>
 <p>We&rsquo;ll explore how this manifests itself in a bit, but before that we should
 look at how one can migrate from an existing pre-Train deployment using
 <code>[DEFAULT] vcpu_pin_set</code> (or not using it, as the case may be) to these new
@@ -252,10 +253,9 @@ $ openstack --os-placement-api-version 1.18 resource provider inventory show \
 | total            | 6     |
 +------------------+-------+
 </code></pre>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content"><code>PCPU</code> inventory will always have an <code>allocation_ratio</code> or <code>1.0</code>. This is
+  <div class="admonition-content"><code>PCPU</code> inventory will always have an <code>allocation_ratio</code> or <code>1.0</code>. This is
 because pinned CPUs cannot be oversubscribed.</div>
 </aside>
 
@@ -317,7 +317,7 @@ your compute, both of which are very useful features for smaller deployments.</p
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

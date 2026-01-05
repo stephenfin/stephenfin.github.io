@@ -44,7 +44,8 @@ interface and ensure you can ping the machine:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;A physical Ethernet device that is part of an Open vSwitch bridge should not
 have an IP address. If one does, then that IP address will not be fully
-functional.&lt;/p&gt;&lt;/blockquote&gt;
+functional.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;The solution, as pointed out in the FAQ, is to instead assign the IP address to
 the external bridge. For example:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo ip addr add 10.1.241.101/32 dev br-ex

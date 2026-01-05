@@ -6,7 +6,7 @@
     <description>Recent content in Blogs on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
-    <lastBuildDate>Tue, 18 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Glance Tasks API</title>
       <link>https://that.guru/blog/glance-tasks-api/</link>
@@ -286,17 +286,15 @@ Manila CSI Driver works, so watch our for a possible post on that topic down the
 for which you can find &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;here&lt;/a&gt;. Since that talk, another
 release cycle has come and gone and our work has continued to progress. Below is a summary of the current &amp;ldquo;state of
 play&amp;rdquo; for OpenAPI support in OpenStack and a reminder of our long-term goals in the area.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This information is accurate as of the start of the 2025.2 (Flamingo) cycle. I will attempt to update it over the course
+  &lt;div class=&#34;admonition-content&#34;&gt;This information is accurate as of the start of the 2025.2 (Flamingo) cycle. I will attempt to update it over the course
 of this cycle.&lt;/div&gt;
 &lt;/aside&gt;
 
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-04-15 to better describe the ongoing work in OSC and SDK.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-04-15 to better describe the ongoing work in OSC and SDK.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;
@@ -519,10 +517,9 @@ instances. While most people are aware of the Block Storage service, Cinder, not
 thought to the various types of block devices or &lt;em&gt;&amp;ldquo;ephemeral&amp;rdquo;&lt;/em&gt; storage that the Compute service, Nova, is able to
 provide. This article serves to provide a high-level overview and comparison of these two different mechanisms,
 including examples of how you can use them and some hopefully (interesting) asides.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This article focuses on exclusively on block devices, ignoring the other types of storage available in OpenStack such as
+  &lt;div class=&#34;admonition-content&#34;&gt;This article focuses on exclusively on block devices, ignoring the other types of storage available in OpenStack such as
 objects (provided by Swift) or shareable filesystems (provided by Manila). Covering those will have to be left for
 another day.&lt;/div&gt;
 &lt;/aside&gt;
@@ -613,10 +610,9 @@ vda     252:0    0   5G  0 disk
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --volume test-volume &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    test-server
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This volume must be bootable, and you would likely use this to re-create a deleted instance using its root volume.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;It&amp;rsquo;s probably useful to note that, by default, volumes attached to an instance are not automatically removed when the
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;It&amp;rsquo;s probably useful to note that, by default, volumes attached to an instance are not automatically removed when the
 instance is deleted. This is either or a pro or a con, depending on how you look at it. On the positive side, this
 allows you to re-attach the disk to a new instance (more on this later). On the negative side, this means you can end up
 with a whole load of stale volumes sitting around, taking up space on your Ceph cluster (or whatever backend Cinder is
@@ -779,10 +775,9 @@ $ sudo mount /dev/vdb1 test  # you may need to reboot to pick up the changes to 
 $ ls test
 $ ls disk/
 foo
-&lt;/code&gt;&lt;/pre&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If &lt;code&gt;parted&lt;/code&gt; was available in the Cirros image used, we could avoid the interactive use of &lt;code&gt;fdisk&lt;/code&gt;:&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If &lt;code&gt;parted&lt;/code&gt; was available in the Cirros image used, we could avoid the interactive use of &lt;code&gt;fdisk&lt;/code&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo parted /dev/vdb mklabel gpt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo parted /dev/vdb mkpart primary ext4 0% 100%
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo parted /dev/vdc print
@@ -848,10 +843,9 @@ smaller swap disk size of, say, 512MB, we could do:&lt;/p&gt;
 &lt;p&gt;Finally, we get to the final piece of the block storage puzzle: Block Device Mappings, or BDMs. BDMs are how Nova
 describes mapping of block devices to instances. BDMs are specified during instance creation using the
 &lt;code&gt;block_device_mapping_v2&lt;/code&gt; field and are objects with a number of well known fields.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;The term &amp;ldquo;BDM&amp;rdquo; can also be used to refer to the (Python) objects used internally in Nova to manage mappings. If you&amp;rsquo;re
+  &lt;div class=&#34;admonition-content&#34;&gt;The term &amp;ldquo;BDM&amp;rdquo; can also be used to refer to the (Python) objects used internally in Nova to manage mappings. If you&amp;rsquo;re
 interested in a deeper dive into this particular topic, my colleague Lee Yarwood wrote a good overview a few years ago
 which you can find &lt;a href=&#34;https://blog.yarwood.me.uk/2021/01/20/openstack_nova_bdm/&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
@@ -1081,10 +1075,9 @@ article is written backwards and should open with a piece on BDMs? Probably, but
       <pubDate>Fri, 03 May 2024 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2/</guid>
-      <description>&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is part two of two. If you&amp;rsquo;re looking for part one, you can find it
+      <description>
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This is part two of two. If you&amp;rsquo;re looking for part one, you can find it
 &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -1117,10 +1110,9 @@ OpenStack - and add additional components that provide integration between your 
 its APIs. The cloud-provider interface provides one part of the integration puzzle here, managing the lifecycle of
 &lt;code&gt;Node&lt;/code&gt;s (including their removal from the cluster if the underlying instance is deleted), &lt;code&gt;Service&lt;/code&gt;s of type
 &lt;code&gt;LoadBalancer&lt;/code&gt;, and routes.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;If you&amp;rsquo;re interested, &lt;a href=&#34;https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5&#34;&gt;this blog from Mikael Johansson&lt;/a&gt; provides a far more thorough overview of this
+  &lt;div class=&#34;admonition-content&#34;&gt;If you&amp;rsquo;re interested, &lt;a href=&#34;https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5&#34;&gt;this blog from Mikael Johansson&lt;/a&gt; provides a far more thorough overview of this
 component.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -1146,10 +1138,9 @@ for a &lt;code&gt;Node&lt;/code&gt;:&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.kubernetes.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;topology.kubernetes.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# &amp;lt;--- !!! and here !!!&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;It also sets two corresponding labels - the &lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesioregion&#34;&gt;&lt;code&gt;topology.kubernetes.io/region&lt;/code&gt;&lt;/a&gt; label and the legacy
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;It also sets two corresponding labels - the &lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesioregion&#34;&gt;&lt;code&gt;topology.kubernetes.io/region&lt;/code&gt;&lt;/a&gt; label and the legacy
 &lt;a href=&#34;https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesioregion&#34;&gt;&lt;code&gt;failure-domain.beta.kubernetes.io/region&lt;/code&gt;&lt;/a&gt; label - but these are sourced from
 Keystone-related information.&lt;/div&gt;
 &lt;/aside&gt;
@@ -1186,10 +1177,9 @@ label on &lt;code&gt;Machine&lt;/code&gt; resources:&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/region&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;regionOne&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;machine.openshift.io/zone&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nova&amp;#34;&lt;/span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# &amp;lt;-- !!! here !!&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;It also sets an additional related labels - the &lt;code&gt;machine.openshift.io/region&lt;/code&gt; label - but this is sourced from Keystone
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;It also sets an additional related labels - the &lt;code&gt;machine.openshift.io/region&lt;/code&gt; label - but this is sourced from Keystone
 information.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -1218,10 +1208,9 @@ the &lt;code&gt;Machine&lt;/code&gt; and of the &lt;code&gt;Node&lt;/code&gt;. F
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder-az0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is described in more details in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-osp.html&#34;&gt;OpenShift
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This is described in more details in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/creating_machinesets/creating-machineset-osp.html&#34;&gt;OpenShift
 documentation&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -1249,10 +1238,9 @@ documentation&lt;/a&gt;.&lt;/div&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;rootVolume&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;availabilityZone&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cinder-az2&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is described in more detail in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/control_plane_machine_management/cpmso-configuration.html#cpmso-sample-yaml-openstack_cpmso-configuration&#34;&gt;OpenShift
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This is described in more detail in the &lt;a href=&#34;https://docs.openshift.com/container-platform/4.15/machine_management/control_plane_machine_management/cpmso-configuration.html#cpmso-sample-yaml-openstack_cpmso-configuration&#34;&gt;OpenShift
 documentation&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -1561,10 +1549,9 @@ accurately a security group rule) that allows SSH access. The Installer automati
 bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &amp;ldquo;allow SSH&amp;rdquo; security group lying
 around and if so, you can use that now:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  &lt;span style=&#34;color:#75715e&#34;&gt;# replace with your own server, SG names&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you don&amp;rsquo;t have such a group, creating one is easy. The following ought to do the trick:&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you don&amp;rsquo;t have such a group, creating one is easy. The following ought to do the trick:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group create allow_ssh
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack security group rule create &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --protocol tcp --dst-port &lt;span style=&#34;color:#ae81ff&#34;&gt;22&lt;/span&gt; --remote-ip 0.0.0.0/0 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
@@ -1577,10 +1564,9 @@ around and if so, you can use that now:&lt;/p&gt;
 
 &lt;p&gt;Once you&amp;rsquo;ve allowed SSH traffic you can SSH into the machine.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;core&lt;/code&gt; is the default username for Red Hat CoreOS.&lt;/div&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;code&gt;core&lt;/code&gt; is the default username for Red Hat CoreOS.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;From here you can follow the directions given in the MOTD and check the &lt;code&gt;bootkube&lt;/code&gt; service first:&lt;/p&gt;
@@ -1611,17 +1597,15 @@ into the machine.&lt;/p&gt;
       <pubDate>Tue, 22 Aug 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-1/</guid>
-      <description>&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is part one of two. If you&amp;rsquo;re looking for part two, you can find it
+      <description>
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This is part one of two. If you&amp;rsquo;re looking for part two, you can find it
 &lt;a href=&#34;https://that.guru/blog/availability-zones-in-openstack-and-openshift-part-2&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This post has been updated since publication to add additional information about implicit and explicit AZs.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This post has been updated since publication to add additional information about implicit and explicit AZs.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;After seeing a few too many availability zone-related issues popping up in OpenShift clusters of late, I&amp;rsquo;ve decided it
@@ -1635,16 +1619,16 @@ and the envisioned use cases is very similar for both. Quoting from the &lt;a hr
 &lt;blockquote&gt;
 &lt;p&gt;Availability Zones are an end-user visible logical abstraction for partitioning a cloud without knowing the physical
 infrastructure. They can be used to partition a cloud on arbitrary factors, such as location (country, datacenter,
-rack), network layout and/or power source.&lt;/p&gt;&lt;/blockquote&gt;
+rack), network layout and/or power source.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;The Nova documentation then goes on to specifically note that the AZ feature provides no HA benefit in and of itself -
 whatever benefits there are are entirely down to how the deployment is designed - thus it&amp;rsquo;s really just a way to signal
 something you&amp;rsquo;ve done in your physical deployment. All of this is equally true of both Nova and Cinder, and in my
 experience I&amp;rsquo;ve seen AZs used to demarcate both compute and block storage nodes existing on different racks or in
 different datacenters.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;The Networking (Neutron) service also has the concept of Availability Zones. However, I&amp;rsquo;m not at all familiar with how
+  &lt;div class=&#34;admonition-content&#34;&gt;The Networking (Neutron) service also has the concept of Availability Zones. However, I&amp;rsquo;m not at all familiar with how
 these work and they&amp;rsquo;re not something I&amp;rsquo;ve ever used. As a result, I&amp;rsquo;m not going to cover them here.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -1674,10 +1658,9 @@ aggregate it already belongs to - since this would break the AZ constraint place
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stephenfin-devstack&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack aggregate set --zone nova-az2 foo
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;BadRequestException: 400: Client Error &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; url: http://10.0.109.204/compute/v2.1/os-aggregates/12, Cannot update aggregate 12. Reason: One or more hosts contain instances in this zone.
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;It should also prevent you from adding/removing a host to/from an aggregate when instances are present but this doesn&amp;rsquo;t
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;It should also prevent you from adding/removing a host to/from an aggregate when instances are present but this doesn&amp;rsquo;t
 currently happen. This is filed as &lt;a href=&#34;https://bugs.launchpad.net/nova/+bug/1907775&#34;&gt;bug #1907775&lt;/a&gt; and has not yet been
 resolved.&lt;/div&gt;
 &lt;/aside&gt;
@@ -1732,10 +1715,9 @@ must be very careful to explicitly specify a correct AZ when creating volumes an
 must ensure Nova is configured to allow attaching volumes in other AZs (more of this later too).&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;The last case above isn&amp;rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
+  &lt;div class=&#34;admonition-content&#34;&gt;The last case above isn&amp;rsquo;t helped by the fact that neither Nova nor Cinder provide an API to request the correct block
 storage AZ for a given compute host. To be fair, such an API would likely be a rather difficult thing to do, given
 multiple backends are a thing to be considered. It would be effectively impossible to do automatically, meaning there
 would still be initial manual configuration required. The closest analog we have for his today is the &lt;a href=&#34;https://docs.openstack.org/cinder/2023.1/admin/availability-zone-type.html&#34;&gt;Volume Type AZ
@@ -1896,10 +1878,9 @@ listening to them. Writing a listener is relatively simple:&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; __name__ &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    main()
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to update &lt;code&gt;URL&lt;/code&gt; to match the value of your services&#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Don&amp;rsquo;t forget to update &lt;code&gt;URL&lt;/code&gt; to match the value of your services&#39;
 &lt;a href=&#34;https://docs.openstack.org/oslo.messaging/latest/configuration/opts.html#oslo_messaging_notifications.transport_url&#34;&gt;&lt;code&gt;[oslo_messaging_notifications] transport_url&lt;/code&gt;&lt;/a&gt;. You might also need to modify the target topic or
 add additional targets if any of your services override &lt;a href=&#34;https://docs.openstack.org/oslo.messaging/latest/configuration/opts.html#oslo_messaging_notifications.topics&#34;&gt;&lt;code&gt;[oslo_messaging_notifications] topics&lt;/code&gt;&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
@@ -2037,10 +2018,9 @@ reason this shouldn&amp;rsquo;t work otherwise.&lt;/p&gt;
       <pubDate>Tue, 23 May 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/deploying-metallb-on-openstack-part-2/</guid>
-      <description>&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is part two of two. If you&amp;rsquo;re looking for part one, you can find it
+      <description>
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This is part two of two. If you&amp;rsquo;re looking for part one, you can find it
 &lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-1&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -2095,10 +2075,9 @@ because &lt;em&gt;dev-install&lt;/em&gt; deploys Octavia by default and &lt;code
 default. By setting this, we have the ability to later configure &lt;code&gt;Service&lt;/code&gt;s to use MetalLB rather than Octavia.
 Secondly, we are restricting the speakers to run on worker nodes by configuring &lt;code&gt;spec.nodeSelector&lt;/code&gt; as there&amp;rsquo;s simply no
 need to run them on the master nodes.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;The choice of &lt;code&gt;metallb.universe.tf/metallb&lt;/code&gt; as the &lt;code&gt;spec.loadBalancerClass&lt;/code&gt; is totally arbitrary. You can use anything
+  &lt;div class=&#34;admonition-content&#34;&gt;The choice of &lt;code&gt;metallb.universe.tf/metallb&lt;/code&gt; as the &lt;code&gt;spec.loadBalancerClass&lt;/code&gt; is totally arbitrary. You can use anything
 label-like here so long as you use the same value later when creating &lt;code&gt;Service&lt;/code&gt;s.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -2207,10 +2186,9 @@ of port security for a larger number of ports using &lt;em&gt;openstackclient&lt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    openstack port set --no-security-group &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$port&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    openstack port set --disable-port-security &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$port&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;done&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;I&amp;rsquo;ve used a static list of ports here. You can find this list of ports by filtering on the &lt;code&gt;openshiftClusterID=foo&lt;/code&gt; tag,
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;I&amp;rsquo;ve used a static list of ports here. You can find this list of ports by filtering on the &lt;code&gt;openshiftClusterID=foo&lt;/code&gt; tag,
 where &lt;code&gt;foo&lt;/code&gt; is the name &lt;code&gt;openshift-installer&lt;/code&gt; (or rather, Terraform) assigned to the cluster. Don&amp;rsquo;t forget to skip the
 ingress and API ports!&lt;/div&gt;
 &lt;/aside&gt;
@@ -2228,7 +2206,8 @@ allowed address pair objects, each having an &lt;code&gt;ip_address&lt;/code&gt;
 that the port can use when sending packets if &lt;code&gt;port_security_enabled&lt;/code&gt; is
 &lt;code&gt;true&lt;/code&gt; (see the &lt;code&gt;port-security&lt;/code&gt; extension). Note that while the
 &lt;code&gt;ip_address&lt;/code&gt; is required in each allowed address pair, the &lt;code&gt;mac_address&lt;/code&gt;
-is optional and will be taken from the port if not specified.&lt;/p&gt;&lt;/blockquote&gt;
+is optional and will be taken from the port if not specified.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;If you inspect the ports assigned to the master and worker nodes, you&amp;rsquo;ll note that we already have some allowed address
 pairs defined. OpenShift on OpenStack uses this feature to enable load balancing of the ingress and API VIPs and we can
 opt to use it for load balancing of services also. Unfortunately, there is no easy way to create allowed address pairs
@@ -2239,10 +2218,9 @@ one example, we can at least try it out.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack port set --allowed-address&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;ip-address&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;192.168.50.1 stephenfin-qfnvm-worker-0-97fkv-0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you wanted to create multiple services, you would need to create an allowed address pair for each and every IP
 address specified in the &lt;code&gt;IPAddressPool&lt;/code&gt;(s).&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;The upcoming Bobcat release of neutron adds a new &lt;code&gt;allowedaddresspairs-atomic&lt;/code&gt; extension, which provides new
+  &lt;div class=&#34;admonition-content&#34;&gt;The upcoming Bobcat release of neutron adds a new &lt;code&gt;allowedaddresspairs-atomic&lt;/code&gt; extension, which provides new
 &lt;code&gt;add_allowed_address_pairs&lt;/code&gt; and &lt;code&gt;remove_allowed_address_pairs&lt;/code&gt; member actions. Once released, you could use this to bulk
 update the allowed-address-pairs in an atomic manner, which would be helpful if you wanted to write a tool to automate
 the configuration of allowed address pairs where there are large numbers of possible IP addresses. You will still have
@@ -2298,10 +2276,9 @@ configuration (there were a few). For now, I hope this was helpful to someone.&l
       <pubDate>Mon, 22 May 2023 00:00:00 +0000</pubDate>
       
       <guid>https://that.guru/blog/deploying-metallb-on-openstack-part-1/</guid>
-      <description>&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This is part one of two. If you&amp;rsquo;re looking for part two, you can find it
+      <description>
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;This is part one of two. If you&amp;rsquo;re looking for part two, you can find it
 &lt;a href=&#34;https://that.guru/blog/deploying-metallb-on-openstack-part-2&#34;&gt;here&lt;/a&gt;.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -2545,7 +2522,8 @@ idea though: there are too many opportunities for dependency updates to break ot
 &lt;p&gt;pipx is a tool to help you install and run end-user applications written in Python. It&amp;rsquo;s roughly similar to macOS&amp;rsquo;s &lt;code&gt;brew&lt;/code&gt;, JavaScript&amp;rsquo;s &lt;code&gt;npx&lt;/code&gt;, and Linux&amp;rsquo;s
 &lt;code&gt;apt&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s closely related to pip. In fact, it uses pip, but is focused on installing and managing Python packages that can be run from the command line directly as
-applications.&lt;/p&gt;&lt;/blockquote&gt;
+applications.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;pipx&lt;/code&gt; itself is available in the Fedora repos so if Fedora is you distro of choice then you can install it with &lt;code&gt;dnf&lt;/code&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sudo dnf install pipx
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once that&amp;rsquo;s in place, you can install OSC with &lt;code&gt;pipx&lt;/code&gt;:&lt;/p&gt;
@@ -2624,10 +2602,9 @@ underlying the &lt;a href=&#34;https://registry.terraform.io/providers/terraform
 &lt;a href=&#34;https://github.com/openshift/installer&#34;&gt;openshift-install&lt;/a&gt;, and various OpenStack-specific Kubernetes components, among others.&lt;/p&gt;
 &lt;p&gt;In the interests of easing ramp-up for anyone else trying to get started with &lt;em&gt;Gophercloud&lt;/em&gt;, here&amp;rsquo;s an simple &amp;ldquo;hello,
 world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt;/em&gt; and &lt;em&gt;openstacksdk&lt;/em&gt;.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to update examples for Gophercloud v2.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to update examples for Gophercloud v2.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;gophercloud-go&#34;&gt;Gophercloud (Go)&lt;/h2&gt;
@@ -2681,10 +2658,9 @@ world&amp;rdquo; example - listing servers - using both &lt;em&gt;Gophercloud&lt
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This should dump something like the following.&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;servers:
   server 0: id=395b60b4-73be-4ba4-a8a8-fdaa3fce57d5
-&lt;/code&gt;&lt;/pre&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;This example also makes use of the &lt;a href=&#34;https://github.com/gophercloud/utils&#34;&gt;gophercloud/utils&lt;/a&gt; library, to simplify authentication and the
+&lt;/code&gt;&lt;/pre&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;This example also makes use of the &lt;a href=&#34;https://github.com/gophercloud/utils&#34;&gt;gophercloud/utils&lt;/a&gt; library, to simplify authentication and the
 creation of clients. &lt;em&gt;gophercloud&lt;/em&gt; itself also provides support for &lt;code&gt;clouds.yaml&lt;/code&gt; files, but its slightly more verbose.
 If you wanted to skip &lt;code&gt;utils&lt;/code&gt;, you could rewrite this like so:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;package&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;
@@ -2722,10 +2698,9 @@ If you wanted to skip &lt;code&gt;utils&lt;/code&gt;, you could rewrite this lik
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;/aside&gt;
 
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
 If doing this, you can rely on the &lt;code&gt;replace&lt;/code&gt; directive in &lt;code&gt;go.mod&lt;/code&gt; to ensure your local clone of Gophercloud is used.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;replace&lt;/span&gt; (
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#a6e22e&#34;&gt;github&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;com&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;gophercloud&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;gophercloud&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;v2&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;home&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;user&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;code&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;gophercloud&lt;/span&gt;
@@ -2776,18 +2751,16 @@ If doing this, you can rely on the &lt;code&gt;replace&lt;/code&gt; directive in
 There are two types of API versioning to consider: the &lt;em&gt;major&lt;/em&gt; version and the &lt;em&gt;minor&lt;/em&gt; version. Today, most OpenStack
 services have settled on a single &lt;em&gt;major&lt;/em&gt; API version and have chosen to evolve the API without bumping the &lt;em&gt;major&lt;/em&gt; API
 version any further. There are three API &lt;em&gt;minor&lt;/em&gt; versioning schemes in common use.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt; documentation, which you can find
+  &lt;div class=&#34;admonition-content&#34;&gt;This post is based on changes I recently made to the &lt;em&gt;python-openstackclient&lt;/em&gt; documentation, which you can find
 &lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/contributor/humaninterfaceguide#api-versioning&#34;&gt;here&lt;/a&gt;. I&amp;rsquo;m
 duplicating it here in the hopes that it&amp;rsquo;ll be more discoverable.&lt;/div&gt;
 &lt;/aside&gt;
 
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to better describe the API versioning policies of Glance and Keystone.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Updated on 2025-06-11 to better describe the API versioning policies of Glance and Keystone.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;per-release-versions&#34;&gt;Per-release versions&lt;/h2&gt;
@@ -3217,10 +3190,9 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;downgrade&lt;/span&gt;() &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;None&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;raise&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Exception&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Irreversible migration&amp;#34;&lt;/span&gt;)
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re using Python to do our data migrations here so this migration would not be able to run in Alembic&amp;rsquo;s &amp;ldquo;offline&amp;rdquo; mode. You&amp;rsquo;d need to rewrite this to use SQL if you wanted this functionality.&lt;/div&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;We&amp;rsquo;re using Python to do our data migrations here so this migration would not be able to run in Alembic&amp;rsquo;s &amp;ldquo;offline&amp;rdquo; mode. You&amp;rsquo;d need to rewrite this to use SQL if you wanted this functionality.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;While this works, as noted at the outset this approach doesn&amp;rsquo;t work for scaled applications or applications with uptime guarantees: your applications would need to be taken offline while this database schema was applied, which itself is an operation that could take some time. Let&amp;rsquo;s try an expand-contract approach instead. First, we&amp;rsquo;ll do this manually. Instead of having one large migration file, we&amp;rsquo;ll create three separate migration files (or two, if your application is going to take care of data migrations at runtime).&lt;/p&gt;
@@ -3318,15 +3290,15 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    op&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;drop_column(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;user_account&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;last_name&amp;#39;&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is better. However, it does mean you can&amp;rsquo;t simply run &lt;code&gt;alembic upgrade head&lt;/code&gt; as this would apply all migrations in one go, totally defeating the point. What we want is a way to only apply the &lt;em&gt;expand&lt;/em&gt; migrations initially, waiting to apply the other migrations later once all our services have been updated. This leads us to&amp;hellip;&lt;/p&gt;
 &lt;h2 id=&#34;branches&#34;&gt;Branches&lt;/h2&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;From here on, we&amp;rsquo;re going to take the &lt;em&gt;migrate&lt;/em&gt; phase out of Alembic&amp;rsquo;s hand and do this manually. This would better represent a world when the application(s) would do this work. It also simplifies our examples. However, there&amp;rsquo;s no reason you couldn&amp;rsquo;t have three phases instead of two in your own application.&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;From here on, we&amp;rsquo;re going to take the &lt;em&gt;migrate&lt;/em&gt; phase out of Alembic&amp;rsquo;s hand and do this manually. This would better represent a world when the application(s) would do this work. It also simplifies our examples. However, there&amp;rsquo;s no reason you couldn&amp;rsquo;t have three phases instead of two in your own application.&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;p&gt;Per the &lt;a href=&#34;https://alembic.sqlalchemy.org/en/latest/branches.html&#34;&gt;Alembic docs&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;A branch describes a point in a migration stream when two or more versions refer to the same parent migration as their ancestor.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;A branch describes a point in a migration stream when two or more versions refer to the same parent migration as their ancestor.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;They&amp;rsquo;re intended for scenarios where &amp;ldquo;two divergent source trees, both containing Alembic revision files created independently within those source trees, are merged together into one&amp;rdquo;. This could includes things like feature branches, where multiple developers are working on separate features and merge everything back in around the same time. However, we can also use them to separate our &lt;em&gt;expand&lt;/em&gt; migrations from our &lt;em&gt;contract&lt;/em&gt; migrations. Let&amp;rsquo;s look at how we&amp;rsquo;d do that. First the &lt;em&gt;expand&lt;/em&gt; migration:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;--- alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+++ alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
@@ -3396,10 +3368,9 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ alembic upgrade expand
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ python data-migration.py
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ alembic upgrade contract
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you wanted to add additional migrations to either branch, you can use the &lt;code&gt;--branch-label&lt;/code&gt; and &lt;code&gt;--depends-on&lt;/code&gt; options to set the branch and dependency migration, respectively. For example:&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;If you wanted to add additional migrations to either branch, you can use the &lt;code&gt;--branch-label&lt;/code&gt; and &lt;code&gt;--depends-on&lt;/code&gt; options to set the branch and dependency migration, respectively. For example:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ alembic revision &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --branch-label expand &lt;span style=&#34;color:#ae81ff&#34;&gt;\
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    --depends-on 9c36df1b3f62 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
@@ -3411,7 +3382,8 @@ services in larger deployments are common to most distributed services.&lt;/p&gt
 &lt;h2 id=&#34;extending-auto-generation-to-support-expand-contract&#34;&gt;Extending auto-generation to support expand-contract&lt;/h2&gt;
 &lt;p&gt;What we need is a hook point to modify the migrations generated by Alembic so that we can separate them into &lt;em&gt;expand&lt;/em&gt; migrations and &lt;em&gt;contract&lt;/em&gt; migrations. To do this, Alembic provides &lt;code&gt;process_revision_directives&lt;/code&gt; attribute to the &lt;code&gt;context.configure&lt;/code&gt; API call found in &lt;code&gt;env.py&lt;/code&gt;. From the &lt;a href=&#34;https://alembic.sqlalchemy.org/en/latest/api/runtime.html#alembic.runtime.environment.EnvironmentContext.configure.params.process_revision_directives&#34;&gt;Alembic docs&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;process_revision_directives&lt;/strong&gt; - a callable function that will be passed a structure representing the end result of an autogenerate or plain “revision” operation, which can be manipulated to affect how the alembic revision command ultimately outputs new revision scripts.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;process_revision_directives&lt;/strong&gt; - a callable function that will be passed a structure representing the end result of an autogenerate or plain “revision” operation, which can be manipulated to affect how the alembic revision command ultimately outputs new revision scripts.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Before we configure that attribute, let&amp;rsquo;s create the callable function itself. To do this, we&amp;rsquo;re going to make use of the &lt;code&gt;alembic.util.Dispatcher&lt;/code&gt; class. This is a class that is normally responsible for generating per-backend SQL statements for each migration operation. Instead of using this to generate SQL statements, we can use it to sift through the operations generated by Alembic so we can split them into two phases. Let&amp;rsquo;s look at how we can do this in practice. Create an new file, &lt;code&gt;alembic_expand_contract_demo/migrations/autogen.py&lt;/code&gt; and dump the following into it. We&amp;rsquo;ll discuss the contents of the file step-by-step in a bit.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# SPDX-License-Identifier: MIT&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
@@ -3664,10 +3636,9 @@ encounter another strange bit of behavior that catches me out. This time, I&amp;
 decided to write down these strange things so at least I have a reference to go
 back to at some point in the future. I should probably get these notes into the
 docs for nova, cinder and neutron at some point&amp;hellip;&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;This post focuses on the nova (compute), cinder (block storage), and neutron
+  &lt;div class=&#34;admonition-content&#34;&gt;This post focuses on the nova (compute), cinder (block storage), and neutron
 (networking) services. There are other OpenStack services that implement quotas
 but I&amp;rsquo;m not overly familiar with their quota models. However, I would suspect
 that what&amp;rsquo;s discussed here &lt;em&gt;should&lt;/em&gt; be broadly applicable.&lt;/div&gt;
@@ -3712,10 +3683,9 @@ anywhere&lt;/a&gt;. In effect, this feature
 was never fully implemented and both nova and cinder only support the &lt;code&gt;default&lt;/code&gt;
 quota class while neutron never even tried implementing this. It&amp;rsquo;s an
 irrelevance nowadays.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;For more information on the background of &lt;em&gt;quota classes&lt;/em&gt;, the following
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;For more information on the background of &lt;em&gt;quota classes&lt;/em&gt;, the following
 mailing lists threads are helpful:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.mail-archive.com/openstack@lists.launchpad.net/msg09237.html&#34;&gt;Quota classes&lt;/a&gt;&lt;/li&gt;
@@ -3882,10 +3852,9 @@ thousands of lines of duplicate, useless info to the terminal.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, you can unset configured quotas:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack quota delete $OS_PROJECT_NAME
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;Many of these commands have additional flags that might be relevant. Pass the
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Many of these commands have additional flags that might be relevant. Pass the
 &lt;code&gt;--help&lt;/code&gt; option to view the help text for the option.&lt;/div&gt;
 &lt;/aside&gt;
 
@@ -3928,7 +3897,8 @@ both ORM mapped classes will include their attributes up front as the class
 is constructed, rather than as a deferred step, and configuration is more
 straightforward as all arguments are explicit. New &lt;a href=&#34;https://peps.python.org/pep-0484/&#34;&gt;&lt;strong&gt;PEP 484&lt;/strong&gt;&lt;/a&gt;
 features in SQLAlchemy 2.0 also take advantage of attributes being explicitly
-present in source code rather than using dynamic attribute generation.&lt;/p&gt;&lt;/blockquote&gt;
+present in source code rather than using dynamic attribute generation.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;The SQLAlchemy docs &lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/backref.html&#34;&gt;include a guide on migrating tables&lt;/a&gt;,
 (as well as a great overview on &lt;a href=&#34;https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html&#34;&gt;relationships in
 general&lt;/a&gt;), however, this guide assumes you are using
@@ -4034,10 +4004,9 @@ the join condition. This necessitates the addition of the &lt;code&gt;primaryjoi
 &lt;code&gt;foreign_keys&lt;/code&gt; keywords to guide SQLAlchemy on resolving these relations.
 Removing these keywords will yield an error message.&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;sqlalchemy.exc.NoForeignKeysError: Can&amp;#39;t find any foreign key relationships between &amp;#39;addresses&amp;#39; and &amp;#39;user&amp;#39;.
-&lt;/code&gt;&lt;/pre&gt;&lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;An alternative to the &lt;code&gt;foreign_keys&lt;/code&gt; argument is to annotate the join condition
+&lt;/code&gt;&lt;/pre&gt;
+&lt;aside class=&#34;admonition note&#34;&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;An alternative to the &lt;code&gt;foreign_keys&lt;/code&gt; argument is to annotate the join condition
 with the &lt;code&gt;foreign()&lt;/code&gt; annotation.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;user &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; orm&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;relationship(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;User&amp;#39;&lt;/span&gt;,
@@ -4412,10 +4381,9 @@ gaps to to be closed.&lt;/p&gt;
 OSC equivalents. The first step is looking for obvious gaps in this document,
 by which I mean missing entries for an OSC equivalent to a given legacy client
 command.&lt;/p&gt;
+
 &lt;aside class=&#34;admonition note&#34;&gt;
-	
-	
-	&lt;div class=&#34;admonition-content&#34;&gt;OSC doesn&amp;rsquo;t aim to provide a 1:1 mapping to the underlying APIs it calls. There
+  &lt;div class=&#34;admonition-content&#34;&gt;OSC doesn&amp;rsquo;t aim to provide a 1:1 mapping to the underlying APIs it calls. There
 are also commands or options which are historical baggage and don&amp;rsquo;t need to be
 exposed. This means there are commands that we will never implement. However,
 these should be explicitly called out with &lt;code&gt;WONTFIX&lt;/code&gt; comments rather than left

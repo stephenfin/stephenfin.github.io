@@ -227,7 +227,8 @@ itself.</p>
 the other. The 0 indicates that you don&rsquo;t want VF to be probed on both
 port. Refer to the <a href="https://community.mellanox.com/docs/DOC-1484#jive_content_id_Configuring_8_VFs_on_a_dual_port_NIC_while_4_VFs_are_probed_on_port_1_and_4_VFs_are_probed_on_port_2">Mellanox docs</a> for more information.</p>
 </li>
-</ul></blockquote>
+</ul>
+</blockquote>
 <p>Of these, the <code>probe_vf</code> one is particularly important. Without this, you&rsquo;ll
 see the VFs listed under their parent PF with <code>ip link</code> but each VF will not
 have its own netdev. Nova requires that these devices do have their own netdev
@@ -295,7 +296,7 @@ age well, but they are a starting point.</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

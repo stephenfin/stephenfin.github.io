@@ -117,10 +117,9 @@ historical reasons, it is not possible to request memory pages or CPU pinning
 without getting a NUMA topology meaning every pinned instance or instance with
 hugepages (common when using something like Open vSwitch with DPDK) has a NUMA
 topology associated with it.</p>
+
 <aside class="admonition note">
-	
-	
-	<div class="admonition-content">For most of the extra specs mentioned here and below, there exists an
+  <div class="admonition-content">For most of the extra specs mentioned here and below, there exists an
 equivalent image metadata property. These are omitted here for brevity.</div>
 </aside>
 
@@ -144,7 +143,8 @@ excluded from a previous range. For example:</p>
 <pre><code>  vcpu_pin_set = &quot;4-12,^8,15&quot;
 </code></pre>
 </li>
-</ul></blockquote>
+</ul>
+</blockquote>
 <p>This config option has two purposes. Firstly, the placement service uses it to
 generate the amount of <code>VCPU</code> resources available on a given host using the
 following formula:</p>
@@ -329,7 +329,7 @@ cores that the instance can schedule to.</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">

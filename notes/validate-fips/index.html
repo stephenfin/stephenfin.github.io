@@ -88,7 +88,8 @@ interface and ensure you can ping the machine:</p>
 <blockquote>
 <p>A physical Ethernet device that is part of an Open vSwitch bridge should not
 have an IP address. If one does, then that IP address will not be fully
-functional.</p></blockquote>
+functional.</p>
+</blockquote>
 <p>The solution, as pointed out in the FAQ, is to instead assign the IP address to
 the external bridge. For example:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo ip addr add 10.1.241.101/32 dev br-ex
@@ -112,7 +113,7 @@ same network and see the response:</p>
 
 <div class="footer-wrapper">
   <footer>
-    <p>&copy; 2025 Stephen Finucane</p>
+    <p>&copy; 2026 Stephen Finucane</p>
 
     <div class="social-links">
       <a class="social-link" alt="GitHub" href="https://github.com/stephenfin">
