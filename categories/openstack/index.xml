@@ -31,7 +31,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
 &lt;/ul&gt;
 
 &lt;aside class=&#34;admonition note&#34;&gt;
-  &lt;div class=&#34;admonition-content&#34;&gt;Last updated January 5, 2026&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Last updated January 9, 2026&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;oslo-libraries&#34;&gt;Oslo libraries&lt;/h2&gt;
@@ -136,7 +136,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 7.3.0)
               
             
           &lt;/td&gt;
@@ -355,7 +355,9 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/sphinx-feature-classification&#34;&gt;sphinx-feature-classification&lt;/a&gt;&lt;/td&gt;
           &lt;td&gt;
             
-              ❌
+              
+                ✅ (unreleased)
+              
             
           &lt;/td&gt;
         &lt;/tr&gt;
