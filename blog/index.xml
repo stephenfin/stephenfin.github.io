@@ -50,7 +50,9 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/automaton&#34;&gt;automaton&lt;/a&gt;&lt;/td&gt;
           &lt;td&gt;
             
-              ❌
+              
+                ✅ (unreleased)
+              
             
           &lt;/td&gt;
         &lt;/tr&gt;
