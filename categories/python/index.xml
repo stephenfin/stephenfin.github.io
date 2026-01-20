@@ -121,7 +121,9 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/os-api-ref&#34;&gt;os-api-ref&lt;/a&gt;&lt;/td&gt;
           &lt;td&gt;
             
-              ❌
+              
+                ✅ (unreleased)
+              
             
           &lt;/td&gt;
         &lt;/tr&gt;
