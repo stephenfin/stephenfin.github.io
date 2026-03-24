@@ -31,7 +31,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
 &lt;/ul&gt;
 
 &lt;aside class=&#34;admonition note&#34;&gt;
-  &lt;div class=&#34;admonition-content&#34;&gt;Last updated March 10, 2026&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Last updated March 24, 2026&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;oslo-libraries&#34;&gt;Oslo libraries&lt;/h2&gt;
@@ -51,7 +51,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 3.4.0)
               
             
           &lt;/td&gt;
@@ -71,7 +71,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 3.1.0)
               
             
           &lt;/td&gt;
@@ -93,7 +93,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 3.3.0)
               
             
           &lt;/td&gt;
@@ -380,7 +380,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 2.1.0)
               
             
           &lt;/td&gt;
@@ -420,7 +420,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 0.6.0)
               
             
           &lt;/td&gt;
@@ -545,10 +545,12 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
     
       
     
+      
+    
     
     
 &lt;aside class=&#34;admonition note&#34;&gt;
-  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The following packages have been excluded:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;codegenerator (not intended for external consumption)&lt;/li&gt;&lt;li&gt;openapi (not intended for external consumption)&lt;/li&gt;&lt;li&gt;os-client-config (deprecated)&lt;/li&gt;&lt;li&gt;requestsexceptions (deprecated)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;&lt;p&gt;The following packages have been excluded:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;codegenerator (not intended for external consumption)&lt;/li&gt;&lt;li&gt;openapi (not intended for external consumption)&lt;/li&gt;&lt;li&gt;openstackclient (meta package)&lt;/li&gt;&lt;li&gt;os-client-config (deprecated)&lt;/li&gt;&lt;li&gt;requestsexceptions (deprecated)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
 &lt;/aside&gt;
     
   
