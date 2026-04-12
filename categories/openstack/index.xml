@@ -31,7 +31,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
 &lt;/ul&gt;
 
 &lt;aside class=&#34;admonition note&#34;&gt;
-  &lt;div class=&#34;admonition-content&#34;&gt;Last updated March 24, 2026&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Last updated April 12, 2026&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;oslo-libraries&#34;&gt;Oslo libraries&lt;/h2&gt;
@@ -82,7 +82,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 2.6.0)
               
             
           &lt;/td&gt;
@@ -115,7 +115,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 3.6.0)
               
             
           &lt;/td&gt;
@@ -126,7 +126,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 3.2.0)
               
             
           &lt;/td&gt;
@@ -339,7 +339,9 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;&lt;a href=&#34;https://pypi.org/project/oslo.versionedobjects&#34;&gt;oslo.versionedobjects&lt;/a&gt;&lt;/td&gt;
           &lt;td&gt;
             
-              ❌
+              
+                ✅ (unreleased)
+              
             
           &lt;/td&gt;
         &lt;/tr&gt;
@@ -358,7 +360,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 6.1.0)
               
             
           &lt;/td&gt;
