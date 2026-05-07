@@ -146,11 +146,11 @@ services in larger deployments are common to most distributed services.</p>
 <p>Now that we have all this background out of the way, where do Alembic and SQLAlchemy fit into this equation? I&rsquo;m glad you asked!</p>
 <h2 id="initial-steps">Initial steps</h2>
 <p>So before we start talking about alternative database upgrade plans, we need to have a platform to build on. To this end, let&rsquo;s create an initial project structure and populate it with some initial SQLAlchemy models. I&rsquo;ve based this on a slightly modified version of the sample models found in the <a href="https://docs.sqlalchemy.org/en/14/orm/quickstart.html#declare-models">SQLAlchemy quick start guide</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ mkdir -p alembic-expand-contract-demo/alembic_expand_contract_demo
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ mkdir -p alembic-expand-contract-demo/alembic_expand_contract_demo
 </span></span><span style="display:flex;"><span>❯ cd alembic-expand-contract-demo
 </span></span><span style="display:flex;"><span>❯ touch alembic_expand_contract_demo/__init__.py alembic_expand_contract_demo/models.py alembic_expand_contract_demo/README.md
 </span></span></code></pre></div><p>Dump the following into the newly created <code>alembic_expand_contract_demo/models.py</code> file:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> Column
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> Column
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> ForeignKey
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> Integer
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> String
@@ -183,7 +183,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__repr__</span>(self):
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Address(id=</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>id<span style="color:#e6db74">!r}</span><span style="color:#e6db74">)&#34;</span>
 </span></span></code></pre></div><p>We&rsquo;ll also create our <code>requirements.txt</code> file and install those requirements.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat &gt; requirements.txt <span style="color:#e6db74">&lt;&lt; EOF
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat &gt; requirements.txt <span style="color:#e6db74">&lt;&lt; EOF
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">sqlalchemy
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">alembic
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
@@ -191,7 +191,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>❯<span style="color:#f92672">(</span>.venv<span style="color:#f92672">)</span> source .venv/bin/activate
 </span></span><span style="display:flex;"><span>❯<span style="color:#f92672">(</span>.venv<span style="color:#f92672">)</span> pip install -r requirements.txt
 </span></span></code></pre></div><p>With our initial models in place, we can now proceed to creating the initial migration directory structure.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯<span style="color:#f92672">(</span>.venv<span style="color:#f92672">)</span> alembic init alembic_expand_contract_demo/migrations
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯<span style="color:#f92672">(</span>.venv<span style="color:#f92672">)</span> alembic init alembic_expand_contract_demo/migrations
 </span></span></code></pre></div><p>You should now have a directory structure like so:</p>
 <pre tabindex="0"><code>.
 ├── alembic_expand_contract_demo
@@ -206,31 +206,31 @@ services in larger deployments are common to most distributed services.</p>
 ├── README.md
 └── requirements.txt
 </code></pre><p>As suggested by the wizard, you&rsquo;ll want to make a few changes to the <code>alembic.ini</code> file created in the root of your directory. In particular, you&rsquo;ll want to configure the <code>[alembic] script_location</code> and <code>[alembic] sqlalchemy.url</code> settings. I used the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#66d9ef">[alembic]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#66d9ef">[alembic]</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">script_location</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">%(here)s/alembic_expand_contract_demo/migrations</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">sqlalchemy.url</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">sqlite:///alembic-expand-contract-demo.db</span>
 </span></span></code></pre></div><p>You&rsquo;ll also need to configure the <code>env.py</code> file found in the new <code>alembic_expand_contract_demo/migrations</code> directory to point the <code>target_metadata</code> value to your base model. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> alembic_expand_contract_demo <span style="color:#f92672">import</span> models
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> alembic_expand_contract_demo <span style="color:#f92672">import</span> models
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># ...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>target_metadata <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>Base<span style="color:#f92672">.</span>metadata
 </span></span></code></pre></div><p>Finally, we&rsquo;ll modify the migration script template <code>script.py.mako</code> in the <code>alembic_expand_contract_demo/migrations</code> directory to remove the <code>downgrade</code> step: downgrades aren&rsquo;t all that useful in a production environment (back up your data!) and add needless complexity here:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/script.py.mako
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/script.py.mako
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -2,9 +2,8 @@
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> 
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/script.py.mako
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/script.py.mako
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -2,9 +2,8 @@
+</span></span></span><span style="display:flex;"><span> 
 </span></span><span style="display:flex;"><span> Revision ID: ${up_revision}
 </span></span><span style="display:flex;"><span> Revises: ${down_revision | comma,n}
 </span></span><span style="display:flex;"><span><span style="color:#f92672">-Create Date: ${create_date}
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span> &#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span> &#34;&#34;&#34;
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">+
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span> from alembic import op
+</span></span></span><span style="display:flex;"><span> from alembic import op
 </span></span><span style="display:flex;"><span> import sqlalchemy as sa
 </span></span><span style="display:flex;"><span> ${imports if imports else &#34;&#34;}
 </span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -18,7 +17,3 @@ depends_on = ${repr(depends_on)}
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> 
+</span></span></span><span style="display:flex;"><span> 
 </span></span><span style="display:flex;"><span> def upgrade() -&gt; None:
 </span></span><span style="display:flex;"><span>     ${upgrades if upgrades else &#34;pass&#34;}
 </span></span><span style="display:flex;"><span><span style="color:#f92672">-
@@ -238,9 +238,9 @@ services in larger deployments are common to most distributed services.</p>
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-def downgrade() -&gt; None:
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-    ${downgrades if downgrades else &#34;pass&#34;}
 </span></span></span></code></pre></div><p>With all this in place, we can now create an initial empty database and generate our first migration (Alembic needs a database to compare against to generate the updated schema).</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade head
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade head
 </span></span></code></pre></div><p>Once this is run, you&rsquo;ll note a new <code>alembic-expand-contract-demo.db</code> SQLite database in your root directory. A quick look at the schema of this database shows an effectively empty table with only Alembic&rsquo;s own <code>alembic_version</code> table present. This is expected: while we have models in place, we don&rsquo;t yet have a Alembic migration to add them.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ sqlite3 alembic-expand-contract-demo.db <span style="color:#e6db74">&#39;.dump&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ sqlite3 alembic-expand-contract-demo.db <span style="color:#e6db74">&#39;.dump&#39;</span>
 </span></span><span style="display:flex;"><span>PRAGMA foreign_keys<span style="color:#f92672">=</span>OFF;
 </span></span><span style="display:flex;"><span>BEGIN TRANSACTION;
 </span></span><span style="display:flex;"><span>CREATE TABLE alembic_version <span style="color:#f92672">(</span>
@@ -249,14 +249,14 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">)</span>;
 </span></span><span style="display:flex;"><span>COMMIT;
 </span></span></code></pre></div><p>Since we&rsquo;d already wired everything up, we can now simply run the <code>revision</code> sub-command with the <code>--autogenerate</code> option and our migrations will be auto-generated:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --autogenerate --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Initial models&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --autogenerate --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Initial models&#39;</span>
 </span></span><span style="display:flex;"><span>INFO  <span style="color:#f92672">[</span>alembic.runtime.migration<span style="color:#f92672">]</span> Context impl SQLiteImpl.
 </span></span><span style="display:flex;"><span>INFO  <span style="color:#f92672">[</span>alembic.runtime.migration<span style="color:#f92672">]</span> Will assume non-transactional DDL.
 </span></span><span style="display:flex;"><span>INFO  <span style="color:#f92672">[</span>alembic.autogenerate.compare<span style="color:#f92672">]</span> Detected added table <span style="color:#e6db74">&#39;user_account&#39;</span>
 </span></span><span style="display:flex;"><span>INFO  <span style="color:#f92672">[</span>alembic.autogenerate.compare<span style="color:#f92672">]</span> Detected added table <span style="color:#e6db74">&#39;address&#39;</span>
 </span></span><span style="display:flex;"><span>  Generating /home/stephenfin/demos/alembic-expand-contract-demo/alembic_expand_contract_demo/migrations/versions/a185a7b16d70_initial_models.py ...  <span style="color:#66d9ef">done</span>
 </span></span></code></pre></div><p>This generates a migration that will look something like the following, once comments are addressed and formatting cleaned up:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Initial models
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Initial models
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: 6cb93d555e2b
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises:
@@ -297,7 +297,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    op<span style="color:#f92672">.</span>drop_table(<span style="color:#e6db74">&#39;address&#39;</span>)
 </span></span><span style="display:flex;"><span>    op<span style="color:#f92672">.</span>drop_table(<span style="color:#e6db74">&#39;user_account&#39;</span>)
 </span></span></code></pre></div><p>Apply this and we should see the new tables in the database schema.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade head
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade head
 </span></span><span style="display:flex;"><span>❯ sqlite3 alembic-expand-contract-demo.db <span style="color:#e6db74">&#39;.dump&#39;</span>
 </span></span><span style="display:flex;"><span>PRAGMA foreign_keys<span style="color:#f92672">=</span>OFF;
 </span></span><span style="display:flex;"><span>BEGIN TRANSACTION;
@@ -323,7 +323,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span></code></pre></div><p>Nothing complicated so far. Onto the meaty part.</p>
 <h2 id="first-pass-at-expand-contract-using-alembic">First pass at expand-contract using Alembic</h2>
 <p>We now have an initial application. Time to start thinking about how to upgrade it. Looking at our models, we&rsquo;ll note that we have separate <code>first_name</code> and <code>last_name</code> fields.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(Base):
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(Base):
 </span></span><span style="display:flex;"><span>    __tablename__ <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;user_account&#34;</span>
 </span></span><span style="display:flex;"><span>    id <span style="color:#f92672">=</span> Column(Integer, primary_key<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
 </span></span><span style="display:flex;"><span>    first_name <span style="color:#f92672">=</span> Column(String(<span style="color:#ae81ff">30</span>))
@@ -335,20 +335,20 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__repr__</span>(self):
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;User(id=</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>id<span style="color:#e6db74">!r}</span><span style="color:#e6db74">)&#34;</span>
 </span></span></code></pre></div><p>Let&rsquo;s say we wanted to merge these two fields into a single combined field called <code>name</code>. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#75715e">@@ -17,8 +17,7 @@ Base = declarative_base()
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> class User(Base):
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#75715e">@@ -17,8 +17,7 @@ Base = declarative_base()
+</span></span></span><span style="display:flex;"><span> class User(Base):
 </span></span><span style="display:flex;"><span>     __tablename__ = &#34;user_account&#34;
 </span></span><span style="display:flex;"><span>     id = Column(Integer, primary_key=True)
 </span></span><span style="display:flex;"><span><span style="color:#f92672">-    first_name = Column(String(30))
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-    last_name = Column(String(30))
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+    name = Column(String)
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>     addresses = relationship(
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+    name = Column(String)
+</span></span></span><span style="display:flex;"><span>     addresses = relationship(
 </span></span><span style="display:flex;"><span>         &#34;Address&#34;, back_populates=&#34;user&#34;, cascade=&#34;all, delete-orphan&#34;
 </span></span><span style="display:flex;"><span>     )
 </span></span></code></pre></div><p>We can auto-generate our migration once again:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names&#39;</span>
 </span></span></code></pre></div><p>This will give us a migration like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: 0585005489f0
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: 6cb93d555e2b
@@ -384,7 +384,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    )
 </span></span><span style="display:flex;"><span>    op<span style="color:#f92672">.</span>drop_column(<span style="color:#e6db74">&#39;user_account&#39;</span>, <span style="color:#e6db74">&#39;name&#39;</span>)
 </span></span></code></pre></div><p>Clearly this isn&rsquo;t very useful as it would result in data loss: we need to migrate data before we can remove the old column. The easy way to address this would be to modify the migration to also migrate data as an intermediary step. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: 0585005489f0
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: 6cb93d555e2b
@@ -450,11 +450,11 @@ services in larger deployments are common to most distributed services.</p>
 </aside>
 
 <p>While this works, as noted at the outset this approach doesn&rsquo;t work for scaled applications or applications with uptime guarantees: your applications would need to be taken offline while this database schema was applied, which itself is an operation that could take some time. Let&rsquo;s try an expand-contract approach instead. First, we&rsquo;ll do this manually. Instead of having one large migration file, we&rsquo;ll create three separate migration files (or two, if your application is going to take care of data migrations at runtime).</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names (expand)&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names (expand)&#39;</span>
 </span></span><span style="display:flex;"><span>❯ alembic revision --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names (migrate)&#39;</span>
 </span></span><span style="display:flex;"><span>❯ alembic revision --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names (contract)&#39;</span>
 </span></span></code></pre></div><p>In the &ldquo;expand&rdquo; migration, we add the new column:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names (expand)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names (expand)
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: 9c36df1b3f62
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: 6cb93d555e2b
@@ -476,7 +476,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        sa<span style="color:#f92672">.</span>Column(<span style="color:#e6db74">&#39;name&#39;</span>, sa<span style="color:#f92672">.</span>String(), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
 </span></span><span style="display:flex;"><span>    )
 </span></span></code></pre></div><p>In the &ldquo;migrate&rdquo; migration, we migrate our data:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names (migrate)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names (migrate)
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: c9afc30a70ee
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: 9c36df1b3f62
@@ -523,7 +523,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>            )
 </span></span><span style="display:flex;"><span>        )
 </span></span></code></pre></div><p>Finally, in the &ldquo;contract&rdquo; migration, we remove the old columns:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names (contract)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names (contract)
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: e629a4ea0677
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: c9afc30a70ee
@@ -554,19 +554,19 @@ services in larger deployments are common to most distributed services.</p>
 <p>A branch describes a point in a migration stream when two or more versions refer to the same parent migration as their ancestor.</p>
 </blockquote>
 <p>They&rsquo;re intended for scenarios where &ldquo;two divergent source trees, both containing Alembic revision files created independently within those source trees, are merged together into one&rdquo;. This could includes things like feature branches, where multiple developers are working on separate features and merge everything back in around the same time. However, we can also use them to separate our <em>expand</em> migrations from our <em>contract</em> migrations. Let&rsquo;s look at how we&rsquo;d do that. First the <em>expand</em> migration:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -11,7 +11,7 @@ import sqlalchemy as sa
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> # revision identifiers, used by Alembic.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/versions/9c36df1b3f62_merge_user_names_expand.py
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -11,7 +11,7 @@ import sqlalchemy as sa
+</span></span></span><span style="display:flex;"><span> # revision identifiers, used by Alembic.
 </span></span><span style="display:flex;"><span> revision = &#39;9c36df1b3f62&#39;
 </span></span><span style="display:flex;"><span> down_revision = &#39;6cb93d555e2b&#39;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">-branch_labels = None
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+branch_labels = (&#39;expand&#39;,)
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span> depends_on = None
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+branch_labels = (&#39;expand&#39;,)
+</span></span></span><span style="display:flex;"><span> depends_on = None
 </span></span></code></pre></div><p>All that we&rsquo;ve done here is added a new <code>expand</code> branch label. Nothing odd there. Next up, the <em>expand</em> migration. As noted above, we&rsquo;re actually going to skip this going forward since it&rsquo;s not totally relevant, so let&rsquo;s delete it and create a separate tool to manage the migrations.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ rm alembic_expand_contract_demo/migrations/versions/c9afc30a70ee_merge_user_names_migrate.py
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ rm alembic_expand_contract_demo/migrations/versions/c9afc30a70ee_merge_user_names_migrate.py
 </span></span><span style="display:flex;"><span>❯ touch data-migration.py
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># SPDX-License-Identifier: MIT</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># SPDX-License-Identifier: MIT</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlalchemy <span style="color:#66d9ef">as</span> sa
 </span></span><span style="display:flex;"><span>
@@ -606,29 +606,29 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
 </span></span><span style="display:flex;"><span>    migrate_data()
 </span></span></code></pre></div><p>Finally, the <em>contract</em> migration:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/versions/e629a4ea0677_merge_user_names_contract.py
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/versions/e629a4ea0677_merge_user_names_contract.py
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -9,8 +9,8 @@ from alembic import op
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/versions/e629a4ea0677_merge_user_names_contract.py
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/versions/e629a4ea0677_merge_user_names_contract.py
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -9,8 +9,8 @@ from alembic import op
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span> # revision identifiers, used by Alembic.
 </span></span><span style="display:flex;"><span> revision = &#39;e629a4ea0677&#39;
 </span></span><span style="display:flex;"><span><span style="color:#f92672">-down_revision = &#39;c9afc30a70ee&#39;
 </span></span></span><span style="display:flex;"><span><span style="color:#f92672">-branch_labels = None
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+down_revision = &#39;9c36df1b3f62&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+down_revision = &#39;9c36df1b3f62&#39;
 </span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+branch_labels = (&#39;contract&#39;,)
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span> depends_on = None
+</span></span></span><span style="display:flex;"><span> depends_on = None
 </span></span></code></pre></div><p>Again, nothing too odd here. We add the <code>contract</code> branch label and change the down revision to reflect the fact that we removed the data migration.</p>
 <p>With these changes in place, we now have the ability to apply the branches separately.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade expand
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade expand
 </span></span><span style="display:flex;"><span>❯ python data-migration.py
 </span></span><span style="display:flex;"><span>❯ alembic upgrade contract
 </span></span></code></pre></div>
 <aside class="admonition note">
   <div class="admonition-content"><p>If you wanted to add additional migrations to either branch, you can use the <code>--branch-label</code> and <code>--depends-on</code> options to set the branch and dependency migration, respectively. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --branch-label expand <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --depends-on 9c36df1b3f62 <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --message <span style="color:#e6db74">&#34;Another expand type change&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --branch-label expand <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --depends-on 9c36df1b3f62 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --message <span style="color:#e6db74">&#34;Another expand type change&#34;</span>
 </span></span></code></pre></div></div>
 </aside>
 
@@ -639,7 +639,7 @@ services in larger deployments are common to most distributed services.</p>
 <p><strong>process_revision_directives</strong> - a callable function that will be passed a structure representing the end result of an autogenerate or plain “revision” operation, which can be manipulated to affect how the alembic revision command ultimately outputs new revision scripts.</p>
 </blockquote>
 <p>Before we configure that attribute, let&rsquo;s create the callable function itself. To do this, we&rsquo;re going to make use of the <code>alembic.util.Dispatcher</code> class. This is a class that is normally responsible for generating per-backend SQL statements for each migration operation. Instead of using this to generate SQL statements, we can use it to sift through the operations generated by Alembic so we can split them into two phases. Let&rsquo;s look at how we can do this in practice. Create an new file, <code>alembic_expand_contract_demo/migrations/autogen.py</code> and dump the following into it. We&rsquo;ll discuss the contents of the file step-by-step in a bit.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># SPDX-License-Identifier: MIT</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># SPDX-License-Identifier: MIT</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> alembic.operations <span style="color:#f92672">import</span> ops
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> alembic.util <span style="color:#f92672">import</span> Dispatcher
@@ -728,7 +728,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> directive
 </span></span><span style="display:flex;"><span>        )
 </span></span></code></pre></div><p>With that file in place, let&rsquo;s take a look at what it&rsquo;s doing. First, the <code>process_revision_directives</code> and <code>_assign_directives</code> functions:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>_ec_dispatcher <span style="color:#f92672">=</span> Dispatcher()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>_ec_dispatcher <span style="color:#f92672">=</span> Dispatcher()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process_revision_directives</span>(context, revision, directives):
@@ -748,7 +748,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">yield</span> decided
 </span></span></code></pre></div><p>Hopefully this should be mostly self-explanatory. <code>process_revision_directives</code> is initial &ldquo;entry point&rdquo; and all it does is overwrites the provided list of directives with our modified set. <code>_assign_directives</code>, on the other hand, does the bulk heavy lifting. It&rsquo;s responsible for iterating through the generated directives calling the dispatcher for each phase that we&rsquo;re examining.</p>
 <p>Next, we look to look at the dispatchers themselves. For each type of operation, we need to write a separate dispatcher. The top-level operation is the generation of the migration script itself a.k.a. the <a href="https://alembic.sqlalchemy.org/en/latest/api/operations.html#alembic.operations.ops.MigrationScript"><code>MigrationScript</code> operation</a>. Let&rsquo;s look at this first.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>MigrationScript)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>MigrationScript)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_migration_script_ops</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    op <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>MigrationScript(
 </span></span><span style="display:flex;"><span>        new_rev_id(),
@@ -765,7 +765,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> op
 </span></span></code></pre></div><p>Again, hopefully there&rsquo;s nothing too complicated. This dispatcher generates a migration script container a filtered list of upgrade directives (and no downgrade directives). This filtered list is filtered by phase, and we also specify a <em>head</em> that corresponds to the phase (<code>expand@head</code> for the <em>expand</em> phase).</p>
 <p>Moving on, in addition to the <code>MigrationScript</code> operation, we have one other &ldquo;meta&rdquo; operation to concern ourselves with: <code>ModifyTableOps</code>. Fortunately, this isn&rsquo;t too complicated. We basically ensure that all operations against a table are filtered by phase as we&rsquo;d expect:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>ModifyTableOps)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>ModifyTableOps)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_modify_table_ops</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    op <span style="color:#f92672">=</span> ops<span style="color:#f92672">.</span>ModifyTableOps(
 </span></span><span style="display:flex;"><span>        directive<span style="color:#f92672">.</span>table_name, 
@@ -775,7 +775,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> op<span style="color:#f92672">.</span>is_empty():
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> op
 </span></span></code></pre></div><p>Now for the first &ldquo;real&rdquo; operations: the <em>expand</em> operations. These are <code>AddConstraintOp</code>, <code>CreateIndexOp</code>, <code>CreateTableOp</code>, and <code>AddColumnOp</code>. Let&rsquo;s look at the dispatcher for these.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddConstraintOp)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddConstraintOp)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>CreateIndexOp)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>CreateTableOp)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AddColumnOp)
@@ -785,7 +785,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
 </span></span></code></pre></div><p>Simply put, if we&rsquo;re in <em>expand</em> phase and encounter one of these operations, proceed as normal. If we&rsquo;re in the <em>contract</em> phase, skip it. As you&rsquo;d imagine, the dispatcher for the <em>contract</em> options - <code>DropConstraintOp</code>, <code>DropIndexOp</code>, <code>DropTableOp</code>, and <code>DropColumnOp</code> - works pretty similarly:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropConstraintOp)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropConstraintOp)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropIndexOp)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropTableOp)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>DropColumnOp)
@@ -795,7 +795,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
 </span></span></code></pre></div><p>With the plain old create and destroy operations out of the way, we only have to take care of the remaining &ldquo;modify&rdquo; or &ldquo;alter&rdquo; operations. This consists of modifications to columns a.k.a. <code>AlterColumnOp</code>. The <code>AlterColumnOp</code> dispatcher is trickier that the others, so pay attention here:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AlterColumnOp)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@_ec_dispatcher.dispatch_for</span>(ops<span style="color:#f92672">.</span>AlterColumnOp)
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_alter_column</span>(context, directive, phase):
 </span></span><span style="display:flex;"><span>    is_expand <span style="color:#f92672">=</span> phase <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;expand&#39;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> is_expand <span style="color:#f92672">and</span> directive<span style="color:#f92672">.</span>modify_nullable <span style="color:#f92672">is</span> <span style="color:#66d9ef">True</span>:
@@ -809,30 +809,30 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        )
 </span></span></code></pre></div><p>The only modification we support here is the modifying <code>NULL</code> constraints on columns. There are other modifications you can make, such as modifying the type or a server default but these operations should really involve a bit of manual intervention to handle correctly. What we&rsquo;ve said here is that if we&rsquo;re in the <em>expand</em> phase then settings a column to nullable is a-okay. Likewise, if we&rsquo;re in the <em>contract</em> phase then setting a column to non-nullable is also permissible. All other cases are forbidden though and will raise a <code>NotImplementedError</code> exception.</p>
 <p>With this in place, the final step is to enable the processor by passing the <code>process_revision_directives</code> argument to the <code>context.configure</code> API call in <code>env.py</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/env.py
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/env.py
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> from sqlalchemy import pool
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="color:#f92672">--- alembic_expand_contract_demo/migrations/env.py
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+++ alembic_expand_contract_demo/migrations/env.py
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config
+</span></span></span><span style="display:flex;"><span> from sqlalchemy import pool
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span> from alembic_expand_contract_demo import models
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">+from alembic_expand_contract_demo.migrations import autogen
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span> # this is the Alembic Config object, which provides
 </span></span><span style="display:flex;"><span> # access to the values within the .ini file in use.
 </span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -68,6 +69,7 @@ def run_migrations_online() -&gt; None:
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         context.configure(
+</span></span></span><span style="display:flex;"><span>         context.configure(
 </span></span><span style="display:flex;"><span>             connection=connection,
 </span></span><span style="display:flex;"><span>             target_metadata=target_metadata,
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">+            process_revision_directives=autogen.process_revision_directives,
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>         )
+</span></span></span><span style="display:flex;"><span>         )
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>         with context.begin_transaction():
 </span></span></code></pre></div><h2 id="testing-things-out">Testing things out</h2>
 <p>Now that we have all of our machinery in place, it&rsquo;s time to take things for a spin. Let&rsquo;s test out auto-generation using similar commands to those we used as the beginning of the article.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --autogenerate --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic revision --autogenerate --message<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Merge user names&#39;</span>
 </span></span></code></pre></div><p>The first thing we notice is that there are no longer one but <strong>two</strong> generations generated. This looks promising and looking at the migrations themselves things look even better. First the <em>expand</em> migration:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat alembic_expand_contract_demo/migrations/versions/1630422c66fe_merge_user_names.py
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat alembic_expand_contract_demo/migrations/versions/1630422c66fe_merge_user_names.py
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: 1630422c66fe
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: 9c36df1b3f62
@@ -853,8 +853,8 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;user_account&#39;</span>, sa<span style="color:#f92672">.</span>Column(<span style="color:#e6db74">&#39;name&#39;</span>, sa<span style="color:#f92672">.</span>String(), nullable<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
 </span></span><span style="display:flex;"><span>    )
 </span></span></code></pre></div><p>Now the <em>contract</em> migration:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat alembic_expand_contract_demo/migrations/versions/a142d030afc5_merge_user_names.py
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat alembic_expand_contract_demo/migrations/versions/a142d030afc5_merge_user_names.py
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Merge user names
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revision ID: a142d030afc5
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Revises: e629a4ea0677
@@ -873,7 +873,7 @@ services in larger deployments are common to most distributed services.</p>
 </span></span><span style="display:flex;"><span>    op<span style="color:#f92672">.</span>drop_column(<span style="color:#e6db74">&#39;user_account&#39;</span>, <span style="color:#e6db74">&#39;last_name&#39;</span>)
 </span></span><span style="display:flex;"><span>    op<span style="color:#f92672">.</span>drop_column(<span style="color:#e6db74">&#39;user_account&#39;</span>, <span style="color:#e6db74">&#39;first_name&#39;</span>)
 </span></span></code></pre></div><p>Applying these works exactly as expected:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade expand
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ alembic upgrade expand
 </span></span><span style="display:flex;"><span>❯ alembic upgrade contract
 </span></span></code></pre></div><p>Hurrah, everything worked (hopefully)! However, this is only the first step. While this is a marked improvement on where we were, there are a few improvements we could yet make. For one, the names of the files don&rsquo;t reveal information about whether a change is an <em>expand</em> or <em>contract</em> migration. You can figure this out by looking at the migrations themselves but it would be much nicer if we could somehow indicate this through the filenames or, better yet, by separating them into separate folders. The branches here are also long-running and it would be nice if we could apply, say, all expand migrations up to a specific release along with any contract migrations from the previous release (which should be okay to apply assuming you&rsquo;ve upgraded all services to the previous release version and have been running it for some time to migrate data). Both of these requests (and more!) can be achieved, but that&rsquo;s outside the scope of this article. I&rsquo;d highly recommend looking at the source code of the OpenStack Neutron project, which implements this functionality in a full-featured manner.</p>
 

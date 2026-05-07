@@ -80,14 +80,14 @@
     <p>The Fedora Docker packages (or rather, moby packages) don&rsquo;t provide additional things like <code>buildx</code>, which means you might be forced to use Docker&rsquo;s own repos.
 The documentation for these is pretty thorough and can be found <a href="https://docs.docker.com/engine/install/fedora/">here</a>. One thing that is doesn&rsquo;t describe is
 the need to configure firewall policies though. If you find you have no network connectivity inside docker containers then you want to do the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --permanent --zone<span style="color:#f92672">=</span>docker --add-interface<span style="color:#f92672">=</span>docker0
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --permanent --zone<span style="color:#f92672">=</span>docker --add-interface<span style="color:#f92672">=</span>docker0
 </span></span><span style="display:flex;"><span>sudo firewall-cmd --reload
 </span></span><span style="display:flex;"><span>sudo systemctl restart docker
 </span></span></code></pre></div><p>This assumes you have the <code>docker</code> zone, which I&rsquo;m going to guess the <code>moby</code> packages created for me. If not, you can simply use the <code>trusted</code> zone. A list of
 all available zones can be found like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --list-all-zones
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --list-all-zones
 </span></span></code></pre></div><p>All interfaces can found like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --list-interfaces
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo firewall-cmd --list-interfaces
 </span></span></code></pre></div>
   </div>
 

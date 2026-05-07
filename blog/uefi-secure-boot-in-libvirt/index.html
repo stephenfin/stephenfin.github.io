@@ -125,7 +125,7 @@ described in the <a href="https://gitlab.com/qemu-project/qemu/-/blob/v5.2.0/doc
 distro and on a Fedora 33 host can be found at <code>/usr/share/qemu/firmware</code>.
 Here&rsquo;s one such file, <code>40-edk2-ovmf-x64-sb-enrolled.json</code>, taken from my
 host and provided by Fedora&rsquo;s <code>edk2-ovmf</code> package:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;OVMF for x86_64, with SB+SMM, SB enabled, MS certs enrolled&#34;</span>,
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;interface-types&#34;</span>: [
 </span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;uefi&#34;</span>
@@ -165,9 +165,9 @@ host and provided by Fedora&rsquo;s <code>edk2-ovmf</code> package:</p>
 domain capabilities output, accessible via <code>virsh domcapabilities</code> and
 equivalent APIs. For example, I can see what firmwares are available to me when
 using the <code>q35</code> machine type like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath <span style="color:#e6db74">&#39;/domainCapabilities/os&#39;</span> -
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh domcapabilities --machine pc-q35-5.1 | xmllint --xpath <span style="color:#e6db74">&#39;/domainCapabilities/os&#39;</span> -
 </span></span></code></pre></div><p>This will yield:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">supported=</span><span style="color:#e6db74">&#34;yes&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;enum</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;firmware&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;value&gt;</span>efi<span style="color:#f92672">&lt;/value&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/enum&gt;</span>
@@ -191,7 +191,7 @@ using the <code>q35</code> machine type like so:</p>
 </span></span></code></pre></div><p>However, this isn&rsquo;t all this can do. Libvirt can also negotiate the firmware
 for you when creating a new guest. Previously, to create a UEFI-based guest,
 one would need to specify something like the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;os&gt;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
@@ -205,7 +205,7 @@ one would need to specify something like the following:</p>
 documentation on the matter</a></p>
 <p>This is no longer necessary, and libvirt will now do this for us. We can
 instead specify e.g.:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- ... --&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;os</span> <span style="color:#a6e22e">firmware=</span><span style="color:#e6db74">&#34;efi&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#34;x86_64&#34;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#34;pc-q35-5.1&#34;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
@@ -225,16 +225,16 @@ You can download the Fedora 33 Workstation image from the <a href="https://getfe
 but before we do that, let&rsquo;s start by ensuring that we have all required
 packages installed.  This should be as simple as installing libvirt, at least
 on a Fedora 33-based host:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install libvirt
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install libvirt
 </span></span></code></pre></div><p>It should also be noted that this guide was only tested on an x86_64 host and
 results may vary on other platforms.</p>
 <p>Next up, let&rsquo;s grab the image. As discussed above, we&rsquo;re going to use the
 <em>Fedora 33 Workstation</em> image here since it&rsquo;s easy to use for testing purposes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ cd /tmp
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ cd /tmp
 </span></span><span style="display:flex;"><span>$ wget https://download.fedoraproject.org/pub/fedora/linux/releases/33/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-33-1.2.iso
 </span></span></code></pre></div><p>With the dependencies installed and the image downloaded, we can now create our
 guest or &ldquo;domain&rdquo;. Dump the following to e.g. <code>/tmp/fedora-q35-uefi.xml</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;name&gt;</span>fedora-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;metadata&gt;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;libosinfo:libosinfo</span> <span style="color:#a6e22e">xmlns:libosinfo=</span><span style="color:#e6db74">&#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&#34;</span><span style="color:#f92672">&gt;</span>
@@ -285,7 +285,7 @@ guest or &ldquo;domain&rdquo;. Dump the following to e.g. <code>/tmp/fedora-q35-
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/devices&gt;</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/domain&gt;</span>
 </span></span></code></pre></div><p>Finally, create the instance:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh create fedora-q35-uefi.xml
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh create fedora-q35-uefi.xml
 </span></span></code></pre></div><p>Since we&rsquo;re using the workstation image, you&rsquo;re going to need a graphical
 console. As a result, you&rsquo;ll note that we&rsquo;ve attached a VNC graphics device to
 the instance and you can use VNC to connect to the guest. The easiest way to do
@@ -295,7 +295,7 @@ after creating the guest to view the final XML and get the port that libvirt
 assigned to the VNC interface, and then use this to connect to the instance
 from your favourite VNC viewer.</p>
 <p>Once you&rsquo;re done, destroy the guest:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh destroy fedora-q35-uefi-experiment
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh destroy fedora-q35-uefi-experiment
 </span></span></code></pre></div><h2 id="secure-boot-woes">Secure boot woes</h2>
 <p>I&rsquo;d be remiss if I didn&rsquo;t highlight one issue with this approach, at least
 using the versions of libvirt (6.6.0) and QEMU (5.1.0) installed on my host at
@@ -308,14 +308,14 @@ To demonstrate the issue and explain why it occurs, it&rsquo;s probably best to 
 with another example.</p>
 <p>To work through this, let&rsquo;s first grab the <em>Alpine Linux Virtual</em> image,
 available from the <a href="https://alpinelinux.org/downloads/">Alpine Linux website</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.1-x86_64.iso
 </span></span></code></pre></div><p>The domain XML we&rsquo;ll use for booting this image is virtually identical to the
 one used for Fedora previously. We could of course use the same specs as the
 Fedora 33-based guest and it would work just fine, but we&rsquo;ve chosen to remove
 the VNC graphics device and display adapter, which are unnecessary for a distro
 like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
 <code>/tmp/alpine-q35-uefi.xml</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;domain</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;kvm&#34;</span><span style="color:#f92672">&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;name&gt;</span>alpinelinux-q35-uefi-experiment<span style="color:#f92672">&lt;/name&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;metadata&gt;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;libosinfo:libosinfo</span> <span style="color:#a6e22e">xmlns:libosinfo=</span><span style="color:#e6db74">&#34;http://libosinfo.org/xmlns/libvirt/domain/1.0&#34;</span><span style="color:#f92672">&gt;</span>
@@ -360,10 +360,10 @@ like this, as well as reduce the RAM allocation. Dump the following XML to e.g.
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;/devices&gt;</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/domain&gt;</span>
 </span></span></code></pre></div><p>With the image downloaded and domain XML file created, we can create the guest:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh create alpine-q35-uefi.xml
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh create alpine-q35-uefi.xml
 </span></span></code></pre></div><p>Since this isn&rsquo;t using a graphical device, you can instead connect via the
 serial console:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh console alpinelinux-q35-uefi-experiment
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh console alpinelinux-q35-uefi-experiment
 </span></span></code></pre></div><p>However, upon connecting you&rsquo;ll note that you eventually end up at the
 bootloader rather than a login prompt and if you connect early enough, you&rsquo;ll
 probably see something like the following:</p>
@@ -373,8 +373,8 @@ BdsDxe: No bootable option or device was found.
 BdsDxe: Press any key to enter the Boot Manager Menu.
 </code></pre><p>(You can use <code>Ctrl + ]</code> to quit the console).</p>
 <p>The apparent root cause for this can be seen by investigating the domain XML:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath <span style="color:#e6db74">&#39;//os&#39;</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ virsh dumpxml alpinelinux-q35-uefi-experiment | xmllint --xpath <span style="color:#e6db74">&#39;//os&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">secure=</span><span style="color:#e6db74">&#39;no&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd<span style="color:#f92672">&lt;/loader&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;nvram</span> <span style="color:#a6e22e">template=</span><span style="color:#e6db74">&#39;/usr/share/edk2/ovmf/OVMF_VARS.secboot.fd&#39;</span><span style="color:#f92672">&gt;</span>/home/stephenfin/.config/libvirt/qemu/nvram/alpinelinux-q35-uefi-experiment_VARS.fd<span style="color:#f92672">&lt;/nvram&gt;</span>
@@ -387,7 +387,7 @@ this firmware should work for non-secure boot instances also but that&rsquo;s no
 happening. The solution for now is to specify the path to the non-secure boot
 UEFI firmware when creating the instance, replacing the <code>&lt;os&gt;</code> element included
 in the XML above with the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;os&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;type</span> <span style="color:#a6e22e">arch=</span><span style="color:#e6db74">&#39;x86_64&#39;</span> <span style="color:#a6e22e">machine=</span><span style="color:#e6db74">&#39;pc-q35-5.1&#39;</span><span style="color:#f92672">&gt;</span>hvm<span style="color:#f92672">&lt;/type&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;loader</span> <span style="color:#a6e22e">readonly=</span><span style="color:#e6db74">&#39;yes&#39;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#39;pflash&#39;</span><span style="color:#f92672">&gt;</span>/usr/share/edk2/ovmf/OVMF_CODE.fd<span style="color:#f92672">&lt;/loader&gt;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;boot</span> <span style="color:#a6e22e">dev=</span><span style="color:#e6db74">&#39;cdrom&#39;</span><span style="color:#f92672">/&gt;</span>

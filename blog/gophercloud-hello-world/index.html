@@ -118,7 +118,7 @@ world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em
 
 <h2 id="gophercloud-go">Gophercloud (Go)</h2>
 <p>Create a new directory containing a single file, <code>main.go</code>, and add the following to it.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;context&#34;</span>
@@ -159,10 +159,10 @@ world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Now generate the <code>go.mod</code> file.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ go mod init gophercloud-hello-world
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ go mod init gophercloud-hello-world
 </span></span><span style="display:flex;"><span>❯ go mod tidy
 </span></span></code></pre></div><p>Finally, you can run the command.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ export OS_CLOUD<span style="color:#f92672">=</span>devstack-admin  <span style="color:#75715e"># or another entry from your local &#39;clouds.yaml&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ export OS_CLOUD<span style="color:#f92672">=</span>devstack-admin  <span style="color:#75715e"># or another entry from your local &#39;clouds.yaml&#39;</span>
 </span></span><span style="display:flex;"><span>❯ go run .
 </span></span></code></pre></div><p>This should dump something like the following.</p>
 <pre tabindex="0"><code>servers:
@@ -172,7 +172,7 @@ world&rdquo; example - listing servers - using both <em>Gophercloud</em> and <em
   <div class="admonition-content"><p>This example also makes use of the <a href="https://github.com/gophercloud/utils">gophercloud/utils</a> library, to simplify authentication and the
 creation of clients. <em>gophercloud</em> itself also provides support for <code>clouds.yaml</code> files, but its slightly more verbose.
 If you wanted to skip <code>utils</code>, you could rewrite this like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;context&#34;</span>
@@ -211,7 +211,7 @@ If you wanted to skip <code>utils</code>, you could rewrite this like so:</p>
 <aside class="admonition note">
   <div class="admonition-content"><p>If you are working on Gophercloud itself, it can be helpful to use scripts like this to test your changes.
 If doing this, you can rely on the <code>replace</code> directive in <code>go.mod</code> to ensure your local clone of Gophercloud is used.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">replace</span> (
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">replace</span> (
 </span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">github</span>.<span style="color:#a6e22e">com</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span><span style="color:#f92672">/</span><span style="color:#a6e22e">v2</span> =&gt; <span style="color:#f92672">/</span><span style="color:#a6e22e">home</span><span style="color:#f92672">/</span><span style="color:#a6e22e">user</span><span style="color:#f92672">/</span><span style="color:#a6e22e">code</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">github</span>.<span style="color:#a6e22e">com</span><span style="color:#f92672">/</span><span style="color:#a6e22e">gophercloud</span><span style="color:#f92672">/</span><span style="color:#a6e22e">utils</span><span style="color:#f92672">/</span><span style="color:#a6e22e">v2</span> =&gt; <span style="color:#f92672">/</span><span style="color:#a6e22e">home</span><span style="color:#f92672">/</span><span style="color:#a6e22e">user</span><span style="color:#f92672">/</span><span style="color:#a6e22e">code</span><span style="color:#f92672">/</span><span style="color:#a6e22e">utils</span>
 </span></span><span style="display:flex;"><span>)
@@ -221,7 +221,7 @@ If doing this, you can rely on the <code>replace</code> directive in <code>go.mo
 
 <h2 id="openstacksdk-python">openstacksdk (Python)</h2>
 <p>Create a new directory containing a single file, <code>main.py</code>, and add the following to it.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> openstack
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> openstack
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e"># We could configure the cloud manually but we don&#39;t. Instead we&#39;ll leave it unset causing openstacksdk to load the</span>
@@ -238,11 +238,11 @@ If doing this, you can rely on the <code>replace</code> directive in <code>go.mo
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
 </span></span><span style="display:flex;"><span>    main()
 </span></span></code></pre></div><p>Now create a virtual environment and install the dependencies.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ virtualenv .venv
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ virtualenv .venv
 </span></span><span style="display:flex;"><span>❯ source .venv/bin/activate
 </span></span><span style="display:flex;"><span>❯ pip install openstacksdk
 </span></span></code></pre></div><p>Finally, you can run the command.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ export OS_CLOUD<span style="color:#f92672">=</span>devstack-admin  <span style="color:#75715e"># or another entry from your local &#39;clouds.yaml&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ export OS_CLOUD<span style="color:#f92672">=</span>devstack-admin  <span style="color:#75715e"># or another entry from your local &#39;clouds.yaml&#39;</span>
 </span></span><span style="display:flex;"><span>❯ python main.py
 </span></span></code></pre></div><p>This should dump identical output to the Go-based script.</p>
 <pre tabindex="0"><code>servers:

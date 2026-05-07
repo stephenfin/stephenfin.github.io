@@ -138,17 +138,17 @@ MetalLB Operator is available on OperatorHub at operatorhub.io/operator/metallb-
 <code>main</code> branch contained a feature I wanted, namely the ability to configure a <a href="https://github.com/metallb/metallb-operator/pull/342"><code>loadBalancerClass</code></a>. As a
 result, I opted to deploy MetalLB Operator from source. The MetalLB Operator provides a very helpful <code>Make</code> target to do
 this, which you can use:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ git clone https://github.com/metallb/metallb-operator
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ git clone https://github.com/metallb/metallb-operator
 </span></span><span style="display:flex;"><span>❯ cd metallb-operator
 </span></span><span style="display:flex;"><span>❯ make deploy-openshift
 </span></span></code></pre></div><p>Deployment takes a while but once finished we can validate that everything is running:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get all -n metallb-system
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get all -n metallb-system
 </span></span></code></pre></div><p>Installation complete! Now onto configuration.</p>
 <h2 id="initial-metallb-configuration">Initial MetalLB configuration</h2>
 <p>With the MetalLB Operator installed, it&rsquo;s time to <em>configure</em> MetalLB. By using MetalLB Operator we gain the ability to
 manage configuration of MetalLB itself via CRs. First up is the <code>MetalLB</code> CR. This is primary configuration mechanism
 and is the thing that enables MetalLB itself. There should only be one of them, which you can create like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: MetalLB
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">metadata:
@@ -172,10 +172,10 @@ label-like here so long as you use the same value later when creating <code>Serv
 </aside>
 
 <p>Once the CR is created, we can validate that it exists:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system metallb metallb
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system metallb metallb
 </span></span></code></pre></div><p>Assuming so, you can ensure the <code>loadBalancerClass</code> attribute is in effect by inspecting the underlying service
 containers:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pods
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pods
 </span></span><span style="display:flex;"><span>NAME                                                  READY   STATUS    RESTARTS      AGE
 </span></span><span style="display:flex;"><span>controller-7df7bbcffb-8cqzb                           1/1     Running   <span style="color:#ae81ff">0</span>             5m1s
 </span></span><span style="display:flex;"><span>metallb-operator-controller-manager-c44c967b9-l6rvx   1/1     Running   <span style="color:#ae81ff">0</span>             13h
@@ -184,13 +184,13 @@ containers:</p>
 </span></span><span style="display:flex;"><span>speaker-q6dmg                                         4/4     Running   <span style="color:#ae81ff">0</span>             5m1s
 </span></span><span style="display:flex;"><span>speaker-sjmtc                                         4/4     Running   <span style="color:#ae81ff">0</span>             5m1s
 </span></span><span style="display:flex;"><span>speaker-z9zrr                                         4/4     Running   <span style="color:#ae81ff">0</span>             5m1s
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pod controller-7df7bbcffb-8cqzb -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{.spec.containers[0].args}&#34;</span> | yq -P
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pod controller-7df7bbcffb-8cqzb -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{.spec.containers[0].args}&#34;</span> | yq -P
 </span></span><span style="display:flex;"><span>- --port<span style="color:#f92672">=</span><span style="color:#ae81ff">7472</span>
 </span></span><span style="display:flex;"><span>- --log-level<span style="color:#f92672">=</span>info
 </span></span><span style="display:flex;"><span>- --cert-service-name<span style="color:#f92672">=</span>webhook-service
 </span></span><span style="display:flex;"><span>- --lb-class<span style="color:#f92672">=</span>metallb.universe.tf/metallb
 </span></span><span style="display:flex;"><span>- --webhook-mode<span style="color:#f92672">=</span>disabled
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pod speaker-bg6pq -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{.spec.containers[0].args}&#34;</span> | yq -P
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system pod speaker-bg6pq -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{.spec.containers[0].args}&#34;</span> | yq -P
 </span></span><span style="display:flex;"><span>- --port<span style="color:#f92672">=</span><span style="color:#ae81ff">7472</span>
 </span></span><span style="display:flex;"><span>- --log-level<span style="color:#f92672">=</span>info
 </span></span><span style="display:flex;"><span>- --lb-class<span style="color:#f92672">=</span>metallb.universe.tf/metallb
@@ -201,7 +201,7 @@ MetalLB for our BGP environment.</p>
 information about the routers that it should peer with, and it needs to be told which IP addresses it can advertise via
 BGP. This configuration is all done using CRs, namely the <code>IPAddressPool</code>, <code>BGPPeer</code>, and <code>BGPAdvertisement</code> CRs. First
 up, the IP address pools.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: IPAddressPool
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">metadata:
@@ -216,7 +216,7 @@ network. Obviously if you have specific IP addresses you wish to use, you should
 configured one. This should be loads for our purposes.</p>
 <p>Next, the BGP peers. While we have multiple leaf routers, our master and worker nodes are all talking to the
 <code>rack1-gateway</code> router. As a result, we really only need to create a BGP peer for this router.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta2
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: BGPPeer
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">metadata:
@@ -235,7 +235,7 @@ configure these. We chose the <code>64998</code> ASN for ourselves.</p>
 some IP addresses that are meant to be assigned using BGP and other IP addresses that are meant to be assigned using
 ARP. In our case, we are only configuring MetalLB in BGP mode and only have a single IP address pool, which means we can
 advertise all IPs via BGP.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: metallb.io/v1beta1
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: BGPAdvertisement
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">metadata:
@@ -243,13 +243,13 @@ advertise all IPs via BGP.</p>
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  namespace: metallb-system
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
 </span></span></code></pre></div><p>With those three CRs created, we can validate that they have been in fact created.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system ipaddresspool
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system ipaddresspool
 </span></span><span style="display:flex;"><span>NAME            AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
 </span></span><span style="display:flex;"><span>ipaddresspool   true          false             <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;192.168.50.1-192.168.50.254&#34;</span><span style="color:#f92672">]</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system bgppeer
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system bgppeer
 </span></span><span style="display:flex;"><span>NAME             ADDRESS        ASN     BFD PROFILE   MULTI HOPS
 </span></span><span style="display:flex;"><span>rack1-bgp-peer   192.168.10.1   <span style="color:#ae81ff">64999</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system bgpadvertisement
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n metallb-system bgpadvertisement
 </span></span><span style="display:flex;"><span>NAME               IPADDRESSPOOLS   IPADDRESSPOOL SELECTORS   PEERS
 </span></span><span style="display:flex;"><span>bgpadvertisement
 </span></span></code></pre></div><p>Wonderful!</p>
@@ -267,7 +267,7 @@ start with the former.</p>
 disabling port security in general. If you you opt to do this, you will need to do this it for all worker node ports. As
 we only only have one worker node here, there is only one port to worry about, but you can trivially script the removal
 of port security for a larger number of ports using <em>openstackclient</em> or something like Ansible. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ports<span style="color:#f92672">=(</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ports<span style="color:#f92672">=(</span>
 </span></span><span style="display:flex;"><span>    stephenfin-qfnvm-worker-0-97fkv
 </span></span><span style="display:flex;"><span><span style="color:#f92672">)</span>
 </span></span><span style="display:flex;"><span>
@@ -305,7 +305,7 @@ for all IP addresses in a given subnet, nor to create them in a manner where the
 applying this will be tedious and scalability may well become a concern, particularly where there is a large number of
 worker nodes or a large range of IP addresses (via <code>IPAddressPool</code>). Since we only have one node and will only create
 one example, we can at least try it out.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack port set --allowed-address<span style="color:#f92672">=</span>ip-address<span style="color:#f92672">=</span>192.168.50.1 stephenfin-qfnvm-worker-0-97fkv-0
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack port set --allowed-address<span style="color:#f92672">=</span>ip-address<span style="color:#f92672">=</span>192.168.50.1 stephenfin-qfnvm-worker-0-97fkv-0
 </span></span></code></pre></div><p>If you wanted to create multiple services, you would need to create an allowed address pair for each and every IP
 address specified in the <code>IPAddressPool</code>(s).</p>
 
@@ -321,7 +321,7 @@ to specify all possible IP addresses individually, however.</div>
 finally in a position to validate behavior.</p>
 <h2 id="testing-it-out">Testing it out</h2>
 <p>Let&rsquo;s create a simple &ldquo;Hello, world&rdquo; example to test this out. We&rsquo;ll use the <code>e2e-test-images/agnhost</code> image to do this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc new-project test-metallb
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc new-project test-metallb
 </span></span><span style="display:flex;"><span>❯ oc create deployment hello-node --image<span style="color:#f92672">=</span>k8s.gcr.io/e2e-test-images/agnhost:2.33 -- /agnhost serve-hostname
 </span></span><span style="display:flex;"><span>❯ cat  <span style="color:#e6db74">&lt;&lt; EOF | oc apply -f -
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">---
@@ -343,12 +343,12 @@ finally in a position to validate behavior.</p>
 use of <code>spec.type=LoadBalancer</code> and the declaration of <code>spec.loadBalancerClass</code>. The former ensure we actually use a
 load balancer while the latter ensures that the load balancer used is MetalLB rather than Octavia.</p>
 <p>Once created, inspect the service to find the IP address assigned:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get service test-frr
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get service test-frr
 </span></span><span style="display:flex;"><span>NAME       TYPE           CLUSTER-IP       EXTERNAL-IP    PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>        AGE
 </span></span><span style="display:flex;"><span>test-frr   LoadBalancer   172.30.130.128   192.168.50.1   80:32519/TCP   2m13s
 </span></span></code></pre></div><p>From this, we can see that the service has been assigned IP <code>192.168.50.1</code>. If we <code>curl</code> this, we should get something
 back. Let&rsquo;s test it out.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ curl 192.168.50.1
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ curl 192.168.50.1
 </span></span><span style="display:flex;"><span>hello-node-855787d74c-fkbt5
 </span></span></code></pre></div><p>And it works. Good job, people!</p>
 <h2 id="wrap-up">Wrap Up</h2>

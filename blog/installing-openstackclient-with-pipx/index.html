@@ -116,14 +116,14 @@ idea though: there are too many opportunities for dependency updates to break ot
 applications.</p>
 </blockquote>
 <p><code>pipx</code> itself is available in the Fedora repos so if Fedora is you distro of choice then you can install it with <code>dnf</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ sudo dnf install pipx
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ sudo dnf install pipx
 </span></span></code></pre></div><p>Once that&rsquo;s in place, you can install OSC with <code>pipx</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx install python-openstackclient
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx install python-openstackclient
 </span></span></code></pre></div><p>Unlike <code>openstacksdk</code>, however, the <code>python-openstackclient</code> package doesn&rsquo;t provide support for OpenStack services beyond the core ones: Identity (keystone),
 Compute (nova), Image (glance), Block Storage (cinder), Network (neutron) and Object Storage (swift). For services like the Share Filesystem-as-a-Service
 (manila), Load Balancer-as-a-Service (octavia) or Placement service, you need to install additional packages (<code>python-manilaclient</code>, <code>python-octaviaclient</code>, and
 <code>osc-placement</code>, respectively).</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack loadbalancer list
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack loadbalancer list
 </span></span><span style="display:flex;"><span>openstack: <span style="color:#e6db74">&#39;loadbalancer list&#39;</span> is not an openstack command. See <span style="color:#e6db74">&#39;openstack --help&#39;</span>.
 </span></span><span style="display:flex;"><span>Did you mean one of these?
 </span></span><span style="display:flex;"><span>  container create
@@ -135,10 +135,10 @@ Compute (nova), Image (glance), Block Storage (cinder), Network (neutron) and Ob
 </span></span><span style="display:flex;"><span>  container unset
 </span></span></code></pre></div><p>It took me a beat to figure out but <code>pipx</code> provides an easy mechanism to do this: the <code>inject</code> command. For example, to install <code>python-octaviaclient</code> in the
 same virtualenv, run:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx inject python-openstackclient python-octaviaclient
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx inject python-openstackclient python-octaviaclient
 </span></span></code></pre></div><p>You can repeat this for additional dependencies:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx inject python-openstackclient osc-placement python-neutronclient python-manilaclient python-ironicclient python-barbicanclient python-designateclient
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx list --include-injected
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx inject python-openstackclient osc-placement python-neutronclient python-manilaclient python-ironicclient python-barbicanclient python-designateclient
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ pipx list --include-injected
 </span></span><span style="display:flex;"><span>venvs are in /home/stephenfin/.local/pipx/venvs
 </span></span><span style="display:flex;"><span>apps are exposed on your $PATH at /home/stephenfin/.local/bin
 </span></span><span style="display:flex;"><span>   package python-openstackclient 6.2.0, installed using Python 3.11.2

@@ -6,12 +6,14 @@
     <description>Recent content in Random on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Mon, 20 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/random/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Issues pairing Beats Studio Buds</title>
       <link>https://that.guru/blog/beats-studio-buds-pairing/</link>
       <pubDate>Mon, 20 Jun 2022 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/beats-studio-buds-pairing/</guid>
       <description>&lt;p&gt;I recently had an issue pairing a set of &lt;a href=&#34;https://www.beatsbydre.com/earbuds/studio-buds&#34;&gt;Beats Studio Buds&lt;/a&gt; to my
 laptop. The Apple website suggests that pairing the headphones &lt;a href=&#34;https://support.apple.com/en-us/HT212254&#34;&gt;was as simple
@@ -33,7 +35,7 @@ similar issues.&lt;/p&gt;
       <title>Upgrading DD-WRT to OpenWRT on the TP-Link TL-WR1043ND</title>
       <link>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</link>
       <pubDate>Tue, 02 Jul 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/updating-tp-link-tl-wr1043nd/</guid>
       <description>&lt;p&gt;I had an old &lt;a href=&#34;https://www.tp-link.com/uk/home-networking/wifi-router/tl-wr1043nd/&#34;&gt;TP-Link TL-WR1043ND&lt;/a&gt; that was running DD-WRT firmware from
 2013. Needless to say, this was pretty ancient and probably should be remedied
@@ -92,7 +94,7 @@ flash to &lt;code&gt;firmware&lt;/code&gt;:&lt;/p&gt;
       <title>How Are Datacenters Physically Wired?</title>
       <link>https://that.guru/blog/how-are-datacenters-physically-wired/</link>
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/how-are-datacenters-physically-wired/</guid>
       <description>&lt;p&gt;I sent this question to my team in Intel some time ago.&lt;/p&gt;
 &lt;blockquote&gt;
@@ -138,7 +140,7 @@ the leaf/spine level.&lt;/p&gt;
       <title>Hello, World!</title>
       <link>https://that.guru/blog/hello-world/</link>
       <pubDate>Sat, 25 Jun 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/hello-world/</guid>
       <description>&lt;p&gt;This is my new, &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo-powered&lt;/a&gt; blog. I have a backlog of articles to
 publish, so expect to see lots of material going up here in the next few weeks.&lt;/p&gt;

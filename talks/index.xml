@@ -6,12 +6,14 @@
     <description>Recent content in Talks on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Sat, 18 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/talks/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Manage Your OpenStack Resources From Kubernetes With ORC</title>
       <link>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</link>
       <pubDate>Sat, 18 Oct 2025 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</guid>
       <description>&lt;p&gt;This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
 resources using Kubernetes CRDs. It was delivered during &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in October 2025.&lt;/p&gt;
@@ -37,7 +39,7 @@ applications.&lt;/p&gt;
       <title>Steps Down the OpenAPI Path</title>
       <link>https://that.guru/talks/steps-down-the-openapi-path/</link>
       <pubDate>Sat, 18 Oct 2025 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/steps-down-the-openapi-path/</guid>
       <description>&lt;p&gt;This talks was delivered during the &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in
 October 2025. It was a continuation of a talk I gave at the &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;previous OpenInfra Summit&lt;/a&gt;
@@ -64,7 +66,7 @@ effort.&lt;/p&gt;
       <title>API Contracts: Bringing OpenAPI and Typing to OpenStack</title>
       <link>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</link>
       <pubDate>Wed, 11 Sep 2024 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/</guid>
       <description>&lt;p&gt;This talk was delivered during the &lt;a href=&#34;https://2024.openinfraasia.org/&#34;&gt;OpenInfra Summit Asia in Suwon&lt;/a&gt; in September 2024. It focused on two efforts
 currently underway in the OpenStack community, one to add OpenAPI schema generation to many services, and another to add
@@ -95,7 +97,7 @@ OpenStack, how you as a user or developer can taking advantage of them, and how 
       <title>Zero-Downtime Upgrades With SQLAlchemy and Alembic</title>
       <link>https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</link>
       <pubDate>Sun, 13 Nov 2022 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/zero-downtime-upgrades-with-alembic-and-sqlalchemy/</guid>
       <description>&lt;p&gt;This talk was delivered at &lt;a href=&#34;https://python.ie/pycon-2022/schedule/&#34;&gt;PyCon Ireland 2022&lt;/a&gt;. As the name would suggest,
 I aimed to describe how to implement a database upgrade pattern using
@@ -123,7 +125,7 @@ zero-downtime database upgrades.&lt;/p&gt;
       <title>Openstack From 10000ft</title>
       <link>https://that.guru/talks/openstack-from-10000ft/</link>
       <pubDate>Sat, 12 Nov 2022 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/openstack-from-10000ft/</guid>
       <description>&lt;p&gt;This talk was a lightning talk I gave at PyCon Ireland 2022. There&amp;rsquo;s no real
 abstract.&lt;/p&gt;
@@ -138,7 +140,7 @@ abstract.&lt;/p&gt;
       <title>Teaching Padawans to Chop Wood and Carry Water in Their Open Source Journey</title>
       <link>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</link>
       <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/teaching-padawans-to-chop-wood-and-carry-water-in-their-open-source-journey/</guid>
       <description>&lt;p&gt;This talk was delivered during the &lt;a href=&#34;https://www.eventbrite.com/e/openinfra-summit-berlin-2022-tickets-211374997307&#34;&gt;OpenInfra Summit 2022&lt;/a&gt; in Berlin. The
 aim was to provide some background on the mentoring activities happening in the
@@ -170,7 +172,7 @@ to share our process and learnings through this presentation.&lt;/p&gt;
       <title>What Is Nova?</title>
       <link>https://that.guru/talks/what-is-nova/</link>
       <pubDate>Wed, 10 Jun 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/what-is-nova/</guid>
       <description>&lt;p&gt;This talk was delivered to a number of Red Hat interns at the start of their
 internship and served as a brief, high-level overview of the OpenStack Compute
@@ -188,7 +190,7 @@ a bio of note to share 🤷&lt;/p&gt;
       <title>A Documentation Driven Approach to Building APIs</title>
       <link>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</link>
       <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</guid>
       <description>&lt;p&gt;This talk was delivered during a &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Python virtual meetup&lt;/a&gt;. The aim was to
 introduce Django REST Framework and OpenAPI, in order to demonstrate how they
@@ -221,7 +223,7 @@ something like that.&lt;/p&gt;
       <title>A Lion, A Head, and A Dash of YAML</title>
       <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</link>
       <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</guid>
       <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt;, was a repeat of a talk I&amp;rsquo;d
 previously given at &lt;a href=&#34;https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/&#34;&gt;FOSDEM 2018&lt;/a&gt;. Once again, this talk provided a quick
@@ -254,7 +256,7 @@ but no Sphinx or docutils experience is assumed.&lt;/p&gt;
       <title>Will Someone *Please* Tell Me Whats Going On? (Redux)</title>
       <link>https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/</link>
       <pubDate>Sat, 01 Feb 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on-redux/</guid>
       <description>&lt;p&gt;This was a talk I gave at &lt;a href=&#34;https://fosdem.org/2020/schedule/event/python2020_manage_change/&#34;&gt;FOSDEM 2020&lt;/a&gt;. I had previously given this talk at
 &lt;a href=&#34;https://that.guru/talks/will-someone-please-tell-me-whats-going-on/&#34;&gt;PyCon Limerick&lt;/a&gt;. The summary is repeated below.&lt;/p&gt;
@@ -282,7 +284,7 @@ product.&lt;/p&gt;
       <title>Trading Flexibility for Performance: The HPC Story in OpenStack</title>
       <link>https://that.guru/talks/trading-flexibility-for-performance/</link>
       <pubDate>Mon, 27 May 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/trading-flexibility-for-performance/</guid>
       <description>&lt;p&gt;This lightning talk was presented at &lt;a href=&#34;https://indico.cern.ch/event/776411/timetable/#20190527&#34;&gt;OpenStack Days CERN&lt;/a&gt; in May 2019. It
 gave an overview of the state of the art for HPC and NFV in the OpenStack
@@ -300,7 +302,7 @@ what they were, why they existed, and how we were trying to make them better.&lt
       <title>Working With Documentation, The Openstack Way</title>
       <link>https://that.guru/talks/working-with-documentation-the-openstack-way/</link>
       <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/working-with-documentation-the-openstack-way/</guid>
       <description>&lt;p&gt;This talk was co-presented with &lt;a href=&#34;https://twitter.com/dewsday/&#34;&gt;Alex Settle&lt;/a&gt; at the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;Denver OpenStack
 Summit&lt;/a&gt; in April 2019. It serves as a brief history of documentation within
@@ -328,7 +330,7 @@ Viva la documentation!&lt;/p&gt;
       <title>Will Somebody *Please* Tell Me What Is Going On?</title>
       <link>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</link>
       <pubDate>Sat, 23 Mar 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/will-someone-please-tell-me-whats-going-on/</guid>
       <description>&lt;p&gt;This was a talk I gave at the inaugural &lt;a href=&#34;https://pyconlimerick.github.io/&#34;&gt;PyCon Limerick&lt;/a&gt; in March 2019.  I
 explored some tools available within the Python ecosystem that can be used to
@@ -359,7 +361,7 @@ product.&lt;/p&gt;
       <title>Who Needs pandoc When You Have Sphinx?</title>
       <link>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</link>
       <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</guid>
       <description>&lt;p&gt;This was a talk I gave at &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM 2019&lt;/a&gt;. In this talk, subtitled &amp;ldquo;An
 exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I
@@ -401,7 +403,7 @@ provides.&lt;/p&gt;
       <title>How to Double* the Performance of vSwitch-based Deployments</title>
       <link>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</link>
       <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/how-to-double-the-performance-of-vswitch-based-deployments/</guid>
       <description>&lt;p&gt;This was a talk I have at the &lt;a href=&#34;https://www.openstack.org/summit/berlin-2018/summit-schedule/events/22582/how-to-double-the-performance-of-vswitch-based-deployments&#34;&gt;OpenStack Summit Berlin&lt;/a&gt; in November 2018. In
 this talk, I discussed the &lt;a href=&#34;https://specs.openstack.org/openstack/nova-specs/specs/rocky/implemented/numa-aware-vswitches.html&#34;&gt;NUMA-aware vSwitches&lt;/a&gt; feature recently added to
@@ -441,7 +443,7 @@ areas&lt;/li&gt;
       <title>The Wonders of NUMA</title>
       <link>https://that.guru/talks/the-wonders-of-numa/</link>
       <pubDate>Wed, 23 May 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/the-wonders-of-numa/</guid>
       <description>&lt;p&gt;This talk was presented at the &lt;a href=&#34;https://www.openstack.org/summit/vancouver-2018/summit-schedule/events/20831/the-wonders-of-numa-or-why-your-high-performance-application-doesnt-perform&#34;&gt;OpenStack Summit in Vancouver&lt;/a&gt; in May 2018.
 It provided an in-depth summary of what NUMA is and why it matters so much for
@@ -494,7 +496,7 @@ about it (*)&lt;/li&gt;
       <title>A Lion, A Head, and A Dash of YAML</title>
       <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</link>
       <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</guid>
       <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM 2018&lt;/a&gt;, provided a quick dive into the
 somewhat complicated world of Sphinx extensions. Sphinx is an incredibly
@@ -548,7 +550,7 @@ extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
       <title>Keeping It Real(Time)</title>
       <link>https://that.guru/talks/keeping-it-real-time/</link>
       <pubDate>Sat, 03 Feb 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/keeping-it-real-time/</guid>
       <description>&lt;p&gt;This talk was an expanded version of the talk &lt;a href=&#34;https://that.guru/talks/keeping-it-real-time-sydney&#34;&gt;I had given previously at the
 Sydney OpenStack Summit&lt;/a&gt; and, as then, I once again discussed the real-time
@@ -580,7 +582,7 @@ source, please let me know)&lt;/p&gt;
       <title>Keeping It Real(Time)</title>
       <link>https://that.guru/talks/keeping-it-real-time-sydney/</link>
       <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/keeping-it-real-time-sydney/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; An &lt;a href=&#34;https://that.guru/talks/keeping-it-real-time&#34;&gt;expanded version of this talk&lt;/a&gt; was delivered at FOSDEM 2018
 and is well worth the read if you&amp;rsquo;re interested in this.&lt;/p&gt;
@@ -623,7 +625,7 @@ applications.&lt;/p&gt;
       <title>Mailing List, Meet CI</title>
       <link>https://that.guru/talks/mailing-list-meet-ci/</link>
       <pubDate>Sun, 05 Feb 2017 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/mailing-list-meet-ci/</guid>
       <description>&lt;p&gt;This talk was presented as a lightning talk at &lt;a href=&#34;https://fosdem.org/2017/schedule/event/patchwork_jenkins/&#34;&gt;FOSDEM 2017&lt;/a&gt;. It described
 the CI features provided in Patchwork 2.0, which was at the time unreleased. I

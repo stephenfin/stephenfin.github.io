@@ -160,14 +160,14 @@ information will be sourced from elsewhere, namely the <code>[DEFAULT] default_a
 <a href="#configuration">below</a>. Unlike Cinder&rsquo;s config option, this is not intended to differ by host and should be set to the
 same value across all compute nodes. Nova will prevent you adding a host to more than one aggregate with AZ metadata set
 since a host can only belong to one AZ.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az1 foo
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az1 foo
 </span></span><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az2 bar
 </span></span><span style="display:flex;"><span>❯ openstack aggregate add host foo stephenfin-devstack
 </span></span><span style="display:flex;"><span>❯ openstack aggregate add host bar stephenfin-devstack
 </span></span><span style="display:flex;"><span>ConflictException: 409: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.109.204/compute/v2.1/os-aggregates/13/action, Cannot add host to aggregate 13. Reason: One or more hosts already in availability zone<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;nova-az1&#39;</span><span style="color:#f92672">]</span>.
 </span></span></code></pre></div><p>In addition, if a host has instances on it, the Nova will also prevent you from modifying the AZ metadata of an
 aggregate it already belongs to - since this would break the AZ constraint placed on any of the existing instances:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server show test-server -f value -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server show test-server -f value -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host
 </span></span><span style="display:flex;"><span>nova-az1
 </span></span><span style="display:flex;"><span>stephenfin-devstack
 </span></span><span style="display:flex;"><span>❯ openstack aggregate show foo -f value -c availability_zone -c hosts
@@ -186,9 +186,9 @@ resolved.</div>
 <p>Nova allows you to specify an AZ when creating an instance (or &ldquo;server&rdquo;, in OpenStackClient parlance), while Cinder
 allows you to specify them when creating a volume, a volume backup, a volume group, or (volume groups&rsquo; deprecated
 predecessor) a consistency group. For example, to create an instance (or &ldquo;server&rdquo;) with an explicit compute AZ:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>openstack server create --availability-zone compute-az1 ...
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>openstack server create --availability-zone compute-az1 ...
 </span></span></code></pre></div><p>Likewise, to create a volume and volume backup with an explicit block storage AZ:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
 </span></span><span style="display:flex;"><span>openstack volume backup create --availability-zone volume-az2 ...
 </span></span></code></pre></div><p>However, you&rsquo;ll note that these resource types will always have AZ information associated with them, even when an AZ
 wasn&rsquo;t specifically requested during creation. This is because, in the absence of specific AZ information, both services
@@ -303,15 +303,15 @@ single volume AZ.</p>
 <p>Again, since this feature exists across two services, there are two sets of resource types to be concerned with.</p>
 <p>To configure the AZ of a compute host, you configure AZ information for a host aggregate and then add the host to this
 aggregate.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az1 foo
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack aggregate create --zone nova-az1 foo
 </span></span><span style="display:flex;"><span>❯ openstack aggregate add host foo stephenfin-devstack
 </span></span></code></pre></div><p>Once this is done, you can request the AZ when creating an instance (or &ldquo;server&rdquo;):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server create --availability-zone nova-az1 ...
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server create --availability-zone nova-az1 ...
 </span></span></code></pre></div><p>On the other hand, the AZ of a storage host is configured via config and there&rsquo;s no API method to configure it. You can
 use it when creating a volume just like creating a server though:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume create --availability-zone volume-az1 ...
 </span></span></code></pre></div><p>Or when creating a volume backup:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume backup create --availability-zone volume-az2 ...
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openstack volume backup create --availability-zone volume-az2 ...
 </span></span></code></pre></div><p>Other API libraries like gophercloud also expose these attributes and allow them to be configured, but we won&rsquo;t go into
 that here.</p>
 

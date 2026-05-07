@@ -304,7 +304,7 @@ devices respectively. However, it returns this information - in a different form
 <code>os-extended-volumes:volumes_attached</code> in response to <code>GET /servers/{serverID}</code> and <code>GET /servers/detail</code>. Because we
 currently munge the request and response body fields, our <code>Server</code> class therefore looks like this (in highly minimized
 form):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Server</span>(resource<span style="color:#f92672">.</span>Resource):
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Server</span>(resource<span style="color:#f92672">.</span>Resource):
 </span></span><span style="display:flex;"><span>    addresses <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(<span style="color:#e6db74">&#39;addresses&#39;</span>, type<span style="color:#f92672">=</span>dict)
 </span></span><span style="display:flex;"><span>    attached_volumes <span style="color:#f92672">=</span> resource<span style="color:#f92672">.</span>Body(
 </span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;os-extended-volumes:volumes_attached&#39;</span>,

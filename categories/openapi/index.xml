@@ -6,12 +6,14 @@
     <description>Recent content in Openapi on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Thu, 03 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/openapi/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>An Update on OpenAPI in Openstack</title>
       <link>https://that.guru/blog/an-update-on-openapi-in-openstack/</link>
       <pubDate>Thu, 03 Apr 2025 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/an-update-on-openapi-in-openstack/</guid>
       <description>&lt;p&gt;I previously presented on our work to bring OpenAPI to OpenStack as part of the 2024 OpenInfra Summit Asia, the slides
 for which you can find &lt;a href=&#34;https://that.guru/talks/api-contracts-bringing-openapi-and-typing-to-openstack/&#34;&gt;here&lt;/a&gt;. Since that talk, another
@@ -214,7 +216,7 @@ devices respectively. However, it returns this information - in a different form
 &lt;code&gt;os-extended-volumes:volumes_attached&lt;/code&gt; in response to &lt;code&gt;GET /servers/{serverID}&lt;/code&gt; and &lt;code&gt;GET /servers/detail&lt;/code&gt;. Because we
 currently munge the request and response body fields, our &lt;code&gt;Server&lt;/code&gt; class therefore looks like this (in highly minimized
 form):&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Server&lt;/span&gt;(resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Resource):
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Server&lt;/span&gt;(resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Resource):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    addresses &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;addresses&amp;#39;&lt;/span&gt;, type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dict)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    attached_volumes &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resource&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Body(
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;os-extended-volumes:volumes_attached&amp;#39;&lt;/span&gt;,

@@ -87,7 +87,7 @@ responsible for deploying the controller pods onto control plane nodes and the d
 this using a deployment and a daemonset, respectively. It is also responsible for creating necessary service accounts,
 roles, and role bindings, along with default <code>StorageClass</code> and <code>VolumeSnapshotClass</code> implementations. In a standalone
 deployment, you can see most of these created in the <code>openshift-cluster-csi-drivers</code> namespace:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cluster-csi-drivers all
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cluster-csi-drivers all
 </span></span><span style="display:flex;"><span>NAME                                                          READY   STATUS    RESTARTS        AGE
 </span></span><span style="display:flex;"><span>pod/manila-csi-driver-operator-6b9645777-hn4fj                1/1     Running   <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>3d18h ago<span style="color:#f92672">)</span>   3d18h
 </span></span><span style="display:flex;"><span>pod/openstack-cinder-csi-driver-controller-8554666ccc-ltjqm   10/10   Running   <span style="color:#ae81ff">0</span>               3d18h
@@ -154,7 +154,7 @@ clouds.yaml: &lt;redacted&gt;
 </code></pre><p>These are then rolled out to secrets in other namespaces based on <code>CredentialsRequest</code> CRs. There are many
 <code>CredentialsRequest</code> CRs in a standard OpenShift Installer-provisioned cluster but the <code>CredentialsRequest</code> CR for the
 Cinder CSI Driver Operator is stored at <code>openshift-cloud-credential-operator / openshift-cluster-csi-drivers</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cloud-credential-operator CredentialsRequest openshift-cluster-csi-drivers -o yaml | yq <span style="color:#e6db74">&#39;.spec&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cloud-credential-operator CredentialsRequest openshift-cluster-csi-drivers -o yaml | yq <span style="color:#e6db74">&#39;.spec&#39;</span>
 </span></span><span style="display:flex;"><span>providerSpec:
 </span></span><span style="display:flex;"><span>  apiVersion: cloudcredential.openshift.io/v1
 </span></span><span style="display:flex;"><span>  kind: OpenStackProviderSpec
@@ -162,7 +162,7 @@ Cinder CSI Driver Operator is stored at <code>openshift-cloud-credential-operato
 </span></span><span style="display:flex;"><span>  name: openstack-cloud-credentials
 </span></span><span style="display:flex;"><span>  namespace: openshift-cluster-csi-drivers
 </span></span></code></pre></div><p>Based on this CR, we can expect the resulting secret to be found in <code>openshift-cluster-csi-drivers / openstack-cloud-credentials</code>. And indeed, we can see the secret in a deployment:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cluster-csi-drivers secret openstack-cloud-credentials -o yaml | yq <span style="color:#e6db74">&#39;.data&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc get -n openshift-cluster-csi-drivers secret openstack-cloud-credentials -o yaml | yq <span style="color:#e6db74">&#39;.data&#39;</span>
 </span></span><span style="display:flex;"><span>clouds.yaml: &lt;redacted&gt;
 </span></span></code></pre></div><p>Thus, to rotate the credentials for the Cinder CSI Driver Operator, and in turn the Cinder CSI Driver, you should update
 the secret at <code>kube-system / openstack-credentials</code>. The Cloud Credential Operator will then roll this out and the
@@ -181,7 +181,7 @@ operator.openshift.io/dep-28104e6bcb20f4d44a571c8e2f3f0a1f5a880: ElMHxA==
 <p>The below script is an example of how to modify the credentials. In this case, we are setting the <code>volume_api_version</code>
 attribute for the cloud entry, however, there&rsquo;s no reason you could choose to replace the credentials with wholly new
 credentials.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> subprocess
@@ -275,12 +275,12 @@ through three operators: the Cinder CSI Driver Operator, the Cluster Storage Ope
 As a result, in order to work on the Cinder CSI Driver or the operator - at least without building and deploying a
 custom release image - you will need to scale down both the Cluster Version Operator and Cluster Version Operator <em>in
 that order</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-version deployment cluster-version-operator --replicas <span style="color:#ae81ff">0</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-version deployment cluster-version-operator --replicas <span style="color:#ae81ff">0</span>
 </span></span><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-storage-operator deployment cluster-storage-operator --replicas <span style="color:#ae81ff">0</span>
 </span></span></code></pre></div><p>If you are in a Hypershift cluster, the above is mostly still true. However, as Hypershift doesn&rsquo;t have the Cluster
 Version Operator you instead need to scale down two other operators: the Hypershift Operator and the Control Plane
 Operator. Once again, this needs to be done <em>in that order</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n hypershift deployment operator --replicas <span style="color:#ae81ff">0</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n hypershift deployment operator --replicas <span style="color:#ae81ff">0</span>
 </span></span><span style="display:flex;"><span>❯ oc scale -n clusters-foo deployment control-plane-operator --replicas <span style="color:#ae81ff">0</span>
 </span></span><span style="display:flex;"><span>❯ oc scale -n clusters-foo deployment cluster-storage-operator --replicas <span style="color:#ae81ff">0</span>
 </span></span></code></pre></div><p>where <code>foo</code> is the name given to your guest cluster.</p>
@@ -291,7 +291,7 @@ Operator. Once again, this needs to be done <em>in that order</em>:</p>
 <p>Once you&rsquo;ve scaled these down, you&rsquo;re free to manipulate the Cinder CSI Driver Operator as you see fit. For example, if
 you are iterating on changes to the Operator itself, you can build and publish an image with your changes included and
 then modify the deployment using e.g. <code>oc edit</code> to reference this new image. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ podman build -t ghcr.io/&lt;username&gt;/csi-operator-openstack-cinder:latest -f Dockerfile.openstack-cinder
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ podman build -t ghcr.io/&lt;username&gt;/csi-operator-openstack-cinder:latest -f Dockerfile.openstack-cinder
 </span></span><span style="display:flex;"><span>❯ podman push ghcr.io/&lt;username&gt;/csi-operator-openstack-cinder:latest
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>❯ oc edit -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-operator
@@ -300,7 +300,7 @@ then modify the deployment using e.g. <code>oc edit</code> to reference this new
 </span></span></code></pre></div><p>If you are iterating on changes to Cinder CSI Driver itself (or one of the sidecar containers), then you can either set
 the appropriate <code>IMAGE</code> environment variable in the deployment (e.g. <code>DRIVER_IMAGE</code>) or scale down the CSI Operator also
 and manipulate the deployments and daemonsets as necessary. For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-controller --replicas <span style="color:#ae81ff">0</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-csi-drivers deployment openstack-cinder-csi-driver-controller --replicas <span style="color:#ae81ff">0</span>
 </span></span><span style="display:flex;"><span>❯ oc scale -n openshift-cluster-csi-drivers daemonset openstack-cinder-csi-driver-node --replicas <span style="color:#ae81ff">0</span>
 </span></span></code></pre></div>
   </div>

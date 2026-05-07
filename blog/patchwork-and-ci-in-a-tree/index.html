@@ -126,7 +126,7 @@ Docker for this, though Patchwork can also be installed manually.</p>
 <h3 id="patchwork">Patchwork</h3>
 <p>First up, Patchwork. Clone the Patchwork repo and bring up the project, as
 described in the <a href="https://patchwork.readthedocs.io/en/latest/development/installation/">docs</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ git clone https://github.com/getpatchwork/patchwork
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ git clone https://github.com/getpatchwork/patchwork
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>$ cd patchwork
 </span></span><span style="display:flex;"><span>$ docker-compose build
@@ -134,16 +134,16 @@ described in the <a href="https://patchwork.readthedocs.io/en/latest/development
 </span></span></code></pre></div><p>Leave this running and jump to another tab.</p>
 <p>You should also create an superuser that you can use manage the instance. I
 used <code>admin</code> and <code>tester</code> for username and password, respectively:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker-compose run --rm web python manage.py createsuperuser
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker-compose run --rm web python manage.py createsuperuser
 </span></span></code></pre></div><p>Once initialized, you should be able to browse Patchwork at <code>localhost:8000</code>.
 A default <code>Patchwork</code> project will have been created, which we will use for
 this demo.</p>
 <h3 id="jenkins">Jenkins</h3>
 <p>Now for Jenkins. We&rsquo;ll follow the instructions provided on the the <a href="https://hub.docker.com/_/jenkins/">Docker
 Hub</a> page. Run:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker pull jenkins
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker pull jenkins
 </span></span><span style="display:flex;"><span>$ docker run --name myjenkins -p 8080:8080 -p 50000:50000 <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -v /var/jenkins_home jenkins
+</span></span></span><span style="display:flex;"><span>    -v /var/jenkins_home jenkins
 </span></span></code></pre></div><p>Browse to the Jenkins URL (<code>localhost:8080</code>), where you will be asked to
 authenticate, create a user, and select which plugins to install. I used
 <code>admin</code> and <code>tester</code> for username and password once again, then chose the
@@ -182,9 +182,9 @@ etc. You can do this using the admin console:</p>
 Patchwork instance. This is necessary so Jenkins can communicate with the
 instance. You can extract the IP address using <code>docker inspect</code>, per <a href="http://stackoverflow.com/a/20686101/613428">this
 StackOverflow answer</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker inspect <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -f <span style="color:#e6db74">&#39;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#39;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    &lt;CONTAINER_NAME_OR_ID&gt;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker inspect <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -f <span style="color:#e6db74">&#39;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    &lt;CONTAINER_NAME_OR_ID&gt;
 </span></span></code></pre></div><p>where <code>&lt;CONTAINER_NAME_OR_ID&gt;</code> refers to the active <code>patchwork_web</code> container.
 This will return an IP address, in my case <code>172.17.0.3</code>. Ensure you can access
 the Patchwork instance via this address (including port) - for example at
@@ -275,8 +275,8 @@ username, password and IP address of the Patchwork instance, which we got
 previously. Add a new &ldquo;Execute Shell&rdquo; build step to the <em>Build</em> section. Paste
 the script provided below there, updating the IP address or credentials where
 necessary:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env bash
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env bash
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># Constants</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
@@ -301,12 +301,12 @@ necessary:</p>
 </span></span><span style="display:flex;"><span>  description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$2<span style="color:#e6db74">&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  curl -X POST <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -u <span style="color:#e6db74">&#34;</span>$PATCHWORK_USER<span style="color:#e6db74">:</span>$PATCHWORK_PASS<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -F <span style="color:#e6db74">&#34;state=</span>$state<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -F <span style="color:#e6db74">&#34;target_url=</span>$BUILD_URL<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -F <span style="color:#e6db74">&#34;context=</span>$JOB_NAME<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -F <span style="color:#e6db74">&#34;description=</span>$description<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#e6db74">&#34;</span>$CHECK_URL<span style="color:#e6db74">&#34;</span>
+</span></span></span><span style="display:flex;"><span>    -u <span style="color:#e6db74">&#34;</span>$PATCHWORK_USER<span style="color:#e6db74">:</span>$PATCHWORK_PASS<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -F <span style="color:#e6db74">&#34;state=</span>$state<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -F <span style="color:#e6db74">&#34;target_url=</span>$BUILD_URL<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -F <span style="color:#e6db74">&#34;context=</span>$JOB_NAME<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -F <span style="color:#e6db74">&#34;description=</span>$description<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;</span>$CHECK_URL<span style="color:#e6db74">&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
@@ -375,7 +375,7 @@ manually. You should do this now. For example, on Fedora 25 run:</p>
 hard-code these for now, using the Jenkins username and token and Patchwork
 username and password we configured/collected earlier. We&rsquo;re also going to
 create some function stubs, which we will populate later.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># Constants</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
 </span></span><span style="display:flex;"><span>
@@ -421,14 +421,14 @@ in that series (the second patch&rsquo;s only dependency) is received will the
 given that it has no dependencies per se).</p>
 <p>The below section of the script deals with reading these events from the
 Patchwork API.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># Main</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">##################################################</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># Pull in latest events</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>response<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>curl -s -u <span style="color:#e6db74">&#34;</span>$PATCHWORK_USER<span style="color:#e6db74">:</span>$PATCHWORK_PASS<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  -H <span style="color:#e6db74">&#34;Host: </span>$PATCHWORK_URL<span style="color:#e6db74"> \
+</span></span></span><span style="display:flex;"><span>  -H <span style="color:#e6db74">&#34;Host: </span>$PATCHWORK_URL<span style="color:#e6db74"> \
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  http://</span><span style="color:#e6db74">${</span>PATCHWORK_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">/api/1.0/events/?category=patch-completed)
 </span></span></span></code></pre></div><p><strong>Note:</strong> The use of the <code>Host:</code> header is important - without this, responses
 will be returned using <code>localhost</code> as the host name. This won&rsquo;t be usable from
@@ -439,7 +439,7 @@ dependencies. We must retrieve the patch and series from the Patchwork API.
 Note that, in a future version of the API, we should support an <code>embed</code>
 parameter that would allow us to embed the patch and series in the response and
 avoid these additional requests.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># Extract patch and series URLs from each event, and create jobs based on</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># Extract patch and series URLs from each event, and create jobs based on</span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># these</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>patches_series<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>echo <span style="color:#e6db74">&#34;</span>$response<span style="color:#e6db74">&#34;</span> | jq -rc <span style="color:#e6db74">&#39;.[] | .payload.patch.url + &#34;,&#34; + .payload.series.id&#39;</span><span style="color:#66d9ef">)</span>
@@ -455,7 +455,7 @@ We&rsquo;re going to do this via a call to the <code>submit_job</code> function,
 already defined a stub for. Implementing this function is rather simple, given
 that we have already configured the job and gathered all required parameters
 and credentials. Replace the above stub with the below function.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> submit_job<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> submit_job<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
 </span></span><span style="display:flex;"><span>  local patch_url
 </span></span><span style="display:flex;"><span>  local series_id
 </span></span><span style="display:flex;"><span>  local mbox_url
@@ -472,15 +472,15 @@ and credentials. Replace the above stub with the below function.</p>
 </span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;Job parameters: PATCH_MBOX_URL=</span>$mbox_url<span style="color:#e6db74">, CHECK_URL=</span>$check_url<span style="color:#e6db74">&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  curl -X POST <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -H <span style="color:#e6db74">&#34;</span>$JENKINS_CRUMB<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --data token<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$JOB_TOKEN<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --data-urlencode json<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{
+</span></span></span><span style="display:flex;"><span>    -H <span style="color:#e6db74">&#34;</span>$JENKINS_CRUMB<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --data token<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$JOB_TOKEN<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --data-urlencode json<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &#34;parameter&#34;: [
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        {&#34;name&#34;:&#34;MBOX_URL&#34;, &#34;value&#34;:&#34;&#39;</span><span style="color:#e6db74">&#34;</span>$mbox_url<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;},
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        {&#34;name&#34;:&#34;CHECK_URL&#34;, &#34;value&#34;:&#34;&#39;</span><span style="color:#e6db74">&#34;</span>$check_url<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;}
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      ]
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    }&#39;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#e6db74">&#34;</span>$build_url<span style="color:#e6db74">&#34;</span>
+</span></span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;</span>$build_url<span style="color:#e6db74">&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;Job submitted&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
@@ -503,15 +503,15 @@ wiki</a>.</p>
 automatically but, as this is for testing only, we&rsquo;re going to once again
 follow the <a href="https://patchwork.readthedocs.io/en/latest/development/installation/#import-mailing-list-archives">Patchwork documentation</a> and make use Mailman archives. I
 downloaded the archives for January 2017, like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ curl https://gist.github.com/stephenfin/d13183dad40f8c472234cb26777355c3 <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    | gunzip &gt; sample-series.mbox
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ curl https://gist.github.com/stephenfin/d13183dad40f8c472234cb26777355c3 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    | gunzip &gt; sample-series.mbox
 </span></span></code></pre></div><p>Note that this <em>must</em> be downloaded to the <code>patchwork</code> directory, else it will
 not be accessible from the Docker containers.</p>
 <p>Once downloaded, use the <code>parsearchive</code> tool provided with Patchwork to load
 the archive:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker-compose run web python manage.py parsearchive <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --list-id<span style="color:#f92672">=</span>patchwork.ozlabs.org <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    sample-series.mbox
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker-compose run web python manage.py parsearchive <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --list-id<span style="color:#f92672">=</span>patchwork.ozlabs.org <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    sample-series.mbox
 </span></span></code></pre></div><p>Keep an eye on the <code>/events</code> URL - you should notice a few new patch events.</p>
 <h2 id="go-time">Go Time</h2>
 <p>Run the script on your host and watch the end result. That script will read the

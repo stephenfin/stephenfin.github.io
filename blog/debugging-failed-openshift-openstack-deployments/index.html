@@ -118,35 +118,35 @@ ERROR Bootstrap failed to complete: timed out waiting for the condition
 ERROR Failed to wait for bootstrapping to complete. This error usually happens when there is a problem with control plane hosts that prevents the control plane operators from creating the control plane.
 </code></pre><p>You&rsquo;ve a couple of tools that you can use to validate this. The first of these is to check the serial console.
 This will highlight the more egregious issues with your deployment. You can do this with:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack console url show stephenfin-5ps6d-bootstrap  <span style="color:#75715e"># replace with your own bootstrap server&#39;s name</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack console url show stephenfin-5ps6d-bootstrap  <span style="color:#75715e"># replace with your own bootstrap server&#39;s name</span>
 </span></span></code></pre></div><p>If this doesn&rsquo;t show anything weird then the next step is to log in to the server and check the status of the <code>bootkube</code>
 service. As is custom with OpenStack, to SSH into a machine you need (a) a floating IP and (b) a security group (or more
 accurately a security group rule) that allows SSH access. The Installer automatically assigns a floating IP to the
 bootstrap machine so (a) is taken care of. That leaves (b). You like already have an &ldquo;allow SSH&rdquo; security group lying
 around and if so, you can use that now:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  <span style="color:#75715e"># replace with your own server, SG names</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add security group stephenfin-5ps6d-bootstrap allow_ssh  <span style="color:#75715e"># replace with your own server, SG names</span>
 </span></span></code></pre></div>
 <aside class="admonition note">
   <div class="admonition-content"><p>If you don&rsquo;t have such a group, creating one is easy. The following ought to do the trick:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack security group create allow_ssh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack security group create allow_ssh
 </span></span><span style="display:flex;"><span>$ openstack security group rule create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --protocol tcp --dst-port <span style="color:#ae81ff">22</span> --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    allow_ssh
+</span></span></span><span style="display:flex;"><span>    --protocol tcp --dst-port <span style="color:#ae81ff">22</span> --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    allow_ssh
 </span></span><span style="display:flex;"><span>$ openstack security group rule create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --protocol icmp --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    allow_ssh
+</span></span></span><span style="display:flex;"><span>    --protocol icmp --remote-ip 0.0.0.0/0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    allow_ssh
 </span></span></code></pre></div></div>
 </aside>
 
 <p>Once you&rsquo;ve allowed SSH traffic you can SSH into the machine.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server ssh stephenfin-5ps6d-bootstrap -- -l core
 </span></span></code></pre></div>
 <aside class="admonition note">
   <div class="admonition-content"><code>core</code> is the default username for Red Hat CoreOS.</div>
 </aside>
 
 <p>From here you can follow the directions given in the MOTD and check the <code>bootkube</code> service first:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ journalctl -b -f -u release-image.service -u bootkube.service
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ journalctl -b -f -u release-image.service -u bootkube.service
 </span></span></code></pre></div><p>In my case it appeared the issue was the lack of access to the master nodes:</p>
 <pre tabindex="0"><code>s the base image from which all OpenShift Container Platform images inherit.)
 Apr 22 14:01:09 stephenfin-5ps6d-bootstrap bootkube.sh[2449]: Check if API and API-Int URLs are reachable during bootstrap
@@ -161,7 +161,7 @@ Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Deactiv
 Apr 22 14:01:09 stephenfin-5ps6d-bootstrap systemd[1]: bootkube.service: Consumed 1min 2.337s CPU time.
 </code></pre><p>The same steps apply for debugging issues with master or worker nodes: add a floating IP, allow SSH access, then SSH
 into the machine.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add floating ip stephenfin-5ps6d-master-0 10.0.214.101
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ openstack server add floating ip stephenfin-5ps6d-master-0 10.0.214.101
 </span></span><span style="display:flex;"><span>$ openstack server add security group stephenfin-5ps6d-master-0 allow_ssh
 </span></span><span style="display:flex;"><span>$ openstack server ssh stephenfin-5ps6d-master-0 -- -l core
 </span></span></code></pre></div>

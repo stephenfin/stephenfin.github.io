@@ -6,12 +6,14 @@
     <description>Recent content in Networking on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Mon, 26 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/networking/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Multipoint VXLAN Tunnels</title>
       <link>https://that.guru/blog/multipoint-vxlan-tunnels/</link>
       <pubDate>Mon, 26 Jun 2023 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/multipoint-vxlan-tunnels/</guid>
       <description>&lt;p&gt;I recently had to deploy a multi-node OpenStack cluster in Azure. Like most cloud platforms, Azure does not expose L2
 networks and implements MAC spoofing protection, preventing VMs from advertising IPs that have not been assigned to
@@ -29,19 +31,19 @@ I needed to take to get this functioning below.&lt;/p&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;the-solution&#34;&gt;The solution&lt;/h2&gt;
 &lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-00&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.2/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set up dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-01&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.6 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.6 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bridge fdb append to 00:00:00:00:00:00 dst 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.3/23 dev provider0
@@ -49,7 +51,7 @@ I needed to take to get this functioning below.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;the-alternative-solution&#34;&gt;The (alternative) solution&lt;/h2&gt;
 &lt;p&gt;If using Debian or Ubuntu, you can achieve part of this using netplan. This can be helpful when using e.g. Ansible.
 If using netplan, simply omit the &lt;code&gt;network.tunnels.{name}.remote&lt;/code&gt; setting, like so:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;network&lt;/span&gt;:
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;network&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;tunnels&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;provider0&lt;/span&gt;:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;mode&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;vxlan&lt;/span&gt;
@@ -60,7 +62,7 @@ If using netplan, simply omit the &lt;code&gt;network.tunnels.{name}.remote&lt;/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You then need to run the &lt;code&gt;bridge fdb&lt;/code&gt; commands manually as it doesn&amp;rsquo;t seem to be possible to configure this via netplan.&lt;/p&gt;
 &lt;h2 id=&#34;the-explanation&#34;&gt;The explanation&lt;/h2&gt;
 &lt;p&gt;Typically, you would create a VXLAN tunnel endpoint (VTEP) using a command like so:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 remote 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link add provider0 type vxlan id &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; local 192.168.226.4 remote 192.168.226.5 dstport &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, the &lt;code&gt;ip&lt;/code&gt; command does not allow you to specify multiple &lt;code&gt;remote&lt;/code&gt; stanzas. As a result, you need to omit this
 and manually specify forwarding database entries using the &lt;code&gt;bridge fdb&lt;/code&gt; command.&lt;/p&gt;
@@ -68,19 +70,19 @@ and manually specify forwarding database entries using the &lt;code&gt;bridge fd
 &lt;p&gt;This wasn&amp;rsquo;t an option for me because GRE &lt;a href=&#34;https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq&#34;&gt;is apparently blocked by Azure&lt;/a&gt;. In theory though, there&amp;rsquo;s no
 reason this shouldn&amp;rsquo;t work otherwise.&lt;/p&gt;
 &lt;p&gt;On &lt;code&gt;bastion&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.4 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.4 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.1/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-00&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.5 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.5 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.2/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.3 lladdr 192.168.226.6 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-01&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip link set dev provider0 up
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;On &lt;code&gt;host-01&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.6 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip tunnel add provider0 mode gre local 192.168.226.6 key &lt;span style=&#34;color:#ae81ff&#34;&gt;1234&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip addr add 192.168.234.3/23 dev provider0
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.1 lladdr 192.168.226.4 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# bastion&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ip neighbor add 192.168.234.2 lladdr 192.168.226.5 dev provider0  &lt;span style=&#34;color:#75715e&#34;&gt;# host-00&lt;/span&gt;
@@ -101,7 +103,7 @@ reason this shouldn&amp;rsquo;t work otherwise.&lt;/p&gt;
       <title>Direct vs Hostdev Interfaces in Nova</title>
       <link>https://that.guru/blog/direct-vs-hostdev-interfaces/</link>
       <pubDate>Thu, 14 Feb 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/direct-vs-hostdev-interfaces/</guid>
       <description>&lt;p&gt;Mostly a note for myself. There are two types of SR-IOV&amp;rsquo;y networks supported in
 nova: &lt;code&gt;direct&lt;/code&gt; and &lt;code&gt;hostdev&lt;/code&gt;. Confusingly, the latter corresponds to passthrough
@@ -159,7 +161,7 @@ specific hardware types.&lt;/p&gt;
       <title>Updating Mellanox ConnectX-3 NIC Firmware</title>
       <link>https://that.guru/blog/updating-mellanox-connectx-3/</link>
       <pubDate>Wed, 06 Feb 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/updating-mellanox-connectx-3/</guid>
       <description>&lt;p&gt;In a &lt;a href=&#34;https://that.guru/blog/sriov-mellanox-connectx-3&#34;&gt;previous post&lt;/a&gt;, I provided a guide on configuring SR-IOV for a Mellanox
 ConnectX-3 NIC. I&amp;rsquo;ve since picked up a second one of these and was attempting
@@ -256,7 +258,7 @@ Configurations:                              Current
       <title>Configuring SR-IOV for a Mellanox ConnectX-3 NIC</title>
       <link>https://that.guru/blog/sriov-mellanox-connectx-3/</link>
       <pubDate>Tue, 25 Sep 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/sriov-mellanox-connectx-3/</guid>
       <description>&lt;p&gt;So &lt;a href=&#34;https://en.wikipedia.org/wiki/Single-root_input/output_virtualization&#34;&gt;SR-IOV&lt;/a&gt; support in my &lt;a href=&#34;https://ark.intel.com/products/84804/Intel-Ethernet-Server-Adapter-I350-T2V2&#34;&gt;Intel I350-T2V2&lt;/a&gt; decided to stop working recently
 (or maybe it never worked - I can&amp;rsquo;t be sure), meaning it was time to pick up a

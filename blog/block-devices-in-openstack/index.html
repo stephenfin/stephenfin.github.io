@@ -159,15 +159,15 @@ that clarified (🙃), let&rsquo;s take a look at the first disk type, root disk
 suggests, the root disk is where <code>/</code> is mounted. By default, the root disk will be provisioned by Nova and its size will
 be configured in GB using the <code>disk</code> property of the flavor used to create the instance. For example, by looking at the
 <code>m1.small</code> flavor on a local DevStack deployment I can see <code>disk</code> set to <code>20</code> or 20GB:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.small -f value -c disk
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.small -f value -c disk
 </span></span><span style="display:flex;"><span><span style="color:#ae81ff">20</span>
 </span></span></code></pre></div><p>If we create a instance using this flavor (and no other block device-related configuration, obviously), we will get a
 root disk that is 20GB in size.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>We can confirm this by SSH&rsquo;ing into the machine:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server add floating ip test-server <span style="color:#e6db74">${</span>FIP<span style="color:#e6db74">}</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server add floating ip test-server <span style="color:#e6db74">${</span>FIP<span style="color:#e6db74">}</span>
 </span></span><span style="display:flex;"><span>❯ openstack server ssh test-server -- -l cirros
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>$ lsblk
@@ -178,10 +178,10 @@ root disk that is 20GB in size.</p>
 </span></span></code></pre></div><p>We can also opt to use a Cinder volume for the root disk (which some people will now call a &ldquo;root volume&rdquo; - see previous
 &ldquo;clarification&rdquo; 😅). If you&rsquo;re using OpenStackClient (OSC), this can be accomplished using the <code>--boot-from-volume</code>
 option:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --boot-from-volume <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --boot-from-volume <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>When you do this, Nova will create the volume for you by proxying the request through to Cinder. You can confirm this
 using the <code>openstack volume list</code> command:</p>
 <pre tabindex="0"><code>❯ openstack volume list
@@ -197,10 +197,10 @@ vda     252:0    0   5G  0 disk
 |-vda1  252:1    0   5G  0 part /
 `-vda15 252:15   0   8M  0 part
 </code></pre><p>Finally, you can choose to use an existing volume as the root disk. To do this, use the <code>--volume</code> option:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --volume test-volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --volume test-volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>This volume must be bootable, and you would likely use this to re-create a deleted instance using its root volume.</p>
 
 <aside class="admonition note">
@@ -209,7 +209,7 @@ instance is deleted. This is either or a pro or a con, depending on how you look
 allows you to re-attach the disk to a new instance (more on this later). On the negative side, this means you can end up
 with a whole load of stale volumes sitting around, taking up space on your Ceph cluster (or whatever backend Cinder is
 using). To work around this, you can modify the <code>delete_on_termination</code> attribute of the volume attachment:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server volume list test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack server volume list test-server
 </span></span><span style="display:flex;"><span>+----------+--------------------------------------+--------------------------------------+------+------------------------+--------------------------------------+--------------------------------------+
 </span></span><span style="display:flex;"><span>| Device   | Server ID                            | Volume ID                            | Tag  | Delete On Termination? | Attachment ID                        | BlockDeviceMapping UUID              |
 </span></span><span style="display:flex;"><span>+----------+--------------------------------------+--------------------------------------+------+------------------------+--------------------------------------+--------------------------------------+
@@ -220,11 +220,11 @@ using). To work around this, you can modify the <code>delete_on_termination</cod
 </span></span></code></pre></div><p>Alternatively, you can set this property when creating the instance. Unfortunately doing this requires using the
 <code>--block-device</code> option to specify the BDM rather than the <code>--boot-from-volume</code> alias. The equivalent of the
 previous command using <code>--boot-from-volume</code> would be:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ image_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack image show cirros-0.6.2-x86_64-disk -f value -c id<span style="color:#66d9ef">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ image_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack image show cirros-0.6.2-x86_64-disk -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>image_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>image,destination_type<span style="color:#f92672">=</span>volume,delete_on_termination<span style="color:#f92672">=</span>true,boot_index<span style="color:#f92672">=</span>0,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>image_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>image,destination_type<span style="color:#f92672">=</span>volume,delete_on_termination<span style="color:#f92672">=</span>true,boot_index<span style="color:#f92672">=</span>0,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div></div>
 </aside>
 
@@ -234,18 +234,18 @@ instance. Therefore, as you may guess, these disks can only be provided by Nova.
 ephemeral disk is configured in GB via a flavor property, <code>OS-FLV-EXT-DATA:ephemeral</code>. None of the flavors provided in a
 default DevStack install provide for ephemeral storage, so to demonstrate this we need to create our own flavor which
 we&rsquo;re going to call <code>m1.ephemeral</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor create --id <span style="color:#ae81ff">99</span> --vcpus <span style="color:#ae81ff">1</span> --ram <span style="color:#ae81ff">512</span> --disk <span style="color:#ae81ff">20</span> --ephemeral <span style="color:#ae81ff">10</span> m1.ephemeral
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor create --id <span style="color:#ae81ff">99</span> --vcpus <span style="color:#ae81ff">1</span> --ram <span style="color:#ae81ff">512</span> --disk <span style="color:#ae81ff">20</span> --ephemeral <span style="color:#ae81ff">10</span> m1.ephemeral
 </span></span></code></pre></div><p>Once created, we can look at the flavor and ensure that the <code>OS-FLV-EXT-DATA:ephemeral</code> property has been set to the
 relevant size (in this case, <code>10</code> or 10GB):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.ephemeral -f value -c <span style="color:#e6db74">&#39;OS-FLV-EXT-DATA:ephemeral&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.ephemeral -f value -c <span style="color:#e6db74">&#39;OS-FLV-EXT-DATA:ephemeral&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#ae81ff">10</span>
 </span></span></code></pre></div><p>If we create a instance using this flavor, we will get a root disk that is 20GB in size <strong>and</strong> a new, additional disk
 that is 10GB in size:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>Once again, we can confirm this by SSH&rsquo;ing into the machine:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
 </span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
 </span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> disk
 </span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>   5G  <span style="color:#ae81ff">0</span> part /
@@ -258,12 +258,12 @@ part of <code>cloud-init</code>, which is included in the Cirros images. If you 
 allows you to change both the layout of the ephemeral storage and the filesystem used on them. For example, say that
 instead of having a single 10GB disk, I wanted to have an 8GB disk formatted as ext4 and a 2GB disk formatted as XFS, I
 could invoke OSC like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ephemeral size<span style="color:#f92672">=</span>8,format<span style="color:#f92672">=</span>ext4 --ephemeral size<span style="color:#f92672">=</span>2,format<span style="color:#f92672">=</span>xfs <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --ephemeral size<span style="color:#f92672">=</span>8,format<span style="color:#f92672">=</span>ext4 --ephemeral size<span style="color:#f92672">=</span>2,format<span style="color:#f92672">=</span>xfs <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>We can see that these are available in the machine using <code>lsblk</code> again and confirm their filesystem types using <code>blkid</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
 </span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
 </span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> disk
 </span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> part /
@@ -281,10 +281,10 @@ the flavor&rsquo;s <code>OS-FLV-EXT-DATA:ephemeral</code> property (meaning you 
 but it cannot exceed the size indicated in the flavor. For example, if I repeated the above command but using single
 20GB disk (i.e. 10GB larger than the 10GB value specified for the <code>m1.ephemeral</code> flavor we created previously), the
 request will fail:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ephemeral size<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --ephemeral size<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span><span style="display:flex;"><span>BadRequestException: 400: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.108.50/compute/v2.1/servers, Ephemeral disks requested are
 </span></span><span style="display:flex;"><span>larger than the instance type allows. If no size is given in one block device mapping, flavor ephemeral size will be
 </span></span><span style="display:flex;"><span>used.
@@ -297,15 +297,15 @@ previously, a Cinder volume can be used as the backing device for the root disk,
 additional disks to the instance (but not ephemeral disks - an ephemeral disk ceases to be an ephemeral disk once it&rsquo;s
 no longer provisioned by Nova). For example, say we wanted to use a standard Nova-provisioned block device for our
 root disk but attach two additional volumes provisioned by Cinder, we could run:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ vol_b_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-b -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_a_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_b_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_a_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_b_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>We can examine these in the guest:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lsblk
 </span></span><span style="display:flex;"><span>NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
 </span></span><span style="display:flex;"><span>vda     252:0    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> disk
 </span></span><span style="display:flex;"><span>|-vda1  252:1    <span style="color:#ae81ff">0</span>  20G  <span style="color:#ae81ff">0</span> part /
@@ -315,31 +315,31 @@ root disk but attach two additional volumes provisioned by Cinder, we could run:
 </span></span></code></pre></div><p>Instead of pre-creating the volume with Cinder, we could also let Nova do this for us. This avoids an extra call to
 Cinder (at least from us - Nova simply makes the call on our behalf), at the expense of some fine grained configuration
 for the volume. We could modify the above command like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>Unlike the block devices provisioned by Nova, it&rsquo;s also possible to attach additional block devices to an existing
 instance:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-c
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-c
 </span></span><span style="display:flex;"><span>❯ openstack server add volume test-server test-volume-c
 </span></span></code></pre></div><p>Likewise, you can remove devices as long as they&rsquo;re not used for the root disk:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server remove volume test-server test-volume-c
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server remove volume test-server test-volume-c
 </span></span></code></pre></div><p>Finally, Cinder volumes can be attached to multiple instances at the same time. As discussed in the <a href="https://docs.openstack.org/cinder/latest/admin/volume-multiattach.html">Cinder
 documentation</a>, this requires the use of a clustered or multi-attach creation of a special <em>volume type</em>
 with the <code>multiattach</code> property set to <code>&lt;is&gt; True</code>. Fortunately, the reference LVM driver configured by default in a
 DevStack deployment supports this, so we can demo creating the volume type, volume, and instances:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack volume type create --multiattach multiattach
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack volume type create --multiattach multiattach
 </span></span><span style="display:flex;"><span>❯ vol_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> --type multiattach test-volume -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server-a
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server-a
 </span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server-b
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server-b
 </span></span></code></pre></div><p>If we log in to these two instances and mount the volume (after partitioning and formatting it), we&rsquo;ll be able to create
 a file in one and see it appear in the other:</p>
 <pre tabindex="0"><code>❯ openstack server ssh test-server-a -- -l cirros
@@ -370,7 +370,7 @@ foo
 </code></pre>
 <aside class="admonition note">
   <div class="admonition-content"><p>If <code>parted</code> was available in the Cirros image used, we could avoid the interactive use of <code>fdisk</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo parted /dev/vdb mklabel gpt
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo parted /dev/vdb mklabel gpt
 </span></span><span style="display:flex;"><span>$ sudo parted /dev/vdb mkpart primary ext4 0% 100%
 </span></span><span style="display:flex;"><span>$ sudo parted /dev/vdc print
 </span></span></code></pre></div></div>
@@ -382,18 +382,18 @@ by Nova and configured via a flavor property called <code>swap</code>. Unlike th
 though, the <code>swap</code> property is a size in MB, not GB. Once again, the default DevStack configuration does not include
 flavors with swap enabled so we need to configure these ourselves. Lets do that, creating a flavor called <code>m1.swap</code> with
 2048 MB of swap:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor create --id <span style="color:#ae81ff">98</span> --vcpus <span style="color:#ae81ff">1</span> --ram <span style="color:#ae81ff">512</span> --disk <span style="color:#ae81ff">20</span> --swap <span style="color:#ae81ff">2048</span> m1.swap
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor create --id <span style="color:#ae81ff">98</span> --vcpus <span style="color:#ae81ff">1</span> --ram <span style="color:#ae81ff">512</span> --disk <span style="color:#ae81ff">20</span> --swap <span style="color:#ae81ff">2048</span> m1.swap
 </span></span></code></pre></div><p>Once created, we can look at the flavor and ensure that the <code>swap</code> property has been set to the relevant size (in this
 case, <code>1024</code> or 1024MB):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.swap -f value -c <span style="color:#e6db74">&#39;swap&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack flavor show m1.swap -f value -c <span style="color:#e6db74">&#39;swap&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#ae81ff">1024</span>
 </span></span></code></pre></div><p>If we create a instance using this flavor, we will get a root disk that is 20GB in size <strong>and</strong> a additional disk
 that is 1024MB in size and formatted as a swap disk:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>Inspecting the guest itself, we see the disk present and that it has an fstype of <code>swap</code>, as expected:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo lsblk -f
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo lsblk -f
 </span></span><span style="display:flex;"><span>NAME    FSTYPE FSVER LABEL         UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
 </span></span><span style="display:flex;"><span>vda
 </span></span><span style="display:flex;"><span>|-vda1  ext3         cirros-rootfs f1511162-06fb-4482-9dab-9a0c76633fb2   18.4G     0% /
@@ -405,7 +405,7 @@ that is 1024MB in size and formatted as a swap disk:</p>
 </span></span><span style="display:flex;"><span>SwapFree:              <span style="color:#ae81ff">0</span> kB
 </span></span></code></pre></div><p>However, unlike ephemeral disks, <code>cloud-init</code> does not mount this additional disk for us. If you want that, you&rsquo;ll need
 to do so manually:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo swapon /dev/vdb
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo swapon /dev/vdb
 </span></span><span style="display:flex;"><span>$ sudo lsblk -f
 </span></span><span style="display:flex;"><span>NAME    FSTYPE FSVER LABEL         UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
 </span></span><span style="display:flex;"><span>vda
@@ -420,15 +420,15 @@ to do so manually:</p>
 override the default swap size. Once again you cannot exceed the total size given in the flavor, but you also can&rsquo;t
 specify the option multiple times to divide the swap into different disks. For example, if we wanted to configure a
 smaller swap disk size of, say, 512MB, we could do:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --swap <span style="color:#ae81ff">512</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --swap <span style="color:#ae81ff">512</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span></code></pre></div><p>Attempting to use something larger than the size indicated in the <code>swap</code> property of the flavor will result in an error:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --swap <span style="color:#ae81ff">2048</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --swap <span style="color:#ae81ff">2048</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
 </span></span><span style="display:flex;"><span>BadRequestException: 400: Client Error <span style="color:#66d9ef">for</span> url: http://10.0.108.50/compute/v2.1/servers, Swap drive requested is larger
 </span></span><span style="display:flex;"><span>than instance type allows.
 </span></span></code></pre></div><h2 id="block-device-mappings-bdms">Block Device Mappings (BDMs)</h2>
@@ -468,30 +468,30 @@ during instance creation. We&rsquo;ll do this using the <code>openstack server c
 allows us to see the raw requests and responses issued to the server.</p>
 <p>First, let&rsquo;s look a root disks. If we create a &ldquo;standard&rdquo; instance using a local root disk, then the
 <code>block_device_mapping_v2</code> field can be (and, if using OSC, will be) empty:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --debug <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --debug <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;imageRef&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>This is because Nova automatically creates the BDM for us, making it unnecessary to specify. If we want to use boot from
 volume instead, placing our root disk on a volume, we will need to specify a BDM:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --boot-from-volume <span style="color:#ae81ff">5</span> --debug <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --boot-from-volume <span style="color:#ae81ff">5</span> --debug <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>: [
 </span></span><span style="display:flex;"><span>            {
 </span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
@@ -510,15 +510,15 @@ and it&rsquo;s passed via the <code>uuid</code> field of the BDM rather than via
 <code>block_device_mapping_v2</code> field and Nova will automatically do the right thing. If you wanted to divide the ephemeral
 disk into multiple devices though, you&rsquo;d use a different variation of this field. For example, our prior example of an
 8GB ext4 ephemeral disk and a 2GB XFS disk would look like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ephemeral size<span style="color:#f92672">=</span>8,format<span style="color:#f92672">=</span>ext4 --ephemeral size<span style="color:#f92672">=</span>2,format<span style="color:#f92672">=</span>xfs <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.ephemeral --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --ephemeral size<span style="color:#f92672">=</span>8,format<span style="color:#f92672">=</span>ext4 --ephemeral size<span style="color:#f92672">=</span>2,format<span style="color:#f92672">=</span>xfs <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;99&#34;</span>,
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;99&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>: [
 </span></span><span style="display:flex;"><span>            {
 </span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
@@ -551,14 +551,14 @@ disk into multiple devices though, you&rsquo;d use a different variation of this
 <p>We&rsquo;ll skip over volumes for a moment and move onto swap volumes. Yet again, if you don&rsquo;t want to do anything bar use the
 swap configured in the flavor then you can omit the <code>block_device_mapping_v2</code> field, but you&rsquo;ll need to specify it if
 you wish to use a different size:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --swap <span style="color:#ae81ff">512</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.swap --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --swap <span style="color:#ae81ff">512</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>: {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;98&#34;</span>,
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;98&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>: [
 </span></span><span style="display:flex;"><span>            {
 </span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;9acb21b3-0516-459a-9b0a-6357e66ff74a&#34;</span>,
@@ -582,18 +582,18 @@ you wish to use a different size:</p>
 </span></span></code></pre></div><p>And finally there are volumes. As discussed above, there are huge variety of combinations available here and we&rsquo;re only
 going to look at a few of those we previously discussed. Firstly, let&rsquo;s look at our example of using two precreated
 volumes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ vol_a_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-a -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ vol_b_id<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>openstack volume create --size <span style="color:#ae81ff">5</span> test-volume-b -f value -c id<span style="color:#66d9ef">)</span>
 </span></span><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_a_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_b_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_a_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device uuid<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>vol_b_id<span style="color:#e6db74">}</span>,source_type<span style="color:#f92672">=</span>volume <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>:
 </span></span><span style="display:flex;"><span>        [
 </span></span><span style="display:flex;"><span>            {
@@ -618,16 +618,16 @@ volumes:</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>And now compare this to our example of letting Nova create the volumes for us:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    test-server
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ openstack server create <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --flavor m1.small --image cirros-0.6.2-x86_64-disk --network private --key-name test-key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --block-device source_type<span style="color:#f92672">=</span>blank,destination_type<span style="color:#f92672">=</span>volume,volume_size<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    test-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;server&#34;</span>:
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;flavorRef&#34;</span>: <span style="color:#e6db74">&#34;2&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;block_device_mapping_v2&#34;</span>:
 </span></span><span style="display:flex;"><span>        [
 </span></span><span style="display:flex;"><span>            {

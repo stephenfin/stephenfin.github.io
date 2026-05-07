@@ -6,12 +6,14 @@
     <description>Recent content in Kubernetes on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Sat, 18 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Manage Your OpenStack Resources From Kubernetes With ORC</title>
       <link>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</link>
       <pubDate>Sat, 18 Oct 2025 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/manage-your-openstack-resources-from-kubernetes-with-orc/</guid>
       <description>&lt;p&gt;This talk introduced OpenStack Resource Controller (ORC), a set of controllers that allows management of OpenStack
 resources using Kubernetes CRDs. It was delivered during &lt;a href=&#34;https://summit2025.openinfra.org/a/schedule/#&#34;&gt;OpenInfra Summit Europe&lt;/a&gt; in Paris in October 2025.&lt;/p&gt;
@@ -37,7 +39,7 @@ applications.&lt;/p&gt;
       <title>A Closer Look at the Cinder CSI Driver and the Topology Feature</title>
       <link>https://that.guru/blog/csi-drivers-and-openstack/</link>
       <pubDate>Thu, 03 Apr 2025 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/csi-drivers-and-openstack/</guid>
       <description>&lt;p&gt;I&amp;rsquo;ve recently found myself once again working on the OpenStack Cinder CSI Driver and the Operator that OpenShift uses to
 deploy this. This work has inspired me to improve my knowledge of how the Cinder CSI Driver - and CSI drivers in
@@ -133,7 +135,7 @@ Manila CSI Driver works, so watch our for a possible post on that topic down the
       <title>Handling the switch to the Cloud Controller Manager (CCM) with OpenShift Operators</title>
       <link>https://that.guru/blog/user-managed-configuration-in-cccmo/</link>
       <pubDate>Mon, 09 May 2022 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/user-managed-configuration-in-cccmo/</guid>
       <description>&lt;p&gt;Recent versions of Kubernetes have begun moving functionality that previously
 existed in the core project out to separate projects. One such set of

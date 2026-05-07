@@ -6,12 +6,14 @@
     <description>Recent content in Tips on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Thu, 27 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/tips/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Installing OSC With pipx</title>
       <link>https://that.guru/blog/installing-openstackclient-with-pipx/</link>
       <pubDate>Thu, 27 Apr 2023 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/installing-openstackclient-with-pipx/</guid>
       <description>&lt;p&gt;Another one that really belongs in a separate &lt;em&gt;&amp;ldquo;tips &amp;amp; tricks&amp;rdquo;&lt;/em&gt; section of the blog, which unfortunately does not yet exist. I use &lt;a href=&#34;https://docs.openstack.org/python-openstackclient/latest/&#34;&gt;openstackclient (OSC)&lt;/a&gt;
 pretty extensively day-to-day. Fedora provides a relatively up-to-date version of the package, but OSC has been evolving very rapidly of late and Fedora&amp;rsquo;s
@@ -25,14 +27,14 @@ idea though: there are too many opportunities for dependency updates to break ot
 applications.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;pipx&lt;/code&gt; itself is available in the Fedora repos so if Fedora is you distro of choice then you can install it with &lt;code&gt;dnf&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sudo dnf install pipx
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ sudo dnf install pipx
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Once that&amp;rsquo;s in place, you can install OSC with &lt;code&gt;pipx&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx install python-openstackclient
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx install python-openstackclient
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Unlike &lt;code&gt;openstacksdk&lt;/code&gt;, however, the &lt;code&gt;python-openstackclient&lt;/code&gt; package doesn&amp;rsquo;t provide support for OpenStack services beyond the core ones: Identity (keystone),
 Compute (nova), Image (glance), Block Storage (cinder), Network (neutron) and Object Storage (swift). For services like the Share Filesystem-as-a-Service
 (manila), Load Balancer-as-a-Service (octavia) or Placement service, you need to install additional packages (&lt;code&gt;python-manilaclient&lt;/code&gt;, &lt;code&gt;python-octaviaclient&lt;/code&gt;, and
 &lt;code&gt;osc-placement&lt;/code&gt;, respectively).&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack loadbalancer list
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ openstack loadbalancer list
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;openstack: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;loadbalancer list&amp;#39;&lt;/span&gt; is not an openstack command. See &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;openstack --help&amp;#39;&lt;/span&gt;.
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Did you mean one of these?
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container create
@@ -44,10 +46,10 @@ Compute (nova), Image (glance), Block Storage (cinder), Network (neutron) and Ob
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  container unset
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It took me a beat to figure out but &lt;code&gt;pipx&lt;/code&gt; provides an easy mechanism to do this: the &lt;code&gt;inject&lt;/code&gt; command. For example, to install &lt;code&gt;python-octaviaclient&lt;/code&gt; in the
 same virtualenv, run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx inject python-openstackclient python-octaviaclient
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx inject python-openstackclient python-octaviaclient
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can repeat this for additional dependencies:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx inject python-openstackclient osc-placement python-neutronclient python-manilaclient python-ironicclient python-barbicanclient python-designateclient
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx list --include-injected
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx inject python-openstackclient osc-placement python-neutronclient python-manilaclient python-ironicclient python-barbicanclient python-designateclient
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;❯ pipx list --include-injected
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;venvs are in /home/stephenfin/.local/pipx/venvs
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;apps are exposed on your $PATH at /home/stephenfin/.local/bin
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   package python-openstackclient 6.2.0, installed using Python 3.11.2
@@ -68,7 +70,7 @@ same virtualenv, run:&lt;/p&gt;
       <title>Add Another Network to ZNC</title>
       <link>https://that.guru/blog/add-another-network-to-znc/</link>
       <pubDate>Tue, 08 Mar 2022 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/add-another-network-to-znc/</guid>
       <description>&lt;p&gt;ZNC allows you to connect to multiple networks (in fact, it&amp;rsquo;s one of the
 benefits it touts on &lt;a href=&#34;https://wiki.znc.in/ZNC#Main_Features&#34;&gt;the wiki&lt;/a&gt;). It distinguishes between networks and
@@ -118,7 +120,7 @@ connect using e.g. &lt;code&gt;foo/libera&lt;/code&gt;.&lt;/p&gt;
       <title>Plain Text Email in Evolution 3.38</title>
       <link>https://that.guru/blog/plain-text-in-evolution-3-38/</link>
       <pubDate>Mon, 23 Nov 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/plain-text-in-evolution-3-38/</guid>
       <description>&lt;p&gt;I recently upgraded to Fedora 33, which comes with Evolution 3.38 (previously
 3.36, iirc). Following the upgrade, I noticed that quoting in plain text emails
@@ -160,7 +162,7 @@ Preferences&amp;rdquo; pane of the &amp;ldquo;Evolution Preferences&amp;rdquo; p
       <title>Automatically Set The Name of tmux Windows</title>
       <link>https://that.guru/blog/automatically-set-tmux-window-name/</link>
       <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/automatically-set-tmux-window-name/</guid>
       <description>&lt;p&gt;I recently updated to Fedora 28 which includes a updated version of &lt;em&gt;tmux&lt;/em&gt; -
 &lt;em&gt;tmux 2.7&lt;/em&gt;. I quickly noted that my window title was no longer being set as
@@ -247,7 +249,7 @@ work around the breaking change mentioned above:&lt;/p&gt;
       <title>Evolution Calendar Issues</title>
       <link>https://that.guru/blog/evolution-calendar-issues/</link>
       <pubDate>Fri, 08 Dec 2017 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/evolution-calendar-issues/</guid>
       <description>&lt;p&gt;I started Evolution this morning and noticed half of my calendar events were
 missing. Attempts to refresh said calendar resulted in the following errors
@@ -364,7 +366,7 @@ everything is already stored in the cloud, I can simply delete these caches.&lt;
       <title>Open Python Paths with vim</title>
       <link>https://that.guru/blog/open-python-paths-with-vim/</link>
       <pubDate>Mon, 06 Feb 2017 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/open-python-paths-with-vim/</guid>
       <description>&lt;p&gt;In OpenStack nova land, you run tests by specifying their Python paths, like
 so:&lt;/p&gt;
@@ -387,7 +389,7 @@ $ pyvi nova.tests.unit.virt.libvirt.test_vif.LibvirtVifTestCase
       <title>Creating a Windows 7 USB on Fedora 25</title>
       <link>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</link>
       <pubDate>Tue, 31 Jan 2017 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/creating-a-windows-7-usb-on-fedora-25/</guid>
       <description>&lt;p&gt;Turns out Fedora 25 didn&amp;rsquo;t like my Samsung Series 9 (NP900X4C) much. Among
 other things, the WiFi was intermittent (weird, as it&amp;rsquo;s an Intel NIC), suspend
@@ -505,7 +507,7 @@ $ sudo umount
       <title>Install Netbeans on Fedora 25</title>
       <link>https://that.guru/blog/install-netbeans-on-fedora-25/</link>
       <pubDate>Sat, 10 Dec 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/install-netbeans-on-fedora-25/</guid>
       <description>&lt;p&gt;It&amp;rsquo;s been a while since I last wrote a non-trivial amount of Java and I can&amp;rsquo;t
 say I miss it. However, I want to work on a plugin for Jenkins which means
@@ -552,7 +554,7 @@ else accessing our X session.&lt;/p&gt;
       <title>MTUs in Neutron</title>
       <link>https://that.guru/blog/mtus-in-neutron/</link>
       <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/mtus-in-neutron/</guid>
       <description>&lt;p&gt;I&amp;rsquo;m not overly familiar with neutron but it appears that in the past correctly
 setting MTU values was easier said than done. This has been massively improved
@@ -625,7 +627,7 @@ in TripleO was changed from 1400 to 1500 as part of &lt;a href=&#34;https://bugs
       <title>Using git-review</title>
       <link>https://that.guru/blog/how-to-use-git-review/</link>
       <pubDate>Tue, 06 Dec 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/how-to-use-git-review/</guid>
       <description>&lt;p&gt;&lt;code&gt;git-review&lt;/code&gt; is a Python wrapper for many of the common Git commands used in
 conjunction with Gerrit. It encapsulates many of the most common commands used,
@@ -726,7 +728,7 @@ branch).&lt;/p&gt;
       <title>Loading Mailing List Archives with Mutt</title>
       <link>https://that.guru/blog/mutt-archives/</link>
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/mutt-archives/</guid>
       <description>&lt;p&gt;You can use &lt;a href=&#34;http://www.mutt.org/&#34;&gt;Mutt&lt;/a&gt; to load archives from a mailing list. This is useful
 for replying to mails when you weren&amp;rsquo;t previously subscribed to said mailing
@@ -760,7 +762,7 @@ with mutt:&lt;/p&gt;
       <title>Working with Jenkins &#43; Chrome</title>
       <link>https://that.guru/blog/helpful-jenkins-plugins/</link>
       <pubDate>Wed, 13 Jul 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/helpful-jenkins-plugins/</guid>
       <description>&lt;p&gt;It&amp;rsquo;s been a while since I had to work with Jenkins directly (since I started on
 OpenStack, really). However, I had a few tricks picked up around plugins for
@@ -812,7 +814,7 @@ the plugin once installed.&lt;/p&gt;
       <title>Sane Outlook: Making Plain Text Better in Outlook</title>
       <link>https://that.guru/blog/sane-outlook/</link>
       <pubDate>Mon, 11 Jul 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/sane-outlook/</guid>
       <description>&lt;p&gt;I like well-formatted, plain text emails, and I like reading them in a
 monospace font. I find plain text to be more readable, and provides less ways
@@ -904,7 +906,7 @@ pane.&lt;/p&gt;
       <title>How I Work</title>
       <link>https://that.guru/blog/how-i-work/</link>
       <pubDate>Sat, 09 Jul 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/how-i-work/</guid>
       <description>&lt;p&gt;Next Friday is the last week of this stint at Intel, so I figured now was as
 good a time as ever to do a write up on how I work, or, more accurately, how
@@ -1060,7 +1062,7 @@ process at some point.&lt;/p&gt;
       <title>Configuring ZNC with HexChat</title>
       <link>https://that.guru/blog/znc-sasl-server-pass/</link>
       <pubDate>Sun, 26 Jun 2016 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/znc-sasl-server-pass/</guid>
       <description>&lt;h1 id=&#34;configuring-znc-with-hexchat&#34;&gt;Configuring ZNC with HexChat&lt;/h1&gt;
 &lt;p&gt;I recently set up ZNC instance to capture whatever I may miss when not

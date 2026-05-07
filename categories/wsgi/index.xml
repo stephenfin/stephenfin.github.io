@@ -6,12 +6,14 @@
     <description>Recent content in Wsgi on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Wed, 01 May 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/wsgi/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>API routing in Openstack</title>
       <link>https://that.guru/blog/routers-in-openstack/</link>
       <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/routers-in-openstack/</guid>
       <description>&lt;p&gt;In the Dalamation (2024.2) cycle, we&amp;rsquo;re working on adding OpenAPI schemas for a number of the OpenStack services. As
 part of this effort, I&amp;rsquo;ve had to learn more than I would like to know about how various services&amp;rsquo; API machinery works.
@@ -26,7 +28,7 @@ of URLs (or rather, URL paths) to methods of &lt;a href=&#34;https://github.com/
 as the ultimate dispatcher. A &lt;code&gt;Resource&lt;/code&gt; object is a wrapper around some &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/wsgi.py#L750&#34;&gt;&lt;code&gt;Controller&lt;/code&gt;&lt;/a&gt; objects: a main
 controller and zero or more sub-controllers. If you look at &lt;a href=&#34;https://github.com/openstack/nova/blob/29.0.1/nova/api/openstack/compute/routes.py&#34;&gt;&lt;code&gt;nova/api/openstack/compute/routes.py&lt;/code&gt;&lt;/a&gt; you&amp;rsquo;ll
 see a whole load of &lt;code&gt;functools.partial&lt;/code&gt; calls where we create &lt;code&gt;Resource&lt;/code&gt; objects via calls to &lt;code&gt;_create_controller&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;flavor_controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; functools&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;partial(_create_controller,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;flavor_controller &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; functools&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;partial(_create_controller,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    flavors&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;FlavorsController,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    [
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        flavor_access&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;FlavorActionController
@@ -36,7 +38,7 @@ see a whole load of &lt;code&gt;functools.partial&lt;/code&gt; calls where we cr
 &amp;ldquo;action&amp;rdquo;/&amp;ldquo;child&amp;rdquo;) controller. The sub-controller extends the main controller by adding new APIs or actions and to the
 best of my knowledge it is legacy from the days where we had API extensions.&lt;/p&gt;
 &lt;p&gt;These wrapped controllers are then mapped to paths latter in the same file:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ROUTE_LIST &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ROUTE_LIST &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    (&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/flavors/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{id}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&lt;/span&gt;, {
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;: [flavor_controller, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;show&amp;#39;&lt;/span&gt;],
@@ -60,7 +62,7 @@ best of my knowledge it is legacy from the days where we had API extensions.&lt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# register route to mapper&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#75715e&#34;&gt;# ...&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now with that knowledge, you can run this script locally to see the generated path-method mappings:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.api.openstack &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; compute
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.api.openstack &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; compute
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; oslo_config &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; cfg
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; nova.tests &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; fixtures
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
@@ -93,7 +95,7 @@ microversioned revisions) that allow us to handle API versioning. This wrapper m
 work  because we need to get attributes of the real methods - namely, some private attributes we&amp;rsquo;re using to store the
 schema used for a given method. The way to find the &amp;ldquo;real&amp;rdquo; method is to look at the &lt;code&gt;versioned_methods&lt;/code&gt; attribute of a
 Controller, which contains a mapping of method name to real methods. If you change the above for loop you can see this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;
@@ -124,7 +126,7 @@ other sub controller) so we can&amp;rsquo;t do this.&lt;/p&gt;
 sub-controller) under &lt;code&gt;Resource.sub_controllers&lt;/code&gt;, thus giving us a mechanism to retrieve &lt;code&gt;versioned_methods&lt;/code&gt; attributes
 (and any other attribute we might need later) from these sub-controller. With this patch applied, we can change the for
 loop further:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;count &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; route &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; router&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;matchlist:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;controller&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; route&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;defaults:
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;continue&lt;/span&gt;

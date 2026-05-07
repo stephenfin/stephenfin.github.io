@@ -6,12 +6,14 @@
     <description>Recent content in Documentation on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/documentation/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>A Lion, A Head, and A Dash of YAML</title>
       <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</link>
       <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml-pycon-limerick/</guid>
       <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://pyconlimerick.github.io/#abstracts-for-morning-session-2&#34;&gt;PyCon Limerick 2020&lt;/a&gt;, was a repeat of a talk I&amp;rsquo;d
 previously given at &lt;a href=&#34;https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/&#34;&gt;FOSDEM 2018&lt;/a&gt;. Once again, this talk provided a quick
@@ -44,7 +46,7 @@ but no Sphinx or docutils experience is assumed.&lt;/p&gt;
       <title>Working With Documentation, The Openstack Way</title>
       <link>https://that.guru/talks/working-with-documentation-the-openstack-way/</link>
       <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/working-with-documentation-the-openstack-way/</guid>
       <description>&lt;p&gt;This talk was co-presented with &lt;a href=&#34;https://twitter.com/dewsday/&#34;&gt;Alex Settle&lt;/a&gt; at the &lt;a href=&#34;https://www.openstack.org/summit/denver-2019/summit-schedule/events/23292/working-with-documentation-the-openstack-way&#34;&gt;Denver OpenStack
 Summit&lt;/a&gt; in April 2019. It serves as a brief history of documentation within
@@ -72,7 +74,7 @@ Viva la documentation!&lt;/p&gt;
       <title>Who Needs pandoc When You Have Sphinx?</title>
       <link>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</link>
       <pubDate>Sat, 02 Feb 2019 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/who-needs-pandoc-when-you-have-sphinx/</guid>
       <description>&lt;p&gt;This was a talk I gave at &lt;a href=&#34;https://fosdem.org/2019/schedule/event/sphinx/&#34;&gt;FOSDEM 2019&lt;/a&gt;. In this talk, subtitled &amp;ldquo;An
 exploration of the parsers and builders of the Sphinx documentation tool&amp;rdquo;, I
@@ -114,7 +116,7 @@ provides.&lt;/p&gt;
       <title>A Lion, A Head, and A Dash of YAML</title>
       <link>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</link>
       <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/a-lion-a-head-and-a-dash-of-yaml/</guid>
       <description>&lt;p&gt;This talk, delivered at &lt;a href=&#34;https://archive.fosdem.org/2018/schedule/event/automating_documentation_with_sphinx_extensions/&#34;&gt;FOSDEM 2018&lt;/a&gt;, provided a quick dive into the
 somewhat complicated world of Sphinx extensions. Sphinx is an incredibly
@@ -168,7 +170,7 @@ extensions and themes with the world, if you&amp;rsquo;re so inclined&lt;/p&gt;
       <title>Building PDFs for OpenStack documentation</title>
       <link>https://that.guru/blog/create-pdfs-for-openstack/</link>
       <pubDate>Wed, 06 Dec 2017 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/blog/create-pdfs-for-openstack/</guid>
       <description>&lt;p&gt;I&amp;rsquo;ve only ever really worked with HTML and man page builds for the documentation
 various of &lt;a href=&#34;https://docs.openstack.org/&#34;&gt;various OpenStack projects&lt;/a&gt;. However, OpenStack uses Sphinx

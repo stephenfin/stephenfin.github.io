@@ -154,7 +154,7 @@ component.</div>
 labels, the <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesiozone"><code>topology.kubernetes.io/zone</code></a> label and the legacy
 <a href="https://kubernetes.io/docs/reference/labels-annotations-taints/#failure-domainbetakubernetesiozone"><code>failure-domain.beta.kubernetes.io/zone</code></a> label. You can see this if you retrieve the labels
 for a <code>Node</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get Node -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get Node -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
 </span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/arch&#34;</span>: <span style="color:#e6db74">&#34;amd64&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
@@ -202,7 +202,7 @@ information about the Machine API in the <a href="https://docs.openshift.com/con
 documentation</a>.</p>
 <p>Like OpenStack CCM, MAPO uses AZ information to label resources - this time setting the <code>machine.openshift.io/zone</code>
 label on <code>Machine</code> resources:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get -A Machine -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get -A Machine -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
 </span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/cluster-api-cluster&#34;</span>: <span style="color:#e6db74">&#34;stephenfin-5ps6d&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;machine.openshift.io/cluster-api-machine-role&#34;</span>: <span style="color:#e6db74">&#34;master&#34;</span>,
@@ -224,7 +224,7 @@ editing them won&rsquo;t actually change the AZ on the underlying instance and y
 this. However, unlike with <code>Node</code>s, you can configure the AZ of a new or existing <code>Machine</code> or <code>MachineSet</code> /
 <code>ControlPlaneMachineSet</code> as part of the object definition and <em>this</em> change will get reflected in the labels, both of
 the <code>Machine</code> and of the <code>Node</code>. For example, to define a AZ when creating a new <code>MachineSet</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">machine.openshift.io/v1beta1</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">machine.openshift.io/v1beta1</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">MachineSet</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">&lt;infrastructure_id&gt;-&lt;role&gt;</span>
@@ -249,7 +249,7 @@ documentation</a>.</div>
 </aside>
 
 <p>Alternatively, to define one for a <code>ControlPlaneMachineSet</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">machine.openshift.io/v1</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">machine.openshift.io/v1</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ControlPlaneMachineSet</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">cluster</span>
@@ -287,7 +287,7 @@ Cinder CSI Driver allows us to plug in storage from the OpenStack Block Storage 
 <p>Once again, the Cinder CSI driver uses AZ information to label resources and once again it&rsquo;s the <code>Node</code>s that get the
 resulting label. The Cinder CSI driver sets a single label on a node, the <code>topology.cinder.csi.openstack.org/zone</code>
 label:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get Node -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ oc get Node -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[*].metadata.labels}&#39;</span> | jq
 </span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/arch&#34;</span>: <span style="color:#e6db74">&#34;amd64&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;beta.kubernetes.io/instance-type&#34;</span>: <span style="color:#e6db74">&#34;ci.m1.xlarge&#34;</span>,
@@ -332,7 +332,7 @@ provided by the Cinder CSI driver? There are actually two ways. The first is to 
 <code>StorageClass</code> and use this for a <code>PersistentVolumeClaim</code>, as seen in the <a href="https://github.com/kubernetes/cloud-provider-openstack/blob/v1.29.0/examples/cinder-csi-plugin/topology/example.yaml">examples for the Cinder CSI
 Driver</a>.
 For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">topology-aware-standard</span>
@@ -360,7 +360,7 @@ For example:</p>
 that provide topology support.</p>
 <p>The other mechanism is to specify a Cinder CSI driver-specific parameter, <code>availability</code>, when creating the storage
 class. This is effectively a legacy option that pre-dates topology support in CSI but it&rsquo;s still available:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">legacy-az</span>

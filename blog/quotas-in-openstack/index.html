@@ -195,9 +195,9 @@ later) have improved the UX further and contain some important feature
 additions, like the ability to view quota usage for the cinder service.</p>
 <p>Firstly, let&rsquo;s create a project-specific quota for, say, the number of
 instances.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota set --instances <span style="color:#ae81ff">5</span> $OS_PROJECT_NAME
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota set --instances <span style="color:#ae81ff">5</span> $OS_PROJECT_NAME
 </span></span></code></pre></div><p>Now we can inspect those quotas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show $OS_PROJECT_NAME
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show $OS_PROJECT_NAME
 </span></span><span style="display:flex;"><span>+-----------------------+-------+
 </span></span><span style="display:flex;"><span>| Resource              | Limit |
 </span></span><span style="display:flex;"><span>+-----------------------+-------+
@@ -236,7 +236,7 @@ instances.</p>
 </span></span><span style="display:flex;"><span>| per-volume-gigabytes  |    -1 |
 </span></span><span style="display:flex;"><span>+-----------------------+-------+
 </span></span></code></pre></div><p>You can also include usage information if you want:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show --usage $OS_PROJECT_NAME
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show --usage $OS_PROJECT_NAME
 </span></span><span style="display:flex;"><span>+-----------------------+-------+--------+----------+
 </span></span><span style="display:flex;"><span>| Resource              | Limit | In Use | Reserved |
 </span></span><span style="display:flex;"><span>+-----------------------+-------+--------+----------+
@@ -276,7 +276,7 @@ instances.</p>
 </span></span><span style="display:flex;"><span>+-----------------------+-------+--------+----------+
 </span></span></code></pre></div><p>Default quotas are applied to each project unless there are project-specific
 quotas to override them. These can be inspected also:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show --default
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota show --default
 </span></span><span style="display:flex;"><span>+-----------------------+-------+
 </span></span><span style="display:flex;"><span>| Resource              | Limit |
 </span></span><span style="display:flex;"><span>+-----------------------+-------+
@@ -317,14 +317,14 @@ quotas to override them. These can be inspected also:</p>
 </span></span></code></pre></div><p>You can list quotas for multiple projects. Note that when doing this, only the
 projects with project-specific quotas are shown to avoid dumping potentially
 thousands of lines of duplicate, useless info to the terminal.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota list --compute
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota list --compute
 </span></span><span style="display:flex;"><span>+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
 </span></span><span style="display:flex;"><span>| Project ID                       | Cores | Fixed IPs | Injected Files | Injected File Content Bytes | Injected File Path Bytes | Instances | Key Pairs | Metadata Items |   Ram | Server Groups | Server Group Members |
 </span></span><span style="display:flex;"><span>+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
 </span></span><span style="display:flex;"><span>| 700a8fa37f154153809be9d1814d8625 |    <span style="color:#ae81ff">20</span> |        -1 |              <span style="color:#ae81ff">5</span> |                       <span style="color:#ae81ff">10240</span> |                      <span style="color:#ae81ff">255</span> |         <span style="color:#ae81ff">5</span> |        <span style="color:#ae81ff">33</span> |            <span style="color:#ae81ff">128</span> | <span style="color:#ae81ff">51200</span> |            <span style="color:#ae81ff">10</span> |                   <span style="color:#ae81ff">10</span> |
 </span></span><span style="display:flex;"><span>+----------------------------------+-------+-----------+----------------+-----------------------------+--------------------------+-----------+-----------+----------------+-------+---------------+----------------------+
 </span></span></code></pre></div><p>Finally, you can unset configured quotas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota delete $OS_PROJECT_NAME
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>❯ openstack quota delete $OS_PROJECT_NAME
 </span></span></code></pre></div>
 <aside class="admonition note">
   <div class="admonition-content">Many of these commands have additional flags that might be relevant. Pass the

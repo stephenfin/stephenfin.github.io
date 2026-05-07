@@ -6,12 +6,14 @@
     <description>Recent content in Web on Stephen Finucane (Fin-oo-can)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-IE</language>
+    <managingEditor>stephenfinucane@hotmail.com (Stephen Finucane)</managingEditor>
+    <webMaster>stephenfinucane@hotmail.com (Stephen Finucane)</webMaster>
     <lastBuildDate>Wed, 13 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://that.guru/categories/web/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>A Documentation Driven Approach to Building APIs</title>
       <link>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</link>
       <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
-      
+      <author>stephenfinucane@hotmail.com (Stephen Finucane)</author>
       <guid>https://that.guru/talks/a-documentation-driven-approach-to-building-apis/</guid>
       <description>&lt;p&gt;This talk was delivered during a &lt;a href=&#34;https://www.meetup.com/pythonireland/events/270053282/&#34;&gt;Python virtual meetup&lt;/a&gt;. The aim was to
 introduce Django REST Framework and OpenAPI, in order to demonstrate how they

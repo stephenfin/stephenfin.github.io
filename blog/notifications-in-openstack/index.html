@@ -109,7 +109,7 @@ services has the ability to report notifications via the message bus. These noti
 production deployments but DevStack doesn&rsquo;t enable them by default. Fortunately enabling them is pretty painless. If we
 wanted to enable the notifications in, say, Keystone, we can do so by configuring the following in
 <code>/etc/keystone/keystone.conf</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#66d9ef">[oslo_messaging_notifications]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#66d9ef">[oslo_messaging_notifications]</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">transport_url</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">rabbit://stackrabbit:***@***:5672/</span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">driver</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">messagingv2</span>
 </span></span></code></pre></div><p>These options are provided by the <a href="https://docs.openstack.org/oslo.messaging/latest/">oslo.messaging</a> project, which virtually every OpenStack service
@@ -119,7 +119,7 @@ AMQP message bus (and the message is enveloped, which is the difference to <code
 via HTTP APIs or similar. We could whip out a telemetry tool like <a href="https://docs.openstack.org/ceilometer/latest/">Ceilometer</a> but that seems overkill for a
 quick bit of debugging. Well it turns out <em>oslo.messaging</em> provides utilities for both creating notifications <strong>and</strong>
 listening to them. Writing a listener is relatively simple:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> json
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> json
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> logging
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> oslo_config <span style="color:#f92672">import</span> cfg
@@ -184,7 +184,7 @@ add additional targets if any of your services override <a href="https://docs.op
 </aside>
 
 <p>If you run this and then, say, attempt to authenticate with invalid credentials, you&rsquo;ll see notifications arriving:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;payload&#34;</span>: {
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;typeURI&#34;</span>: <span style="color:#e6db74">&#34;http://schemas.dmtf.org/cloud/audit/1.0/event&#34;</span>,
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;eventType&#34;</span>: <span style="color:#e6db74">&#34;activity&#34;</span>,

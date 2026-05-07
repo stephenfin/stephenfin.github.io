@@ -119,7 +119,7 @@ since Ubuntu 18.04 (Bionic) does not provide new enough versions of
 <a href="https://packages.ubuntu.com/bionic/libvirt-daemon">libvirt</a> or <a href="https://packages.ubuntu.com/xenial/qemu-kvm">QEMU</a>, while Ubuntu 20.04 (Focal) is not supported by
 DevStack at the time of writing and was affected by a <a href="https://github.com/sqlalchemy/alembic/issues/699">bug in barbican</a>.
 With a Fedora 31 installation at the ready, let&rsquo;s update and get DevStack:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf upgrade -y
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf upgrade -y
 </span></span><span style="display:flex;"><span>$ git clone https://opendev.org/openstack/devstack
 </span></span><span style="display:flex;"><span>$ cd devstack
 </span></span></code></pre></div><p>The DevStack installation is pretty bog standard with the key differences being
@@ -127,7 +127,7 @@ that you need to enable the OpenStack Key Manager service, <a href="https://docs
 storing secrets along with the virt preview repo to get new versions of libvirt
 and QEMU. Here&rsquo;s a sample <code>local.conf</code>, to be placed into the <code>devstack</code>
 directory:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[[</span>local|localrc<span style="color:#f92672">]]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[[</span>local|localrc<span style="color:#f92672">]]</span>
 </span></span><span style="display:flex;"><span>RECLONE<span style="color:#f92672">=</span>True
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">## Passwords</span>
@@ -147,17 +147,17 @@ directory:</p>
 </span></span><span style="display:flex;"><span>ENABLE_FEDORA_VIRT_PREVIEW_REPO<span style="color:#f92672">=</span>true
 </span></span></code></pre></div><p>There&rsquo;s also a minor tweak necessary to work around pip 10 refusing to
 uninstall system-provided Python packages:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>diff --git inc/python inc/python
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>diff --git inc/python inc/python
 </span></span><span style="display:flex;"><span>index dd772960..63a3dc19 100644
 </span></span><span style="display:flex;"><span><span style="color:#f92672">--- inc/python
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+++ inc/python
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span><span style="color:#75715e">@@ -196,7 +196,7 @@ function pip_install {
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         no_proxy=&#34;${no_proxy:-}&#34; \
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+++ inc/python
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">@@ -196,7 +196,7 @@ function pip_install {
+</span></span></span><span style="display:flex;"><span>         no_proxy=&#34;${no_proxy:-}&#34; \
 </span></span><span style="display:flex;"><span>         PIP_FIND_LINKS=$PIP_FIND_LINKS \
 </span></span><span style="display:flex;"><span>         SETUPTOOLS_SYS_PATH_TECHNIQUE=rewrite \
 </span></span><span style="display:flex;"><span><span style="color:#f92672">-        $cmd_pip $upgrade \
-</span></span></span><span style="display:flex;"><span><span style="color:#f92672"></span><span style="color:#a6e22e">+        $cmd_pip --ignore-installed $upgrade \
-</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e"></span>         $@
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">+        $cmd_pip --ignore-installed $upgrade \
+</span></span></span><span style="display:flex;"><span>         $@
 </span></span><span style="display:flex;"><span>     result=$?
 </span></span></code></pre></div>
 <aside class="admonition note">
@@ -168,12 +168,12 @@ configuring DevStack to install in virtualenvs by default.</div>
 
 <p>We also need to install the <code>swtpm</code> and <code>swtpm_setup</code> binaries. These are
 provided in the Fedora repos (yay!):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install swtpm swtpm-tools
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install swtpm swtpm-tools
 </span></span></code></pre></div><p>Finally, <code>crudini</code> makes working with INI files a breeze. Let&rsquo;s install that
 too:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install crudini
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo dnf install crudini
 </span></span></code></pre></div><p>With all this done, you can stack:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>./stack.sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>./stack.sh
 </span></span></code></pre></div><p>Now go make a cup of tea. ☕</p>
 <h2 id="configuring-nova">Configuring nova</h2>
 <p>With the stack (hopefully) complete, we need to configure nova appropriately.
@@ -182,19 +182,19 @@ do too much. The key steps are to check out the correct code, given that it&rsqu
 not yet merged, add some <code>nova.conf</code> configuration options and create a new
 flavor. First up, let&rsquo;s checkout the correct nova code. You can use the
 checkout link from the <a href="https://packages.ubuntu.com/bionic/libvirt-daemon">Gerrit review</a> for this purpose:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ cd /opt/stack/nova
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ cd /opt/stack/nova
 </span></span><span style="display:flex;"><span># checkout using the <span style="color:#e6db74">&#34;Checkout&#34;</span> link in the <span style="color:#e6db74">&#34;Download&#34;</span> dropdown on the review,
 </span></span><span style="display:flex;"><span># which I<span style="color:#e6db74">&#39;m not providing here since it won&#39;</span>t age well
 </span></span></code></pre></div><p>Now, let&rsquo;s modify the <code>nova.conf</code> file the <code>nova-compute</code> service. We&rsquo;ll use
 <code>crudini</code> for this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ crudini --set /etc/nova/nova-cpu.conf libvirt swtpm_enabled True
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ crudini --set /etc/nova/nova-cpu.conf libvirt swtpm_enabled True
 </span></span></code></pre></div><p>Let&rsquo;s restart the various nova services to load both the correct code and the
 configuration changes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo systemctl restart devstack@n-*
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo systemctl restart devstack@n-*
 </span></span></code></pre></div><p>With everything restarted, we should be able to see the relevant
 <code>COMPUTE_SECURITY_TPM_*</code> traits reported by our sole compute node:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack --os-placement-api-version 1.20 resource provider trait list <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --format value $RP_UUID | grep TPM
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack --os-placement-api-version 1.20 resource provider trait list <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --format value $RP_UUID | grep TPM
 </span></span></code></pre></div><p>(where <code>$RP_UUID</code> is the UUID of the resource provider of the compute node,
 which can be found via <code>openstack resource provider list</code>)</p>
 <p>This should return the following:</p>
@@ -204,25 +204,25 @@ COMPUTE_SECURITY_TPM_2_0
 configuration of the <code>hw:tpm_version</code> and <code>hw:tpm_model</code> extra specs.
 <code>hw:tpm_model</code> is optional but <code>hw:tpm_version</code> is required to enable the
 feature:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack flavor create test.vtpm <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --ram 512 --disk 1 --vcpus 1 --wait \
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack flavor create test.vtpm <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --ram 512 --disk 1 --vcpus 1 --wait \
 </span></span><span style="display:flex;"><span>    --property hw:tpm_version=1.2 \
 </span></span><span style="display:flex;"><span>    --property hw:tpm_model=tpm-tis
 </span></span></code></pre></div><h2 id="create-an-instance-with-vtpm">Create an instance with vTPM</h2>
 <p>With configuration complete, we can finally proceed to creating an instance.
 Nothing to funky here: simply create an instance using the flavor we created
 previously.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack --os-compute-api-version 2.latest server create test.server <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --image cirros-0.5.1-x86_64-disk --flavor test.vtpm \
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack --os-compute-api-version 2.latest server create test.server <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --image cirros-0.5.1-x86_64-disk --flavor test.vtpm \
 </span></span><span style="display:flex;"><span>    --nic none --wait test.server
 </span></span></code></pre></div><p>Once booted, let&rsquo;s check if the generated XML includes the <a href="https://libvirt.org/formatdomain.html#elementsTpm"><code>&lt;tpm&gt;</code></a> device
 as expected:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo virsh list
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo virsh list
 </span></span><span style="display:flex;"><span> Id   Name                State
 </span></span><span style="display:flex;"><span>-----------------------------------
 </span></span><span style="display:flex;"><span> 10   instance-0000000d   running
 </span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
-</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>$ sudo virsh dumpxml instance-0000000d | xmllint --xpath <span style="color:#e6db74">&#39;/domain/devices/tpm&#39;</span> -
+</span></span></span><span style="display:flex;"><span>$ sudo virsh dumpxml instance-0000000d | xmllint --xpath <span style="color:#e6db74">&#39;/domain/devices/tpm&#39;</span> -
 </span></span><span style="display:flex;"><span>&lt;tpm model=&#34;tpm-tis&#34;&gt;
 </span></span><span style="display:flex;"><span>      &lt;backend type=&#34;emulator&#34; version=&#34;1.2&#34;&gt;
 </span></span><span style="display:flex;"><span>        &lt;encryption secret=&#34;8cc4e70c-d805-4d48-9302-e3c970d1217b&#34;/&gt;
@@ -230,7 +230,7 @@ as expected:</p>
 </span></span><span style="display:flex;"><span>      &lt;alias name=&#34;tpm0&#34;/&gt;
 </span></span><span style="display:flex;"><span>    &lt;/tpm&gt;
 </span></span></code></pre></div><p>We can also query barbican to see if nova correctly stored keys as expected:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack secret list --format yaml
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack secret list --format yaml
 </span></span><span style="display:flex;"><span>- Algorithm: null
 </span></span><span style="display:flex;"><span>  Bit length: null
 </span></span><span style="display:flex;"><span>  Content types:
@@ -243,9 +243,9 @@ as expected:</p>
 </span></span><span style="display:flex;"><span>  Secret type: passphrase
 </span></span><span style="display:flex;"><span>  Status: ACTIVE
 </span></span></code></pre></div><p>We can also validate that the rebuild operation works as expected:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack server rebuild --wait test.server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack server rebuild --wait test.server
 </span></span></code></pre></div><p>Finally, we can ensure that things are properly cleaned up once we&rsquo;re finished:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack server delete test.server
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ openstack server delete test.server
 </span></span><span style="display:flex;"><span>$ openstack secret list --format yaml
 </span></span><span style="display:flex;"><span>[]
 </span></span></code></pre></div><p>QED. 🎉</p>
