@@ -33,7 +33,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
 &lt;/ul&gt;
 
 &lt;aside class=&#34;admonition note&#34;&gt;
-  &lt;div class=&#34;admonition-content&#34;&gt;Last updated May 7, 2026&lt;/div&gt;
+  &lt;div class=&#34;admonition-content&#34;&gt;Last updated June 10, 2026&lt;/div&gt;
 &lt;/aside&gt;
 
 &lt;h2 id=&#34;oslo-libraries&#34;&gt;Oslo libraries&lt;/h2&gt;
@@ -64,7 +64,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 5.7.0)
               
             
           &lt;/td&gt;
@@ -163,7 +163,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ✅ (unreleased)
+                ✅ (since 10.4.0)
               
             
           &lt;/td&gt;
@@ -535,7 +535,7 @@ in a package&amp;rsquo;s &lt;code&gt;pyproject.toml&lt;/code&gt; &lt;em&gt;and&l
           &lt;td&gt;
             
               
-                ⚠️ (partial, unreleased)
+                ⚠️ (partial, since 10.0.0)
               
             
           &lt;/td&gt;
